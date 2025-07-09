@@ -65,7 +65,7 @@ function getTxBlockHash(tx: TaggedTransaction): undefined | string {
 function setTxBlockHash(tx: TaggedTransaction, blockhash: string) {
   // Check if this is raw transaction data (unprocessed)
   if ('isRawData' in tx && tx.isRawData) {
-    console.log('Skipping blockhash update for raw transaction data');
+    console.info('Skipping blockhash update for raw transaction data');
     return; // Don't try to set blockhash on raw transactions
   }
 
@@ -84,7 +84,7 @@ function setTxBlockHash(tx: TaggedTransaction, blockhash: string) {
         break;
     }
   } else {
-    console.log('Transaction has no instance - skipping blockhash update');
+    console.info('Transaction has no instance - skipping blockhash update');
   }
 }
 

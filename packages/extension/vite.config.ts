@@ -1,6 +1,3 @@
-import * as dotenv from 'dotenv';
-dotenv.config({ path: './.env' });
-
 import { fileURLToPath, URL } from 'node:url';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { visualizer } from 'rollup-plugin-visualizer';
@@ -34,11 +31,6 @@ const getManifest = () => {
   }
 };
 
-console.log('VITE_OKX_API_KEY:', process.env.VITE_OKX_API_KEY);
-console.log('VITE_OKX_SECRET_KEY:', process.env.VITE_OKX_SECRET_KEY);
-console.log('VITE_OKX_API_PASSPHRASE:', process.env.VITE_OKX_API_PASSPHRASE);
-console.log('VITE_OKX_PROJECT_ID:', process.env.VITE_OKX_PROJECT_ID);
-
 export default defineConfig({
   legacy: {
     skipWebSocketTokenCheck: true,
@@ -65,12 +57,6 @@ export default defineConfig({
       BROWSER === 'firefox'
         ? JSON.stringify('FF-build')
         : new Date().toLocaleString().replace(/\D/g, ''),
-    'globalThis.importMetaEnv': JSON.stringify({
-      VITE_OKX_API_KEY: process.env.VITE_OKX_API_KEY,
-      VITE_OKX_SECRET_KEY: process.env.VITE_OKX_SECRET_KEY,
-      VITE_OKX_API_PASSPHRASE: process.env.VITE_OKX_API_PASSPHRASE,
-      VITE_OKX_PROJECT_ID: process.env.VITE_OKX_PROJECT_ID,
-    }),
   },
   plugins: [
     visualizer() as PluginOption,

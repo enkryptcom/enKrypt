@@ -36,52 +36,15 @@ import {
   NATIVE_TOKEN_ADDRESS,
 } from "../../configs";
 import { DebugLogger } from "@enkryptcom/utils";
-import {
-  OKXQuoteResponse,
-  OKXSwapParams,
-  OKXSwapResponse,
-  OKXTokenInfo,
-} from "./types";
-import CryptoJS from "crypto-js";
-
-const requiredEnvVars = [
-  "OKX_API_KEY",
-  "OKX_SECRET_KEY",
-  "OKX_API_PASSPHRASE",
-  "OKX_PROJECT_ID",
-];
-
-// Helper to get env vars from process.env (Node) or import.meta.env (Vite/browser)
-function getEnvVar(name: string): string | undefined {
-  logger.info(`getEnvVar(${name}) - checking environment variables`);
-
-  if (typeof process !== "undefined" && process.env && process.env[name]) {
-    logger.info(`getEnvVar(${name}) - found in process.env`);
-    return process.env[name];
-  }
-
-  // For Vite/browser builds, use globalThis.importMetaEnv (set in vite.config.ts)
-  if (
-    typeof globalThis !== "undefined" &&
-    (globalThis as any).importMetaEnv &&
-    (globalThis as any).importMetaEnv[`VITE_${name}`]
-  ) {
-    logger.info(
-      `getEnvVar(${name}) - found in globalThis.importMetaEnv.VITE_${name}`,
-    );
-    return (globalThis as any).importMetaEnv[`VITE_${name}`];
-  }
-
-  logger.info(`getEnvVar(${name}) - not found in any environment`);
-  return undefined;
-}
+import { OKXQuoteResponse, OKXSwapResponse, OKXTokenInfo } from "./types";
 
 const logger = new DebugLogger("swap:okx");
 
-const OKX_API_URL = "https://web3.okx.com";
-const OKX_TOKENS_URL = "/api/v5/dex/aggregator/all-tokens";
-const OKX_QUOTE_URL = "/api/v5/dex/aggregator/quote";
-const OKX_SWAP_URL = "/api/v5/dex/aggregator/swap";
+const SOL_NATIVE_ADDRESS = "11111111111111111111111111111111";
+const OKX_API_URL = "https://partners.mewapi.io/okxswapv5";
+const OKX_TOKENS_URL = "/all-tokens";
+const OKX_QUOTE_URL = "/quote";
+const OKX_SWAP_URL = "/swap";
 
 // Rate limiting: minimum 2000ms between requests
 let lastRequestTime = 0;
@@ -199,9 +162,6 @@ export class OKX extends ProviderClass {
   async init(enkryptTokenList: TokenType[]): Promise<void> {
     // Only supports Solana
     if ((this.network as unknown as string) !== NetworkNames.Solana) return;
-
-    // Check environment variables before making API calls
-    this.checkEnvironmentVariables();
 
     // Get OKX token list
     const okxTokenList = await this.getOKXTokens();
@@ -494,21 +454,13 @@ export class OKX extends ProviderClass {
         chainId: "501", // Solana Chain ID
       };
 
-      const timestamp = new Date().toISOString();
       const requestPath = OKX_TOKENS_URL;
       const queryString = "?" + new URLSearchParams(params).toString();
-      const headers = this.getHeaders(
-        timestamp,
-        "GET",
-        requestPath,
-        queryString,
-      );
 
       const response = await fetch(
         `${OKX_API_URL}${requestPath}${queryString}`,
         {
           method: "GET",
-          headers,
         },
       );
 
@@ -551,22 +503,14 @@ export class OKX extends ProviderClass {
 
       logger.info(`OKX: Quote parameters:`, quoteParams);
 
-      const timestamp = new Date().toISOString();
       const requestPath = OKX_QUOTE_URL;
       const queryString = "?" + new URLSearchParams(quoteParams).toString();
-      const headers = this.getHeaders(
-        timestamp,
-        "GET",
-        requestPath,
-        queryString,
-      );
 
       const fullUrl = `${OKX_API_URL}${requestPath}${queryString}`;
       logger.info(`OKX: Making quote API call to: ${fullUrl}`);
 
       const response = await fetch(fullUrl, {
         method: "GET",
-        headers,
         signal: context?.signal,
       });
 
@@ -629,22 +573,14 @@ export class OKX extends ProviderClass {
     context?: { signal?: AbortSignal },
   ): Promise<OKXSwapResponse> {
     return retryRequest(async () => {
-      const timestamp = new Date().toISOString();
       const requestPath = OKX_SWAP_URL;
       const queryString = "?" + new URLSearchParams(params).toString();
-      const headers = this.getHeaders(
-        timestamp,
-        "GET",
-        requestPath,
-        queryString,
-      );
 
       const fullUrl = `${OKX_API_URL}${requestPath}${queryString}`;
       logger.info(`OKX: Making swap API call to: ${fullUrl}`);
 
       const response = await fetch(fullUrl, {
         method: "GET",
-        headers,
         signal: context?.signal,
       });
 
@@ -732,57 +668,6 @@ export class OKX extends ProviderClass {
   }
 
   /**
-   * Check if required environment variables are available
-   */
-  private checkEnvironmentVariables(): void {
-    const missingVars = requiredEnvVars.filter((v) => !getEnvVar(v));
-    if (missingVars.length > 0) {
-      throw new Error(
-        `Missing required OKX environment variables: ${missingVars.join(", ")}`,
-      );
-    }
-  }
-
-  /**
-   * Generate headers for OKX API requests
-   */
-  private getHeaders(
-    timestamp: string,
-    method: string,
-    requestPath: string,
-    queryString: string,
-  ): HeadersInit {
-    // Check environment variables when actually making API calls
-    this.checkEnvironmentVariables();
-
-    const apiKey = getEnvVar("OKX_API_KEY");
-    const secretKey = getEnvVar("OKX_SECRET_KEY");
-    const apiPassphrase = getEnvVar("OKX_API_PASSPHRASE");
-    const projectId = getEnvVar("OKX_PROJECT_ID");
-
-    // Debug: Log what we're getting
-    logger.info(
-      `OKX Headers Debug - API Key: ${apiKey ? "present" : "missing"}, Secret: ${secretKey ? "present" : "missing"}, Passphrase: ${apiPassphrase ? "present" : "missing"}, Project ID: ${projectId ? "present" : "missing"}`,
-    );
-
-    if (!apiKey || !secretKey || !apiPassphrase || !projectId) {
-      throw new Error("Missing required environment variables");
-    }
-
-    const stringToSign = timestamp + method + requestPath + queryString;
-    return {
-      "Content-Type": "application/json",
-      "OK-ACCESS-KEY": apiKey,
-      "OK-ACCESS-SIGN": CryptoJS.enc.Base64.stringify(
-        CryptoJS.HmacSHA256(stringToSign, secretKey),
-      ),
-      "OK-ACCESS-TIMESTAMP": timestamp,
-      "OK-ACCESS-PASSPHRASE": apiPassphrase,
-      "OK-ACCESS-PROJECT": projectId,
-    };
-  }
-
-  /**
    * Query swap info from OKX API - Fixed version
    */
   private async querySwapInfo(
@@ -808,32 +693,31 @@ export class OKX extends ProviderClass {
       throw new Error("Something went wrong: no fee config for OKX swap");
     }
 
-    const fromPubkey = new PublicKey(options.fromAddress);
     const toPubkey = new PublicKey(options.toAddress);
 
     // CRITICAL FIX: Use native SOL format for swap API calls (not wrapped SOL)
     let srcTokenAddress: string;
     if (options.fromToken.address === NATIVE_TOKEN_ADDRESS) {
-      srcTokenAddress = "11111111111111111111111111111111"; // Native SOL format
+      srcTokenAddress = SOL_NATIVE_ADDRESS; // Native SOL format
     } else {
       srcTokenAddress = options.fromToken.address;
     }
 
     let dstTokenAddress: string;
     if (options.toToken.address === NATIVE_TOKEN_ADDRESS) {
-      dstTokenAddress = "11111111111111111111111111111111"; // Native SOL format
+      dstTokenAddress = SOL_NATIVE_ADDRESS; // Native SOL format
     } else {
       dstTokenAddress = options.toToken.address;
     }
 
     // Get quote first (using wrapped SOL addresses for quote API)
     const srcMint = new PublicKey(
-      srcTokenAddress === "11111111111111111111111111111111"
+      srcTokenAddress === SOL_NATIVE_ADDRESS
         ? WRAPPED_SOL_ADDRESS
         : srcTokenAddress,
     );
     const dstMint = new PublicKey(
-      dstTokenAddress === "11111111111111111111111111111111"
+      dstTokenAddress === SOL_NATIVE_ADDRESS
         ? WRAPPED_SOL_ADDRESS
         : dstTokenAddress,
     );
@@ -902,7 +786,7 @@ export class OKX extends ProviderClass {
 
     // Calculate rent fees for destination token account
     const finalDstMint = new PublicKey(
-      dstTokenAddress === "11111111111111111111111111111111"
+      dstTokenAddress === SOL_NATIVE_ADDRESS
         ? WRAPPED_SOL_ADDRESS
         : dstTokenAddress,
     );

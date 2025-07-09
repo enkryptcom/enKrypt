@@ -27,8 +27,6 @@
     "@solana/spl-token": "^0.4.13",
     "@solana/web3.js": "^1.98.2",
     "bignumber.js": "^9.3.0",
-    "crypto-js": "^4.2.0",
-    "dotenv": "^16.4.1",
     "eventemitter3": "^5.0.1",
     "isomorphic-ws": "^5.0.0",
     "json-rpc-2.0": "^1.7.0",
@@ -41,7 +39,6 @@
     "ws": "^8.18.2"
   },
   "devDependencies": {
-    "@types/crypto-js": "^4.2.2",
     "@types/node": "^22.15.24",
     "@typescript-eslint/eslint-plugin": "^8.34.1",
     "@typescript-eslint/parser": "^8.34.1",
