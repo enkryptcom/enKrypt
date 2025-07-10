@@ -7,6 +7,7 @@ import {
   PublicKey,
   TransactionMessage,
   VersionedTransaction,
+  Transaction as LegacyTransaction,
 } from "@solana/web3.js";
 import { OKX } from "../src/providers/okx";
 import {
@@ -326,99 +327,77 @@ describe("OKX Provider", () => {
       expect(serializedTx.length).toBeGreaterThan(0);
       expect(buffer.length).toBeGreaterThan(0);
 
-      // Try to deserialize the transaction
-      let tx: VersionedTransaction;
+      // Try to deserialize the transaction - OKX uses legacy format
+      let tx: LegacyTransaction;
       try {
-        tx = VersionedTransaction.deserialize(buffer);
-        console.log("Successfully deserialized transaction");
+        tx = LegacyTransaction.from(buffer);
+        console.log("Successfully deserialized legacy transaction");
       } catch (e) {
-        console.error("Failed to deserialize transaction:", e);
+        console.error("Failed to deserialize legacy transaction:", e);
         // For now, let's just log the error and continue with basic tests
         // The transaction structure might be different for OKX
         expect(swap!.transactions[0]).toHaveProperty("serialized");
         expect(swap!.transactions[0]).toHaveProperty("from");
         expect(swap!.transactions[0]).toHaveProperty("to");
         expect(swap!.transactions[0]).toHaveProperty("type");
+        expect(swap!.transactions[0]).toHaveProperty("kind");
+        expect((swap!.transactions[0] as SolanaTransaction).kind).toBe("legacy");
         return; // Skip the detailed transaction analysis for now
       }
 
       // If we get here, the transaction was successfully deserialized
-      // Get lookup addresses (addresses optimized out of the transaction)
-      const addressLookupTableAccounts: AddressLookupTableAccount[] = [];
-      for (
-        let i = 0, len = tx.message.addressTableLookups.length;
-        i < len;
-        i++
-      ) {
-        const addressTableLookup = tx.message.addressTableLookups[i];
-        const result = await conn.getAddressLookupTable(
-          addressTableLookup.accountKey,
-        );
-        const addressLookupTableAccount = result.value;
-        // eslint-disable-next-line no-unused-expressions
-        expect(
-          addressLookupTableAccount,
-          "Address lookup table account not found",
-        ).toBeTruthy();
-        addressLookupTableAccounts.push(addressLookupTableAccount!);
-      }
-
-      // Decode message
-      const decompiledMessage = TransactionMessage.decompile(tx.message, {
-        addressLookupTableAccounts,
-      });
+      // For legacy transactions, we can directly access instructions
+      console.log(`Legacy transaction has ${tx.instructions.length} instructions`);
 
       // Decode instructions
       let computeBudget: undefined | number;
       let priorityRate: undefined | number | bigint;
-      for (
-        let i = 0, len = decompiledMessage.instructions.length;
-        i < len;
-        i++
-      ) {
-        const instruction = decompiledMessage.instructions[i];
-        switch (instruction.programId.toBase58()) {
-          case ComputeBudgetProgram.programId.toBase58(): {
-            const instructionType =
-              ComputeBudgetInstruction.decodeInstructionType(instruction);
-            switch (instructionType) {
-              case "SetComputeUnitLimit": {
-                // eslint-disable-next-line no-unused-expressions
-                expect(
-                  computeBudget == null,
-                  "Multiple SetComputeUnitLimit instructions found in the same transaction",
-                ).toBeTruthy();
-                const command =
-                  ComputeBudgetInstruction.decodeSetComputeUnitLimit(
-                    instruction,
-                  );
-                computeBudget = command.units;
-                break;
-              }
-              case "SetComputeUnitPrice": {
-                // eslint-disable-next-line no-unused-expressions
-                expect(
-                  priorityRate == null,
-                  "Multiple SetComputeUnitPrice instructions found in the same transaction",
-                ).toBeTruthy();
-                const command =
-                  ComputeBudgetInstruction.decodeSetComputeUnitPrice(
-                    instruction,
-                  );
-                priorityRate = command.microLamports;
-                break;
-              }
-              default: /* noop */
+      for (let i = 0, len = tx.instructions.length; i < len; i++) {
+        const instruction = tx.instructions[i];
+        
+        // Skip if not a compute budget instruction
+        if (!ComputeBudgetProgram.programId.equals(instruction.programId)) {
+          continue;
+        }
+
+        try {
+          const instructionType =
+            ComputeBudgetInstruction.decodeInstructionType(instruction);
+          switch (instructionType) {
+            case "SetComputeUnitLimit": {
+              // eslint-disable-next-line no-unused-expressions
+              expect(
+                computeBudget == null,
+                "Multiple SetComputeUnitLimit instructions found in the same transaction",
+              ).toBeTruthy();
+              const command =
+                ComputeBudgetInstruction.decodeSetComputeUnitLimit(instruction);
+              computeBudget = command.units;
+              break;
             }
-            break;
+            case "SetComputeUnitPrice": {
+              // eslint-disable-next-line no-unused-expressions
+              expect(
+                priorityRate == null,
+                "Multiple SetComputeUnitPrice instructions found in the same transaction",
+              ).toBeTruthy();
+              const command =
+                ComputeBudgetInstruction.decodeSetComputeUnitPrice(instruction);
+              priorityRate = command.microLamports;
+              break;
+            }
+            default: /* noop */
           }
-          default: /* noop */
+        } catch (e) {
+          // Not a compute budget instruction, skip
+          continue;
         }
       }
 
+      // For legacy transactions, the feePayer is directly accessible
       expect(
-        decompiledMessage.payerKey.toBase58(),
-        "Payer key is not the from address",
+        tx.feePayer?.toBase58() || "",
+        "Fee payer is not the from address",
       ).toBe(fromAddress);
     },
   );

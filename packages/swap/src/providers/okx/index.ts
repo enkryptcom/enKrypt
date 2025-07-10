@@ -1,5 +1,10 @@
 import { NetworkNames } from "@enkryptcom/types";
-import { Connection, PublicKey } from "@solana/web3.js";
+import {
+  Connection,
+  PublicKey,
+  Transaction,
+  TransactionInstruction,
+} from "@solana/web3.js";
 import { toBN } from "web3-utils";
 import { TOKEN_AMOUNT_INFINITY_AND_BEYOND } from "../../utils/approvals";
 import {
@@ -354,7 +359,7 @@ export class OKX extends ProviderClass {
         to: quote.options.toAddress,
         serialized: base64SwapTransaction,
         type: TransactionType.solana,
-        kind: "versioned",
+        kind: "legacy", // OKX returns legacy transaction format, not versioned
         thirdPartySignatures: [],
       };
 
@@ -759,6 +764,8 @@ export class OKX extends ProviderClass {
       userWalletAddress: options.fromAddress,
       slippage: parseFloat(meta.slippage || DEFAULT_SLIPPAGE).toString(),
       swapMode: "exactIn",
+      autoSlippage: "true", // Required for Solana
+      maxAutoSlippageBps: "100", // Required for Solana
     };
     const feePercent = Math.round(feeConf.fee * 100);
     if (feePercent > 0 && feePercent <= 10 && feeConf.referrer) {
@@ -776,7 +783,23 @@ export class OKX extends ProviderClass {
     if (!swap || !swap.tx || !swap.tx.data) {
       throw new Error(`Invalid swap response from OKX API`);
     }
-    const txData = swap.tx.data;
+
+    // OKX returns instruction data, not a complete Solana transaction
+    // We need to wrap it in a proper Solana transaction
+    const okxInstructionData = swap.tx.data;
+    const programAddress = swap.tx.to; // The program to call
+    const userAddress = swap.tx.from; // The user address
+
+    logger.info(`OKX: Converting instruction data to Solana transaction`);
+    logger.info(`  - Program: ${programAddress}`);
+    logger.info(`  - User: ${userAddress}`);
+    logger.info(`  - Instruction data length: ${okxInstructionData.length}`);
+
+    const txData = this.createSolanaTransactionFromOKXData(
+      okxInstructionData,
+      userAddress,
+      programAddress,
+    );
     // Calculate rent fees for destination token account
     let rentFees = 0;
     try {
@@ -803,5 +826,52 @@ export class OKX extends ProviderClass {
       feePercentage: feeConf.fee * 100,
       rentFees,
     };
+  }
+
+  /**
+   * Convert OKX instruction data to proper Solana transaction
+   */
+  private createSolanaTransactionFromOKXData(
+    okxInstructionData: string,
+    fromAddress: string,
+    programAddress: string,
+  ): string {
+    try {
+      // Create a new Solana transaction
+      const transaction = new Transaction();
+
+      // Create instruction with OKX data
+      const userPubkey = new PublicKey(fromAddress);
+      const programPubkey = new PublicKey(programAddress);
+
+      const instruction = new TransactionInstruction({
+        keys: [
+          { pubkey: userPubkey, isSigner: true, isWritable: true },
+          { pubkey: programPubkey, isSigner: false, isWritable: false },
+        ],
+        programId: programPubkey,
+        data: Buffer.from(okxInstructionData, "base64"),
+      });
+
+      transaction.add(instruction);
+      transaction.feePayer = userPubkey;
+
+      // Set a placeholder blockhash - this will be updated by the extension
+      transaction.recentBlockhash =
+        "HghFVR3KBYcbgh63cJYmCCu9mzUYMYQRPT5aMrCutMct";
+
+      // Serialize the transaction
+      const serialized = transaction.serialize({
+        requireAllSignatures: false,
+        verifySignatures: false,
+      });
+
+      return Buffer.from(serialized).toString("base64");
+    } catch (error) {
+      logger.error(
+        `Failed to create Solana transaction from OKX data: ${error}`,
+      );
+      throw new Error(`Failed to create Solana transaction: ${error.message}`);
+    }
   }
 }
