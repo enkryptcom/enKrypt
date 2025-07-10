@@ -77,10 +77,10 @@ describe("OKX Provider", () => {
         toToken,
         toAddress,
       },
-      { 
-        infiniteApproval: true, 
+      {
+        infiniteApproval: true,
         walletIdentifier: WalletIdentifier.enkrypt,
-        slippage: "0.5"
+        slippage: "0.5",
       },
     );
 
@@ -129,10 +129,10 @@ describe("OKX Provider", () => {
           toToken,
           toAddress,
         },
-        { 
-          infiniteApproval: true, 
+        {
+          infiniteApproval: true,
           walletIdentifier: WalletIdentifier.enkrypt,
-          slippage: "0.5"
+          slippage: "0.5",
         },
       );
       expect(quote).not.toBeNull();
@@ -190,10 +190,10 @@ describe("OKX Provider", () => {
           toToken: unsupportedToken,
           toAddress,
         },
-        { 
-          infiniteApproval: true, 
+        {
+          infiniteApproval: true,
           walletIdentifier: WalletIdentifier.enkrypt,
-          slippage: "0.5"
+          slippage: "0.5",
         },
       );
 
@@ -232,10 +232,10 @@ describe("OKX Provider", () => {
           toToken,
           toAddress,
         },
-        { 
-          infiniteApproval: true, 
+        {
+          infiniteApproval: true,
           walletIdentifier: WalletIdentifier.enkrypt,
-          slippage: "0.5"
+          slippage: "0.5",
         },
       );
 
@@ -282,10 +282,10 @@ describe("OKX Provider", () => {
           toToken,
           toAddress,
         },
-        { 
-          infiniteApproval: true, 
+        {
+          infiniteApproval: true,
           walletIdentifier: WalletIdentifier.enkrypt,
-          slippage: "0.5"
+          slippage: "0.5",
         },
       );
 
@@ -296,21 +296,26 @@ describe("OKX Provider", () => {
       expect(quote!.fromTokenAmount.toString()).toBe(amount.toString());
       expect(quote!.toTokenAmount.gtn(0)).toBe(true);
 
-      const swap: ProviderSwapResponse = await okx.getSwap(quote!.quote);
-      expect(swap.transactions.length).toBe(1);
+      const swap: ProviderSwapResponse | null = await okx.getSwap(quote!.quote);
+      expect(swap).not.toBeNull();
+      expect(swap!.transactions.length).toBe(1);
 
-      const serializedTx = (swap.transactions[0] as SolanaTransaction).serialized;
+      const serializedTx = (swap!.transactions[0] as SolanaTransaction)
+        .serialized;
       console.log("Serialized transaction length:", serializedTx.length);
       console.log("First 100 chars:", serializedTx.substring(0, 100));
-      
+
       // Test if it's valid base64
       let buffer: Buffer;
       try {
         buffer = Buffer.from(serializedTx, "base64");
         console.log("Decoded buffer length:", buffer.length);
-        console.log("First 20 bytes:", Array.from(buffer.slice(0, 20))
-          .map((b) => b.toString(16).padStart(2, "0"))
-          .join(" "));
+        console.log(
+          "First 20 bytes:",
+          Array.from(buffer.slice(0, 20))
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join(" "),
+        );
       } catch (e) {
         console.error("Failed to decode base64:", e);
         throw e;
@@ -330,17 +335,21 @@ describe("OKX Provider", () => {
         console.error("Failed to deserialize transaction:", e);
         // For now, let's just log the error and continue with basic tests
         // The transaction structure might be different for OKX
-        expect(swap.transactions[0]).toHaveProperty("serialized");
-        expect(swap.transactions[0]).toHaveProperty("from");
-        expect(swap.transactions[0]).toHaveProperty("to");
-        expect(swap.transactions[0]).toHaveProperty("type");
+        expect(swap!.transactions[0]).toHaveProperty("serialized");
+        expect(swap!.transactions[0]).toHaveProperty("from");
+        expect(swap!.transactions[0]).toHaveProperty("to");
+        expect(swap!.transactions[0]).toHaveProperty("type");
         return; // Skip the detailed transaction analysis for now
       }
 
       // If we get here, the transaction was successfully deserialized
       // Get lookup addresses (addresses optimized out of the transaction)
       const addressLookupTableAccounts: AddressLookupTableAccount[] = [];
-      for (let i = 0, len = tx.message.addressTableLookups.length; i < len; i++) {
+      for (
+        let i = 0, len = tx.message.addressTableLookups.length;
+        i < len;
+        i++
+      ) {
         const addressTableLookup = tx.message.addressTableLookups[i];
         const result = await conn.getAddressLookupTable(
           addressTableLookup.accountKey,
@@ -362,7 +371,11 @@ describe("OKX Provider", () => {
       // Decode instructions
       let computeBudget: undefined | number;
       let priorityRate: undefined | number | bigint;
-      for (let i = 0, len = decompiledMessage.instructions.length; i < len; i++) {
+      for (
+        let i = 0, len = decompiledMessage.instructions.length;
+        i < len;
+        i++
+      ) {
         const instruction = decompiledMessage.instructions[i];
         switch (instruction.programId.toBase58()) {
           case ComputeBudgetProgram.programId.toBase58(): {
@@ -376,7 +389,9 @@ describe("OKX Provider", () => {
                   "Multiple SetComputeUnitLimit instructions found in the same transaction",
                 ).toBeTruthy();
                 const command =
-                  ComputeBudgetInstruction.decodeSetComputeUnitLimit(instruction);
+                  ComputeBudgetInstruction.decodeSetComputeUnitLimit(
+                    instruction,
+                  );
                 computeBudget = command.units;
                 break;
               }
@@ -387,7 +402,9 @@ describe("OKX Provider", () => {
                   "Multiple SetComputeUnitPrice instructions found in the same transaction",
                 ).toBeTruthy();
                 const command =
-                  ComputeBudgetInstruction.decodeSetComputeUnitPrice(instruction);
+                  ComputeBudgetInstruction.decodeSetComputeUnitPrice(
+                    instruction,
+                  );
                 priorityRate = command.microLamports;
                 break;
               }
