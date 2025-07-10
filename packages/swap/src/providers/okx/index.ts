@@ -46,10 +46,10 @@ import { OKXQuoteResponse, OKXSwapResponse, OKXTokenInfo } from "./types";
 const logger = new DebugLogger("swap:okx");
 
 const SOL_NATIVE_ADDRESS = "11111111111111111111111111111111";
-const OKX_API_URL = "https://partners.mewapi.io/okxswapv5";
-const OKX_TOKENS_URL = "/all-tokens";
-const OKX_QUOTE_URL = "/quote";
-const OKX_SWAP_URL = "/swap";
+const OKX_API_URL = "http://localhost:3001";
+const OKX_TOKENS_URL = "/api/v5/dex/aggregator/all-tokens";
+const OKX_QUOTE_URL = "/api/v5/dex/aggregator/quote";
+const OKX_SWAP_URL = "/api/v5/dex/aggregator/swap";
 
 // Rate limiting: minimum 2000ms between requests
 let lastRequestTime = 0;
@@ -359,7 +359,7 @@ export class OKX extends ProviderClass {
         to: quote.options.toAddress,
         serialized: base64SwapTransaction,
         type: TransactionType.solana,
-        kind: "legacy", // OKX returns legacy transaction format, not versioned
+        kind: "legacy", // OKX returns custom instruction data, not standard Solana transactions
         thirdPartySignatures: [],
       };
 
@@ -788,14 +788,19 @@ export class OKX extends ProviderClass {
     // We need to wrap it in a proper Solana transaction
     const okxInstructionData = swap.tx.data;
     const programAddress = swap.tx.to; // The program to call
-    const userAddress = swap.tx.from; // The user address
+    // Use the ACTUAL from address from the quote request, not OKX response
+    // const userAddress = swap.tx.from; // The user address
+
+    const userAddress = options.fromAddress; // This is the actual wallet address
 
     logger.info(`OKX: Converting instruction data to Solana transaction`);
     logger.info(`  - Program: ${programAddress}`);
-    logger.info(`  - User: ${userAddress}`);
+    logger.info(`  - User: ${userAddress} (from quote request)`);
+    logger.info(`  - OKX returned user: ${swap.tx.from}`);
     logger.info(`  - Instruction data length: ${okxInstructionData.length}`);
 
-    const txData = this.createSolanaTransactionFromOKXData(
+    // Try to create a minimal valid Solana transaction with the OKX data
+    const txData = await this.createSolanaTransactionFromOKXData(
       okxInstructionData,
       userAddress,
       programAddress,
@@ -829,44 +834,95 @@ export class OKX extends ProviderClass {
   }
 
   /**
-   * Convert OKX instruction data to proper Solana transaction
+   * Convert OKX transaction data to proper Solana transaction
+   * OKX returns a complete transaction but we need to handle it properly
    */
-  private createSolanaTransactionFromOKXData(
-    okxInstructionData: string,
+  private async createSolanaTransactionFromOKXData(
+    okxTransactionData: string,
     fromAddress: string,
     programAddress: string,
-  ): string {
+  ): Promise<string> {
     try {
-      // Create a new Solana transaction
-      const transaction = new Transaction();
+      logger.info(`createSolanaTransactionFromOKXData: Processing OKX transaction data`);
+      logger.info(`  - Data length: ${okxTransactionData.length}`);
+      logger.info(`  - From address: ${fromAddress}`);
+      logger.info(`  - Program address: ${programAddress}`);
 
-      // Create instruction with OKX data
-      const userPubkey = new PublicKey(fromAddress);
-      const programPubkey = new PublicKey(programAddress);
+      // OKX returns a complete transaction, but we need to validate and potentially fix it
+      const buffer = Buffer.from(okxTransactionData, "base64");
+      logger.info(`  - Decoded buffer length: ${buffer.length} bytes`);
+      
+      try {
+        // Try to deserialize as a legacy transaction first
+        const transaction = Transaction.from(buffer);
+        logger.info(`  - Successfully parsed as Legacy Transaction`);
+        logger.info(`  - Instructions: ${transaction.instructions.length}`);
+        logger.info(`  - Fee payer: ${transaction.feePayer?.toBase58()}`);
+        logger.info(`  - Signatures: ${transaction.signatures.length}`);
+        
+        // Clear all signatures - the wallet will sign this transaction
+        transaction.signatures = [];
+        
+        // Update the fee payer to match the fromAddress if needed
+        const userPubkey = new PublicKey(fromAddress);
+        if (!transaction.feePayer || !transaction.feePayer.equals(userPubkey)) {
+          transaction.feePayer = userPubkey;
+          logger.info(`  - Updated fee payer to: ${fromAddress}`);
+        }
+        
+        // Get a fresh blockhash for the transaction
+        const latestBlockhash = await this.conn.getLatestBlockhash();
+        transaction.recentBlockhash = latestBlockhash.blockhash;
+        logger.info(`  - Updated with fresh blockhash: ${latestBlockhash.blockhash}`);
+        
+        // Serialize the transaction for wallet signing
+        const serialized = transaction.serialize({
+          requireAllSignatures: false,
+          verifySignatures: false,
+        });
+        
+        const result = Buffer.from(serialized).toString("base64");
+        logger.info(`  - Final serialized length: ${result.length}`);
+        return result;
+        
+      } catch (legacyError) {
+        logger.info(`  - Failed as Legacy Transaction: ${legacyError.message}`);
+        
+        // If legacy fails, the transaction data might be incomplete or corrupted
+        // Let's try to create a new transaction using the original approach
+        logger.info(`  - Attempting to create new transaction from OKX data`);
+        
+        const transaction = new Transaction();
+        const userPubkey = new PublicKey(fromAddress);
+        const programPubkey = new PublicKey(programAddress);
 
-      const instruction = new TransactionInstruction({
-        keys: [
-          { pubkey: userPubkey, isSigner: true, isWritable: true },
-          { pubkey: programPubkey, isSigner: false, isWritable: false },
-        ],
-        programId: programPubkey,
-        data: Buffer.from(okxInstructionData, "base64"),
-      });
+        // Create instruction with OKX data
+        const instruction = new TransactionInstruction({
+          keys: [
+            { pubkey: userPubkey, isSigner: true, isWritable: true },
+            { pubkey: programPubkey, isSigner: false, isWritable: false },
+          ],
+          programId: programPubkey,
+          data: buffer, // Use the decoded buffer directly
+        });
 
-      transaction.add(instruction);
-      transaction.feePayer = userPubkey;
+        transaction.add(instruction);
+        transaction.feePayer = userPubkey;
 
-      // Set a placeholder blockhash - this will be updated by the extension
-      transaction.recentBlockhash =
-        "HghFVR3KBYcbgh63cJYmCCu9mzUYMYQRPT5aMrCutMct";
+        // Get a fresh blockhash
+        const latestBlockhash = await this.conn.getLatestBlockhash();
+        transaction.recentBlockhash = latestBlockhash.blockhash;
 
-      // Serialize the transaction
-      const serialized = transaction.serialize({
-        requireAllSignatures: false,
-        verifySignatures: false,
-      });
+        // Serialize the transaction for wallet signing
+        const serialized = transaction.serialize({
+          requireAllSignatures: false,
+          verifySignatures: false,
+        });
 
-      return Buffer.from(serialized).toString("base64");
+        const result = Buffer.from(serialized).toString("base64");
+        logger.info(`  - Created new transaction, serialized length: ${result.length}`);
+        return result;
+      }
     } catch (error) {
       logger.error(
         `Failed to create Solana transaction from OKX data: ${error}`,
