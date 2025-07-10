@@ -491,15 +491,22 @@ export class OKX extends ProviderClass {
     return retryRequest(async () => {
       const { srcMint, dstMint, amount, slippageBps, referralFeeBps } = params;
 
-      const quoteParams = {
+      // QUOTE endpoint requires chainIndex and chainId, but NOT userWalletAddress or slippage
+      const quoteParams: Record<string, string> = {
+        // chainIndex: "501", // Solana Chain Index
         chainId: "501", // Solana Chain ID
         fromTokenAddress: srcMint.toBase58(),
         toTokenAddress: dstMint.toBase58(),
         amount: amount.toString(10),
-        slippage: (slippageBps / 100).toString(),
-        feePercent: (referralFeeBps / 100).toString(),
         swapMode: "exactIn",
       };
+
+      // Only add feePercent if there's actually a fee (must be > 0 and <= 10)
+      // referralFeeBps is already in basis points, convert to percentage
+      const feePercent = Math.round(referralFeeBps / 100);
+      if (feePercent > 0 && feePercent <= 10) {
+        quoteParams.feePercent = feePercent.toString();
+      }
 
       logger.info(`OKX: Quote parameters:`, quoteParams);
 
@@ -695,31 +702,31 @@ export class OKX extends ProviderClass {
 
     const toPubkey = new PublicKey(options.toAddress);
 
-    // CRITICAL FIX: Use native SOL format for swap API calls (not wrapped SOL)
-    let srcTokenAddress: string;
-    if (options.fromToken.address === NATIVE_TOKEN_ADDRESS) {
-      srcTokenAddress = SOL_NATIVE_ADDRESS; // Native SOL format
-    } else {
-      srcTokenAddress = options.fromToken.address;
-    }
-
-    let dstTokenAddress: string;
-    if (options.toToken.address === NATIVE_TOKEN_ADDRESS) {
-      dstTokenAddress = SOL_NATIVE_ADDRESS; // Native SOL format
-    } else {
-      dstTokenAddress = options.toToken.address;
-    }
-
     // Get quote first (using wrapped SOL addresses for quote API)
     const srcMint = new PublicKey(
-      srcTokenAddress === SOL_NATIVE_ADDRESS
+      options.fromToken.address === NATIVE_TOKEN_ADDRESS
         ? WRAPPED_SOL_ADDRESS
-        : srcTokenAddress,
+        : options.fromToken.address,
     );
     const dstMint = new PublicKey(
-      dstTokenAddress === SOL_NATIVE_ADDRESS
+      options.toToken.address === NATIVE_TOKEN_ADDRESS
         ? WRAPPED_SOL_ADDRESS
-        : dstTokenAddress,
+        : options.toToken.address,
+    );
+
+    // DEBUG: Log the exact parameters being passed to getOKXQuote
+    const quoteParams = {
+      srcMint: srcMint.toBase58(),
+      dstMint: dstMint.toBase58(),
+      amount: BigInt(options.amount.toString(10)),
+      slippageBps: Math.round(
+        100 * parseFloat(meta.slippage || DEFAULT_SLIPPAGE),
+      ),
+      referralFeeBps: Math.round(10000 * feeConf.fee),
+    };
+    logger.info(
+      `[DEBUG] querySwapInfo calling getOKXQuote with params:`,
+      quoteParams,
     );
 
     const quote = await this.getOKXQuote(
@@ -735,74 +742,50 @@ export class OKX extends ProviderClass {
       context,
     );
 
-    // Build swap parameters EXACTLY like working script
-    const swapParams: any = {
-      chainId: "501",
+    // SWAP endpoint requires userWalletAddress and slippage, but NOT chainIndex/chainId
+    const swapSrcTokenAddress =
+      options.fromToken.address === NATIVE_TOKEN_ADDRESS
+        ? WRAPPED_SOL_ADDRESS
+        : options.fromToken.address;
+    const swapDstTokenAddress =
+      options.toToken.address === NATIVE_TOKEN_ADDRESS
+        ? WRAPPED_SOL_ADDRESS
+        : options.toToken.address;
+    const swapParams: Record<string, string> = {
+      chainId: "501", // Solana Chain ID - required for swap API
       amount: options.amount.toString(10),
-      fromTokenAddress: srcTokenAddress, // Use native format for swap
-      toTokenAddress: dstTokenAddress, // Use native format for swap
+      fromTokenAddress: swapSrcTokenAddress,
+      toTokenAddress: swapDstTokenAddress,
       userWalletAddress: options.fromAddress,
       slippage: parseFloat(meta.slippage || DEFAULT_SLIPPAGE).toString(),
-      autoSlippage: "true", // STRING, not boolean - CRITICAL
-      maxAutoSlippageBps: "100", // Add this parameter - REQUIRED
+      swapMode: "exactIn",
     };
-
-    // Only add fee parameters if there's actually a fee and referrer
-    const feePercent = Math.round(10000 * feeConf.fee) / 100;
-    if (feePercent > 0 && feeConf.referrer) {
+    const feePercent = Math.round(feeConf.fee * 100);
+    if (feePercent > 0 && feePercent <= 10 && feeConf.referrer) {
       swapParams.feePercent = feePercent.toString();
       swapParams.toTokenReferrerAddress = feeConf.referrer;
       logger.info(
         `OKX: Adding fee parameters - feePercent: ${feePercent}%, referrer: ${feeConf.referrer}`,
       );
     }
-
-    logger.info(`OKX: Swap parameters:`, swapParams);
-
+    logger.info(
+      "OKX: Final swapParams for swap call:",
+      JSON.stringify(swapParams, null, 2),
+    );
     const swap = await this.getOKXSwap(swapParams, context);
-
-    // Basic validation only
     if (!swap || !swap.tx || !swap.tx.data) {
       throw new Error(`Invalid swap response from OKX API`);
     }
-
     const txData = swap.tx.data;
-
-    // CRITICAL: Validate the base64 data before returning
-    try {
-      const testDecode = Buffer.from(txData, "base64");
-      if (testDecode.length === 0) {
-        throw new Error("Decoded transaction data is empty");
-      }
-      logger.info(
-        `OKX: Transaction data validated - ${txData.length} chars → ${testDecode.length} bytes`,
-      );
-    } catch (decodeError) {
-      logger.error(`OKX: Invalid base64 transaction data: ${decodeError}`);
-      throw new Error(
-        `Invalid base64 transaction data from OKX: ${decodeError.message}`,
-      );
-    }
-
     // Calculate rent fees for destination token account
-    const finalDstMint = new PublicKey(
-      dstTokenAddress === SOL_NATIVE_ADDRESS
-        ? WRAPPED_SOL_ADDRESS
-        : dstTokenAddress,
-    );
-
     let rentFees = 0;
     try {
-      const dstTokenProgramId = await getTokenProgramOfMint(
-        this.conn,
-        finalDstMint,
-      );
+      const dstTokenProgramId = await getTokenProgramOfMint(this.conn, dstMint);
       const dstATAPubkey = getSPLAssociatedTokenAccountPubkey(
         toPubkey,
-        finalDstMint,
+        dstMint,
         dstTokenProgramId,
       );
-
       const dstATAExists = await solAccountExists(this.conn, dstATAPubkey);
       if (!dstATAExists) {
         const extraRentFee = await this.conn.getMinimumBalanceForRentExemption(
@@ -814,9 +797,8 @@ export class OKX extends ProviderClass {
       logger.warn(`Could not check destination token account: ${error}`);
       rentFees += 2039280; // Default SOL rent exemption
     }
-
     return {
-      okxQuote: quote,
+      okxQuote: swap.routerResult,
       base64SwapTransaction: txData,
       feePercentage: feeConf.fee * 100,
       rentFees,
