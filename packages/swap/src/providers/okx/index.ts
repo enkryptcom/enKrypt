@@ -264,23 +264,7 @@ export class OKX extends ProviderClass {
         dstMint = new PublicKey(options.toToken.address);
       }
 
-      // Get quote from OKX API
-      // Check if user has sufficient balance for SOL swaps
-      if (options.fromToken.address === NATIVE_TOKEN_ADDRESS) {
-        const fromPubkey = new PublicKey(options.fromAddress);
-        const userBalance = await this.conn.getBalance(fromPubkey);
-        const swapAmount = BigInt(options.amount.toString(10));
-        const bufferAmount = BigInt(5000000); // 0.005 SOL buffer for fees and rent
-        const totalNeeded = swapAmount + bufferAmount;
-
-        if (BigInt(userBalance) < totalNeeded) {
-          logger.warn(
-            `Insufficient SOL balance for quote. Need ${Number(totalNeeded) / 1e9} SOL but have ${userBalance / 1e9} SOL`,
-          );
-          return null; // Return null instead of throwing to allow other providers
-        }
-      }
-
+      // Get quote from OKX API first to get estimated gas fee
       const quote = await this.getOKXQuote(
         {
           srcMint,
@@ -293,6 +277,24 @@ export class OKX extends ProviderClass {
         },
         context,
       );
+
+      // Check if user has sufficient balance for SOL swaps
+      if (options.fromToken.address === NATIVE_TOKEN_ADDRESS) {
+        const fromPubkey = new PublicKey(options.fromAddress);
+        const userBalance = await this.conn.getBalance(fromPubkey);
+        const swapAmount = BigInt(options.amount.toString(10));
+        // Use actual estimated gas fee from OKX response instead of hardcoded buffer
+        const estimatedGasFee = BigInt(quote.estimateGasFee);
+        const bufferAmount = estimatedGasFee + BigInt(1000000); // Add small buffer (0.001 SOL) on top of estimated fee
+        const totalNeeded = swapAmount + bufferAmount;
+
+        if (BigInt(userBalance) < totalNeeded) {
+          logger.warn(
+            `Insufficient SOL balance for quote. Need ${Number(totalNeeded) / 1e9} SOL but have ${userBalance / 1e9} SOL`,
+          );
+          return null; // Return null instead of throwing to allow other providers
+        }
+      }
 
       // Calculate compute budget and rent fees
       const dstTokenProgramId = await getTokenProgramOfMint(this.conn, dstMint);
@@ -418,10 +420,11 @@ export class OKX extends ProviderClass {
           let currentWsolBalance = 0;
           if (wrappedSolExists) {
             try {
-              const accountInfo = await this.conn.getTokenAccountBalance(wrappedSolATA);
+              const accountInfo =
+                await this.conn.getTokenAccountBalance(wrappedSolATA);
               currentWsolBalance = parseInt(accountInfo.value.amount);
               logger.info(
-                `WSOL account exists with balance: ${currentWsolBalance / 1e9} SOL (${currentWsolBalance} lamports)`
+                `WSOL account exists with balance: ${currentWsolBalance / 1e9} SOL (${currentWsolBalance} lamports)`,
               );
             } catch (error) {
               console.warn(`Could not get WSOL balance: ${error}`);
@@ -433,23 +436,26 @@ export class OKX extends ProviderClass {
 
           const swapAmount = BigInt(quote.options.amount.toString(10));
           const swapAmountNumber = Number(swapAmount);
-          const needsMoreFunding = !wrappedSolExists || currentWsolBalance < swapAmountNumber;
-          
+          const needsMoreFunding =
+            !wrappedSolExists || currentWsolBalance < swapAmountNumber;
+
           logger.info(
-            `WSOL funding check: need ${swapAmountNumber / 1e9} SOL, have ${currentWsolBalance / 1e9} SOL, needsMoreFunding: ${needsMoreFunding}`
+            `WSOL funding check: need ${swapAmountNumber / 1e9} SOL, have ${currentWsolBalance / 1e9} SOL, needsMoreFunding: ${needsMoreFunding}`,
           );
 
           if (needsMoreFunding) {
             // Check if user has enough SOL balance for the swap plus fees
             const userBalance = await this.conn.getBalance(fromPubkey);
-            const bufferAmount = BigInt(5000000); // 0.005 SOL buffer for fees and rent
-            const additionalNeeded = wrappedSolExists 
-              ? Math.max(0, swapAmountNumber - currentWsolBalance) 
+            // Use actual estimated gas fee from OKX response instead of hardcoded buffer
+            const estimatedGasFee = BigInt(okxQuote.estimateGasFee);
+            const bufferAmount = estimatedGasFee + BigInt(1000000); // Add small buffer (0.001 SOL) on top of estimated fee
+            const additionalNeeded = wrappedSolExists
+              ? Math.max(0, swapAmountNumber - currentWsolBalance)
               : swapAmountNumber;
             const totalNeeded = BigInt(additionalNeeded) + bufferAmount;
 
             logger.info(
-              `SOL balance check: user has ${userBalance / 1e9} SOL, need additional ${additionalNeeded / 1e9} SOL (${Number(totalNeeded) / 1e9} SOL including buffer)`
+              `SOL balance check: user has ${userBalance / 1e9} SOL, need additional ${additionalNeeded / 1e9} SOL (${Number(totalNeeded) / 1e9} SOL including buffer)`,
             );
 
             if (BigInt(userBalance) < totalNeeded) {
