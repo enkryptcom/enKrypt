@@ -135,7 +135,6 @@ import {
 } from '@/types/activity';
 import { BaseNetwork } from '@/types/base-network';
 import { imageLoadError } from '@/ui/action/utils/misc';
-import { NetworkNames } from '@enkryptcom/types';
 import { fromBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
@@ -247,12 +246,8 @@ watch(
 );
 
 onMounted(() => {
-  // needed because MultiversX uses timestamps in seconds
-  if (props.activity.network === NetworkNames.MultiversX) {
-    date.value = moment(props.activity.timestamp * 1000).fromNow();
-  } else {
-    date.value = moment(props.activity.timestamp).fromNow();
-  }
+  console.info(props.activity);
+  date.value = moment(props.activity.timestamp).fromNow();
 
   if (
     props.activity.status === ActivityStatus.success &&

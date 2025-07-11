@@ -82,52 +82,53 @@
 </template>
 
 <script setup lang="ts">
+import BackupState from '@/libs/backup-state';
 import DomainState from '@/libs/domain-state';
 import PublicKeyRing from '@/libs/keyring/public-keyring';
 import { sendToBackgroundFromAction } from '@/libs/messenger/extension';
+import { trackBuyEvents, trackNetwork } from '@/libs/metrics';
+import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
+import RateState from '@/libs/rate-state';
 import {
   getAccountsByNetworkName,
   getOtherSigners,
 } from '@/libs/utils/accounts';
-import ModalNewVersion from './views/modal-new-version/index.vue';
 import { DEFAULT_EVM_NETWORK, getNetworkByName } from '@/libs/utils/networks';
 import openOnboard from '@/libs/utils/open-onboard';
 import BTCAccountState from '@/providers/bitcoin/libs/accounts-state';
 import EVMAccountState from '@/providers/ethereum/libs/accounts-state';
-import SolAccountState from '@/providers/solana/libs/accounts-state';
 import { MessageMethod } from '@/providers/ethereum/types';
 import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 import { MessageMethod as KadenaMessageMethod } from '@/providers/kadena/types';
+import { KadenaNetwork } from '@/providers/kadena/types/kadena-network';
+import { MultiversXNetwork } from '@/providers/multiversx/types/mvx-network';
+import SolAccountState from '@/providers/solana/libs/accounts-state';
 import { BaseNetwork } from '@/types/base-network';
 import { InternalMethods } from '@/types/messenger';
+import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
+import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
+import { getLatestEnkryptVersion } from '@action/utils/browser';
 import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import { fromBase } from '@enkryptcom/utils';
+import { storeToRefs } from 'pinia';
+import { gt as semverGT } from 'semver';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Browser from 'webextension-polyfill';
 import AccountsHeader from './components/accounts-header/index.vue';
 import AppMenu from './components/app-menu/index.vue';
 import NetworkMenu from './components/network-menu/index.vue';
+import { useMenuStore } from './store/menu-store';
+import { useNetworksStore } from './store/networks-store';
+import { useRateStore } from './store/rate-store';
+import { useUpdatesStore } from './store/updates-store';
 import { AccountsHeaderData } from './types/account';
 import AddNetwork from './views/add-network/index.vue';
+import ModalNewVersion from './views/modal-new-version/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
-import ModalUpdates from './views/updates/index.vue';
-import { KadenaNetwork } from '@/providers/kadena/types/kadena-network';
-import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
-import RateState from '@/libs/rate-state';
-import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
-import { trackBuyEvents, trackNetwork } from '@/libs/metrics';
-import { getLatestEnkryptVersion } from '@action/utils/browser';
-import { gt as semverGT } from 'semver';
-import { useUpdatesStore } from './store/updates-store';
-import { useNetworksStore } from './store/networks-store';
-import { storeToRefs } from 'pinia';
-import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
-import BackupState from '@/libs/backup-state';
-import { useMenuStore } from './store/menu-store';
 import { useCurrencyStore, type Currency } from './views/settings/store';
-import { useRateStore } from './store/rate-store';
+import ModalUpdates from './views/updates/index.vue';
 
 const domainState = new DomainState();
 const rateState = new RateState();
@@ -211,6 +212,8 @@ const openBuyPage = () => {
       case NetworkNames.SyscoinNEVMTest:
       case NetworkNames.RolluxTest:
         return (currentNetwork.value as EvmNetwork).options.buyLink;
+      case NetworkNames.MultiversX:
+        return (currentNetwork.value as MultiversXNetwork).options.buyLink;
       default:
         return `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
           accountHeaderData.value.selectedAccount!.address,

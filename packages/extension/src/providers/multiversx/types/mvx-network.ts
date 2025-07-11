@@ -5,7 +5,7 @@ import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
 import createIcon from '@/providers/ethereum/libs/blockies';
 import { Activity } from '@/types/activity';
 import { BaseNetwork, BaseNetworkOptions } from '@/types/base-network';
-import { BaseToken, BaseTokenOptions } from '@/types/base-token';
+import { BaseTokenOptions } from '@/types/base-token';
 import { AssetsType, ProviderName } from '@/types/provider';
 import { CoingeckoPlatform, NetworkNames, SignerType } from '@enkryptcom/types';
 import { fromBase } from '@enkryptcom/utils';
@@ -29,17 +29,30 @@ export interface MultiversXNetworkOptions {
   coingeckoID?: string;
   coingeckoPlatform: CoingeckoPlatform;
   basePath: string;
+  buyLink: string | undefined;
   activityHandler: (
     network: BaseNetwork,
     address: string,
   ) => Promise<Activity[]>;
+  isAddress: (address: string) => boolean;
 }
+
+export const isValidAddress = (address: string) => {
+  try {
+    Address.newFromBech32(address);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 export const getAddress = (pubkey: string) => {
   return new Address(pubkey).toBech32();
 };
 
 export class MultiversXNetwork extends BaseNetwork {
+  public options: MultiversXNetworkOptions;
+
   private activityHandler: (
     network: BaseNetwork,
     address: string,
@@ -49,6 +62,9 @@ export class MultiversXNetwork extends BaseNetwork {
     network: BaseNetwork,
     address: string,
   ) => Promise<AssetsType[]>;
+
+  isAddress: (address: string) => boolean;
+
   constructor(options: MultiversXNetworkOptions) {
     const api = async () => {
       const api = new API(options.node);
@@ -65,10 +81,12 @@ export class MultiversXNetwork extends BaseNetwork {
       ...options,
     };
     super(baseOptions);
+    this.options = options;
     this.activityHandler = options.activityHandler;
+    this.isAddress = options.isAddress;
   }
 
-  public async getAllTokens(pubkey: string): Promise<BaseToken[]> {
+  public async getAllTokens(pubkey: string): Promise<MVXToken[]> {
     const assets = await this.getAllTokenInfo(pubkey);
     return assets.map(token => {
       const bTokenOptions: BaseTokenOptions = {

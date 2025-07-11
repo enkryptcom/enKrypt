@@ -40,7 +40,7 @@ export default async (
 
   return Object.values(activities).map((activity: any) => {
     return {
-      nonce: activity.nonce,
+      nonce: (activity.nonce || 0).toString(),
       from: activity.sender,
       to: activity.receiver,
       isIncoming: activity.sender !== address,
@@ -50,7 +50,7 @@ export default async (
         activity.status === 'success'
           ? ActivityStatus.success
           : ActivityStatus.failed,
-      timestamp: activity.timestamp,
+      timestamp: activity.timestampMs,
       value: activity.value,
       transactionHash: activity.txHash,
       type: ActivityType.transaction,

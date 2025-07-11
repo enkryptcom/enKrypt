@@ -39,10 +39,10 @@
 </template>
 
 <script setup lang="ts">
-import NetworkActivityTotal from './components/network-activity-total.vue';
-import NetworkActivityAction from './components/network-activity-action.vue';
-import NetworkActivityTransaction from './components/network-activity-transaction.vue';
+import scrollSettings from '@/libs/utils/scroll-settings';
+import { BaseNetwork } from '@/types/base-network';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import accountInfoComposable from '@action/composables/account-info';
 import {
   computed,
   onMounted,
@@ -54,31 +54,32 @@ import {
   watch,
 } from 'vue';
 import { AccountsHeaderData } from '../../types/account';
-import accountInfoComposable from '@action/composables/account-info';
-import { BaseNetwork } from '@/types/base-network';
-import scrollSettings from '@/libs/utils/scroll-settings';
+import NetworkActivityAction from './components/network-activity-action.vue';
+import NetworkActivityTotal from './components/network-activity-total.vue';
+import NetworkActivityTransaction from './components/network-activity-transaction.vue';
 
+import ActivityState from '@/libs/activity-state';
+import EvmAPI from '@/providers/ethereum/libs/api';
 import {
   Activity,
   ActivityStatus,
   ActivityType,
   BTCRawInfo,
   EthereumRawInfo,
+  KadenaRawInfo,
+  MultiversXRawInfo,
+  SOLRawInfo,
   SubscanExtrinsicInfo,
   SwapRawInfo,
-  KadenaRawInfo,
-  SOLRawInfo,
 } from '@/types/activity';
-import NetworkActivityLoading from './components/network-activity-loading.vue';
 import { ProviderName } from '@/types/provider';
-import ActivityState from '@/libs/activity-state';
 import Swap, {
   SupportedNetworkName,
   TransactionStatus,
   WalletIdentifier,
 } from '@enkryptcom/swap';
-import EvmAPI from '@/providers/ethereum/libs/api';
 import type Web3Eth from 'web3-eth';
+import NetworkActivityLoading from './components/network-activity-loading.vue';
 
 const props = defineProps({
   network: {
@@ -198,6 +199,17 @@ const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {
         ? ActivityStatus.success
         : ActivityStatus.failed;
     activity.rawInfo = kadenaInfo as KadenaRawInfo;
+    updateActivitySync(activity).then(() => updateVisibleActivity(activity));
+  } else if (props.network.provider === ProviderName.multiversx) {
+    console.info({ activity });
+    if (!info) return;
+    const multiversxInfo = info as MultiversXRawInfo;
+    if (isActivityUpdating) return;
+    activity.status =
+      multiversxInfo.status == 'success'
+        ? ActivityStatus.success
+        : ActivityStatus.failed;
+    activity.rawInfo = multiversxInfo as MultiversXRawInfo;
     updateActivitySync(activity).then(() => updateVisibleActivity(activity));
   } else if (props.network.provider === ProviderName.solana) {
     if (info) {

@@ -9,6 +9,7 @@ class AccountState {
       InternalStorageNamespace.multiversxAccountsState,
     );
   }
+
   async addApprovedDomain(domain: string): Promise<void> {
     const state = await this.getStateByDomain(domain);
     state.isApproved = true;

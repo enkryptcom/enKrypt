@@ -1,6 +1,6 @@
 import { MultiversXRawInfo } from '@/types/activity';
 import { ProviderAPIInterface } from '@/types/provider';
-import { Address, ApiNetworkProvider } from '@multiversx/sdk-core';
+import { Address, ApiNetworkProvider, Transaction } from '@multiversx/sdk-core';
 import BigNumber from 'bignumber.js';
 import { numberToHex } from 'web3-utils';
 
@@ -24,6 +24,19 @@ class API implements ProviderAPIInterface {
     const balance = (await this.networkProvider.getAccount(new Address(pubkey)))
       .balance;
     return numberToHex(new BigNumber(balance).toFixed());
+  }
+
+  async getChainId(): Promise<string> {
+    return (await this.networkProvider.getNetworkConfig()).chainID;
+  }
+
+  async getAccountNonce(address: Address): Promise<bigint> {
+    const account = await this.networkProvider.getAccount(address);
+    return account.nonce;
+  }
+
+  async sendTransaction(transaction: Transaction): Promise<string> {
+    return await this.networkProvider.sendTransaction(transaction);
   }
 
   async getTransactionStatus(hash: string): Promise<MultiversXRawInfo | null> {
