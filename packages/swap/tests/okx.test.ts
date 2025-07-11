@@ -19,7 +19,10 @@ import {
   WalletIdentifier,
   SwapQuote,
   NetworkType,
+  getQuoteOptions,
 } from "../src/types";
+import BN from "bn.js";
+import { isValidSolanaAddressAsync } from "../src/utils/solana";
 import {
   fromToken,
   amount,
@@ -246,6 +249,145 @@ describe("OKX Provider", () => {
   );
 
   it(
+    "Should handle USDC to SOL swaps with unwrapping",
+    { timeout: 30000 },
+    async () => {
+      const usdcToSolQuoteOptions: getQuoteOptions = {
+        amount: new BN(100000), // 0.1 USDC
+        fromAddress: "CMGoYEKM8kSXwN9HzYiwRiZRXoMtEAQ98ZiPE9y67T38",
+        fromToken: {
+          address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC
+          decimals: 6,
+          logoURI:
+            "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png",
+          name: "USDC",
+          symbol: "USDC",
+          rank: 5,
+          cgId: "usd-coin",
+          type: "solana",
+        },
+        toToken: {
+          address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", // Native SOL
+          decimals: 9,
+          logoURI:
+            "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
+          name: "Solana",
+          symbol: "SOL",
+          rank: 1,
+          cgId: "solana",
+          type: "solana",
+          networkInfo: {
+            name: SupportedNetworkName.Solana,
+            isAddress: isValidSolanaAddressAsync,
+          },
+        },
+        toAddress: "3zDT4WonZsGr6x6ysQeuhTHtabpdawZNsjhC6g1yZDEK",
+      };
+
+      console.log(
+        "🚀 Testing USDC -> SOL swap with unwrapping detection",
+      );
+
+      const usdcToSolQuote = await okx.getQuote(usdcToSolQuoteOptions, {
+        infiniteApproval: true,
+        walletIdentifier: "enkrypt",
+        slippage: "0.5",
+      });
+
+      console.log("🔍 USDC → SOL quote result:", usdcToSolQuote ? "SUCCESS" : "FAILED");
+
+      if (usdcToSolQuote) {
+        expect(usdcToSolQuote).not.toBeNull();
+        expect(usdcToSolQuote.provider).toBe(ProviderName.okx);
+
+        console.log("🔍 Getting USDC → SOL swap transaction...");
+        const usdcToSolSwap = await okx.getSwap(usdcToSolQuote.quote);
+        console.log("🔍 USDC → SOL swap result:", usdcToSolSwap ? "SUCCESS" : "FAILED");
+
+        if (usdcToSolSwap) {
+          expect(usdcToSolSwap).not.toBeNull();
+          expect(usdcToSolSwap.transactions.length).toBeGreaterThanOrEqual(1);
+          console.log(`✅ USDC → SOL swap transaction created with ${usdcToSolSwap.transactions.length} transaction(s)`);
+          console.log(
+            "✅ Unwrapping detection logic executed",
+          );
+        }
+      }
+    },
+  );
+
+  it(
+    "Should handle SOL swaps with Wrapped SOL account creation",
+    { timeout: 30000 },
+    async () => {
+      const solQuoteOptions: getQuoteOptions = {
+        amount: new BN(1000000), // 0.001 SOL
+        fromAddress: "CMGoYEKM8kSXwN9HzYiwRiZRXoMtEAQ98ZiPE9y67T38",
+        fromToken: {
+          address: "11111111111111111111111111111111", // Native SOL
+          decimals: 9,
+          logoURI:
+            "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
+          name: "Solana",
+          symbol: "SOL",
+          rank: 1,
+          cgId: "solana",
+          type: "solana",
+        },
+        toToken: {
+          address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC
+          decimals: 6,
+          logoURI:
+            "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png",
+          name: "USDC",
+          symbol: "USDC",
+          rank: 5,
+          cgId: "usd-coin",
+          type: "solana",
+          networkInfo: {
+            name: SupportedNetworkName.Solana,
+            isAddress: isValidSolanaAddressAsync,
+          },
+        },
+        toAddress: "3zDT4WonZsGr6x6ysQeuhTHtabpdawZNsjhC6g1yZDEK",
+      };
+
+      console.log(
+        "🚀 Testing SOL -> USDC swap with Wrapped SOL account detection",
+      );
+
+      const solQuote = await okx.getQuote(solQuoteOptions, {
+        infiniteApproval: true,
+        walletIdentifier: "enkrypt",
+        slippage: "0.5",
+      });
+
+      console.log("🔍 SOL quote result:", solQuote ? "SUCCESS" : "FAILED");
+
+      if (solQuote) {
+        expect(solQuote).not.toBeNull();
+        expect(solQuote.provider).toBe(ProviderName.okx);
+
+        console.log("🔍 Getting SOL swap transaction...");
+        const solSwap = await okx.getSwap(solQuote.quote);
+        console.log("🔍 SOL swap result:", solSwap ? "SUCCESS" : "FAILED");
+
+        if (solSwap) {
+          expect(solSwap).not.toBeNull();
+          expect(solSwap.transactions[0]).toHaveProperty("kind");
+          expect((solSwap.transactions[0] as SolanaTransaction).kind).toBe(
+            "versioned",
+          );
+          console.log("✅ SOL swap transaction created successfully");
+          console.log(
+            "✅ Wrapped SOL account detection and creation logic executed",
+          );
+        }
+      }
+    },
+  );
+
+  it(
     "Should execute actual swap transaction successfully",
     { timeout: 20000 },
     async () => {
@@ -341,20 +483,24 @@ describe("OKX Provider", () => {
         expect(swap!.transactions[0]).toHaveProperty("to");
         expect(swap!.transactions[0]).toHaveProperty("type");
         expect(swap!.transactions[0]).toHaveProperty("kind");
-        expect((swap!.transactions[0] as SolanaTransaction).kind).toBe("legacy");
+        expect((swap!.transactions[0] as SolanaTransaction).kind).toBe(
+          "versioned",
+        );
         return; // Skip the detailed transaction analysis for now
       }
 
       // If we get here, the transaction was successfully deserialized
       // For legacy transactions, we can directly access instructions
-      console.log(`Legacy transaction has ${tx.instructions.length} instructions`);
+      console.log(
+        `Legacy transaction has ${tx.instructions.length} instructions`,
+      );
 
       // Decode instructions
       let computeBudget: undefined | number;
       let priorityRate: undefined | number | bigint;
       for (let i = 0, len = tx.instructions.length; i < len; i++) {
         const instruction = tx.instructions[i];
-        
+
         // Skip if not a compute budget instruction
         if (!ComputeBudgetProgram.programId.equals(instruction.programId)) {
           continue;

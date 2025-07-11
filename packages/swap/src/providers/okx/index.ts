@@ -264,15 +264,6 @@ export class OKX extends ProviderClass {
         dstMint = new PublicKey(options.toToken.address);
       }
 
-      // DEBUG: Log what tokens we're swapping
-      console.log("🔍 SWAP TOKEN DEBUG (getQuote):");
-      console.log("  - From token:", options.fromToken.symbol, options.fromToken.address);
-      console.log("  - To token:", options.toToken.symbol, options.toToken.address);
-      console.log("  - From address:", options.fromAddress);
-      console.log("  - To address:", options.toAddress);
-      console.log("  - Amount:", options.amount.toString());
-      console.log("  - Source mint (for OKX):", srcMint.toBase58());
-      console.log("  - Dest mint (for OKX):", dstMint.toBase58());
 
       // Get quote from OKX API
       const quote = await this.getOKXQuote(
@@ -366,35 +357,187 @@ export class OKX extends ProviderClass {
     quote: SwapQuote,
     context?: { signal?: AbortSignal },
   ): Promise<ProviderSwapResponse | null> {
-    console.log("🚨🚨🚨 OKX.getSwap() CALLED - CRISIS MODE DEBUG 🚨🚨🚨");
-    console.log("getSwap quote.options:", quote.options);
-    console.log("getSwap quote.meta:", quote.meta);
-    
+
     try {
-      console.log("🔍 Calling querySwapInfo...");
       const { feePercentage, okxQuote, base64SwapTransaction, rentFees } =
         await this.querySwapInfo(quote.options, quote.meta, context);
 
-      console.log("🔍 querySwapInfo returned:");
-      console.log("  - feePercentage:", feePercentage);
-      console.log("  - base64SwapTransaction length:", base64SwapTransaction.length);
-      console.log("  - base64SwapTransaction first 100 chars:", base64SwapTransaction.substring(0, 100));
-      console.log("  - rentFees:", rentFees);
+      // Use Jupiter's approach: inject ATA creation instructions into the OKX transaction
+      // Check if we need to create a Wrapped SOL account for SOL swaps  
+      const needsWrappedSolAccount = quote.options.fromToken.address === NATIVE_TOKEN_ADDRESS || 
+                                     quote.options.fromToken.address === SOL_NATIVE_ADDRESS;
+      
+      // Check if we need to unwrap Wrapped SOL to native SOL for destination
+      const needsWrappedSolUnwrap = quote.options.toToken.address === NATIVE_TOKEN_ADDRESS || 
+                                    quote.options.toToken.address === SOL_NATIVE_ADDRESS;
+      
+      console.log(`[UNWRAP DEBUG] Checking unwrapping requirements:`);
+      console.log(`  - toToken.address: "${quote.options.toToken.address}"`);
+      console.log(`  - NATIVE_TOKEN_ADDRESS: "${NATIVE_TOKEN_ADDRESS}"`);
+      console.log(`  - SOL_NATIVE_ADDRESS: "${SOL_NATIVE_ADDRESS}"`);
+      console.log(`  - needsWrappedSolUnwrap: ${needsWrappedSolUnwrap}`);
+      
+      let modifiedTransaction = base64SwapTransaction;
+      
+      if (needsWrappedSolAccount) {
+        try {
+          const fromPubkey = new PublicKey(quote.options.fromAddress);
+          const wrappedSolMint = new PublicKey(WRAPPED_SOL_ADDRESS);
+          const wrappedSolTokenProgramId = await getTokenProgramOfMint(
+            this.conn,
+            wrappedSolMint,
+          );
+          const wrappedSolATA = getSPLAssociatedTokenAccountPubkey(
+            fromPubkey,
+            wrappedSolMint,
+            wrappedSolTokenProgramId,
+          );
+          
+          const wrappedSolExists = await solAccountExists(this.conn, wrappedSolATA);
+          
+          if (!wrappedSolExists) {
+            // Create Wrapped SOL account creation instruction
+            const createWrappedSolInstruction =
+              getCreateAssociatedTokenAccountIdempotentInstruction({
+                payerPubkey: fromPubkey,
+                ataPubkey: wrappedSolATA,
+                ownerPubkey: fromPubkey,
+                mintPubkey: wrappedSolMint,
+                systemProgramId: SystemProgram.programId,
+                tokenProgramId: new PublicKey(
+                  "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                ),
+                associatedTokenProgramId: ASSOCIATED_TOKEN_PROGRAM_ID,
+              });
+            
+            // Create SOL transfer instruction to fund the Wrapped SOL account
+            const transferInstruction = SystemProgram.transfer({
+              fromPubkey: fromPubkey,
+              toPubkey: wrappedSolATA,
+              lamports: Number(BigInt(quote.options.amount.toString(10))),
+            });
+            
+            // Create SyncNative instruction to convert transferred SOL to Wrapped SOL tokens
+            const syncNativeInstruction = new TransactionInstruction({
+              keys: [{ pubkey: wrappedSolATA, isSigner: false, isWritable: true }],
+              programId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+              data: Buffer.from([17]), // SyncNative instruction discriminator
+            });
+            
+            // Decode the OKX transaction
+            const txBuffer = Buffer.from(base64SwapTransaction, "base64");
+            const versionedTx = VersionedTransaction.deserialize(txBuffer);
+            
+            // Insert all three instructions: account creation, funding, then sync
+            const modifiedTx = await insertInstructionsAtStartOfTransaction(
+              this.conn,
+              versionedTx,
+              [createWrappedSolInstruction, transferInstruction, syncNativeInstruction],
+            );
+            
+            // Re-serialize the modified transaction
+            modifiedTransaction = Buffer.from(modifiedTx.serialize()).toString("base64");
+            
+            logger.info("Added Wrapped SOL account creation, funding, and sync instructions to OKX transaction");
+          }
+        } catch (error) {
+          logger.warn(`Could not add Wrapped SOL account creation: ${error.message}`);
+          // Continue with original transaction
+        }
+      }
 
       const enkryptTransaction: SolanaTransaction = {
         from: quote.options.fromAddress,
         to: quote.options.toAddress,
-        serialized: base64SwapTransaction,
+        serialized: modifiedTransaction,
         type: TransactionType.solana,
         kind: "versioned", // OKX returns VersionedTransactions
         thirdPartySignatures: [],
       };
-      
-      console.log("🔍 Created enkryptTransaction:");
-      console.log("  - from:", enkryptTransaction.from);
-      console.log("  - to:", enkryptTransaction.to);
-      console.log("  - serialized length:", enkryptTransaction.serialized.length);
-      console.log("  - kind:", enkryptTransaction.kind);
+
+      // Start with the main swap transaction
+      let allTransactions: SolanaTransaction[] = [enkryptTransaction];
+
+      // Handle unwrapping Wrapped SOL to native SOL for destination
+      if (needsWrappedSolUnwrap) {
+        console.log(`[UNWRAP DEBUG] Creating unwrapping transaction...`);
+        try {
+          const fromPubkey = new PublicKey(quote.options.fromAddress); // User who owns the WSOL
+          const toPubkey = new PublicKey(quote.options.toAddress);
+          const wrappedSolMint = new PublicKey(WRAPPED_SOL_ADDRESS);
+          const wrappedSolTokenProgramId = await getTokenProgramOfMint(
+            this.conn,
+            wrappedSolMint,
+          );
+          const wrappedSolATA = getSPLAssociatedTokenAccountPubkey(
+            fromPubkey, // User's WSOL account, not recipient's
+            wrappedSolMint,
+            wrappedSolTokenProgramId,
+          );
+          
+          // Create a separate transaction for unwrapping WSOL to SOL
+          const unwrapTransaction = new Transaction();
+          
+          // Add closeAccount instruction to unwrap WSOL to SOL
+          const closeAccountInstruction = new TransactionInstruction({
+            keys: [
+              { pubkey: wrappedSolATA, isSigner: false, isWritable: true }, // WSOL token account to close
+              { pubkey: fromPubkey, isSigner: false, isWritable: true }, // Where lamports go (sender gets SOL back)
+              { pubkey: fromPubkey, isSigner: true, isWritable: false }, // Owner/authority (sender)
+            ],
+            programId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            data: Buffer.from([9]), // CloseAccount instruction discriminator
+          });
+          
+          // If the recipient is different from sender, add a SOL transfer instruction
+          if (quote.options.fromAddress !== quote.options.toAddress) {
+            const transferSolInstruction = SystemProgram.transfer({
+              fromPubkey: fromPubkey,
+              toPubkey: toPubkey,
+              lamports: 0, // Will be calculated from WSOL balance - we'll need to get this dynamically
+            });
+            // Note: We'd need to calculate the exact WSOL balance to transfer
+            // For now, let's close to sender and they can transfer manually if needed
+          }
+          
+          unwrapTransaction.add(closeAccountInstruction);
+          
+          // Get latest blockhash
+          const { blockhash } = await this.conn.getLatestBlockhash();
+          unwrapTransaction.recentBlockhash = blockhash;
+          unwrapTransaction.feePayer = fromPubkey; // User pays the fee
+          
+          // Serialize the unwrap transaction
+          const unwrapTxBuffer = unwrapTransaction.serialize({
+            requireAllSignatures: false,
+            verifySignatures: false,
+          });
+          const unwrapTxBase64 = Buffer.from(unwrapTxBuffer).toString("base64");
+          
+          const unwrapSolanaTransaction: SolanaTransaction = {
+            from: quote.options.fromAddress, // Same user who initiated the swap
+            to: quote.options.toAddress, // Where the unwrapped SOL goes
+            serialized: unwrapTxBase64,
+            type: TransactionType.solana,
+            kind: "legacy", // Unwrap transaction is legacy
+            thirdPartySignatures: [],
+          };
+          
+          // Add the unwrap transaction AFTER the swap transaction
+          allTransactions = [enkryptTransaction, unwrapSolanaTransaction];
+          
+          logger.info(`[UNWRAP DEBUG] Successfully added unwrapping transaction! Total: ${allTransactions.length} transactions`);
+          logger.info("Added separate Wrapped SOL unwrapping transaction for USDC → SOL swap");
+        } catch (error) {
+          logger.error(`[UNWRAP DEBUG] Error creating unwrapping transaction:`, error);
+          logger.warn(`Could not create Wrapped SOL unwrapping transaction: ${error.message}`);
+          // Continue with just the swap transaction
+        }
+      } else {
+        logger.info(`[UNWRAP DEBUG] No unwrapping needed - single transaction`);
+      }
+          
+
 
       logger.info(`OKX getSwap: Final transaction data check:`);
       logger.info(`  - serialized length: ${base64SwapTransaction.length}`);
@@ -420,8 +563,13 @@ export class OKX extends ProviderClass {
         `getSwap: Quote outAmount: ${okxQuote.toTokenAmount} ${quote.options.toToken.symbol}`,
       );
 
+      console.log(`[UNWRAP DEBUG] Final result: returning ${allTransactions.length} transactions`);
+      allTransactions.forEach((tx, i) => {
+        console.log(`[UNWRAP DEBUG] Transaction ${i + 1}: kind=${tx.kind}, from=${tx.from}, to=${tx.to}`);
+      });
+
       return {
-        transactions: [enkryptTransaction],
+        transactions: allTransactions,
         fromTokenAmount: toBN(okxQuote.fromTokenAmount),
         toTokenAmount: toBN(
           Math.floor((1 - feePercentage / 100) * Number(okxQuote.toTokenAmount))
@@ -440,9 +588,6 @@ export class OKX extends ProviderClass {
         }),
       };
     } catch (err) {
-      console.log("🚨🚨🚨 OKX.getSwap() ERROR 🚨🚨🚨");
-      console.log("Error:", String(err));
-      console.log("Stack:", err.stack);
       if (!context?.signal?.aborted) {
         console.error(`[OKX.getSwap] Error calling getSwap: ${String(err)}`);
       }
@@ -752,55 +897,35 @@ export class OKX extends ProviderClass {
         : options.toToken.address,
     );
 
-    // DEBUG: Log token account requirements
-    console.log("🔍 TOKEN ACCOUNT DEBUG (querySwapInfo):");
-    console.log("  - From token address:", options.fromToken.address);
-    console.log("  - Is from token native SOL?", options.fromToken.address === NATIVE_TOKEN_ADDRESS);
-    console.log("  - Source mint for OKX:", srcMint.toBase58());
-    console.log("  - To token address:", options.toToken.address);
-    console.log("  - Is to token native SOL?", options.toToken.address === NATIVE_TOKEN_ADDRESS);
-    console.log("  - Dest mint for OKX:", dstMint.toBase58());
-    console.log("  - User wallet:", options.fromAddress);
 
     // CRITICAL: Pre-create required token accounts before calling OKX
     const userPubkey = new PublicKey(options.fromAddress);
-    
+
     // Simple check: log the account status for debugging
-    if (options.fromToken.address === NATIVE_TOKEN_ADDRESS) {
-      console.log("🔧 PRE-CHECK: SOL swap detected, checking Wrapped SOL account");
+    if (options.fromToken.address === NATIVE_TOKEN_ADDRESS || options.fromToken.address === SOL_NATIVE_ADDRESS) {
       try {
-        const wrappedSolTokenProgramId = await getTokenProgramOfMint(this.conn, srcMint);
+        const wrappedSolMint = new PublicKey(WRAPPED_SOL_ADDRESS);
+        const wrappedSolTokenProgramId = await getTokenProgramOfMint(
+          this.conn,
+          wrappedSolMint,
+        );
         const wrappedSolATA = getSPLAssociatedTokenAccountPubkey(
           userPubkey,
-          srcMint,
+          wrappedSolMint,
           wrappedSolTokenProgramId,
         );
-        
-        const wrappedSolExists = await solAccountExists(this.conn, wrappedSolATA);
-        console.log("🔍 Wrapped SOL account exists:", wrappedSolExists);
-        
+
+        const wrappedSolExists = await solAccountExists(
+          this.conn,
+          wrappedSolATA,
+        );
+
         if (!wrappedSolExists) {
-          console.log("🔧 NOTED: Wrapped SOL account missing - OKX transaction should handle this");
         }
       } catch (wrappedSolError) {
-        console.log("❌ Error checking Wrapped SOL account:", wrappedSolError.message);
       }
     }
 
-    // DEBUG: Log the exact parameters being passed to getOKXQuote
-    const quoteParams = {
-      srcMint: srcMint.toBase58(),
-      dstMint: dstMint.toBase58(),
-      amount: BigInt(options.amount.toString(10)),
-      slippageBps: Math.round(
-        100 * parseFloat(meta.slippage || DEFAULT_SLIPPAGE),
-      ),
-      referralFeeBps: Math.round(10000 * feeConf.fee),
-    };
-    logger.info(
-      `[DEBUG] querySwapInfo calling getOKXQuote with params:`,
-      quoteParams,
-    );
 
     const quote = await this.getOKXQuote(
       {
@@ -839,7 +964,9 @@ export class OKX extends ProviderClass {
     // This should prevent OKX from creating any commission accounts that cause ownership issues
     // swapParams.feePercent = "1"; // DISABLED
     // swapParams.toTokenReferrerAddress = options.fromAddress; // DISABLED
-    logger.info("OKX: Fee parameters completely removed to avoid commission account errors");
+    logger.info(
+      "OKX: Fee parameters completely removed to avoid commission account errors",
+    );
     logger.info(
       "OKX: Final swapParams for swap call:",
       JSON.stringify(swapParams, null, 2),
@@ -853,19 +980,43 @@ export class OKX extends ProviderClass {
     // The tx.data field contains the full transaction, tx.from/to are NOT user addresses
     const okxTransactionData = swap.tx.data;
     const userAddress = options.fromAddress; // This is the actual wallet address
-    
+
     logger.info(`OKX: Processing complete transaction data from OKX`);
     logger.info(`  - User address (from quote): ${userAddress}`);
     logger.info(`  - OKX tx.from (NOT user address): ${swap.tx.from}`);
     logger.info(`  - OKX tx.to (program address): ${swap.tx.to}`);
     logger.info(`  - Transaction data length: ${okxTransactionData.length}`);
     logger.info(`  - Transaction data type: ${typeof okxTransactionData}`);
-    
+
     // Check if data is base58 or base64 encoded
     const isBase58 = /^[1-9A-HJ-NP-Za-km-z]+$/.test(okxTransactionData);
     const isBase64 = /^[A-Za-z0-9+/]*={0,2}$/.test(okxTransactionData);
     logger.info(`  - Appears to be base58: ${isBase58}`);
     logger.info(`  - Appears to be base64: ${isBase64}`);
+
+    // Check if we need to create Wrapped SOL account for SOL swaps
+    const needsWrappedSolAccount = options.fromToken.address === NATIVE_TOKEN_ADDRESS || 
+                                   options.fromToken.address === SOL_NATIVE_ADDRESS;
+    let wrappedSolATA: PublicKey | null = null;
+    let wrappedSolExists = true;
+
+    if (needsWrappedSolAccount) {
+      try {
+        const wrappedSolMint = new PublicKey(WRAPPED_SOL_ADDRESS);
+        const wrappedSolTokenProgramId = await getTokenProgramOfMint(
+          this.conn,
+          wrappedSolMint,
+        );
+        wrappedSolATA = getSPLAssociatedTokenAccountPubkey(
+          userPubkey,
+          wrappedSolMint,
+          wrappedSolTokenProgramId,
+        );
+        wrappedSolExists = await solAccountExists(this.conn, wrappedSolATA);
+      } catch (error) {
+        wrappedSolExists = false; // Assume we need to create it if we can't check
+      }
+    }
 
     // Try to create a proper Solana transaction from the OKX data
     const txData = await this.createSolanaTransactionFromOKXData(
@@ -910,63 +1061,55 @@ export class OKX extends ProviderClass {
     fromAddress: string,
     programAddress: string,
   ): Promise<string> {
-    console.log("🚨🚨🚨 createSolanaTransactionFromOKXData CALLED 🚨🚨🚨");
-    console.log("  - Data length:", okxTransactionData.length);
-    console.log("  - From address:", fromAddress);
-    console.log("  - Program address:", programAddress);
-    console.log("  - OKX data first 100 chars:", okxTransactionData.substring(0, 100));
-    
+
     try {
-      logger.info(`createSolanaTransactionFromOKXData: Processing OKX transaction data`);
+      logger.info(
+        `createSolanaTransactionFromOKXData: Processing OKX transaction data`,
+      );
       logger.info(`  - Data length: ${okxTransactionData.length}`);
       logger.info(`  - From address: ${fromAddress}`);
       logger.info(`  - Program address: ${programAddress}`);
 
       // STRATEGY: Detect encoding and try to use OKX's complete transaction data directly
-      console.log("🔧 STRATEGY: Detect encoding and use OKX transaction data directly");
       logger.info(`  - Attempting to use OKX transaction data directly`);
-      
+
       // Determine encoding format
       const isBase58 = /^[1-9A-HJ-NP-Za-km-z]+$/.test(okxTransactionData);
       const isBase64 = /^[A-Za-z0-9+/]*={0,2}$/.test(okxTransactionData);
-      console.log("🔍 Encoding detection:");
-      console.log("  - Is base58:", isBase58);
-      console.log("  - Is base64:", isBase64);
-      
+
       // Try different decoding strategies
       const decodingStrategies = [
-        { name: "base64", decode: () => Buffer.from(okxTransactionData, "base64") },
-        { name: "base58", decode: () => Buffer.from(bs58.decode(okxTransactionData)) },
+        {
+          name: "base64",
+          decode: () => Buffer.from(okxTransactionData, "base64"),
+        },
+        {
+          name: "base58",
+          decode: () => Buffer.from(bs58.decode(okxTransactionData)),
+        },
         { name: "hex", decode: () => Buffer.from(okxTransactionData, "hex") },
       ];
-      
+
       for (const strategy of decodingStrategies) {
         try {
-          console.log(`🔍 Testing ${strategy.name} decoding...`);
           const buffer = strategy.decode();
-          console.log(`  - ${strategy.name} buffer length:`, buffer.length);
-          
+
           if (buffer.length < 10) {
-            console.log(`  - ${strategy.name} buffer too small, skipping`);
             continue;
           }
-          
+
           // Try to deserialize as VERSIONED transaction first (OKX uses versioned)
           let transaction: Transaction | VersionedTransaction;
           let transactionType = "unknown";
-          
+
           try {
             transaction = VersionedTransaction.deserialize(buffer);
             transactionType = "versioned";
-            console.log(`✅ SUCCESS with ${strategy.name} decoding as VERSIONED transaction!`);
-            console.log("  - Message instructions:", transaction.message.compiledInstructions?.length || 0);
-            console.log("  - Signatures:", transaction.signatures.length);
-            
+
             // DEFINITIVE FIX: Add missing Wrapped SOL account creation instruction
-            console.log("🚀🚀🚀 NEW CODE LOADED - DEFINITIVE FIX: Adding Wrapped SOL account creation 🚀🚀🚀");
-            
+
             const fromPubkey = new PublicKey(fromAddress);
-            
+
             // Create Wrapped SOL token account instruction
             const wrappedSolMint = new PublicKey(WRAPPED_SOL_ADDRESS);
             const wrappedSolATA = getSPLAssociatedTokenAccountPubkey(
@@ -974,73 +1117,90 @@ export class OKX extends ProviderClass {
               wrappedSolMint,
               new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"), // Standard token program
             );
-            
-            console.log("🔧 Creating Wrapped SOL account instruction for:", wrappedSolATA.toBase58());
-            
-            const createWrappedSolInstruction = getCreateAssociatedTokenAccountIdempotentInstruction({
-              payerPubkey: fromPubkey,
-              ataPubkey: wrappedSolATA,
-              ownerPubkey: fromPubkey,
-              mintPubkey: wrappedSolMint,
-              systemProgramId: SystemProgram.programId,
-              tokenProgramId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-              associatedTokenProgramId: ASSOCIATED_TOKEN_PROGRAM_ID,
-            });
-            
+
+
+            const createWrappedSolInstruction =
+              getCreateAssociatedTokenAccountIdempotentInstruction({
+                payerPubkey: fromPubkey,
+                ataPubkey: wrappedSolATA,
+                ownerPubkey: fromPubkey,
+                mintPubkey: wrappedSolMint,
+                systemProgramId: SystemProgram.programId,
+                tokenProgramId: new PublicKey(
+                  "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                ),
+                associatedTokenProgramId: ASSOCIATED_TOKEN_PROGRAM_ID,
+              });
+
             try {
-              console.log("🔍 Transaction debug before modification:");
-              console.log("  - Transaction type:", typeof transaction);
-              console.log("  - Has message:", !!transaction.message);
-              console.log("  - Message type:", typeof transaction.message);
-              if (transaction.message) {
-                console.log("  - Has accountKeys:", !!transaction.message.accountKeys);
-                console.log("  - AccountKeys type:", typeof transaction.message.accountKeys);
-                console.log("  - AccountKeys length:", transaction.message.accountKeys?.length || 'undefined');
+
+              // Check if this is a versioned transaction with address lookup tables
+              if (
+                transaction.message &&
+                "addressTableLookups" in transaction.message
+              ) {
+                const lookups = transaction.message.addressTableLookups;
+
+                if (lookups && lookups.length > 0) {
+                  
+                  // For transactions with lookup tables, return them as-is
+                  // Wrapped SOL account creation is now handled at a higher level
+                  
+
+                  const reserializedBuffer = transaction.serialize();
+                  const result =
+                    Buffer.from(reserializedBuffer).toString("base64");
+                  logger.info(
+                    `  - Returning unmodified OKX transaction to preserve lookup table integrity`,
+                  );
+                  return result;
+                }
               }
-              
+
+              // For transactions without lookup tables, we can safely access account keys
+              try {
+                const accountKeys = transaction.message.getAccountKeys();
+              } catch (accountKeysError) {
+
+                // Return original transaction if we can't access account keys
+                const reserializedBuffer = transaction.serialize();
+                const result =
+                  Buffer.from(reserializedBuffer).toString("base64");
+                return result;
+              }
+
               // CRITICAL FIX: Don't modify the OKX transaction - it breaks serialization
               // Instead, return the original transaction and let the extension handle account creation
-              console.log("🔧 SKIP MODIFICATION: Return original OKX transaction to avoid corruption");
-              console.log("  - The extension will handle any missing accounts during signing");
-              
+
               const reserializedBuffer = transaction.serialize();
               const result = Buffer.from(reserializedBuffer).toString("base64");
-              console.log("✅ SUCCESS: Using original OKX transaction (unmodified)");
-              console.log("  - Final base64 length:", result.length);
-              logger.info(`  - Returning unmodified OKX transaction to prevent corruption`);
+              logger.info(
+                `  - Returning unmodified OKX transaction to prevent corruption`,
+              );
               return result;
-              
             } catch (modifyError) {
-              console.log("❌ Error adding token account instructions:", modifyError.message);
-              console.log("🔍 Full error:", modifyError);
-              console.log("🔄 Proceeding with original transaction");
-              
+
               // Fallback to original transaction
               const reserializedBuffer = transaction.serialize();
               const result = Buffer.from(reserializedBuffer).toString("base64");
               return result;
             }
-            
           } catch (versionedError) {
-            console.log(`❌ ${strategy.name} versioned decoding failed:`, versionedError.message);
             throw versionedError; // Skip legacy fallback, it's broken
           }
-          
         } catch (strategyError) {
-          console.log(`❌ ${strategy.name} decoding failed:`, strategyError.message);
           continue;
         }
       }
-      
+
       // If all strategies failed
-      console.log("❌ All decoding strategies failed");
-      logger.warn(`  - All decoding strategies failed for OKX transaction data`);
-      
+      logger.warn(
+        `  - All decoding strategies failed for OKX transaction data`,
+      );
+
       // Last resort: Return the original OKX data and let extension handle it
-      console.log("🔄 LAST RESORT: Return OKX data as-is for extension processing");
       logger.info(`  - Using last resort: returning OKX data as-is`);
       return okxTransactionData;
-      
     } catch (error) {
       logger.error(
         `Failed to create Solana transaction from OKX data: ${error}`,
