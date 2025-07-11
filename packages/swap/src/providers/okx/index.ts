@@ -265,6 +265,22 @@ export class OKX extends ProviderClass {
       }
 
       // Get quote from OKX API
+      // Check if user has sufficient balance for SOL swaps
+      if (options.fromToken.address === NATIVE_TOKEN_ADDRESS) {
+        const fromPubkey = new PublicKey(options.fromAddress);
+        const userBalance = await this.conn.getBalance(fromPubkey);
+        const swapAmount = BigInt(options.amount.toString(10));
+        const bufferAmount = BigInt(5000000); // 0.005 SOL buffer for fees and rent
+        const totalNeeded = swapAmount + bufferAmount;
+
+        if (BigInt(userBalance) < totalNeeded) {
+          logger.warn(
+            `Insufficient SOL balance for quote. Need ${Number(totalNeeded) / 1e9} SOL but have ${userBalance / 1e9} SOL`,
+          );
+          return null; // Return null instead of throwing to allow other providers
+        }
+      }
+
       const quote = await this.getOKXQuote(
         {
           srcMint,
@@ -398,27 +414,76 @@ export class OKX extends ProviderClass {
             wrappedSolATA,
           );
 
-          if (!wrappedSolExists) {
-            // Create Wrapped SOL account creation instruction
-            const createWrappedSolInstruction =
-              getCreateAssociatedTokenAccountIdempotentInstruction({
-                payerPubkey: fromPubkey,
-                ataPubkey: wrappedSolATA,
-                ownerPubkey: fromPubkey,
-                mintPubkey: wrappedSolMint,
-                systemProgramId: SystemProgram.programId,
-                tokenProgramId: new PublicKey(
-                  "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-                ),
-                associatedTokenProgramId: ASSOCIATED_TOKEN_PROGRAM_ID,
-              });
+          // Check current WSOL balance if account exists
+          let currentWsolBalance = 0;
+          if (wrappedSolExists) {
+            try {
+              const accountInfo = await this.conn.getTokenAccountBalance(wrappedSolATA);
+              currentWsolBalance = parseInt(accountInfo.value.amount);
+              logger.info(
+                `WSOL account exists with balance: ${currentWsolBalance / 1e9} SOL (${currentWsolBalance} lamports)`
+              );
+            } catch (error) {
+              console.warn(`Could not get WSOL balance: ${error}`);
+              currentWsolBalance = 0;
+            }
+          } else {
+            logger.info("WSOL account does not exist, will create it");
+          }
 
-            // Create SOL transfer instruction to fund the Wrapped SOL account
+          const swapAmount = BigInt(quote.options.amount.toString(10));
+          const swapAmountNumber = Number(swapAmount);
+          const needsMoreFunding = !wrappedSolExists || currentWsolBalance < swapAmountNumber;
+          
+          logger.info(
+            `WSOL funding check: need ${swapAmountNumber / 1e9} SOL, have ${currentWsolBalance / 1e9} SOL, needsMoreFunding: ${needsMoreFunding}`
+          );
+
+          if (needsMoreFunding) {
+            // Check if user has enough SOL balance for the swap plus fees
+            const userBalance = await this.conn.getBalance(fromPubkey);
+            const bufferAmount = BigInt(5000000); // 0.005 SOL buffer for fees and rent
+            const additionalNeeded = wrappedSolExists 
+              ? Math.max(0, swapAmountNumber - currentWsolBalance) 
+              : swapAmountNumber;
+            const totalNeeded = BigInt(additionalNeeded) + bufferAmount;
+
+            logger.info(
+              `SOL balance check: user has ${userBalance / 1e9} SOL, need additional ${additionalNeeded / 1e9} SOL (${Number(totalNeeded) / 1e9} SOL including buffer)`
+            );
+
+            if (BigInt(userBalance) < totalNeeded) {
+              throw new Error(
+                `Insufficient SOL balance. Need ${Number(totalNeeded) / 1e9} SOL additional but have ${userBalance / 1e9} SOL`,
+              );
+            }
+
+            const instructions = [];
+
+            // Create Wrapped SOL account if it doesn't exist
+            if (!wrappedSolExists) {
+              const createWrappedSolInstruction =
+                getCreateAssociatedTokenAccountIdempotentInstruction({
+                  payerPubkey: fromPubkey,
+                  ataPubkey: wrappedSolATA,
+                  ownerPubkey: fromPubkey,
+                  mintPubkey: wrappedSolMint,
+                  systemProgramId: SystemProgram.programId,
+                  tokenProgramId: new PublicKey(
+                    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                  ),
+                  associatedTokenProgramId: ASSOCIATED_TOKEN_PROGRAM_ID,
+                });
+              instructions.push(createWrappedSolInstruction);
+            }
+
+            // Transfer SOL to fund the Wrapped SOL account (only transfer what's needed)
             const transferInstruction = SystemProgram.transfer({
               fromPubkey: fromPubkey,
               toPubkey: wrappedSolATA,
-              lamports: Number(BigInt(quote.options.amount.toString(10))),
+              lamports: additionalNeeded,
             });
+            instructions.push(transferInstruction);
 
             // Create SyncNative instruction to convert transferred SOL to Wrapped SOL tokens
             const syncNativeInstruction = new TransactionInstruction({
@@ -431,19 +496,17 @@ export class OKX extends ProviderClass {
               data: Buffer.from([17]), // SyncNative instruction discriminator
             });
 
+            instructions.push(syncNativeInstruction);
+
             // Decode the OKX transaction
             const txBuffer = Buffer.from(base64SwapTransaction, "base64");
             const versionedTx = VersionedTransaction.deserialize(txBuffer);
 
-            // Insert all three instructions: account creation, funding, then sync
+            // Insert all instructions at start of transaction
             const modifiedTx = await insertInstructionsAtStartOfTransaction(
               this.conn,
               versionedTx,
-              [
-                createWrappedSolInstruction,
-                transferInstruction,
-                syncNativeInstruction,
-              ],
+              instructions,
             );
 
             // Re-serialize the modified transaction
@@ -499,7 +562,7 @@ export class OKX extends ProviderClass {
           const closeAccountInstruction = new TransactionInstruction({
             keys: [
               { pubkey: wrappedSolATA, isSigner: false, isWritable: true }, // WSOL token account to close
-              { pubkey: toPubkey, isSigner: false, isWritable: true }, // Where lamports go (recipient gets SOL)
+              { pubkey: fromPubkey, isSigner: false, isWritable: true }, // Where lamports go (sender gets SOL back)
               { pubkey: fromPubkey, isSigner: true, isWritable: false }, // Owner/authority (sender)
             ],
             programId: new PublicKey(

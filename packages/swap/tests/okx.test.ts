@@ -284,9 +284,7 @@ describe("OKX Provider", () => {
         toAddress: "3zDT4WonZsGr6x6ysQeuhTHtabpdawZNsjhC6g1yZDEK",
       };
 
-      console.log(
-        "🚀 Testing USDC -> SOL swap with unwrapping detection",
-      );
+      console.log("🚀 Testing USDC -> SOL swap with unwrapping detection");
 
       const usdcToSolQuote = await okx.getQuote(usdcToSolQuoteOptions, {
         infiniteApproval: true,
@@ -294,7 +292,10 @@ describe("OKX Provider", () => {
         slippage: "0.5",
       });
 
-      console.log("🔍 USDC → SOL quote result:", usdcToSolQuote ? "SUCCESS" : "FAILED");
+      console.log(
+        "🔍 USDC → SOL quote result:",
+        usdcToSolQuote ? "SUCCESS" : "FAILED",
+      );
 
       if (usdcToSolQuote) {
         expect(usdcToSolQuote).not.toBeNull();
@@ -302,15 +303,18 @@ describe("OKX Provider", () => {
 
         console.log("🔍 Getting USDC → SOL swap transaction...");
         const usdcToSolSwap = await okx.getSwap(usdcToSolQuote.quote);
-        console.log("🔍 USDC → SOL swap result:", usdcToSolSwap ? "SUCCESS" : "FAILED");
+        console.log(
+          "🔍 USDC → SOL swap result:",
+          usdcToSolSwap ? "SUCCESS" : "FAILED",
+        );
 
         if (usdcToSolSwap) {
           expect(usdcToSolSwap).not.toBeNull();
           expect(usdcToSolSwap.transactions.length).toBeGreaterThanOrEqual(1);
-          console.log(`✅ USDC → SOL swap transaction created with ${usdcToSolSwap.transactions.length} transaction(s)`);
           console.log(
-            "✅ Unwrapping detection logic executed",
+            `✅ USDC → SOL swap transaction created with ${usdcToSolSwap.transactions.length} transaction(s)`,
           );
+          console.log("✅ Unwrapping detection logic executed");
         }
       }
     },
