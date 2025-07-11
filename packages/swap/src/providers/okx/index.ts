@@ -264,7 +264,6 @@ export class OKX extends ProviderClass {
         dstMint = new PublicKey(options.toToken.address);
       }
 
-
       // Get quote from OKX API
       const quote = await this.getOKXQuote(
         {
@@ -357,28 +356,29 @@ export class OKX extends ProviderClass {
     quote: SwapQuote,
     context?: { signal?: AbortSignal },
   ): Promise<ProviderSwapResponse | null> {
-
     try {
       const { feePercentage, okxQuote, base64SwapTransaction, rentFees } =
         await this.querySwapInfo(quote.options, quote.meta, context);
 
       // Use Jupiter's approach: inject ATA creation instructions into the OKX transaction
-      // Check if we need to create a Wrapped SOL account for SOL swaps  
-      const needsWrappedSolAccount = quote.options.fromToken.address === NATIVE_TOKEN_ADDRESS || 
-                                     quote.options.fromToken.address === SOL_NATIVE_ADDRESS;
-      
+      // Check if we need to create a Wrapped SOL account for SOL swaps
+      const needsWrappedSolAccount =
+        quote.options.fromToken.address === NATIVE_TOKEN_ADDRESS ||
+        quote.options.fromToken.address === SOL_NATIVE_ADDRESS;
+
       // Check if we need to unwrap Wrapped SOL to native SOL for destination
-      const needsWrappedSolUnwrap = quote.options.toToken.address === NATIVE_TOKEN_ADDRESS || 
-                                    quote.options.toToken.address === SOL_NATIVE_ADDRESS;
-      
+      const needsWrappedSolUnwrap =
+        quote.options.toToken.address === NATIVE_TOKEN_ADDRESS ||
+        quote.options.toToken.address === SOL_NATIVE_ADDRESS;
+
       console.log(`[UNWRAP DEBUG] Checking unwrapping requirements:`);
       console.log(`  - toToken.address: "${quote.options.toToken.address}"`);
       console.log(`  - NATIVE_TOKEN_ADDRESS: "${NATIVE_TOKEN_ADDRESS}"`);
       console.log(`  - SOL_NATIVE_ADDRESS: "${SOL_NATIVE_ADDRESS}"`);
       console.log(`  - needsWrappedSolUnwrap: ${needsWrappedSolUnwrap}`);
-      
+
       let modifiedTransaction = base64SwapTransaction;
-      
+
       if (needsWrappedSolAccount) {
         try {
           const fromPubkey = new PublicKey(quote.options.fromAddress);
@@ -392,9 +392,12 @@ export class OKX extends ProviderClass {
             wrappedSolMint,
             wrappedSolTokenProgramId,
           );
-          
-          const wrappedSolExists = await solAccountExists(this.conn, wrappedSolATA);
-          
+
+          const wrappedSolExists = await solAccountExists(
+            this.conn,
+            wrappedSolATA,
+          );
+
           if (!wrappedSolExists) {
             // Create Wrapped SOL account creation instruction
             const createWrappedSolInstruction =
@@ -409,39 +412,53 @@ export class OKX extends ProviderClass {
                 ),
                 associatedTokenProgramId: ASSOCIATED_TOKEN_PROGRAM_ID,
               });
-            
+
             // Create SOL transfer instruction to fund the Wrapped SOL account
             const transferInstruction = SystemProgram.transfer({
               fromPubkey: fromPubkey,
               toPubkey: wrappedSolATA,
               lamports: Number(BigInt(quote.options.amount.toString(10))),
             });
-            
+
             // Create SyncNative instruction to convert transferred SOL to Wrapped SOL tokens
             const syncNativeInstruction = new TransactionInstruction({
-              keys: [{ pubkey: wrappedSolATA, isSigner: false, isWritable: true }],
-              programId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+              keys: [
+                { pubkey: wrappedSolATA, isSigner: false, isWritable: true },
+              ],
+              programId: new PublicKey(
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+              ),
               data: Buffer.from([17]), // SyncNative instruction discriminator
             });
-            
+
             // Decode the OKX transaction
             const txBuffer = Buffer.from(base64SwapTransaction, "base64");
             const versionedTx = VersionedTransaction.deserialize(txBuffer);
-            
+
             // Insert all three instructions: account creation, funding, then sync
             const modifiedTx = await insertInstructionsAtStartOfTransaction(
               this.conn,
               versionedTx,
-              [createWrappedSolInstruction, transferInstruction, syncNativeInstruction],
+              [
+                createWrappedSolInstruction,
+                transferInstruction,
+                syncNativeInstruction,
+              ],
             );
-            
+
             // Re-serialize the modified transaction
-            modifiedTransaction = Buffer.from(modifiedTx.serialize()).toString("base64");
-            
-            logger.info("Added Wrapped SOL account creation, funding, and sync instructions to OKX transaction");
+            modifiedTransaction = Buffer.from(modifiedTx.serialize()).toString(
+              "base64",
+            );
+
+            logger.info(
+              "Added Wrapped SOL account creation, funding, and sync instructions to OKX transaction",
+            );
           }
         } catch (error) {
-          logger.warn(`Could not add Wrapped SOL account creation: ${error.message}`);
+          logger.warn(
+            `Could not add Wrapped SOL account creation: ${error.message}`,
+          );
           // Continue with original transaction
         }
       }
@@ -474,21 +491,23 @@ export class OKX extends ProviderClass {
             wrappedSolMint,
             wrappedSolTokenProgramId,
           );
-          
+
           // Create a separate transaction for unwrapping WSOL to SOL
           const unwrapTransaction = new Transaction();
-          
+
           // Add closeAccount instruction to unwrap WSOL to SOL
           const closeAccountInstruction = new TransactionInstruction({
             keys: [
               { pubkey: wrappedSolATA, isSigner: false, isWritable: true }, // WSOL token account to close
-              { pubkey: fromPubkey, isSigner: false, isWritable: true }, // Where lamports go (sender gets SOL back)
+              { pubkey: toPubkey, isSigner: false, isWritable: true }, // Where lamports go (recipient gets SOL)
               { pubkey: fromPubkey, isSigner: true, isWritable: false }, // Owner/authority (sender)
             ],
-            programId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            programId: new PublicKey(
+              "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            ),
             data: Buffer.from([9]), // CloseAccount instruction discriminator
           });
-          
+
           // If the recipient is different from sender, add a SOL transfer instruction
           if (quote.options.fromAddress !== quote.options.toAddress) {
             const transferSolInstruction = SystemProgram.transfer({
@@ -499,21 +518,21 @@ export class OKX extends ProviderClass {
             // Note: We'd need to calculate the exact WSOL balance to transfer
             // For now, let's close to sender and they can transfer manually if needed
           }
-          
+
           unwrapTransaction.add(closeAccountInstruction);
-          
+
           // Get latest blockhash
           const { blockhash } = await this.conn.getLatestBlockhash();
           unwrapTransaction.recentBlockhash = blockhash;
           unwrapTransaction.feePayer = fromPubkey; // User pays the fee
-          
+
           // Serialize the unwrap transaction
           const unwrapTxBuffer = unwrapTransaction.serialize({
             requireAllSignatures: false,
             verifySignatures: false,
           });
           const unwrapTxBase64 = Buffer.from(unwrapTxBuffer).toString("base64");
-          
+
           const unwrapSolanaTransaction: SolanaTransaction = {
             from: quote.options.fromAddress, // Same user who initiated the swap
             to: quote.options.toAddress, // Where the unwrapped SOL goes
@@ -522,22 +541,29 @@ export class OKX extends ProviderClass {
             kind: "legacy", // Unwrap transaction is legacy
             thirdPartySignatures: [],
           };
-          
+
           // Add the unwrap transaction AFTER the swap transaction
           allTransactions = [enkryptTransaction, unwrapSolanaTransaction];
-          
-          logger.info(`[UNWRAP DEBUG] Successfully added unwrapping transaction! Total: ${allTransactions.length} transactions`);
-          logger.info("Added separate Wrapped SOL unwrapping transaction for USDC → SOL swap");
+
+          logger.info(
+            `[UNWRAP DEBUG] Successfully added unwrapping transaction! Total: ${allTransactions.length} transactions`,
+          );
+          logger.info(
+            "Added separate Wrapped SOL unwrapping transaction for USDC → SOL swap",
+          );
         } catch (error) {
-          logger.error(`[UNWRAP DEBUG] Error creating unwrapping transaction:`, error);
-          logger.warn(`Could not create Wrapped SOL unwrapping transaction: ${error.message}`);
+          logger.error(
+            `[UNWRAP DEBUG] Error creating unwrapping transaction:`,
+            error,
+          );
+          logger.warn(
+            `Could not create Wrapped SOL unwrapping transaction: ${error.message}`,
+          );
           // Continue with just the swap transaction
         }
       } else {
         logger.info(`[UNWRAP DEBUG] No unwrapping needed - single transaction`);
       }
-          
-
 
       logger.info(`OKX getSwap: Final transaction data check:`);
       logger.info(`  - serialized length: ${base64SwapTransaction.length}`);
@@ -563,9 +589,13 @@ export class OKX extends ProviderClass {
         `getSwap: Quote outAmount: ${okxQuote.toTokenAmount} ${quote.options.toToken.symbol}`,
       );
 
-      console.log(`[UNWRAP DEBUG] Final result: returning ${allTransactions.length} transactions`);
+      console.log(
+        `[UNWRAP DEBUG] Final result: returning ${allTransactions.length} transactions`,
+      );
       allTransactions.forEach((tx, i) => {
-        console.log(`[UNWRAP DEBUG] Transaction ${i + 1}: kind=${tx.kind}, from=${tx.from}, to=${tx.to}`);
+        console.log(
+          `[UNWRAP DEBUG] Transaction ${i + 1}: kind=${tx.kind}, from=${tx.from}, to=${tx.to}`,
+        );
       });
 
       return {
@@ -897,12 +927,14 @@ export class OKX extends ProviderClass {
         : options.toToken.address,
     );
 
-
     // CRITICAL: Pre-create required token accounts before calling OKX
     const userPubkey = new PublicKey(options.fromAddress);
 
     // Simple check: log the account status for debugging
-    if (options.fromToken.address === NATIVE_TOKEN_ADDRESS || options.fromToken.address === SOL_NATIVE_ADDRESS) {
+    if (
+      options.fromToken.address === NATIVE_TOKEN_ADDRESS ||
+      options.fromToken.address === SOL_NATIVE_ADDRESS
+    ) {
       try {
         const wrappedSolMint = new PublicKey(WRAPPED_SOL_ADDRESS);
         const wrappedSolTokenProgramId = await getTokenProgramOfMint(
@@ -922,10 +954,8 @@ export class OKX extends ProviderClass {
 
         if (!wrappedSolExists) {
         }
-      } catch (wrappedSolError) {
-      }
+      } catch (wrappedSolError) {}
     }
-
 
     const quote = await this.getOKXQuote(
       {
@@ -995,8 +1025,9 @@ export class OKX extends ProviderClass {
     logger.info(`  - Appears to be base64: ${isBase64}`);
 
     // Check if we need to create Wrapped SOL account for SOL swaps
-    const needsWrappedSolAccount = options.fromToken.address === NATIVE_TOKEN_ADDRESS || 
-                                   options.fromToken.address === SOL_NATIVE_ADDRESS;
+    const needsWrappedSolAccount =
+      options.fromToken.address === NATIVE_TOKEN_ADDRESS ||
+      options.fromToken.address === SOL_NATIVE_ADDRESS;
     let wrappedSolATA: PublicKey | null = null;
     let wrappedSolExists = true;
 
@@ -1061,7 +1092,6 @@ export class OKX extends ProviderClass {
     fromAddress: string,
     programAddress: string,
   ): Promise<string> {
-
     try {
       logger.info(
         `createSolanaTransactionFromOKXData: Processing OKX transaction data`,
@@ -1118,7 +1148,6 @@ export class OKX extends ProviderClass {
               new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"), // Standard token program
             );
 
-
             const createWrappedSolInstruction =
               getCreateAssociatedTokenAccountIdempotentInstruction({
                 payerPubkey: fromPubkey,
@@ -1133,7 +1162,6 @@ export class OKX extends ProviderClass {
               });
 
             try {
-
               // Check if this is a versioned transaction with address lookup tables
               if (
                 transaction.message &&
@@ -1142,10 +1170,8 @@ export class OKX extends ProviderClass {
                 const lookups = transaction.message.addressTableLookups;
 
                 if (lookups && lookups.length > 0) {
-                  
                   // For transactions with lookup tables, return them as-is
                   // Wrapped SOL account creation is now handled at a higher level
-                  
 
                   const reserializedBuffer = transaction.serialize();
                   const result =
@@ -1161,7 +1187,6 @@ export class OKX extends ProviderClass {
               try {
                 const accountKeys = transaction.message.getAccountKeys();
               } catch (accountKeysError) {
-
                 // Return original transaction if we can't access account keys
                 const reserializedBuffer = transaction.serialize();
                 const result =
@@ -1179,7 +1204,6 @@ export class OKX extends ProviderClass {
               );
               return result;
             } catch (modifyError) {
-
               // Fallback to original transaction
               const reserializedBuffer = transaction.serialize();
               const result = Buffer.from(reserializedBuffer).toString("base64");
