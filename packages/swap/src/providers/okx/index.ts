@@ -337,6 +337,16 @@ export class OKX extends ProviderClass {
           logger.warn(
             `Could not get token program for destination mint: ${tokenProgramError}`,
           );
+          // If this looks like a network connectivity issue, return null
+          if (
+            tokenProgramError.message?.includes("fetch failed") ||
+            tokenProgramError.message?.includes("Network") ||
+            tokenProgramError.message?.includes("ENOTFOUND") ||
+            tokenProgramError.message?.includes("timeout")
+          ) {
+            logger.warn("Network connectivity issue detected, returning null");
+            return null;
+          }
           // Use a default rent fee if we can't get token program info
           rentFees += 2039280; // Default SOL rent exemption for token account
         }
@@ -702,8 +712,6 @@ export class OKX extends ProviderClass {
         : options.toToken.address,
     );
 
-    const userPubkey = new PublicKey(options.fromAddress);
-
     // SWAP endpoint requires userWalletAddress and slippage, but NOT chainIndex/chainId
     // Convert NATIVE_TOKEN_ADDRESS to SOL address for API calls
     const swapSrcTokenAddress =
@@ -727,7 +735,6 @@ export class OKX extends ProviderClass {
     };
 
     const swap = await this.getOKXSwap(swapParams, context);
-    console.log(`[OKX.querySwapInfo] Swap:`, swap);
 
     if (!swap || !swap.tx || !swap.tx.data) {
       throw new Error(`Invalid swap response from OKX API`);
