@@ -594,7 +594,7 @@ export class OKX extends ProviderClass {
   }
 
   /**
-   * Get swap transaction from OKX API
+   * Get swap transaction from OKX API - returns the swap transaction from OKX API
    */
   private async getOKXSwap(
     params: any,
