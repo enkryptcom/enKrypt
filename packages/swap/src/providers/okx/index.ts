@@ -47,10 +47,10 @@ import { OKXQuoteResponse, OKXSwapResponse, OKXTokenInfo } from "./types";
 const logger = new DebugLogger("swap:okx");
 
 const SOL_NATIVE_ADDRESS = "11111111111111111111111111111111";
-const OKX_API_URL = "http://localhost:3001";
-const OKX_TOKENS_URL = "/api/v5/dex/aggregator/all-tokens";
-const OKX_QUOTE_URL = "/api/v5/dex/aggregator/quote";
-const OKX_SWAP_URL = "/api/v5/dex/aggregator/swap";
+const OKX_API_URL = "https://partners.mewapi.io/okxswapv5";
+const OKX_TOKENS_URL = "/all-tokens";
+const OKX_QUOTE_URL = "/quote";
+const OKX_SWAP_URL = "/swap";
 
 // Rate limiting: minimum 2000ms between requests
 let lastRequestTime = 0;
@@ -722,7 +722,9 @@ export class OKX extends ProviderClass {
       options.toToken.address === NATIVE_TOKEN_ADDRESS
         ? SOL_NATIVE_ADDRESS
         : options.toToken.address;
+    // Build swap parameters with required and optional fields
     const swapParams: Record<string, string> = {
+      // Required parameters
       chainId: "501", // Solana Chain ID - required for swap API
       amount: options.amount.toString(10),
       fromTokenAddress: swapSrcTokenAddress,
@@ -730,9 +732,45 @@ export class OKX extends ProviderClass {
       userWalletAddress: options.fromAddress,
       slippage: parseFloat(meta.slippage || DEFAULT_SLIPPAGE).toString(),
       swapMode: "exactIn",
-      autoSlippage: "true", // Required for Solana
+
+      // Solana-required parameters
+      autoSlippage: "false", // Required for Solana
       maxAutoSlippageBps: "100", // Required for Solana
+
+      // Referral fee configuration using existing fee config
+      feePercent: (feeConf.fee * 100).toString(), // Convert to percentage
+
+      // ==================================================
+      // OPTIONAL PARAMETERS - Uncomment to enable/disable
+      // ==================================================
+
+      // Recipient address (if different from user wallet)
+      // swapReceiverAddress: options.toAddress,
+
+      // Solana-specific transaction handling
+      // computeUnitPrice: "0", // Let OKX handle priority fees automatically
+      // computeUnitLimit: "0", // Let OKX handle compute limits automatically
+      // tips: "0.0001", // Jito MEV protection tips in SOL (min: 0.0000000001, max: 2)
+
+      // Trading protection parameters
+      // priceImpactProtectionPercentage: "0.25", // Max price impact (0-1.0, default: 0.9)
+      // directRoute: "false", // true = single pool only, false = allow multi-hop routing
+      // positiveSlippagePercent: "0", // Fee on positive slippage (0-10%, Solana only)
+      // positiveSlippageFeeAddress: "", // Address to receive positive slippage fees
+
+      // Gas/Fee configuration
+      // gasLevel: "average", // EVM only: "slow", "average", "fast"
+      // gasLimit: "", // EVM only: custom gas limit in wei
+
+      // Advanced routing options
+      // dexIds: "", // Comma-separated list of DEX IDs to limit routing
+      // callDataMemo: "", // Custom 128-char hex string for blockchain metadata
     };
+
+    // Add referrer wallet address if available in fee config
+    if (feeConf.referrer && feeConf.referrer.trim() !== "") {
+      swapParams.toTokenReferrerWalletAddress = feeConf.referrer;
+    }
 
     const swap = await this.getOKXSwap(swapParams, context);
 
