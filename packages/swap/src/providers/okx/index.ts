@@ -1,5 +1,12 @@
 import { NetworkNames } from "@enkryptcom/types";
-import { Connection, PublicKey } from "@solana/web3.js";
+import {
+  Connection,
+  PublicKey,
+  Transaction,
+  TransactionInstruction,
+  VersionedTransaction,
+} from "@solana/web3.js";
+import bs58 from "bs58";
 import { toBN } from "web3-utils";
 import { TOKEN_AMOUNT_INFINITY_AND_BEYOND } from "../../utils/approvals";
 import {
@@ -8,7 +15,6 @@ import {
   isValidSolanaAddressAsync,
   solAccountExists,
   SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES,
-  WRAPPED_SOL_ADDRESS,
 } from "../../utils/solana";
 import {
   ProviderClass,
@@ -175,8 +181,8 @@ export class OKX extends ProviderClass {
     for (const enkryptToken of enkryptTokenList) {
       let isTradeable = false;
       if (enkryptToken.address === NATIVE_TOKEN_ADDRESS) {
-        // OKX swap API auto unwraps SOL
-        isTradeable = this.okxTokens.has(WRAPPED_SOL_ADDRESS);
+        // Check if OKX supports native SOL
+        isTradeable = this.okxTokens.has(SOL_NATIVE_ADDRESS);
       } else {
         isTradeable = this.okxTokens.has(enkryptToken.address);
       }
@@ -237,23 +243,19 @@ export class OKX extends ProviderClass {
 
       const toPubkey = new PublicKey(options.toAddress);
 
-      // Source token
-      let srcMint: PublicKey;
-      if (options.fromToken.address === NATIVE_TOKEN_ADDRESS) {
-        srcMint = new PublicKey(WRAPPED_SOL_ADDRESS);
-      } else {
-        srcMint = new PublicKey(options.fromToken.address);
-      }
+      // Source and destination tokens - convert NATIVE_TOKEN_ADDRESS to SOL address
+      const srcMint = new PublicKey(
+        options.fromToken.address === NATIVE_TOKEN_ADDRESS
+          ? SOL_NATIVE_ADDRESS
+          : options.fromToken.address,
+      );
+      const dstMint = new PublicKey(
+        options.toToken.address === NATIVE_TOKEN_ADDRESS
+          ? SOL_NATIVE_ADDRESS
+          : options.toToken.address,
+      );
 
-      // Destination token
-      let dstMint: PublicKey;
-      if (options.toToken.address === NATIVE_TOKEN_ADDRESS) {
-        dstMint = new PublicKey(WRAPPED_SOL_ADDRESS);
-      } else {
-        dstMint = new PublicKey(options.toToken.address);
-      }
-
-      // Get quote from OKX API
+      // Get quote from OKX API first to get estimated gas fee
       const quote = await this.getOKXQuote(
         {
           srcMint,
@@ -267,39 +269,85 @@ export class OKX extends ProviderClass {
         context,
       );
 
-      // Calculate compute budget and rent fees
-      const dstTokenProgramId = await getTokenProgramOfMint(this.conn, dstMint);
-      const dstATAPubkey = getSPLAssociatedTokenAccountPubkey(
-        toPubkey,
-        dstMint,
-        dstTokenProgramId,
-      );
+      // Check if user has sufficient balance for SOL swaps
+      if (options.fromToken.address === NATIVE_TOKEN_ADDRESS) {
+        const fromPubkey = new PublicKey(options.fromAddress);
+        const userBalance = await this.conn.getBalance(fromPubkey);
+        const swapAmount = BigInt(options.amount.toString(10));
+        // Use actual estimated gas fee from OKX response instead of hardcoded buffer
+        const estimatedGasFee = BigInt(quote.estimateGasFee);
+        const bufferAmount = estimatedGasFee + BigInt(1000000); // Add small buffer (0.001 SOL) on top of estimated fee
+        const totalNeeded = swapAmount + bufferAmount;
 
-      let rentFees = 0;
-      try {
-        const dstATAExists = await solAccountExists(this.conn, dstATAPubkey);
-        if (!dstATAExists) {
-          const extraRentFee =
-            await this.conn.getMinimumBalanceForRentExemption(
-              SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES,
-            );
-          rentFees += extraRentFee;
+        if (BigInt(userBalance) < totalNeeded) {
+          logger.warn(
+            `Insufficient SOL balance for quote. Need ${Number(totalNeeded) / 1e9} SOL but have ${userBalance / 1e9} SOL`,
+          );
+          return null; // Return null instead of throwing to allow other providers
         }
-      } catch (error) {
-        // If we can't check if the account exists (RPC timeout), assume it doesn't exist
-        // and add rent fees as a safety measure
-        logger.warn(
-          `Could not check if destination token account exists: ${error}`,
-        );
+      }
+
+      // Calculate compute budget and rent fees
+      let rentFees = 0;
+
+      // Only calculate rent fees for SPL tokens, not for native SOL
+      if (options.toToken.address !== NATIVE_TOKEN_ADDRESS) {
         try {
-          const extraRentFee =
-            await this.conn.getMinimumBalanceForRentExemption(
-              SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES,
+          const dstTokenProgramId = await getTokenProgramOfMint(
+            this.conn,
+            dstMint,
+          );
+          const dstATAPubkey = getSPLAssociatedTokenAccountPubkey(
+            toPubkey,
+            dstMint,
+            dstTokenProgramId,
+          );
+
+          try {
+            const dstATAExists = await solAccountExists(
+              this.conn,
+              dstATAPubkey,
             );
-          rentFees += extraRentFee;
-        } catch (rentError) {
-          logger.warn(`Could not get rent exemption: ${rentError}`);
-          // Use a default rent fee if we can't get it
+            if (!dstATAExists) {
+              const extraRentFee =
+                await this.conn.getMinimumBalanceForRentExemption(
+                  SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES,
+                );
+              rentFees += extraRentFee;
+            }
+          } catch (error) {
+            // If we can't check if the account exists (RPC timeout), assume it doesn't exist
+            // and add rent fees as a safety measure
+            logger.warn(
+              `Could not check if destination token account exists: ${error}`,
+            );
+            try {
+              const extraRentFee =
+                await this.conn.getMinimumBalanceForRentExemption(
+                  SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES,
+                );
+              rentFees += extraRentFee;
+            } catch (rentError) {
+              logger.warn(`Could not get rent exemption: ${rentError}`);
+              // Use a default rent fee if we can't get it
+              rentFees += 2039280; // Default SOL rent exemption for token account
+            }
+          }
+        } catch (tokenProgramError) {
+          logger.warn(
+            `Could not get token program for destination mint: ${tokenProgramError}`,
+          );
+          // If this looks like a network connectivity issue, return null
+          if (
+            tokenProgramError.message?.includes("fetch failed") ||
+            tokenProgramError.message?.includes("Network") ||
+            tokenProgramError.message?.includes("ENOTFOUND") ||
+            tokenProgramError.message?.includes("timeout")
+          ) {
+            logger.warn("Network connectivity issue detected, returning null");
+            return null;
+          }
+          // Use a default rent fee if we can't get token program info
           rentFees += 2039280; // Default SOL rent exemption for token account
         }
       }
@@ -349,41 +397,23 @@ export class OKX extends ProviderClass {
       const { feePercentage, okxQuote, base64SwapTransaction, rentFees } =
         await this.querySwapInfo(quote.options, quote.meta, context);
 
+      // Use the transaction data directly from OKX
+      const modifiedTransaction = base64SwapTransaction;
+
       const enkryptTransaction: SolanaTransaction = {
         from: quote.options.fromAddress,
         to: quote.options.toAddress,
-        serialized: base64SwapTransaction,
+        serialized: modifiedTransaction,
         type: TransactionType.solana,
-        kind: "versioned",
+        kind: "versioned", // OKX returns VersionedTransactions
         thirdPartySignatures: [],
       };
 
-      logger.info(`OKX getSwap: Final transaction data check:`);
-      logger.info(`  - serialized length: ${base64SwapTransaction.length}`);
-      logger.info(
-        `  - first 100 chars: ${base64SwapTransaction.substring(0, 100)}`,
-      );
-      logger.info(
-        `  - last 100 chars: ${base64SwapTransaction.substring(base64SwapTransaction.length - 100)}`,
-      );
-
-      // Verify it's still valid base64
-      try {
-        const testDecode = Buffer.from(base64SwapTransaction, "base64");
-        logger.info(`  - decoded length: ${testDecode.length} bytes`);
-      } catch (testError) {
-        logger.error(`  - base64 decode test failed: ${testError}`);
-      }
-
-      logger.info(
-        `getSwap: Quote inAmount:  ${okxQuote.fromTokenAmount} ${quote.options.fromToken.symbol}`,
-      );
-      logger.info(
-        `getSwap: Quote outAmount: ${okxQuote.toTokenAmount} ${quote.options.toToken.symbol}`,
-      );
+      // Return only the main swap transaction from OKX
+      const allTransactions: SolanaTransaction[] = [enkryptTransaction];
 
       return {
-        transactions: [enkryptTransaction],
+        transactions: allTransactions,
         fromTokenAmount: toBN(okxQuote.fromTokenAmount),
         toTokenAmount: toBN(
           Math.floor((1 - feePercentage / 100) * Number(okxQuote.toTokenAmount))
@@ -491,13 +521,11 @@ export class OKX extends ProviderClass {
     return retryRequest(async () => {
       const { srcMint, dstMint, amount, slippageBps, referralFeeBps } = params;
 
-      const quoteParams = {
+      const quoteParams: Record<string, string> = {
         chainId: "501", // Solana Chain ID
         fromTokenAddress: srcMint.toBase58(),
         toTokenAddress: dstMint.toBase58(),
         amount: amount.toString(10),
-        slippage: (slippageBps / 100).toString(),
-        feePercent: (referralFeeBps / 100).toString(),
         swapMode: "exactIn",
       };
 
@@ -566,7 +594,7 @@ export class OKX extends ProviderClass {
   }
 
   /**
-   * Get swap transaction from OKX API
+   * Get swap transaction from OKX API - returns the swap transaction from OKX API
    */
   private async getOKXSwap(
     params: any,
@@ -634,7 +662,6 @@ export class OKX extends ProviderClass {
         throw new Error(`Missing transaction data in OKX response`);
       }
 
-      // CRITICAL: Log the exact transaction data we receive
       const rawTxData = swapData.tx.data;
 
       // Validate base64 format
@@ -644,22 +671,6 @@ export class OKX extends ProviderClass {
 
       if (!isValidBase64) {
         throw new Error(`Invalid base64 format in transaction data`);
-      }
-
-      // Test decode
-      try {
-        const testDecode = Buffer.from(rawTxData, "base64");
-        logger.info(`✅ Successfully decoded to ${testDecode.length} bytes`);
-        logger.info(
-          `Decoded data (first 20 bytes): ${Array.from(testDecode.slice(0, 20))
-            .map((b) => b.toString(16).padStart(2, "0"))
-            .join(" ")}`,
-        );
-      } catch (e) {
-        logger.error(`❌ Failed to decode as base64: ${e.message}`);
-        throw new Error(
-          `Cannot decode transaction data as base64: ${e.message}`,
-        );
       }
 
       logger.info(`OKX: Successfully received swap transaction data`);
@@ -695,131 +706,222 @@ export class OKX extends ProviderClass {
 
     const toPubkey = new PublicKey(options.toAddress);
 
-    // CRITICAL FIX: Use native SOL format for swap API calls (not wrapped SOL)
-    let srcTokenAddress: string;
-    if (options.fromToken.address === NATIVE_TOKEN_ADDRESS) {
-      srcTokenAddress = SOL_NATIVE_ADDRESS; // Native SOL format
-    } else {
-      srcTokenAddress = options.fromToken.address;
-    }
-
-    let dstTokenAddress: string;
-    if (options.toToken.address === NATIVE_TOKEN_ADDRESS) {
-      dstTokenAddress = SOL_NATIVE_ADDRESS; // Native SOL format
-    } else {
-      dstTokenAddress = options.toToken.address;
-    }
-
-    // Get quote first (using wrapped SOL addresses for quote API)
-    const srcMint = new PublicKey(
-      srcTokenAddress === SOL_NATIVE_ADDRESS
-        ? WRAPPED_SOL_ADDRESS
-        : srcTokenAddress,
-    );
     const dstMint = new PublicKey(
-      dstTokenAddress === SOL_NATIVE_ADDRESS
-        ? WRAPPED_SOL_ADDRESS
-        : dstTokenAddress,
+      options.toToken.address === NATIVE_TOKEN_ADDRESS
+        ? SOL_NATIVE_ADDRESS
+        : options.toToken.address,
     );
 
-    const quote = await this.getOKXQuote(
-      {
-        srcMint,
-        dstMint,
-        amount: BigInt(options.amount.toString(10)),
-        slippageBps: Math.round(
-          100 * parseFloat(meta.slippage || DEFAULT_SLIPPAGE),
-        ),
-        referralFeeBps: Math.round(10000 * feeConf.fee),
-      },
-      context,
-    );
-
-    // Build swap parameters EXACTLY like working script
-    const swapParams: any = {
-      chainId: "501",
+    // SWAP endpoint requires userWalletAddress and slippage, but NOT chainIndex/chainId
+    // Convert NATIVE_TOKEN_ADDRESS to SOL address for API calls
+    const swapSrcTokenAddress =
+      options.fromToken.address === NATIVE_TOKEN_ADDRESS
+        ? SOL_NATIVE_ADDRESS
+        : options.fromToken.address;
+    const swapDstTokenAddress =
+      options.toToken.address === NATIVE_TOKEN_ADDRESS
+        ? SOL_NATIVE_ADDRESS
+        : options.toToken.address;
+    // Build swap parameters with required and optional fields
+    const swapParams: Record<string, string> = {
+      // Required parameters
+      chainId: "501", // Solana Chain ID - required for swap API
       amount: options.amount.toString(10),
-      fromTokenAddress: srcTokenAddress, // Use native format for swap
-      toTokenAddress: dstTokenAddress, // Use native format for swap
+      fromTokenAddress: swapSrcTokenAddress,
+      toTokenAddress: swapDstTokenAddress,
       userWalletAddress: options.fromAddress,
       slippage: parseFloat(meta.slippage || DEFAULT_SLIPPAGE).toString(),
-      autoSlippage: "true", // STRING, not boolean - CRITICAL
-      maxAutoSlippageBps: "100", // Add this parameter - REQUIRED
+      swapMode: "exactIn",
+
+      // Solana-required parameters
+      autoSlippage: "false", // Required for Solana
+      maxAutoSlippageBps: "100", // Required for Solana
+
+      // Referral fee configuration using existing fee config
+      feePercent: (feeConf.fee * 100).toString(), // Convert to percentage
+
+      // ==================================================
+      // OPTIONAL PARAMETERS - Uncomment to enable/disable
+      // ==================================================
+
+      // Recipient address (if different from user wallet)
+      // swapReceiverAddress: options.toAddress,
+
+      // Solana-specific transaction handling
+      // computeUnitPrice: "0", // Let OKX handle priority fees automatically
+      // computeUnitLimit: "0", // Let OKX handle compute limits automatically
+      // tips: "0.0001", // Jito MEV protection tips in SOL (min: 0.0000000001, max: 2)
+
+      // Trading protection parameters
+      // priceImpactProtectionPercentage: "0.25", // Max price impact (0-1.0, default: 0.9)
+      // directRoute: "false", // true = single pool only, false = allow multi-hop routing
+      // positiveSlippagePercent: "0", // Fee on positive slippage (0-10%, Solana only)
+      // positiveSlippageFeeAddress: "", // Address to receive positive slippage fees
+
+      // Gas/Fee configuration
+      // gasLevel: "average", // EVM only: "slow", "average", "fast"
+      // gasLimit: "", // EVM only: custom gas limit in wei
+
+      // Advanced routing options
+      // dexIds: "", // Comma-separated list of DEX IDs to limit routing
+      // callDataMemo: "", // Custom 128-char hex string for blockchain metadata
     };
 
-    // Only add fee parameters if there's actually a fee and referrer
-    const feePercent = Math.round(10000 * feeConf.fee) / 100;
-    if (feePercent > 0 && feeConf.referrer) {
-      swapParams.feePercent = feePercent.toString();
-      swapParams.toTokenReferrerAddress = feeConf.referrer;
-      logger.info(
-        `OKX: Adding fee parameters - feePercent: ${feePercent}%, referrer: ${feeConf.referrer}`,
-      );
+    // Add referrer wallet address if available in fee config
+    if (feeConf.referrer && feeConf.referrer.trim() !== "") {
+      swapParams.toTokenReferrerWalletAddress = feeConf.referrer;
     }
-
-    logger.info(`OKX: Swap parameters:`, swapParams);
 
     const swap = await this.getOKXSwap(swapParams, context);
 
-    // Basic validation only
     if (!swap || !swap.tx || !swap.tx.data) {
       throw new Error(`Invalid swap response from OKX API`);
     }
 
-    const txData = swap.tx.data;
+    const okxTransactionData = swap.tx.data;
+    const userAddress = options.fromAddress;
 
-    // CRITICAL: Validate the base64 data before returning
-    try {
-      const testDecode = Buffer.from(txData, "base64");
-      if (testDecode.length === 0) {
-        throw new Error("Decoded transaction data is empty");
-      }
-      logger.info(
-        `OKX: Transaction data validated - ${txData.length} chars → ${testDecode.length} bytes`,
-      );
-    } catch (decodeError) {
-      logger.error(`OKX: Invalid base64 transaction data: ${decodeError}`);
-      throw new Error(
-        `Invalid base64 transaction data from OKX: ${decodeError.message}`,
-      );
-    }
-
-    // Calculate rent fees for destination token account
-    const finalDstMint = new PublicKey(
-      dstTokenAddress === SOL_NATIVE_ADDRESS
-        ? WRAPPED_SOL_ADDRESS
-        : dstTokenAddress,
+    const txData = await this.createSolanaTransactionFromOKXData(
+      okxTransactionData,
+      userAddress,
+      swap.tx.to, // This is the program address, not destination user address
     );
-
+    // Calculate rent fees for destination token account
     let rentFees = 0;
-    try {
-      const dstTokenProgramId = await getTokenProgramOfMint(
-        this.conn,
-        finalDstMint,
-      );
-      const dstATAPubkey = getSPLAssociatedTokenAccountPubkey(
-        toPubkey,
-        finalDstMint,
-        dstTokenProgramId,
-      );
 
-      const dstATAExists = await solAccountExists(this.conn, dstATAPubkey);
-      if (!dstATAExists) {
-        const extraRentFee = await this.conn.getMinimumBalanceForRentExemption(
-          SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES,
+    // Only calculate rent fees for SPL tokens, not for native SOL
+    if (options.toToken.address !== NATIVE_TOKEN_ADDRESS) {
+      try {
+        const dstTokenProgramId = await getTokenProgramOfMint(
+          this.conn,
+          dstMint,
         );
-        rentFees += extraRentFee;
+        const dstATAPubkey = getSPLAssociatedTokenAccountPubkey(
+          toPubkey,
+          dstMint,
+          dstTokenProgramId,
+        );
+        const dstATAExists = await solAccountExists(this.conn, dstATAPubkey);
+        if (!dstATAExists) {
+          const extraRentFee =
+            await this.conn.getMinimumBalanceForRentExemption(
+              SPL_TOKEN_ATA_ACCOUNT_SIZE_BYTES,
+            );
+          rentFees += extraRentFee;
+        }
+      } catch (error) {
+        logger.warn(`Could not check destination token account: ${error}`);
+        rentFees += 2039280; // Default SOL rent exemption
       }
-    } catch (error) {
-      logger.warn(`Could not check destination token account: ${error}`);
-      rentFees += 2039280; // Default SOL rent exemption
     }
-
     return {
-      okxQuote: quote,
+      okxQuote: swap.routerResult,
       base64SwapTransaction: txData,
       feePercentage: feeConf.fee * 100,
       rentFees,
     };
+  }
+
+  /**
+   * Convert OKX transaction data to proper Solana transaction
+   * OKX returns a complete transaction but we need to handle it properly
+   */
+  private async createSolanaTransactionFromOKXData(
+    okxTransactionData: string,
+    fromAddress: string,
+    programAddress: string,
+  ): Promise<string> {
+    try {
+      const decodingStrategies = [
+        {
+          name: "base64",
+          decode: () => Buffer.from(okxTransactionData, "base64"),
+        },
+        {
+          name: "base58",
+          decode: () => Buffer.from(bs58.decode(okxTransactionData)),
+        },
+        { name: "hex", decode: () => Buffer.from(okxTransactionData, "hex") },
+      ];
+
+      for (const strategy of decodingStrategies) {
+        try {
+          const buffer = strategy.decode();
+
+          if (buffer.length < 10) {
+            continue;
+          }
+
+          let transaction: Transaction | VersionedTransaction;
+          let transactionType = "unknown";
+
+          try {
+            transaction = VersionedTransaction.deserialize(buffer);
+            transactionType = "versioned";
+
+            try {
+              // Check if this is a versioned transaction with address lookup tables
+              if (
+                transaction.message &&
+                "addressTableLookups" in transaction.message
+              ) {
+                const lookups = transaction.message.addressTableLookups;
+
+                if (lookups && lookups.length > 0) {
+                  // For transactions with lookup tables, return them as-is
+
+                  const reserializedBuffer = transaction.serialize();
+                  const result =
+                    Buffer.from(reserializedBuffer).toString("base64");
+                  logger.info(
+                    `  - Returning unmodified OKX transaction to preserve lookup table integrity`,
+                  );
+                  return result;
+                }
+              }
+
+              try {
+                transaction.message.getAccountKeys();
+              } catch (accountKeysError) {
+                const reserializedBuffer = transaction.serialize();
+                const result =
+                  Buffer.from(reserializedBuffer).toString("base64");
+                return result;
+              }
+
+              const reserializedBuffer = transaction.serialize();
+              const result = Buffer.from(reserializedBuffer).toString("base64");
+              logger.info(
+                `  - Returning unmodified OKX transaction to prevent corruption`,
+              );
+              return result;
+            } catch (modifyError) {
+              // Fallback to original transaction
+              const reserializedBuffer = transaction.serialize();
+              const result = Buffer.from(reserializedBuffer).toString("base64");
+              return result;
+            }
+          } catch (versionedError) {
+            throw versionedError; // Skip legacy fallback, it's broken
+          }
+        } catch (strategyError) {
+          continue;
+        }
+      }
+
+      // If all strategies failed
+      logger.warn(
+        `  - All decoding strategies failed for OKX transaction data`,
+      );
+
+      // Last resort: Return the original OKX data and let extension handle it
+      logger.info(`  - Using last resort: returning OKX data as-is`);
+      return okxTransactionData;
+    } catch (error) {
+      logger.error(
+        `Failed to create Solana transaction from OKX data: ${error}`,
+      );
+      throw new Error(`Failed to create Solana transaction: ${error.message}`);
+    }
   }
 }
