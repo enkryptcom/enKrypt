@@ -201,7 +201,6 @@ const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {
     activity.rawInfo = kadenaInfo as KadenaRawInfo;
     updateActivitySync(activity).then(() => updateVisibleActivity(activity));
   } else if (props.network.provider === ProviderName.multiversx) {
-    console.info({ activity });
     if (!info) return;
     const multiversxInfo = info as MultiversXRawInfo;
     if (isActivityUpdating) return;

@@ -55,7 +55,7 @@ class API implements ProviderAPIInterface {
 
     const returnValue: MultiversXRawInfo = {
       transactionHash: rawTx.hash,
-      timestamp: rawTx.timestamp,
+      timestamp: rawTx.timestampMs,
       gasLimit: rawTx.gasLimit,
       gasPrice: rawTx.gasPrice,
       from: rawTx.sender,

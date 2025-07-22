@@ -246,7 +246,6 @@ watch(
 );
 
 onMounted(() => {
-  console.info(props.activity);
   date.value = moment(props.activity.timestamp).fromNow();
 
   if (
