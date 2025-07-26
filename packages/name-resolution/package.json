@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "lint": "prettier --write .",
     "test": "vitest run"
   },
   "engines": {
