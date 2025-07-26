@@ -1,12 +1,12 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface Window {
   [key: string]: any;
-  __ENKRYPT_DEBUG_LOG_CONF__: undefined | string
+  __ENKRYPT_DEBUG_LOG_CONF__: undefined | string;
 }
 
 declare global {
-  var __ENKRYPT_DEBUG_LOG_CONF__: undefined | string
+  var __ENKRYPT_DEBUG_LOG_CONF__: undefined | string;
 }
 
 // Required to make the `delare global` exports work for some reason
-export { }
-
+export {};

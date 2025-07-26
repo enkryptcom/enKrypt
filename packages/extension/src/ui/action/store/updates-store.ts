@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import UpdatesState from '@/libs/updates-state';
 import { getLatestEnkryptUpdates } from '@action/utils/browser';
@@ -6,7 +6,6 @@ import { Updates } from '@/ui/action/types/updates';
 import { gt as semverGT } from 'semver';
 
 export const useUpdatesStore = defineStore('useUpdatesStore', () => {
-
   /**
    * Curretnt version of the app
    */
@@ -30,21 +29,20 @@ export const useUpdatesStore = defineStore('useUpdatesStore', () => {
    */
   const showUpdatesBtn = ref<boolean>(false);
 
-
   /**
-* Asynchronously determines whether to show the updates button based on the last version viewed and the current version.
-*
-* The function performs the following steps:
-* 1. Retrieves the last version viewed from the updates state.
-* 2. Checks if the last version viewed is empty or if the current version is greater than the last version viewed.
-* 3. If the above condition is true, calculates an expiration timestamp (2 weeks from the current release timestamp).
-* 4. Sets the `showUpdatesBtn` value to true if the current release timestamp is less than the expiration timestamp.
-* 5. Otherwise, sets the `showUpdatesBtn` value to false.
-*
-* If an error occurs during the process, it logs an error message to the console.
-*
-* @returns {Promise<void>} A promise that resolves when the function completes.
-*/
+   * Asynchronously determines whether to show the updates button based on the last version viewed and the current version.
+   *
+   * The function performs the following steps:
+   * 1. Retrieves the last version viewed from the updates state.
+   * 2. Checks if the last version viewed is empty or if the current version is greater than the last version viewed.
+   * 3. If the above condition is true, calculates an expiration timestamp (2 weeks from the current release timestamp).
+   * 4. Sets the `showUpdatesBtn` value to true if the current release timestamp is less than the expiration timestamp.
+   * 5. Otherwise, sets the `showUpdatesBtn` value to false.
+   *
+   * If an error occurs during the process, it logs an error message to the console.
+   *
+   * @returns {Promise<void>} A promise that resolves when the function completes.
+   */
   const getShowUpdatesBtn = async () => {
     try {
       const lastVersionViewed = await updatesState.getLastVersionViewed();
@@ -63,23 +61,22 @@ export const useUpdatesStore = defineStore('useUpdatesStore', () => {
     }
   };
   /**
-* Initializes the update state by performing the following actions:
-* 1. Retrieves the current release from the state.
-* 2. Updates the current release timestamp.
-* 3. If the current release is empty or different from the current version in the app state,
-*    sets the current release and updates the release timestamp.
-* 4. Fetches the latest Enkrypt updates and sets the releases state.
-* 5. Displays the updates button if there are new releases.
-* 6. Sets the updatesIsLoaded state to true if successful, otherwise false.
-*
-* @async
-* @function initUpdateState
-* @returns {Promise<void>} A promise that resolves when the update state is initialized.
-* @throws Will log an error message if the initialization fails.
-*/
+   * Initializes the update state by performing the following actions:
+   * 1. Retrieves the current release from the state.
+   * 2. Updates the current release timestamp.
+   * 3. If the current release is empty or different from the current version in the app state,
+   *    sets the current release and updates the release timestamp.
+   * 4. Fetches the latest Enkrypt updates and sets the releases state.
+   * 5. Displays the updates button if there are new releases.
+   * 6. Sets the updatesIsLoaded state to true if successful, otherwise false.
+   *
+   * @async
+   * @function initUpdateState
+   * @returns {Promise<void>} A promise that resolves when the update state is initialized.
+   * @throws Will log an error message if the initialization fails.
+   */
   const init = async () => {
     try {
-
       const currentReleaseInState = await updatesState.getCurrentRelease();
       stateCurrentReleaseTimestamp.value =
         await updatesState.getCurrentReleaseTimestamp();
@@ -94,7 +91,6 @@ export const useUpdatesStore = defineStore('useUpdatesStore', () => {
       }
       releases.value = await getLatestEnkryptUpdates();
       if (releases.value) {
-
         await getShowUpdatesBtn();
       }
       updatesIsLoaded.value = true;
@@ -106,7 +102,7 @@ export const useUpdatesStore = defineStore('useUpdatesStore', () => {
 
   const setLastVersionViewed = async (_version: string) => {
     return updatesState.setLastVersionViewed(_version);
-  }
+  };
 
   return {
     updatesState,
@@ -117,7 +113,6 @@ export const useUpdatesStore = defineStore('useUpdatesStore', () => {
     currentVersion,
     stateCurrentReleaseTimestamp,
     getShowUpdatesBtn,
-    setLastVersionViewed
-  }
-})
-
+    setLastVersionViewed,
+  };
+});

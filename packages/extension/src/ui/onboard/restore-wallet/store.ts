@@ -16,5 +16,12 @@ export const useRestoreStore = defineStore('restoreWallet', () => {
     extraWord.value = _extraWord;
   };
 
-  return { mnemonic, password, extraWord, setMnemonic, setPassword, setExtraWord };
+  return {
+    mnemonic,
+    password,
+    extraWord,
+    setMnemonic,
+    setPassword,
+    setExtraWord,
+  };
 });

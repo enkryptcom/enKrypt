@@ -24,13 +24,19 @@ export const parseCurrency = (value: string | number): string => {
   const raw = value.toString().replace(/[,<]/g, '');
   const store = useCurrencyStore();
   const currency = store.currentSelectedCurrency;
-  const locale = LANG_INFO[currency as keyof typeof LANG_INFO]?.locale || 'en-US';
-  const exchangeRate = store.currencyList.find(c => c.fiat_currency === currency)?.exchange_rate || 1;
+  const locale =
+    LANG_INFO[currency as keyof typeof LANG_INFO]?.locale || 'en-US';
+  const exchangeRate =
+    store.currencyList.find(c => c.fiat_currency === currency)?.exchange_rate ||
+    1;
 
   const amount = new BigNumber(raw);
-  const finalValue = amount.isNaN() || amount.isZero() ? 0 : amount.times(exchangeRate).toNumber();
+  const finalValue =
+    amount.isNaN() || amount.isZero()
+      ? 0
+      : amount.times(exchangeRate).toNumber();
   const notation = BigNumber(finalValue).gt(999999) ? 'compact' : 'standard';
-  return `${amount.lt(0.0000001) && amount.gt(0) ? '< ' : ''}${new Intl.NumberFormat(locale, { style: 'currency', currency: currency, notation, }).format(finalValue)}`
+  return `${amount.lt(0.0000001) && amount.gt(0) ? '< ' : ''}${new Intl.NumberFormat(locale, { style: 'currency', currency: currency, notation }).format(finalValue)}`;
 };
 
 export const truncate = (value: string, length: number): string => {

@@ -59,7 +59,7 @@ class DataDecode {
         decodedData.tokenTo = decodedData.values[1];
       }
       return decodedData;
-    } catch (e) {
+    } catch {
       return {
         decoded: false,
         values: [bufferToHex(this.data)],

@@ -39,18 +39,14 @@ import { PropType } from 'vue';
 import NetworkNftsItemMoreMenu from './network-nfts-item-more-menu.vue';
 import NftDetailView from '@action/views/nft-detail-view/index.vue';
 import { onClickOutside } from '@vueuse/core';
-import DomainState from '@/libs/domain-state';
-import { NetworkNames } from '@enkryptcom/types';
 import { imageLoadError } from '@/ui/action/utils/misc';
-
-const domainState = new DomainState();
 
 const isOpenMore = ref(false);
 const isDetail = ref(false);
 const dropdown = ref(null);
 const toggle = ref(null);
 
-const props = defineProps({
+defineProps({
   item: {
     type: Object as PropType<NFTItem>,
     default: () => {

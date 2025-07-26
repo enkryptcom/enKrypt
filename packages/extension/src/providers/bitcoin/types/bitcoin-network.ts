@@ -9,9 +9,7 @@ import { Activity } from '@/types/activity';
 import { BitcoinNetworkInfo } from '.';
 import { payments } from 'bitcoinjs-lib';
 import { hexToBuffer, fromBase } from '@enkryptcom/utils';
-import {
-  formatFloatingPointValue,
-} from '@/libs/utils/number-formatter';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
 import MarketData from '@/libs/market-data';
 import BigNumber from 'bignumber.js';
 import { CoinGeckoTokenMarket } from '@/libs/market-data/types';
