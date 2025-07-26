@@ -9,10 +9,7 @@ import MarketData from '@/libs/market-data';
 import { fromBase } from '@enkryptcom/utils';
 import { toBN } from 'web3-utils';
 import BigNumber from 'bignumber.js';
-import {
-
-  formatFloatingPointValue,
-} from '@/libs/utils/number-formatter';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
 import API from '@/providers/ethereum/libs/api';
 import Sparkline from '@/libs/sparkline';
 import { BaseNetwork } from '@/types/base-network';
@@ -228,7 +225,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.CoreDAO]: {
     tbName: 'core',
     cgPlatform: CoingeckoPlatform.CoreDAO,
-    bsEndpoint: true,
   },
 };
 
@@ -287,15 +283,15 @@ export default (
 
     const marketInfo = supportedNetworks[networkName].cgPlatform
       ? await marketData.getMarketInfoByContracts(
-        Object.keys(balances).filter(
-          contract => contract !== NATIVE_TOKEN_ADDRESS,
-        ),
-        supportedNetworks[networkName].cgPlatform as CoingeckoPlatform,
-      )
+          Object.keys(balances).filter(
+            contract => contract !== NATIVE_TOKEN_ADDRESS,
+          ),
+          supportedNetworks[networkName].cgPlatform as CoingeckoPlatform,
+        )
       : tokens.reduce(
-        (obj, cur) => ({ ...obj, [cur.contract]: null }),
-        {} as Record<string, CoinGeckoTokenMarket | null>,
-      );
+          (obj, cur) => ({ ...obj, [cur.contract]: null }),
+          {} as Record<string, CoinGeckoTokenMarket | null>,
+        );
     if (network.coingeckoID) {
       const nativeMarket = await marketData.getMarketData([
         network.coingeckoID,

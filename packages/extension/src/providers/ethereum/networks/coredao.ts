@@ -1,7 +1,6 @@
 import icon from './icons/coredao.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
-import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
 const coredaoOptions: EvmNetworkOptions = {
@@ -18,7 +17,6 @@ const coredaoOptions: EvmNetworkOptions = {
   icon,
   coingeckoID: 'coredaoorg',
   coingeckoPlatform: CoingeckoPlatform.CoreDAO,
-  assetsInfoHandler,
   activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
