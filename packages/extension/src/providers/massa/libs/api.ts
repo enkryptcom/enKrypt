@@ -1,5 +1,5 @@
 import { ProviderAPIInterface } from '@/types/provider';
-import { JsonRpcPublicProvider, OperationStatus } from '@massalabs/massa-web3';
+import { JsonRpcPublicProvider, MRC20, OperationStatus } from '@massalabs/massa-web3';
 
 export default class MassaAPI extends ProviderAPIInterface {
   public provider: JsonRpcPublicProvider;
@@ -23,6 +23,12 @@ export default class MassaAPI extends ProviderAPIInterface {
     const [account] = await this.provider.balanceOf([address], false);
     if (!account) return '0';
     return account.balance.toString();
+  }
+
+  async getBalanceMRC20(address: string, contract: string): Promise<string> {
+    const mrc20 = new MRC20(this.provider, contract);
+    const balance = await mrc20.balanceOf(address);
+    return balance.toString();
   }
 
   async getMinimalFee(): Promise<string> {

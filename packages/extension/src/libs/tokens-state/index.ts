@@ -5,6 +5,7 @@ import {
   StorageKeys,
   CustomToken,
   CustomErc20Token,
+  CustomMassaToken,
   TokenType,
 } from './types';
 import { NetworkNames } from '@enkryptcom/types';
@@ -17,14 +18,14 @@ export class TokensState {
   }
 
   /**
-   * Add a new custom ERC20 token for a given network.
+   * Add a new custom token for a given network.
    * Returns `true` if the token was added and false otherwise.
    * @param {NetworkNames} chainName - The name of the network the token is being added to.
-   * @param {CustomErc20Token} token - The token information being added.
+   * @param {CustomToken} token - The token information being added.
    */
-  async addErc20Token(
+  async addCustomToken(
     chainName: NetworkNames,
-    token: CustomErc20Token,
+    token: CustomErc20Token | CustomMassaToken,
   ): Promise<boolean> {
     let state: IState | null = await this.storage.get(StorageKeys.customTokens);
 
@@ -52,6 +53,32 @@ export class TokensState {
 
     this.storage.set(StorageKeys.customTokens, state);
     return true;
+  }
+
+  /**
+   * Add a new custom ERC20 token for a given network.
+   * Returns `true` if the token was added and false otherwise.
+   * @param {NetworkNames} chainName - The name of the network the token is being added to.
+   * @param {CustomErc20Token} token - The token information being added.
+   */
+  async addErc20Token(
+    chainName: NetworkNames,
+    token: CustomErc20Token,
+  ): Promise<boolean> {
+    return this.addCustomToken(chainName, token);
+  }
+
+  /**
+   * Add a new custom Massa token for a given network.
+   * Returns `true` if the token was added and false otherwise.
+   * @param {NetworkNames} chainName - The name of the network the token is being added to.
+   * @param {CustomMassaToken} token - The token information being added.
+   */
+  async addMassaToken(
+    chainName: NetworkNames,
+    token: CustomMassaToken,
+  ): Promise<boolean> {
+    return this.addCustomToken(chainName, token);
   }
 
   /**

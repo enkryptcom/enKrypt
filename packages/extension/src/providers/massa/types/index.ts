@@ -4,11 +4,16 @@ import { CHAIN_ID } from '@massalabs/massa-web3';
 import { ToTokenData } from '@/ui/action/types/token';
 import { EnkryptAccount } from '@enkryptcom/types';
 import { BaseNetwork } from '@/types/base-network';
+import { Activity } from '@/types/activity';
 
 export const MassaNetworks = NetworkName;
 
 export interface MassaNetworkOptions extends BaseNetworkOptions {
   chainId?: (typeof CHAIN_ID)[keyof typeof CHAIN_ID];
+  activityHandler?: (
+    network: BaseNetwork,
+    address: string,
+  ) => Promise<Activity[]>;
 }
 
 export interface MassaRawInfo {

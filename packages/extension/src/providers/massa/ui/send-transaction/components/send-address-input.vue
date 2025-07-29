@@ -7,20 +7,12 @@
         alt=""
         @error="handleIdenticonError"
       />
-      <div v-else class="send-address-input__avatar-placeholder">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.11 3.89 23 5 23H19C20.11 23 21 22.11 21 21V9ZM19 9H14V4H5V21H19V9Z"
-            fill="currentColor"
-          />
-        </svg>
-      </div>
+      <img
+        v-else
+        :src="placeholderIdenticonSrc"
+        alt=""
+        class="send-address-input__avatar-placeholder"
+      />
     </div>
     <div class="send-address-input__address">
       <p v-if="!from">To:</p>
@@ -116,6 +108,13 @@ const identiconSrc = computed(() => {
   }
 
   return null;
+});
+
+const placeholderIdenticonSrc = computed(() => {
+  if (props.network && props.network.identicon) {
+    return props.network.identicon('000000000000000000000000000000000000000000000000000000000000000000');
+  }
+  return '';
 });
 
 const address = computed({
@@ -215,15 +214,7 @@ const handleIdenticonError = () => {
   }
 
   &__avatar-placeholder {
-    width: 32px;
-    height: 32px;
-    border-radius: 100%;
-    background: @buttonBg;
-    box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: @tertiaryLabel;
+    opacity: 0.6;
   }
 }
 </style>
