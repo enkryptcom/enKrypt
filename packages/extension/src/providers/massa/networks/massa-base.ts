@@ -4,7 +4,6 @@ import MassaAPI from '../libs/api';
 import { SignerType } from '@enkryptcom/types';
 import { ProviderName } from '@/types/provider';
 import { MassaNetworkOptions } from '../types';
-import ActivityState from '@/libs/activity-state';
 import { Activity } from '@/types/activity';
 import { AssetsType } from '@/types/provider';
 import { fromBase } from '@enkryptcom/utils';
@@ -13,13 +12,21 @@ import MarketData from '@/libs/market-data';
 import BigNumber from 'bignumber.js';
 import icon from './icons/Massa_logo.webp';
 import createIcon from '../../ethereum/libs/blockies';
+import { TokensState } from '@/libs/tokens-state';
+import { CustomErc20Token, CustomMassaToken, TokenType } from '@/libs/tokens-state/types';
+import Sparkline from '@/libs/sparkline';
 
 export class MassaNetwork extends BaseNetwork {
   chainId: bigint;
+  private activityHandler?: (
+    network: BaseNetwork,
+    address: string,
+  ) => Promise<Activity[]>;
 
   constructor(options: MassaNetworkOptions) {
     super(options);
     this.chainId = options.chainId!;
+    this.activityHandler = options.activityHandler;
   }
 
   async getAllTokens(): Promise<any[]> {
@@ -92,23 +99,134 @@ export class MassaNetwork extends BaseNetwork {
         // No contract for native token
       };
 
-      return [nativeTokenAsset];
+      const assets = [nativeTokenAsset];
+
+      // Add custom tokens support
+      const tokensState = new TokensState();
+      const customTokens = await tokensState
+        .getTokensByNetwork(this.name)
+        .then(tokens => {
+          const erc20Tokens = tokens.filter(token => {
+            if (token.type !== TokenType.ERC20) {
+              return false;
+            }
+
+            for (const a of assets) {
+              if (
+                a.contract &&
+                (token as CustomMassaToken).address &&
+                a.contract.toLowerCase() ===
+                  (token as CustomMassaToken).address.toLowerCase()
+              ) {
+                return false;
+              }
+            }
+
+            return true;
+          }) as CustomMassaToken[];
+
+          return erc20Tokens.map(({ name, symbol, address, icon, decimals }) => {
+            return {
+              name,
+              symbol,
+              contract: address,
+              icon,
+              decimals,
+              balance: '0', // Will be fetched below
+            };
+          });
+        });
+
+      // Fetch balances for custom tokens
+      const balancePromises = customTokens.map(async token => {
+        try {
+          return api.getBalanceMRC20(address, token.contract);
+        } catch (error) {
+          return '0';
+        }
+      });
+
+      const balances = await Promise.all(balancePromises);
+
+      // Update token balances with fetched values
+      customTokens.forEach((token, index) => {
+        token.balance = balances[index];
+      });
+
+      const marketData = new MarketData();
+      const marketInfos = await marketData.getMarketInfoByContracts(
+        customTokens.map(token => token.contract.toLowerCase()),
+        this.coingeckoPlatform!,
+      );
+
+      const customAssets: AssetsType[] = customTokens.map(token => {
+        const asset: AssetsType = {
+          name: token.name,
+          symbol: token.symbol,
+          balance: token.balance ?? '0',
+          balancef: formatFloatingPointValue(
+            fromBase(token.balance ?? '0', token.decimals),
+          ).value,
+          contract: token.contract,
+          balanceUSD: 0,
+          balanceUSDf: '0',
+          value: '0',
+          valuef: '0',
+          decimals: token.decimals,
+          sparkline: '',
+          priceChangePercentage: 0,
+          icon: token.icon,
+        };
+
+        // Check if token is a stablecoin (contains DAI or USD in symbol)
+        const isStablecoin = token.symbol.toUpperCase().includes('DAI') || 
+                            token.symbol.toUpperCase().includes('USD');
+
+        if (isStablecoin) {
+          // Use $1 price for stablecoins
+          const usdBalance = new BigNumber(
+            fromBase(token.balance ?? '0', token.decimals),
+          ).times(1);
+          asset.balanceUSD = usdBalance.toNumber();
+          asset.balanceUSDf = usdBalance.toString();
+          asset.value = '1';
+          asset.valuef = '1';
+          asset.priceChangePercentage = 0;
+        } else {
+          // Use real market data for other tokens
+          const marketInfo = marketInfos[token.contract.toLowerCase()];
+
+          if (marketInfo) {
+            const usdBalance = new BigNumber(
+              fromBase(token.balance ?? '0', token.decimals),
+            ).times(marketInfo.current_price ?? 0);
+            asset.balanceUSD = usdBalance.toNumber();
+            asset.balanceUSDf = usdBalance.toString();
+            asset.value = marketInfo.current_price?.toString() ?? '0';
+            asset.valuef = marketInfo.current_price?.toString() ?? '0';
+            asset.sparkline = new Sparkline(
+              marketInfo.sparkline_in_24h.price,
+              25,
+            ).dataValues;
+            asset.priceChangePercentage =
+              marketInfo.price_change_percentage_24h_in_currency || 0;
+          }
+        }
+
+        return asset;
+      });
+
+      return [...assets, ...customAssets];
     } catch (error) {
       return [];
     }
   }
 
   async getAllActivity(address: string): Promise<Activity[]> {
-    try {
-      const activityState = new ActivityState();
-      const activities = await activityState.getAllActivities({
-        address,
-        network: this.name,
-      });
-      return activities;
-    } catch (error) {
-      return [];
+    if (this.activityHandler) {
+      return this.activityHandler(this, address);
     }
+    return [];
   }
 }
 
@@ -142,6 +260,7 @@ export function createMassaNetworkOptions(config: {
     basePath: "m/44'/632'",
     chainId: config.chainId,
     coingeckoID: config.coingeckoID,
+    customTokens: true,
     api: async () => {
       const api = new MassaAPI(config.node);
       await api.init();
