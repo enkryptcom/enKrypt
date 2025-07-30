@@ -51,10 +51,13 @@ export class MVXToken extends BaseToken {
     const sender = Address.newFromBech32(from.address);
     const receiver = Address.newFromBech32(to);
 
-    const transaction = transferFactory.createTransactionForTransfer(sender, {
-      receiver,
-      nativeAmount: BigInt(amount),
-    });
+    const transaction = await transferFactory.createTransactionForTransfer(
+      sender,
+      {
+        receiver,
+        nativeAmount: BigInt(amount),
+      },
+    );
 
     transaction.nonce = await api.getAccountNonce(sender);
 

@@ -43,7 +43,7 @@
     "@metaplex-foundation/mpl-bubblegum": "^5.0.1",
     "@metaplex-foundation/umi": "^1.2.0",
     "@metaplex-foundation/umi-bundle-defaults": "^1.2.0",
-    "@multiversx/sdk-core": "^14.2.1",
+    "@multiversx/sdk-core": "^15.0.0",
     "@polkadot/api": "^16.2.2",
     "@polkadot/extension-inject": "^0.59.2",
     "@polkadot/keyring": "^13.5.2",

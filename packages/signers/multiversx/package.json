@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@enkryptcom/utils": "workspace:^",
-    "@multiversx/sdk-core": "^14.2.2",
+    "@multiversx/sdk-core": "^15.0.0",
     "bip39": "^3.1.0"
   },
   "devDependencies": {
