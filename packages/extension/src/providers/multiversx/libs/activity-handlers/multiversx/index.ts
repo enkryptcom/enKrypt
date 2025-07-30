@@ -39,6 +39,13 @@ export default async (
   }
 
   return Object.values(activities).map((activity: any) => {
+    let status = ActivityStatus.failed;
+    if (activity.status === 'pending') {
+      status = ActivityStatus.pending;
+    } else if (activity.status === 'success') {
+      status = ActivityStatus.success;
+    }
+
     return {
       nonce: (activity.nonce || 0).toString(),
       from: activity.sender,
@@ -46,10 +53,7 @@ export default async (
       isIncoming: activity.sender !== address,
       network: network.name,
       rawInfo: activity,
-      status:
-        activity.status === 'success'
-          ? ActivityStatus.success
-          : ActivityStatus.failed,
+      status,
       timestamp: activity.timestampMs,
       value: activity.value,
       transactionHash: activity.txHash,

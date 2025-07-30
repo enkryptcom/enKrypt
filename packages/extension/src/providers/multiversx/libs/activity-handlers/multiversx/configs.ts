@@ -5,7 +5,7 @@ const NetworkEndpoint = {
 };
 
 const NetworkTtl = {
-  [NetworkNames.MultiversX]: 300000,
+  [NetworkNames.MultiversX]: 0,
 };
 
 export { NetworkEndpoint, NetworkTtl };
