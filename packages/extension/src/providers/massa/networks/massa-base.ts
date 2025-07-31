@@ -13,8 +13,15 @@ import BigNumber from 'bignumber.js';
 import icon from './icons/Massa_logo.webp';
 import createIcon from '../../ethereum/libs/blockies';
 import { TokensState } from '@/libs/tokens-state';
-import { CustomErc20Token, CustomMassaToken, TokenType } from '@/libs/tokens-state/types';
+import {
+  CustomErc20Token,
+  CustomMassaToken,
+  TokenType,
+} from '@/libs/tokens-state/types';
 import Sparkline from '@/libs/sparkline';
+import { MassaActivity } from '../libs/activity-handlers';
+import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
+import { Address } from '@massalabs/massa-web3';
 
 export class MassaNetwork extends BaseNetwork {
   chainId: bigint;
@@ -26,7 +33,8 @@ export class MassaNetwork extends BaseNetwork {
   constructor(options: MassaNetworkOptions) {
     super(options);
     this.chainId = options.chainId!;
-    this.activityHandler = options.activityHandler;
+    this.activityHandler =
+      options.activityHandler || wrapActivityHandler(MassaActivity);
   }
 
   async getAllTokens(): Promise<any[]> {
@@ -87,7 +95,7 @@ export class MassaNetwork extends BaseNetwork {
         name: this.currencyNameLong,
         symbol: this.currencyName,
         icon: this.icon,
-        balance: balanceFormatted,
+        balance,
         balancef: balanceDisplayFormatted,
         balanceUSD,
         balanceUSDf,
@@ -96,7 +104,6 @@ export class MassaNetwork extends BaseNetwork {
         decimals: this.decimals,
         sparkline: sparklineData,
         priceChangePercentage,
-        // No contract for native token
       };
 
       const assets = [nativeTokenAsset];
@@ -125,16 +132,18 @@ export class MassaNetwork extends BaseNetwork {
             return true;
           }) as CustomMassaToken[];
 
-          return erc20Tokens.map(({ name, symbol, address, icon, decimals }) => {
-            return {
-              name,
-              symbol,
-              contract: address,
-              icon,
-              decimals,
-              balance: '0', // Will be fetched below
-            };
-          });
+          return erc20Tokens.map(
+            ({ name, symbol, address, icon, decimals }) => {
+              return {
+                name,
+                symbol,
+                contract: address,
+                icon,
+                decimals,
+                balance: '0', // Will be fetched below
+              };
+            },
+          );
         });
 
       // Fetch balances for custom tokens
@@ -179,8 +188,9 @@ export class MassaNetwork extends BaseNetwork {
         };
 
         // Check if token is a stablecoin (contains DAI or USD in symbol)
-        const isStablecoin = token.symbol.toUpperCase().includes('DAI') || 
-                            token.symbol.toUpperCase().includes('USD');
+        const isStablecoin =
+          token.symbol.toUpperCase().includes('DAI') ||
+          token.symbol.toUpperCase().includes('USD');
 
         if (isStablecoin) {
           // Use $1 price for stablecoins
@@ -228,6 +238,15 @@ export class MassaNetwork extends BaseNetwork {
     }
     return [];
   }
+
+  isValidAddress = (address: string): boolean => {
+    try {
+      Address.fromString(address);
+    } catch (error) {
+      return false;
+    }
+    return true;
+  };
 }
 
 // Helper function to create standard Massa network options

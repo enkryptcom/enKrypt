@@ -1,5 +1,10 @@
 import { ProviderAPIInterface } from '@/types/provider';
-import { JsonRpcPublicProvider, MRC20, OperationStatus } from '@massalabs/massa-web3';
+import {
+  JsonRpcPublicProvider,
+  MRC20,
+  NodeStatusInfo,
+  OperationStatus,
+} from '@massalabs/massa-web3';
 
 export default class MassaAPI extends ProviderAPIInterface {
   public provider: JsonRpcPublicProvider;
@@ -49,7 +54,7 @@ export default class MassaAPI extends ProviderAPIInterface {
     }
   }
 
-  async getNodeStatus(): Promise<any> {
+  async getNodeStatus(): Promise<NodeStatusInfo> {
     return this.provider.getNodeStatus();
   }
 }

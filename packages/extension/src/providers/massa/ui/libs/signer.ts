@@ -1,10 +1,12 @@
 import { InternalMethods, InternalOnMessageResponse } from '@/types/messenger';
-import { bufferToHex } from '@enkryptcom/utils';
+import { bufferToHex, hexToBuffer } from '@enkryptcom/utils';
 import sendUsingInternalMessengers from '@/libs/messenger/internal-messenger';
 import { BaseNetwork } from '@/types/base-network';
 import { EnkryptAccount } from '@enkryptcom/types';
 import {
   Address,
+  CallOperation,
+  MAX_GAS_CALL,
   OperationManager,
   OperationType,
   PublicKey,
@@ -16,11 +18,16 @@ export interface MassaTransactionOptions {
   account: EnkryptAccount;
   network: BaseNetwork;
   payload: {
+    type: OperationType;
     from: string;
     to: string;
     amount: string;
     fee: string;
     expirePeriod: number;
+    data?: string;
+    maxGas?: string;
+    coins?: string;
+    func?: string;
   };
 }
 
@@ -43,16 +50,34 @@ export const MassaTransactionSigner = (
 ): Promise<MassaSignedTransaction> => {
   const { account, payload, network } = options;
 
-  // Create the message to sign (similar to Ethereum's getHashedMessageToSign)
-  const operationDetails: TransferOperation = {
-    type: OperationType.Transaction,
-    amount: BigInt(payload.amount),
-    recipientAddress: Address.fromString(payload.to),
-    fee: BigInt(payload.fee),
-    expirePeriod: payload.expirePeriod, //3060678
-  };
-  const chainId = (network as MassaNetworkOptions).chainId;
+  let operationDetails: TransferOperation | CallOperation;
+  if (payload.type === OperationType.Transaction) {
+    operationDetails = {
+      type: payload.type,
+      amount: BigInt(payload.amount),
+      recipientAddress: Address.fromString(payload.to),
+      fee: BigInt(payload.fee),
+      expirePeriod: payload.expirePeriod,
+    };
+  } else if (payload.type === OperationType.CallSmartContractFunction) {
+    if (!payload.func) {
+      throw new Error('Invalid payload, target function is required');
+    }
+    operationDetails = {
+      type: payload.type,
+      parameter: hexToBuffer(payload.data ?? ''),
+      fee: BigInt(payload.fee),
+      expirePeriod: payload.expirePeriod,
+      maxGas: BigInt(payload.maxGas ?? MAX_GAS_CALL),
+      coins: BigInt(payload.coins ?? '0'),
+      address: payload.to,
+      func: payload.func,
+    };
+  } else {
+    throw new Error(`Unsupported operation type: ${payload.type}`);
+  }
 
+  const chainId = (network as MassaNetworkOptions).chainId;
   const publicKey = PublicKey.fromString(account.publicKey);
   const serialized = OperationManager.canonicalize(
     chainId!,

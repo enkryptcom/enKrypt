@@ -108,26 +108,16 @@ import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
 import RateState from '@/libs/rate-state';
 import { useRateStore } from '@action/store/rate-store';
-import { hexToBuffer, toBase } from '@enkryptcom/utils';
+import { bufferToHex, hexToBuffer, toBase } from '@enkryptcom/utils';
 import { getCurrentContext } from '@/libs/messenger/extension';
 import { MassaTransactionSigner } from '../../libs/signer';
 import MassaAPI from '../../../libs/api';
-import { getAbsoluteExpirePeriod } from '@massalabs/massa-web3';
-
-// Declare the massa provider on window
-declare global {
-  interface Window {
-    massa: {
-      sendTransaction: (params: {
-        from: string;
-        to: string;
-        amount: string;
-        fee: string;
-      }) => Promise<string>;
-      sendRawTransaction: (serializedTx: string) => Promise<string>;
-    };
-  }
-}
+import {
+  Args,
+  getAbsoluteExpirePeriod,
+  OperationType,
+  StorageCost,
+} from '@massalabs/massa-web3';
 
 /** -------------------
  * Rate
@@ -173,24 +163,57 @@ const close = () => {
 const sendAction = async () => {
   isProcessing.value = true;
   try {
+    // Check if this is a native MAS transfer or MRC20 token transfer
+    const isNativeTransfer = txData.toToken.symbol === 'MAS';
+
     // Always get expirePeriod from network
     const massaAPI = (await network.value.api()) as MassaAPI;
     const massaClient = massaAPI.provider.client;
     const expirePeriod = await getAbsoluteExpirePeriod(massaClient);
+    const fee = toBase(txData.txFee.nativeValue, 9);
 
     // Get the account from the keyring
     const fromAccount = await keyRing.getAccount(txData.fromAddress);
     if (!fromAccount) throw new Error('No account found in keyring');
 
-    // Prepare the transaction payload
-    const payload = {
-      from: txData.fromAddress,
-      to: txData.toAddress,
-      amount: txData.toToken.amount,
-      fee: toBase(txData.txFee.nativeValue, 9),
+    let payload: any = {
+      fee,
       expirePeriod,
     };
-
+    if (isNativeTransfer) {
+      // Prepare the transaction payload
+      payload = {
+        ...payload,
+        type: OperationType.Transaction,
+        from: txData.fromAddress,
+        to: txData.toAddress,
+        amount: txData.toToken.amount,
+      };
+    } else {
+      if (!txData.toTokenAddress) {
+        throw new Error('toTokenAddress is required');
+      }
+      // see https://github.com/massalabs/massa-standards/blob/main/smart-contracts/assembly/contracts/MRC20/MRC20.ts
+      const data = bufferToHex(
+        new Args()
+          .addString(txData.toAddress)
+          .addU256(BigInt(txData.toToken.amount))
+          .serialize(),
+      );
+      const coins = await StorageCost.MRC20BalanceCreationCost(
+        massaAPI.provider,
+        txData.toTokenAddress,
+        txData.toAddress,
+      );
+      payload = {
+        ...payload,
+        type: OperationType.CallSmartContractFunction,
+        to: txData.toTokenAddress,
+        func: 'transfer',
+        data,
+        coins: coins.toString(),
+      };
+    }
     // Sign the transaction
     const signedTx = await MassaTransactionSigner({
       account: fromAccount,
@@ -234,10 +257,23 @@ const sendAction = async () => {
 
     const activityState = new ActivityState();
 
+    // Store activity for both sender and receiver addresses
     await activityState.addActivities([txActivity], {
       address: txData.fromAddress,
       network: network.value.name,
     });
+
+    // Also store for receiver if it's different from sender
+    if (txData.fromAddress !== txData.toAddress) {
+      const receiverActivity = {
+        ...txActivity,
+        isIncoming: true, // Mark as incoming for receiver
+      };
+      await activityState.addActivities([receiverActivity], {
+        address: txData.toAddress,
+        network: network.value.name,
+      });
+    }
 
     if (getCurrentContext() === 'popup') {
       setTimeout(() => {

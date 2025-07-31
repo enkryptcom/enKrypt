@@ -1,13 +1,11 @@
 import { MiddlewareFunction } from '@enkryptcom/types';
-import {
-  BackgroundProviderInterface,
-  ProviderRPCRequest,
-} from '@/types/provider';
+import { ProviderRPCRequest } from '@/types/provider';
 import { getCustomError } from '@/libs/error';
 import massaNetworks from '../networks';
+import MassaProvider from '..';
 
 const method: MiddlewareFunction = async function (
-  this: BackgroundProviderInterface,
+  this: MassaProvider,
   payload: ProviderRPCRequest,
   res,
   next,

@@ -37,8 +37,8 @@
 import { replaceWithEllipsis } from '@/ui/action/utils/filters';
 import { computed, ref } from 'vue';
 import { PropType } from 'vue';
-import { BaseNetwork } from '@/types/base-network';
 import { Address } from '@massalabs/massa-web3';
+import { MassaNetwork } from '../../../networks/massa-base';
 
 const isFocus = ref<boolean>(false);
 const addressInput = ref<HTMLInputElement>();
@@ -58,7 +58,7 @@ const props = defineProps({
     },
   },
   network: {
-    type: Object as PropType<BaseNetwork>,
+    type: Object as PropType<MassaNetwork>,
     default: () => ({}),
   },
   from: {
@@ -74,19 +74,12 @@ const emit = defineEmits<{
 }>();
 
 const massaAddress = computed(() => {
-  if (props.value && props.value.length > 66)
-    return props.network.displayAddress(props.value);
-  else return props.value;
+  return props.value;
 });
 
 const isValidMassaAddress = computed(() => {
   if (!massaAddress.value || massaAddress.value.trim() === '') return false;
-  try {
-    Address.fromString(massaAddress.value.trim());
-    return true;
-  } catch (error) {
-    return false;
-  }
+  return props.network.isValidAddress(massaAddress.value);
 });
 
 const identiconSrc = computed(() => {
@@ -112,7 +105,9 @@ const identiconSrc = computed(() => {
 
 const placeholderIdenticonSrc = computed(() => {
   if (props.network && props.network.identicon) {
-    return props.network.identicon('000000000000000000000000000000000000000000000000000000000000000000');
+    return props.network.identicon(
+      '000000000000000000000000000000000000000000000000000000000000000000',
+    );
   }
   return '';
 });

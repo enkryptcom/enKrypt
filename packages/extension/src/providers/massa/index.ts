@@ -19,7 +19,7 @@ export default class MassaProvider
   extends EventEmitter
   implements BackgroundProviderInterface
 {
-  private network: BaseNetwork;
+  public network: BaseNetwork;
   requestProvider: RequestClass;
   middlewares: MiddlewareFunction[] = [];
   namespace: string;
