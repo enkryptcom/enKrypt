@@ -153,8 +153,12 @@ const isSolanaStakingBanner = ref(false);
 const bannersState = new BannersState();
 
 // Network type checks
-const isEvmNetwork = computed(() => props.network.provider === ProviderName.ethereum);
-const isMassaNetwork = computed(() => props.network.provider === ProviderName.massa);
+const isEvmNetwork = computed(
+  () => props.network.provider === ProviderName.ethereum,
+);
+const isMassaNetwork = computed(
+  () => props.network.provider === ProviderName.massa,
+);
 
 watch([selectedAddress, selectedNetworkName, selectedSubnetwork], updateAssets);
 onMounted(async () => {

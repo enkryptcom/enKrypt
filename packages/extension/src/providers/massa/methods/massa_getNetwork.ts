@@ -1,12 +1,10 @@
 import { MiddlewareFunction } from '@enkryptcom/types';
-import {
-  BackgroundProviderInterface,
-  ProviderRPCRequest,
-} from '@/types/provider';
+import { ProviderRPCRequest } from '@/types/provider';
 import { NetworkNames } from '@enkryptcom/types';
+import MassaProvider from '..';
 
 const method: MiddlewareFunction = async function (
-  this: BackgroundProviderInterface,
+  this: MassaProvider,
   payload: ProviderRPCRequest,
   res,
   next,
@@ -14,8 +12,7 @@ const method: MiddlewareFunction = async function (
   if (payload.method !== 'massa_getNetwork') return next();
   else {
     try {
-      const currentNetwork = this.getCurrentNetwork();
-      res(null, currentNetwork.name);
+      res(null, this.network.name);
     } catch (error) {
       res(null, NetworkNames.Massa);
     }

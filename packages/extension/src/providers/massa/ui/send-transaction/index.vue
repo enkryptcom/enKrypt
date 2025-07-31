@@ -46,13 +46,43 @@
         @close="toggleSelectContactTo"
       />
 
+      <send-token-select
+        v-if="selectedAsset"
+        :token="selectedAsset"
+        @update:toggle-token-select="toggleSelectToken"
+      />
+
+      <assets-select-list
+        v-model="isOpenSelectToken"
+        :is-send="true"
+        :assets="accountAssets"
+        :is-loading="isLoadingAssets"
+        @update:select-asset="selectToken"
+      />
+
       <send-input-amount
         :amount="amount"
-        :fiat-value="amountFiatValue"
+        :fiat-value="tokenPrice"
         :has-enough-balance="hasEnoughBalance"
         :show-max="true"
         @update:input-amount="inputAmount"
         @update:input-set-max="setMaxValue"
+      />
+
+      <send-alert
+        v-show="!hasEnoughBalance && amount && parseFloat(amount) > 0"
+        :native-symbol="selectedAsset?.symbol || network.name"
+        :price="amountFiatValue"
+        :is-balance-zero="
+          selectedAsset
+            ? parseFloat(
+                fromBase(selectedAsset.balance || '0', selectedAsset.decimals),
+              ) === 0
+            : parseFloat(accountBalance) === 0
+        "
+        :native-value="insufficientAmount"
+        :decimals="selectedAsset?.decimals || 9"
+        :not-enough="!hasEnoughBalance"
       />
 
       <div class="fee-input-container">
@@ -67,16 +97,6 @@
         />
         <div class="fee-info">Minimal fee from network</div>
       </div>
-
-      <send-alert
-        v-show="!hasEnoughBalance && amount && parseFloat(amount) > 0"
-        :native-symbol="network.name"
-        :price="amountFiatValue"
-        :is-balance-zero="parseFloat(accountBalance) === 0"
-        :native-value="insufficientAmount"
-        :decimals="9"
-        :not-enough="!hasEnoughBalance"
-      />
 
       <div class="send-transaction__buttons">
         <div class="send-transaction__buttons-cancel">
@@ -95,13 +115,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, PropType, computed, watch } from 'vue';
+import { ref, onMounted, PropType, computed, watch, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import SendHeader from '@/providers/common/ui/send-transaction/send-header.vue';
 import SendAddressInput from './components/send-address-input.vue';
 import SendContactsList from '@/providers/common/ui/send-transaction/send-contacts-list.vue';
 import SendFromContactsList from '@/providers/common/ui/send-transaction/send-from-contacts-list.vue';
 import SendInputAmount from '@/providers/common/ui/send-transaction/send-input-amount.vue';
+import SendTokenSelect from './components/send-token-select.vue';
+import AssetsSelectList from '@action/views/assets-select-list/index.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import SendAlert from '@/providers/common/ui/send-transaction/send-alert.vue';
 import { AccountsHeaderData } from '@action/types/account';
@@ -146,6 +168,8 @@ const addressTo = ref<string>('');
 const addressFrom = ref<string>('');
 const isOpenSelectContactTo = ref<boolean>(false);
 const isOpenSelectContactFrom = ref<boolean>(false);
+const isOpenSelectToken = ref<boolean>(false);
+const isLoadingAssets = ref<boolean>(false);
 const keyRing = new PublicKeyRing();
 
 const account = computed(() => {
@@ -181,12 +205,16 @@ const network = computed(() => {
 });
 
 const accountBalance = computed(() => {
-  // account.value.balance is already a float string (like "10.999"), not base units
-  // So we just return it directly for display purposes
   return account.value.balance;
 });
 
 const masTokenInfo = ref<AssetsType | null>(null);
+const selectedAsset = ref<AssetsType | null>(null);
+const accountAssets = ref<any[]>([]);
+
+const tokenPrice = computed(() => {
+  return selectedAsset.value?.value || '0';
+});
 
 const amountFiatValue = computed(() => {
   if (
@@ -195,20 +223,14 @@ const amountFiatValue = computed(() => {
   ) {
     return '0';
   }
-
-  // Calculate fiat value using the cached MAS price
+  // Calculate fiat value using the selected token price
   const sendAmountBN = new BigNumber(sendAmount.value);
-  const masPrice = masTokenInfo.value?.value || '0';
-  const fiatValueBN = sendAmountBN.times(masPrice);
-
+  const fiatValueBN = sendAmountBN.times(tokenPrice.value);
   return fiatValueBN.toFixed(2);
 });
 
 const feeFiatValue = computed(() => {
-  if (
-    !isNumericPositive(fee.value) ||
-    parseFloat(fee.value) <= 0
-  ) {
+  if (!isNumericPositive(fee.value) || parseFloat(fee.value) <= 0) {
     return '0';
   }
 
@@ -226,52 +248,67 @@ const sendAmount = computed(() => {
 });
 
 const hasEnoughBalance = computed(() => {
-  if (!isNumericPositive(sendAmount.value)) {
+  if (!isNumericPositive(sendAmount.value) || !selectedAsset.value) {
     return true;
   }
 
-  // Convert all values to base units (smallest unit) for comparison
-  const amountBase = toBase(sendAmount.value, 9);
-  const balanceBase = new BigNumber(account.value.balance)
-    .times(10 ** 9)
-    .toString(); // Convert float to base units
-  const feeBase = toBase(fee.value, 9);
+  const amount = BigInt(toBase(sendAmount.value, selectedAsset.value.decimals));
+  const tokenBalance = BigInt(selectedAsset.value.balance || '0');
+  const masBalance = BigInt(toBase(accountBalance.value, 9));
+  const feeRaw = BigInt(toBase(fee.value, 9));
 
-  const amountNum = BigInt(amountBase);
-  const balanceNum = BigInt(balanceBase);
-  const feeNum = BigInt(feeBase);
+  // For MAS token, check if amount + fee <= balance
+  if (selectedAsset.value.symbol === 'MAS') {
+    return amount + feeRaw <= tokenBalance;
+  } else if (masBalance < feeRaw) {
+    return false;
+  }
 
-  return amountNum + feeNum <= balanceNum;
+  return amount <= tokenBalance;
 });
 
 const insufficientAmount = computed(() => {
-  if (!isNumericPositive(sendAmount.value)) {
+  if (!isNumericPositive(sendAmount.value) || !selectedAsset.value) {
     return '0';
   }
 
   // Convert all values to base units (smallest unit) for comparison
-  const amountBase = toBase(sendAmount.value, 9);
-  const balanceBase = new BigNumber(account.value.balance)
-    .times(10 ** 9)
-    .toString(); // Convert float to base units
-  const feeBase = toBase(fee.value, 9);
+  const amountBase = toBase(sendAmount.value, selectedAsset.value.decimals);
+  const balanceBase = selectedAsset.value.balance || '0'; // balance is already in base units
+  const feeBase = toBase(fee.value, 9); // Fee is always in MAS
 
   const amountNum = BigInt(amountBase);
   const balanceNum = BigInt(balanceBase);
   const feeNum = BigInt(feeBase);
-  const totalNeeded = amountNum + feeNum;
 
-  if (totalNeeded > balanceNum) {
-    const insufficientBase = totalNeeded - balanceNum;
-    return fromBase(insufficientBase.toString(), 9);
+  // For MAS token, check if amount + fee <= balance
+  if (selectedAsset.value.symbol === 'MAS') {
+    const totalNeeded = amountNum + feeNum;
+    if (totalNeeded > balanceNum) {
+      const insufficientBase = totalNeeded - balanceNum;
+      return fromBase(insufficientBase.toString(), 9);
+    }
+  } else {
+    // For other tokens, only check if amount <= balance
+    if (amountNum > balanceNum) {
+      const insufficientBase = amountNum - balanceNum;
+      return fromBase(
+        insufficientBase.toString(),
+        selectedAsset.value.decimals,
+      );
+    }
   }
   return '0';
 });
 
 const sendButtonTitle = computed(() => {
   let title = 'Send';
-  if (isNumericPositive(sendAmount.value) && parseFloat(sendAmount.value) > 0) {
-    title = 'Send ' + sendAmount.value + ' MAS';
+  if (
+    isNumericPositive(sendAmount.value) &&
+    parseFloat(sendAmount.value) > 0 &&
+    selectedAsset.value
+  ) {
+    title = 'Send ' + sendAmount.value + ' ' + selectedAsset.value.symbol;
   }
   return title;
 });
@@ -289,8 +326,13 @@ const isInputsValid = computed<boolean>(() => {
     return false;
   }
 
-  // Check if amount has valid decimals (max 9 for MAS)
-  if (!isValidDecimals(sendAmount.value, 9)) {
+  // Check if a token is selected
+  if (!selectedAsset.value) {
+    return false;
+  }
+
+  // Check if amount has valid decimals for the selected token
+  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals)) {
     return false;
   }
 
@@ -333,8 +375,9 @@ onMounted(async () => {
     // Keep default fee of 0.01 if API call fails
   }
 
-  // Fetch MAS token info
+  // Fetch MAS token info and load assets
   await updateMasTokenInfo();
+  await loadAccountAssets();
 });
 
 const updateAccountBalance = async () => {
@@ -359,6 +402,33 @@ const updateMasTokenInfo = async () => {
       tokenInfos.find((t: AssetsType) => t.symbol === 'MAS') || null;
   } catch (error) {
     console.error('Failed to fetch MAS token info:', error);
+  }
+};
+
+const loadAccountAssets = async () => {
+  if (!addressFrom.value) return;
+
+  try {
+    isLoadingAssets.value = true;
+    const tokenInfos = await network.value.getAllTokenInfo(addressFrom.value);
+
+    // Add price field to AssetsType objects for compatibility with AssetsSelectList
+    const tokensWithPrice = tokenInfos.map((token: AssetsType) => ({
+      ...token,
+      price: token.value, // Use value field as price for USD display
+    }));
+
+    accountAssets.value = tokensWithPrice;
+
+    // Set MAS as default selected token (keep as AssetsType for selectedAsset)
+    const masToken = tokenInfos.find((t: AssetsType) => t.symbol === 'MAS');
+    if (masToken) {
+      selectedAsset.value = masToken;
+    }
+  } catch (error) {
+    console.error('Failed to load account assets:', error);
+  } finally {
+    isLoadingAssets.value = false;
   }
 };
 
@@ -394,6 +464,8 @@ const selectAccountFrom = (account: string) => {
   updateAccountBalance();
   // Update MAS token info for price calculation
   updateMasTokenInfo();
+  // Reload assets for the new account
+  loadAccountAssets();
 };
 
 const inputAmount = (inputAmount: string) => {
@@ -405,19 +477,35 @@ const inputAmount = (inputAmount: string) => {
 };
 
 const setMaxValue = () => {
-  const balanceBase = new BigNumber(account.value.balance)
-    .times(10 ** 9)
-    .toString(); // Convert float to base units
-  const feeBase = toBase(fee.value, 9);
+  if (!selectedAsset.value) return;
+
+  const balanceBase = selectedAsset.value.balance || '0'; // balance is already in base units
+  const feeBase = toBase(fee.value, 9); // Fee is always in MAS
 
   const balanceNum = BigInt(balanceBase);
   const feeNum = BigInt(feeBase);
-  const maxAmountBase = balanceNum - feeNum;
 
-  if (maxAmountBase > BigInt(0)) {
-    amount.value = fromBase(maxAmountBase.toString(), 9);
+  // For MAS token, subtract fee from balance
+  if (selectedAsset.value.symbol === 'MAS') {
+    const maxAmountBase = balanceNum - feeNum;
+    if (maxAmountBase > 0n) {
+      amount.value = fromBase(
+        maxAmountBase.toString(),
+        selectedAsset.value.decimals,
+      );
+    } else {
+      amount.value = '0';
+    }
   } else {
-    amount.value = '0';
+    // For other tokens, use full balance (fee is paid in MAS)
+    if (balanceNum > 0n) {
+      amount.value = fromBase(
+        balanceNum.toString(),
+        selectedAsset.value.decimals,
+      );
+    } else {
+      amount.value = '0';
+    }
   }
 };
 
@@ -425,30 +513,35 @@ const toggleSelector = (isTokenSend: boolean) => {
   // Massa only supports token sending for now
 };
 
+const toggleSelectToken = () => {
+  isOpenSelectToken.value = !isOpenSelectToken.value;
+};
+
+const selectToken = (token: AssetsType) => {
+  selectedAsset.value = token;
+  isOpenSelectToken.value = false;
+  // Update amount input when token changes
+  amount.value = '';
+};
+
 const sendAction = async () => {
-  if (!isInputsValid.value) {
+  if (!isInputsValid.value || !selectedAsset.value) {
     return;
   }
 
   try {
-
     // Create verify transaction params
     const txVerifyInfo: VerifyTransactionParams = {
-      TransactionData: {
-        from: addressFrom.value,
-        to: addressTo.value,
-        value: amount.value,
-        data: '0x' as `0x${string}`, // Massa doesn't use data field like Ethereum
-      },
       toToken: {
-        amount: toBase(amount.value, 9), // Massa has 9 decimals
-        decimals: 9,
-        icon: network.value.icon,
-        symbol: network.value.currencyName,
+        amount: toBase(amount.value, selectedAsset.value.decimals),
+        decimals: selectedAsset.value.decimals,
+        icon: selectedAsset.value.icon,
+        symbol: selectedAsset.value.symbol,
         valueUSD: amountFiatValue.value,
-        name: network.value.currencyNameLong,
-        price: masTokenInfo.value?.valuef || '0',
+        name: selectedAsset.value.name,
+        price: selectedAsset.value.valuef || '0',
       },
+      toTokenAddress: selectedAsset.value.contract,
       fromAddress: addressFrom.value,
       fromAddressName: account.value.name,
       txFee: {
@@ -495,6 +588,7 @@ const sendAction = async () => {
   height: 100%;
   box-sizing: border-box;
   position: relative;
+  padding-bottom: 100px; // Add padding to prevent content from overlapping with buttons
 
   &__buttons {
     position: absolute;
@@ -507,6 +601,7 @@ const sendAction = async () => {
     flex-direction: row;
     width: 100%;
     box-sizing: border-box;
+    background: @white; // Ensure buttons have a solid background
 
     &-cancel {
       width: 170px;

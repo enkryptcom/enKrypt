@@ -8,7 +8,10 @@
         </a>
       </div>
       <div class="add-custom-token__content">
-        <div class="add-custom-token__contract-input" :class="{ focus: isFocus }">
+        <div
+          class="add-custom-token__contract-input"
+          :class="{ focus: isFocus }"
+        >
           <div class="add-custom-token__contract-input__address">
             <p>Contract address:</p>
             <input
@@ -62,8 +65,9 @@
           <div class="add-custom-token__warning">
             <warn-icon />
             <p>
-              Be sure to validate this is the Massa token you think it is! Anyone
-              can create a token, even one pretending to be another popular token.
+              Be sure to validate this is the Massa token you think it is!
+              Anyone can create a token, even one pretending to be another
+              popular token.
             </p>
           </div>
         </div>
@@ -71,9 +75,9 @@
           <div class="add-custom-token__error">
             <alert-icon />
             <p>
-              There is no Massa token deployed at this address. Make sure you have
-              the right contract address and you are connected to the correct
-              network.
+              There is no Massa token deployed at this address. Make sure you
+              have the right contract address and you are connected to the
+              correct network.
             </p>
           </div>
         </div>
@@ -160,12 +164,12 @@ const fetchTokenInfo = async () => {
   try {
     const api = (await props.network.api()) as MassaAPI;
     const mrc20 = new MRC20(api.provider, contractAddress.value);
-    
+
     // Fetch token information
     const name = await mrc20.name();
     const symbol = await mrc20.symbol();
     const decimals = await mrc20.decimals();
-    
+
     const tokenInfos: CustomMassaToken = {
       type: TokenType.ERC20,
       name,
@@ -176,17 +180,19 @@ const fetchTokenInfo = async () => {
     };
 
     tokenInfo.value = tokenInfos;
-    
+
     // Get token balance
     try {
-      const balance = await api.getBalanceMRC20(props.address, contractAddress.value);
+      const balance = await api.getBalanceMRC20(
+        props.address,
+        contractAddress.value,
+      );
       accountBalance.value = balance;
     } catch (balanceError) {
       accountBalance.value = '0';
     }
-    
-    notTokenAddress.value = false;
 
+    notTokenAddress.value = false;
   } catch (error) {
     console.error('Error fetching token info:', error);
     tokenInfo.value = undefined;
@@ -203,16 +209,24 @@ const addToken = async () => {
     await tokensState.addMassaToken(props.network.name, toRaw(tokenInfo.value));
 
     // Create asset for UI
-    const balanceFormatted = fromBase(accountBalance.value ?? '0', tokenInfo.value.decimals);
-    const balanceDisplayFormatted = formatFloatingPointValue(balanceFormatted).value;
+    const balanceFormatted = fromBase(
+      accountBalance.value ?? '0',
+      tokenInfo.value.decimals,
+    );
+    const balanceDisplayFormatted =
+      formatFloatingPointValue(balanceFormatted).value;
 
     // For Massa tokens, we'll use default values since market data is not available
     const price = '0';
     const priceChangePercentage = 0;
     const sparklineData = '';
 
-    const balanceUSD = new BigNumber(balanceDisplayFormatted).times(price).toNumber();
-    const balanceUSDf = new BigNumber(balanceDisplayFormatted).times(price).toString();
+    const balanceUSD = new BigNumber(balanceDisplayFormatted)
+      .times(price)
+      .toNumber();
+    const balanceUSDf = new BigNumber(balanceDisplayFormatted)
+      .times(price)
+      .toString();
     const priceFormatted = formatFloatingPointValue(price).value;
 
     const asset: AssetsType = {
@@ -475,4 +489,4 @@ watch(contractAddress, () => {
     }
   }
 }
-</style> 
+</style>

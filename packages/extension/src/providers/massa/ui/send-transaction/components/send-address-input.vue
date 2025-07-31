@@ -112,7 +112,9 @@ const identiconSrc = computed(() => {
 
 const placeholderIdenticonSrc = computed(() => {
   if (props.network && props.network.identicon) {
-    return props.network.identicon('000000000000000000000000000000000000000000000000000000000000000000');
+    return props.network.identicon(
+      '000000000000000000000000000000000000000000000000000000000000000000',
+    );
   }
   return '';
 });

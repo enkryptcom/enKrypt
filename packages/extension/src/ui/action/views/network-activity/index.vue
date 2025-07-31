@@ -68,6 +68,7 @@ import {
   SwapRawInfo,
   KadenaRawInfo,
   SOLRawInfo,
+  MassaRawInfo,
 } from '@/types/activity';
 import NetworkActivityLoading from './components/network-activity-loading.vue';
 import { ProviderName } from '@/types/provider';
@@ -220,7 +221,7 @@ const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {
     }
   } else if (props.network.provider === ProviderName.massa) {
     if (!info) return;
-    const massaInfo = info as OperationStatus;
+    const massaInfo = info as MassaRawInfo;
     if (isActivityUpdating) return;
     activity.status =
       massaInfo === OperationStatus.Success ||

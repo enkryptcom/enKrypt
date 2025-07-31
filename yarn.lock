@@ -1642,7 +1642,7 @@ __metadata:
     "@kadena/client": "npm:^1.18.0"
     "@kadena/pactjs-cli": "npm:^1.18.0"
     "@ledgerhq/hw-transport-webusb": "npm:^6.29.8"
-    "@massalabs/massa-web3": "npm:5.2.1-dev.20250722105131"
+    "@massalabs/massa-web3": "npm:5.2.1-dev.20250730141858"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metaplex-foundation/mpl-bubblegum": "npm:^5.0.2"
     "@metaplex-foundation/umi": "npm:^1.2.0"
@@ -5865,9 +5865,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@massalabs/massa-web3@npm:5.2.1-dev.20250722105131":
-  version: 5.2.1-dev.20250722105131
-  resolution: "@massalabs/massa-web3@npm:5.2.1-dev.20250722105131"
+"@massalabs/massa-web3@npm:5.2.1-dev.20250730141858":
+  version: 5.2.1-dev.20250730141858
+  resolution: "@massalabs/massa-web3@npm:5.2.1-dev.20250730141858"
   dependencies:
     "@noble/ed25519": "npm:^1.7.3"
     "@noble/hashes": "npm:^1.2.0"
@@ -5887,7 +5887,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 10/3f6e0d4f2953f8642d1b498f0df444e5be621a282527c60e4a226308ad636e25463c9711fb70ee22a2f25bfa718dac2e935e0db2192161881e7b1f52048ba7ed
+  checksum: 10/56464249fcfbf5f66980eceecef13343b5379bf9badd779be0d6d0ce51882c15310c74d5209ff75d825058eb82ac26e1f7b2ff5fa96a7c690461577710b8e6b1
   languageName: node
   linkType: hard
 

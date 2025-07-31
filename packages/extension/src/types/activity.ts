@@ -147,4 +147,5 @@ export {
   KadenaRawInfo,
   KadenaDBInfo,
   SOLRawInfo,
+  MassaRawInfo,
 };

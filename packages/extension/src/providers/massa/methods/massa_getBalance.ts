@@ -1,10 +1,8 @@
 import { MiddlewareFunction } from '@enkryptcom/types';
-import {
-  BackgroundProviderInterface,
-  ProviderRPCRequest,
-} from '@/types/provider';
+import { ProviderRPCRequest } from '@/types/provider';
 import { Address } from '@massalabs/massa-web3';
 import { getCustomError } from '@/libs/error';
+import MassaProvider from '..';
 
 const isValidMassaAddress = (address: string): boolean => {
   try {
@@ -16,7 +14,7 @@ const isValidMassaAddress = (address: string): boolean => {
 };
 
 const method: MiddlewareFunction = async function (
-  this: BackgroundProviderInterface,
+  this: MassaProvider,
   payload: ProviderRPCRequest,
   res,
   next,
@@ -30,10 +28,7 @@ const method: MiddlewareFunction = async function (
         return;
       }
 
-      const currentNetwork = this.getCurrentNetwork();
-
-      const api = await currentNetwork.api();
-
+      const api = await this.network.api();
       const balance = await api.getBalance(address);
 
       res(null, balance);
