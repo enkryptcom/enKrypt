@@ -1,6 +1,6 @@
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
-import { multiversxScanActivity } from '../libs/activity-handlers';
+import { multiversxScanActivity, nftHandler } from '../libs/activity-handlers';
 import {
   MultiversXNetwork,
   MultiversXNetworkOptions,
@@ -28,6 +28,7 @@ const multiversxOptions: MultiversXNetworkOptions = {
   basePath: "m/44'/508'",
   isAddress: isValidAddress,
   buyLink: 'https://buy.multiversx.com/',
+  NFTHandler: nftHandler,
 };
 
 const multiversx = new MultiversXNetwork(multiversxOptions);

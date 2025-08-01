@@ -6,6 +6,7 @@ import createIcon from '@/providers/ethereum/libs/blockies';
 import { Activity } from '@/types/activity';
 import { BaseNetwork, BaseNetworkOptions } from '@/types/base-network';
 import { BaseTokenOptions } from '@/types/base-token';
+import { NFTCollection } from '@/types/nft';
 import { AssetsType, ProviderName } from '@/types/provider';
 import { CoingeckoPlatform, NetworkNames, SignerType } from '@enkryptcom/types';
 import { fromBase } from '@enkryptcom/utils';
@@ -35,6 +36,14 @@ export interface MultiversXNetworkOptions {
     address: string,
   ) => Promise<Activity[]>;
   isAddress: (address: string) => boolean;
+  NFTHandler?: (
+    network: BaseNetwork,
+    address: string,
+  ) => Promise<NFTCollection[]>;
+  assetsInfoHandler?: (
+    network: BaseNetwork,
+    address: string,
+  ) => Promise<AssetsType[]>;
 }
 
 export const isValidAddress = (address: string) => {
@@ -63,6 +72,11 @@ export class MultiversXNetwork extends BaseNetwork {
     address: string,
   ) => Promise<AssetsType[]>;
 
+  NFTHandler?: (
+    network: BaseNetwork,
+    address: string,
+  ) => Promise<NFTCollection[]>;
+
   isAddress: (address: string) => boolean;
 
   constructor(options: MultiversXNetworkOptions) {
@@ -84,6 +98,8 @@ export class MultiversXNetwork extends BaseNetwork {
     this.options = options;
     this.activityHandler = options.activityHandler;
     this.isAddress = options.isAddress;
+    this.assetsInfoHandler = options.assetsInfoHandler;
+    this.NFTHandler = options.NFTHandler;
   }
 
   public async getAllTokens(pubkey: string): Promise<MVXToken[]> {

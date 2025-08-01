@@ -1,3 +1,3 @@
-import multiversxScanActivity from './multiversx';
+import { multiversxScanActivity, nftHandler } from './multiversx';
 
-export { multiversxScanActivity };
+export { multiversxScanActivity, nftHandler };

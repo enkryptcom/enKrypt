@@ -8,6 +8,13 @@
         </a>
       </div>
 
+      <send-header
+        :is-send-token="isSendToken"
+        :is-nft-available="!!network.NFTHandler"
+        @close="close"
+        @toggle-type="toggleSelector"
+      />
+
       <send-address-input
         ref="addressInputFrom"
         :from="true"

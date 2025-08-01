@@ -4,6 +4,7 @@ export enum NFTType {
   Ordinals = 'ORDINALS',
   SolanaBGUM = 'SOLANABGUM',
   SolanaToken = 'SOLANATOKEN',
+  MultiversXNFT = 'MULTIVERSXNFT',
 }
 
 export interface NFTItem {
