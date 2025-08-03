@@ -1,4 +1,4 @@
-{
+{.devcontainer/devcontainer.json
   "image": "mcr.microsoft.com/devcontainers/universal:2",
   "features": {}
 }
