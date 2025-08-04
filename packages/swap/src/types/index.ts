@@ -128,6 +128,7 @@ export enum ProviderName {
   changelly = "changelly",
   rango = "rango",
   jupiter = "jupiter",
+  okx = "okx",
 }
 
 // eslint-disable-next-line no-shadow
