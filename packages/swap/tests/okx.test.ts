@@ -263,7 +263,7 @@ describe("OKX Provider", () => {
           symbol: "USDC",
           rank: 5,
           cgId: "usd-coin",
-          type: "solana",
+          type: NetworkType.Solana,
         },
         toToken: {
           address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", // Native SOL
@@ -274,7 +274,7 @@ describe("OKX Provider", () => {
           symbol: "SOL",
           rank: 1,
           cgId: "solana",
-          type: "solana",
+          type: NetworkType.Solana,
           networkInfo: {
             name: SupportedNetworkName.Solana,
             isAddress: isValidSolanaAddressAsync,
@@ -287,7 +287,7 @@ describe("OKX Provider", () => {
 
       const usdcToSolQuote = await okx.getQuote(usdcToSolQuoteOptions, {
         infiniteApproval: true,
-        walletIdentifier: "enkrypt",
+        walletIdentifier: WalletIdentifier.enkrypt,
         slippage: "0.5",
       });
 
@@ -335,7 +335,7 @@ describe("OKX Provider", () => {
           symbol: "SOL",
           rank: 1,
           cgId: "solana",
-          type: "solana",
+          type: NetworkType.Solana,
         },
         toToken: {
           address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC
@@ -346,7 +346,7 @@ describe("OKX Provider", () => {
           symbol: "USDC",
           rank: 5,
           cgId: "usd-coin",
-          type: "solana",
+          type: NetworkType.Solana,
           networkInfo: {
             name: SupportedNetworkName.Solana,
             isAddress: isValidSolanaAddressAsync,
@@ -361,7 +361,7 @@ describe("OKX Provider", () => {
 
       const solQuote = await okx.getQuote(solQuoteOptions, {
         infiniteApproval: true,
-        walletIdentifier: "enkrypt",
+        walletIdentifier: WalletIdentifier.enkrypt,
         slippage: "0.5",
       });
 
