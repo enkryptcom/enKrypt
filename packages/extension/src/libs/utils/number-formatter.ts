@@ -529,7 +529,6 @@ const isNumericPositive = (value: string) => {
   return !num.isNaN() && num.isPositive() && num.lt(new BigNumber(2).pow(256));
 };
 
-
 export {
   formatIntegerToString,
   formatIntegerValue,
@@ -539,5 +538,5 @@ export {
   formatPercentageValue,
   formatGasValue,
   toBNSafe,
-  isNumericPositive
+  isNumericPositive,
 };

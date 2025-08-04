@@ -12,7 +12,7 @@ export const useOnboardStore = defineStore('restoreWallet', () => {
 
   const setIsEdit = (edit: boolean) => {
     isEdit.value = edit;
-  }
+  };
 
   return { setOptions, evmOptions, setIsEdit };
 });

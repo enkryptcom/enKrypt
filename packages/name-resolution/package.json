@@ -15,19 +15,19 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "lint": "prettier --write .",
     "test": "vitest run"
   },
   "engines": {
     "node": ">=14.15.0"
   },
   "devDependencies": {
-    "@types/node": "^22.15.24",
-    "@typescript-eslint/eslint-plugin": "^8.37.0",
-    "@typescript-eslint/parser": "^8.37.0",
-    "eslint": "^9.31.0",
+    "@types/node": "^22.16.5",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "eslint": "^9.32.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-prettier": "^10.1.5",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-module-resolver": "^1.5.0",
@@ -36,8 +36,8 @@
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.5.0",
     "typescript": "^5.8.3",
-    "typescript-eslint": "8.37.0",
-    "viem": "^2.31.7",
+    "typescript-eslint": "8.38.0",
+    "viem": "^2.33.1",
     "vitest": "^3.2.4"
   },
   "repository": {

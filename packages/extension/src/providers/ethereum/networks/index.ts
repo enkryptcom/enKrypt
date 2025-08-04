@@ -78,6 +78,8 @@ import unitZero from './unitzero';
 import unitZeroTestnet from './unitzero-testnet';
 import conflux from './conflux';
 import hemi from './hemi';
+import coredao from './coredao';
+import appLayerTestnet from './applayer-testnet';
 
 export default {
   sepolia: sepoliaNode,
@@ -169,4 +171,6 @@ export default {
   unitZeroTestnet: unitZeroTestnet,
   conflux: conflux,
   hemi: hemi,
+  coredao: coredao,
+  appLayerTestnet: appLayerTestnet,
 };

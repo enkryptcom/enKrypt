@@ -2,9 +2,7 @@ import MarketData from '@/libs/market-data';
 import Sparkline from '@/libs/sparkline';
 import { TokensState } from '@/libs/tokens-state';
 import { CustomErc20Token, TokenType } from '@/libs/tokens-state/types';
-import {
-  formatFloatingPointValue,
-} from '@/libs/utils/number-formatter';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
 import { fromBase } from '@enkryptcom/utils';
 import { Activity } from '@/types/activity';
 import { BaseNetwork } from '@/types/base-network';
@@ -152,12 +150,11 @@ export class EvmNetwork extends BaseNetwork {
         balanceUSD: nativeUsdBalance.toNumber(),
         balanceUSDf: nativeUsdBalance.toString(),
         value: nativeMarketData?.current_price?.toString() ?? '0',
-        valuef:
-          nativeMarketData?.current_price?.toString() ?? '0',
+        valuef: nativeMarketData?.current_price?.toString() ?? '0',
         decimals: this.decimals,
         sparkline: nativeMarketData
           ? new Sparkline(nativeMarketData.sparkline_in_24h.price, 25)
-            .dataValues
+              .dataValues
           : '',
         priceChangePercentage:
           nativeMarketData?.price_change_percentage_24h_in_currency ?? 0,
@@ -210,7 +207,7 @@ export class EvmNetwork extends BaseNetwork {
               a.contract &&
               (token as CustomErc20Token).address &&
               a.contract.toLowerCase() ===
-              (token as CustomErc20Token).address.toLowerCase()
+                (token as CustomErc20Token).address.toLowerCase()
             ) {
               return false;
             }
@@ -269,8 +266,7 @@ export class EvmNetwork extends BaseNetwork {
         asset.balanceUSD = usdBalance.toNumber();
         asset.balanceUSDf = usdBalance.toString();
         asset.value = marketInfo.current_price?.toString() ?? '0';
-        asset.valuef =
-          marketInfo.current_price?.toString() ?? '0';
+        asset.valuef = marketInfo.current_price?.toString() ?? '0';
         asset.sparkline = new Sparkline(
           marketInfo.sparkline_in_24h.price,
           25,

@@ -39,7 +39,7 @@ const getPrioritizationFees = async (
         high: typedJson.result.priorityFeeLevels.high,
       };
     })
-    .catch(e => {
+    .catch(() => {
       return { low: 0, medium: 0, high: 0 };
     });
 };

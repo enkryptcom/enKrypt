@@ -49,7 +49,8 @@ const method: MiddlewareFunction = function (
     } else {
       return res(
         getCustomError(
-          `btc_switchNetwork: porvided network ${payload.params![0]
+          `btc_switchNetwork: porvided network ${
+            payload.params![0]
           } not supported`,
         ),
       );

@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, PropType, ref, watch } from 'vue';
+import { PropType, ref, watch } from 'vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import { NodeType } from '@/types/provider';
 import { sendToBackgroundFromAction } from '@/libs/messenger/extension';

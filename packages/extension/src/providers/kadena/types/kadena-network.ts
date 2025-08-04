@@ -13,10 +13,7 @@ import createIcon from '@/providers/ethereum/libs/blockies';
 import MarketData from '@/libs/market-data';
 import { CoinGeckoTokenMarket } from '@/libs/market-data/types';
 import Sparkline from '@/libs/sparkline';
-import {
-  formatFloatingPointValue,
-
-} from '@/libs/utils/number-formatter';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
 import { fromBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
 import { KDABaseToken, KDAToken } from './kda-token';
