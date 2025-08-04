@@ -3,7 +3,6 @@ import {
   Connection,
   PublicKey,
   Transaction,
-  TransactionInstruction,
   VersionedTransaction,
 } from "@solana/web3.js";
 import bs58 from "bs58";
@@ -45,7 +44,7 @@ import { DebugLogger } from "@enkryptcom/utils";
 import { OKXQuoteResponse, OKXSwapResponse, OKXTokenInfo } from "./types";
 
 const logger = new DebugLogger("swap:okx");
-
+const DEFAULT_TOKEN_ACCOUNT_RENT_EXEMPTION = 2039280;
 const SOL_NATIVE_ADDRESS = "11111111111111111111111111111111";
 const OKX_API_URL = "https://partners.mewapi.io/okxswapv5";
 const OKX_TOKENS_URL = "/all-tokens";
@@ -330,7 +329,7 @@ export class OKX extends ProviderClass {
             } catch (rentError) {
               logger.warn(`Could not get rent exemption: ${rentError}`);
               // Use a default rent fee if we can't get it
-              rentFees += 2039280; // Default SOL rent exemption for token account
+              rentFees += DEFAULT_TOKEN_ACCOUNT_RENT_EXEMPTION; // Default SOL rent exemption for token account
             }
           }
         } catch (tokenProgramError) {
@@ -348,7 +347,7 @@ export class OKX extends ProviderClass {
             return null;
           }
           // Use a default rent fee if we can't get token program info
-          rentFees += 2039280; // Default SOL rent exemption for token account
+          rentFees += DEFAULT_TOKEN_ACCOUNT_RENT_EXEMPTION; // Default SOL rent exemption for token account
         }
       }
 
@@ -519,7 +518,7 @@ export class OKX extends ProviderClass {
     context?: { signal?: AbortSignal },
   ): Promise<OKXQuoteResponse> {
     return retryRequest(async () => {
-      const { srcMint, dstMint, amount, slippageBps, referralFeeBps } = params;
+      const { srcMint, dstMint, amount } = params;
 
       const quoteParams: Record<string, string> = {
         chainId: "501", // Solana Chain ID
@@ -811,7 +810,7 @@ export class OKX extends ProviderClass {
         }
       } catch (error) {
         logger.warn(`Could not check destination token account: ${error}`);
-        rentFees += 2039280; // Default SOL rent exemption
+        rentFees += DEFAULT_TOKEN_ACCOUNT_RENT_EXEMPTION; // Default SOL rent exemption
       }
     }
     return {
@@ -828,8 +827,8 @@ export class OKX extends ProviderClass {
    */
   private async createSolanaTransactionFromOKXData(
     okxTransactionData: string,
-    fromAddress: string,
-    programAddress: string,
+    _fromAddress: string,
+    _programAddress: string,
   ): Promise<string> {
     try {
       const decodingStrategies = [

@@ -22,7 +22,6 @@ import {
   getQuoteOptions,
 } from "../src/types";
 import BN from "bn.js";
-import { isValidSolanaAddressAsync } from "../src/utils/solana";
 import {
   fromToken,
   amount,
