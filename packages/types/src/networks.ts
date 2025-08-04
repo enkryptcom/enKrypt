@@ -113,6 +113,7 @@ export enum NetworkNames {
   UnitZeroTestnet = "UnitZeroTestnet",
   Conflux = "Conflux",
   Hemi = "Hemi",
+  AppLayerTestnet = "AppLayerTestnet"
 }
 
 export enum CoingeckoPlatform {
