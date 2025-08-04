@@ -1,6 +1,6 @@
 import { NetworkNames } from '@enkryptcom/types';
 
-const newNetworks: NetworkNames[] = [NetworkNames.Sonic];
+const newNetworks: NetworkNames[] = [NetworkNames.CoreDAO];
 const newSwaps: NetworkNames[] = [];
 
 export { newNetworks, newSwaps };
