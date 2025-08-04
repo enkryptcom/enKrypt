@@ -1,7 +1,7 @@
 import icon from '../icons/sys_rollux.webp';
 import { NetworkNames, CoingeckoPlatform } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../../types/evm-network';
-import assetsInfoHandler from "@/providers/ethereum/libs/assets-handlers/assetinfo-mew";
+import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
 import { EtherscanActivity } from '../../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
@@ -20,7 +20,8 @@ const rolluxOptions: EvmNetworkOptions = {
   coingeckoPlatform: CoingeckoPlatform.Rollux,
   icon,
   assetsInfoHandler,
-  buyLink: 'https://trade.coinify.com/syscoin?defaultCryptoCurrency=SYSROLLUX&cryptoCurrencies=SYSROLLUX,SYSEVM,SYS&targetPage=buy',
+  buyLink:
+    'https://trade.coinify.com/syscoin?defaultCryptoCurrency=SYSROLLUX&cryptoCurrencies=SYSROLLUX,SYSEVM,SYS&targetPage=buy',
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

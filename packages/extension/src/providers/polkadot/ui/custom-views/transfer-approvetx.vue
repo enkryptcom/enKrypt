@@ -64,9 +64,8 @@ onBeforeMount(async () => {
   try {
     const foundAddress = await publicKeyring.getAccount(to);
     destName.value = foundAddress.name;
-  } catch {
-    // Just a pass so it's not empty as getAccount throws if there is no account
-    null;
+  } catch (e) {
+    console.error(e);
   }
 });
 </script>

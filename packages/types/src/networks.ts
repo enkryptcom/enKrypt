@@ -114,6 +114,7 @@ export enum NetworkNames {
   Conflux = "Conflux",
   Hemi = "Hemi",
   CoreDAO = "CORE",
+  AppLayerTestnet = "AppLayerTestnet"
 }
 
 export enum CoingeckoPlatform {

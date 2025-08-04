@@ -1,3 +1,3 @@
 export type IState = {
-  addresses: string[]
-}
+  addresses: string[];
+};

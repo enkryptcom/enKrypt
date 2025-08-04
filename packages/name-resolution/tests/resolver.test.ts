@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest"
+import { describe, it, expect } from "vitest";
 import NameResolver from "../src";
 
 describe("Name Resolver resolving", () => {
@@ -36,11 +36,11 @@ describe("Name Resolver resolving", () => {
       },
     });
     let name = await resolver.resolveReverseName(
-      "0xe5dc07bdcdb8c98850050c7f67de7e164b1ea391"
+      "0xe5dc07bdcdb8c98850050c7f67de7e164b1ea391",
     );
     expect(name).to.be.eq("kvhnuke.eth");
     name = await resolver.resolveReverseName(
-      "0xb5932a6b7d50a966aec6c74c97385412fb497540"
+      "0xb5932a6b7d50a966aec6c74c97385412fb497540",
     );
     expect(name).to.be.eq("spaceid.eth");
   });

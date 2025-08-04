@@ -1,4 +1,3 @@
 interface ImportMetaEnv {
-  VITE_DEBUG_LOG?: string
+  VITE_DEBUG_LOG?: string;
 }
-

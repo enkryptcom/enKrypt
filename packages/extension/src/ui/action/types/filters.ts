@@ -1,4 +1,3 @@
-
 /* eslint-disable @typescript-eslint/no-namespace */
 import {
   formatDuration,
@@ -6,7 +5,7 @@ import {
   formatFiatValue,
   formatFloatingPointValue,
   truncate,
-  parseCurrency
+  parseCurrency,
 } from '../utils/filters';
 declare global {
   namespace $filters {
@@ -16,7 +15,7 @@ declare global {
       formatFiatValue,
       formatFloatingPointValue,
       truncate,
-      parseCurrency
+      parseCurrency,
     };
   }
 }
