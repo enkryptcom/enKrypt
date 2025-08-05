@@ -20,7 +20,7 @@ const edgewareOptions: SubstrateNetworkOptions = {
   icon,
   decimals: 18,
   prefix: 7,
-  node: 'wss://edgeware.jelliedowl.net',
+  node: 'wss://edgeware-rpc3.jelliedowl.net',
   coingeckoID: 'edgeware',
   coingeckoPlatform: CoingeckoPlatform.Edgeware,
   genesisHash:

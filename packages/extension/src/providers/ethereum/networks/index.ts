@@ -109,7 +109,6 @@ export default {
   skaleCryptoColosseum: skale.cryptoColosseumNode,
   skaleExorde: skale.exordeNode,
   skaleNebula: skale.nebulaNode,
-  skaleRazor: skale.razorNode,
   skaleTitan: skale.titanNode,
   skaleChaos: skale.chaosNode,
   ontEVM: ontEVMNode,

@@ -1,7 +1,7 @@
 import icon from './icons/etc.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
-import { RivetActivity } from '../libs/activity-handlers';
+import { EtherscanActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
 const etcOptions: EvmNetworkOptions = {
@@ -19,7 +19,7 @@ const etcOptions: EvmNetworkOptions = {
   basePath: "m/44'/61'/0'/0",
   coingeckoID: 'ethereum-classic',
   coingeckoPlatform: CoingeckoPlatform.EthereumClassic,
-  activityHandler: wrapActivityHandler(RivetActivity),
+  activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
 const etc = new EvmNetwork(etcOptions);

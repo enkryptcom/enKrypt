@@ -14,7 +14,7 @@ const edgOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: 'EDG',
   currencyNameLong: 'Edgeware',
-  node: 'wss://edgeware.jelliedowl.net',
+  node: 'wss://edgeware-rpc3.jelliedowl.net',
   icon,
   coingeckoID: 'edgeware',
   coingeckoPlatform: CoingeckoPlatform.Edgeware,

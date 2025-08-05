@@ -38,7 +38,6 @@ export enum NetworkNames {
   SkaleCryptoColosseum = "skaleROME",
   SkaleExorde = "skaleEXORDE",
   SkaleNebula = "skaleNEBULA",
-  SkaleRazor = "skaleRAZOR",
   SkaleTitan = "skaleTITAN",
   SkaleChaos = "skaleCHAOS",
   OntologyEVM = "ontologyEVM",
@@ -114,7 +113,7 @@ export enum NetworkNames {
   Conflux = "Conflux",
   Hemi = "Hemi",
   CoreDAO = "CORE",
-  AppLayerTestnet = "AppLayerTestnet"
+  AppLayerTestnet = "AppLayerTestnet",
 }
 
 export enum CoingeckoPlatform {

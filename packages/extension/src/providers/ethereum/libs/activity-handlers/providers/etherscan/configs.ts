@@ -10,7 +10,6 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.AstarEVM]: 'https://blockscout.com/astar/',
   [NetworkNames.ShidenEVM]: 'https://blockscout.com/shiden/',
   [NetworkNames.Optimism]: 'https://api-optimistic.etherscan.io/',
-  [NetworkNames.Canto]: 'https://evm.explorer.canto.io/',
   [NetworkNames.EdgeEVM]: 'https://edgscan.live/',
   [NetworkNames.Rootstock]: 'https://blockscout.com/rsk/mainnet/',
   [NetworkNames.RootstockTestnet]: 'https://rootstock-testnet.blockscout.com/',
@@ -28,8 +27,6 @@ const NetworkEndpoints: Record<string, string> = {
     'https://light-vast-diphda.explorer.mainnet.skalenodes.com/',
   [NetworkNames.SkaleNebula]:
     'https://green-giddy-denebola.explorer.mainnet.skalenodes.com/',
-  [NetworkNames.SkaleRazor]:
-    'https://turbulent-unique-scheat.explorer.mainnet.skalenodes.com/',
   [NetworkNames.SkaleTitan]:
     'https://parallel-stormy-spica.explorer.mainnet.skalenodes.com/',
   [NetworkNames.SkaleChaos]:
@@ -41,7 +38,6 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.ArbitrumNova]: 'https://nova-explorer.arbitrum.io/',
   [NetworkNames.Gnosis]: 'https://api.gnosisscan.io/',
   [NetworkNames.Avalanche]: 'https://api.snowtrace.io/',
-  [NetworkNames.Fantom]: 'https://api.ftmscan.com/',
   [NetworkNames.Aurora]: 'https://explorer.mainnet.aurora.dev/',
   [NetworkNames.PuppyNet]: 'https://puppyscan.shib.io/',
   [NetworkNames.Shibarium]: 'https://www.shibariumscan.io/',
@@ -61,6 +57,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Sonic]: 'https://api.sonicscan.org/',
   [NetworkNames.Degen]: 'https://explorer.degen.tips/',
   [NetworkNames.Ham]: 'https://explorer.ham.fun/',
+  [NetworkNames.Ink]: 'https://explorer.inkonchain.com/',
   [NetworkNames.ImmutableZkevm]: 'https://explorer.immutable.com/',
   [NetworkNames.Rari]: 'https://mainnet.explorer.rarichain.org/',
   [NetworkNames.Forma]: 'https://explorer.forma.art/',
@@ -78,6 +75,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Conflux]: 'https://evmapi.confluxscan.org/',
   [NetworkNames.Hemi]: 'https://explorer.hemi.xyz/',
   [NetworkNames.AppLayerTestnet]: 'https://testnet-explorer.applayer.com/api/',
+  [NetworkNames.EthereumClassic]: 'https://etc.blockscout.com/',
 };
 
 export { NetworkEndpoints };
