@@ -67,11 +67,11 @@ const FEE_CONFIGS: Partial<
   },
   [ProviderName.okx]: {
     [WalletIdentifier.enkrypt]: {
-      referrer: "HXWkRK9a4H1EuBiqP4sVfFsEpd2NasoQPScoXL1NgSE2",
+      referrer: "AGVteri2nwBsY8w95PuJCoFWxd6ZLwMQKVftaKJu4knV",
       fee: 0.01,
     },
     [WalletIdentifier.mew]: {
-      referrer: "CmrkoXWiTW37ZqUZcfJtxiKhy9eRMBQHq1nm8HpmRXH4",
+      referrer: "8GkSjqJUCzfLw96wKWMvTcLcbZsX7n69ZEQ3FE3KbPEq",
       fee: 0.03,
     },
   },
