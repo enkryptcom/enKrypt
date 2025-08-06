@@ -20,7 +20,7 @@ const sdnOptions: EvmNetworkOptions = {
   coingeckoID: 'shiden',
   coingeckoPlatform: CoingeckoPlatform.Shiden,
   assetsInfoHandler,
-  activityHandler: wrapActivityHandler(EtherscanActivity),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
 const sdn = new EvmNetwork(sdnOptions);

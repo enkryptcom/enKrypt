@@ -46,8 +46,6 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Celo]: 'https://explorer.celo.org/mainnet/',
   [NetworkNames.FormTestnet]: 'https://testnet-explorer.form.network/',
   [NetworkNames.Form]: 'https://explorer.form.network/',
-  [NetworkNames.ArtheraTest]: 'https://explorer-test.arthera.net/',
-  [NetworkNames.Arthera]: 'https://explorer.arthera.net/',
   [NetworkNames.SyscoinNEVMTest]: 'https://explorer.tanenbaum.io/',
   [NetworkNames.SyscoinNEVM]: 'https://explorer.syscoin.org/',
   [NetworkNames.RolluxTest]: 'https://rollux.tanenbaum.io/',
