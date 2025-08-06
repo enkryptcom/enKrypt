@@ -382,7 +382,7 @@ export class OKX extends ProviderClass {
       };
     } catch (err) {
       if (!context?.signal?.aborted) {
-        console.error(`[OKX.getQuote] Error calling getQuote: ${String(err)}`);
+        logger.error(`Error calling getQuote: ${String(err)}`);
       }
       return null;
     }
@@ -432,7 +432,7 @@ export class OKX extends ProviderClass {
       };
     } catch (err) {
       if (!context?.signal?.aborted) {
-        console.error(`[OKX.getSwap] Error calling getSwap: ${String(err)}`);
+        logger.error(`Error calling getSwap: ${String(err)}`);
       }
       return null;
     }

@@ -1,12 +1,8 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import {
-  AddressLookupTableAccount,
   ComputeBudgetInstruction,
   ComputeBudgetProgram,
   Connection,
-  PublicKey,
-  TransactionMessage,
-  VersionedTransaction,
   Transaction as LegacyTransaction,
 } from "@solana/web3.js";
 import { OKX } from "../src/providers/okx";
@@ -17,7 +13,6 @@ import {
   SolanaTransaction,
   SupportedNetworkName,
   WalletIdentifier,
-  SwapQuote,
   NetworkType,
   getQuoteOptions,
 } from "../src/types";
