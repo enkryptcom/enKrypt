@@ -1,7 +1,6 @@
 import icon from './icons/edgeware.webp';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
-import { EtherscanActivity } from '../libs/activity-handlers';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 
 const edgOptions: EvmNetworkOptions = {
@@ -18,7 +17,7 @@ const edgOptions: EvmNetworkOptions = {
   icon,
   coingeckoID: 'edgeware',
   coingeckoPlatform: CoingeckoPlatform.Edgeware,
-  activityHandler: wrapActivityHandler(EtherscanActivity),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
 const edg = new EvmNetwork(edgOptions);
