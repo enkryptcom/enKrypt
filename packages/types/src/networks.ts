@@ -92,7 +92,7 @@ export enum NetworkNames {
   Scroll = "scroll",
   Rari = "rari",
   CotiDevnet = "CotiDevnet",
-  Holesky = "HOLESKY",
+  Hoodi = "Hoodi",
   Bitrock = "bitrock",
   Fraxtal = "fraxtal",
   Fire = "5ire",

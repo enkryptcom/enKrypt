@@ -59,7 +59,7 @@ import palmNode from './palm';
 import proofOfPlayApexNode from './pop-apex';
 import scrollNode from './scroll';
 import cotiDevnetNode from './coti-devnet';
-import holeskyNode from './holesky';
+import hoodiNode from './hoodi';
 import bitrockNode from './bitrock';
 import fraxtalNode from './fraxtal';
 import _5ireNode from './5ire';
@@ -148,7 +148,7 @@ export default {
   popApex: proofOfPlayApexNode,
   scroll: scrollNode,
   cotiDevnet: cotiDevnetNode,
-  holesky: holeskyNode,
+  hoodi: hoodiNode,
   bitrock: bitrockNode,
   frax: fraxtalNode,
   taraxa: taraxa,
