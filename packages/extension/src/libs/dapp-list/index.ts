@@ -55,8 +55,6 @@ const lists: Partial<Record<NetworkNames, string>> = {
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/avax.json',
   [NetworkNames.Fantom]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/ftm.json',
-  [NetworkNames.Klaytn]:
-    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/klay.json',
   [NetworkNames.Aurora]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/aurora.json',
   [NetworkNames.Base]:
