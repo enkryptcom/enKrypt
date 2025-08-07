@@ -21,10 +21,6 @@ import BitcoinAPI from '@/providers/bitcoin/libs/api';
 import { getTxInfo as getBTCTxInfo } from '@/providers/bitcoin/libs/utils';
 import { toBN } from 'web3-utils';
 import { BTCTxInfo } from '@/providers/bitcoin/ui/types';
-import {
-  VersionedTransaction as SolanaVersionedTransaction,
-  Transaction as SolanaLegacyTransaction,
-} from '@solana/web3.js';
 
 export const getSubstrateNativeTransation = async (
   network: SubstrateNetwork,
@@ -113,42 +109,22 @@ export const getSwapTransactions = async (
     const allTxs = await Promise.all(txPromises);
     return allTxs;
   } else if (netInfo.type === NetworkType.Solana) {
-    const solTxs: (
-      | {
-          kind: 'legacy';
-          instance: SolanaLegacyTransaction;
-          hasThirdPartySignatures: boolean;
-        }
-      | {
-          kind: 'versioned';
-          instance: SolanaVersionedTransaction;
-          hasThirdPartySignatures: boolean;
-        }
-    )[] = (transactions as EnkryptSolanaTransaction[]).map(function (enkSolTx) {
-      switch (enkSolTx.kind) {
-        case 'legacy':
-          return {
-            kind: 'legacy',
-            hasThirdPartySignatures: enkSolTx.thirdPartySignatures.length > 0,
-            instance: SolanaLegacyTransaction.from(
-              Buffer.from(enkSolTx.serialized, 'base64'),
-            ),
-          };
-        case 'versioned':
-          return {
-            kind: 'versioned',
-            hasThirdPartySignatures: enkSolTx.thirdPartySignatures.length > 0,
-            instance: SolanaVersionedTransaction.deserialize(
-              Buffer.from(enkSolTx.serialized, 'base64'),
-            ),
-          };
-        default:
-          throw new Error(
-            `Cannot deserialize Solana transaction: Unexpected kind: ${enkSolTx.kind}`,
-          );
-      }
-    });
-    return solTxs;
+    return (transactions as EnkryptSolanaTransaction[]).map(
+      function (enkSolTx) {
+        // Return the raw transaction data with original structure
+        return {
+          kind: enkSolTx.kind,
+          serialized: enkSolTx.serialized,
+          from: enkSolTx.from,
+          to: enkSolTx.to,
+          type: enkSolTx.type,
+          thirdPartySignatures: enkSolTx.thirdPartySignatures,
+          hasThirdPartySignatures: enkSolTx.thirdPartySignatures.length > 0,
+          // Mark as raw so other parts of your code know this is unprocessed
+          isRawData: true,
+        };
+      },
+    );
   } else if (netInfo.type === NetworkType.Substrate) {
     if (transactions.length > 1)
       throw new Error(`Subtrate chains can only have maximum one transaction`);

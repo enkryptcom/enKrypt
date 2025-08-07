@@ -75,4 +75,5 @@ export type SupportedNetworkNames =
   | NetworkNames.Story
   | NetworkNames.Base
   | NetworkNames.ImmutableZkevm
-  | NetworkNames.Conflux;
+  | NetworkNames.Conflux
+  | NetworkNames.CoreDAO;

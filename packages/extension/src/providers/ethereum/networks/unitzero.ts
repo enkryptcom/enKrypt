@@ -1,9 +1,7 @@
 import icon from './icons/unitzero.webp';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
-import { EtherscanActivity } from '../libs/activity-handlers';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
-
 
 const unitZeroOptions: EvmNetworkOptions = {
   name: NetworkNames.UnitZero,

@@ -68,7 +68,8 @@ const method: MiddlewareFunction = function (
       } else {
         return res(
           getCustomError(
-            `wallet_switchEthereumChain: provided network ${payload.params![0].chainId
+            `wallet_switchEthereumChain: provided network ${
+              payload.params![0].chainId
             } not supported`,
           ),
         );
