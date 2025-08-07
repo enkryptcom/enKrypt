@@ -22,7 +22,9 @@ const providerNetworks: Record<ProviderName, Record<string, BaseNetwork>> = {
   [ProviderName.solana]: SolanaNetworks,
   [ProviderName.enkrypt]: {},
 };
-const getAllNetworks = async (includeCustom: boolean = true): Promise<BaseNetwork[]> => {
+const getAllNetworks = async (
+  includeCustom: boolean = true,
+): Promise<BaseNetwork[]> => {
   const customNetworksState = new CustomNetworksState();
 
   const customNetworks = (
@@ -34,7 +36,7 @@ const getAllNetworks = async (includeCustom: boolean = true): Promise<BaseNetwor
     .concat(Object.values(KadenaNetworks) as BaseNetwork[])
     .concat(Object.values(SolanaNetworks) as BaseNetwork[]);
   if (!includeCustom) {
-    return allNetworks
+    return allNetworks;
   }
   return allNetworks.concat(customNetworks);
 };

@@ -61,7 +61,7 @@
 
         <transaction-fee-view
           v-model="isOpenSelectFee"
-          :fees="gasCostValues"
+          :fees="gasCostValues as GasFeeType"
           :selected="selectedFee"
           :is-header="true"
           @gas-type-changed="selectFee"
@@ -309,8 +309,19 @@ onMounted(async () => {
   network.value = (await getNetworkByName(selectedNetwork))!;
   account.value = await KeyRing.getAccount(swapData.fromAddress);
   isWindowPopup.value = account.value.isHardware;
+
+  swapData.trades.forEach((trade, index) => {
+    console.log(`Trade ${index + 1}:`, {
+      provider: trade.provider,
+      fromAmount: trade.fromTokenAmount.toString(),
+      toAmount: trade.toTokenAmount.toString(),
+      additionalFees: trade.additionalNativeFees.toString(),
+    });
+  });
+
   let tempBestTrade = pickedTrade.value;
   let tempFinalToFiat = 0;
+
   for (const trade of swapData.trades) {
     const toTokenFiat = new SwapToken(swapData.toToken).getRawToFiat(
       trade.toTokenAmount,
@@ -326,12 +337,15 @@ onMounted(async () => {
     }
     const gasCostFiat = parseFloat(gasTier.fiatValue);
     const finalToFiat = toTokenFiat - gasCostFiat;
+
     if (finalToFiat > tempFinalToFiat) {
       tempBestTrade = trade;
       tempFinalToFiat = finalToFiat;
     }
   }
+
   pickedTrade.value = tempBestTrade;
+
   await setTransactionFees();
   isLooking.value = false;
   trackSwapEvents(SwapEventType.SwapVerify, {

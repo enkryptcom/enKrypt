@@ -142,6 +142,7 @@ export class EnkryptWallet implements Wallet {
   }
 
   #on: StandardEventsOnMethod = (event, listener) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this.#listeners[event]?.push(listener) ||
       (this.#listeners[event] = [listener]);
     return (): void => this.#off(event, listener);

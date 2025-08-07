@@ -7,9 +7,7 @@ import { AssetsType } from '@/types/provider';
 import MarketData from '@/libs/market-data';
 import { fromBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
-import {
-  formatFloatingPointValue,
-} from '@/libs/utils/number-formatter';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
 import API from '@/providers/ethereum/libs/api';
 import Sparkline from '@/libs/sparkline';
 import { NATIVE_TOKEN_ADDRESS } from '../../libs/common';
@@ -156,15 +154,14 @@ async function getPreconfiguredTokens(
       balanceUSD: nativeAssetUsdBalance.toNumber(),
       balanceUSDf: nativeAssetUsdBalance.toString(),
       value: nativeAssetMarketData[index]?.current_price?.toString() ?? '0',
-      valuef:
-        nativeAssetMarketData[index]?.current_price?.toString() ?? '0',
+      valuef: nativeAssetMarketData[index]?.current_price?.toString() ?? '0',
 
       decimals: assetDecimals,
       sparkline: nativeAssetMarketData[index]
         ? new Sparkline(
-          nativeAssetMarketData[index]?.sparkline_in_24h.price,
-          25,
-        ).dataValues
+            nativeAssetMarketData[index]?.sparkline_in_24h.price,
+            25,
+          ).dataValues
         : '',
       priceChangePercentage:
         nativeAssetMarketData[index]?.price_change_percentage_24h_in_currency ??
@@ -224,9 +221,11 @@ export function createSkaleEvmNetwork(
     isTestNetwork: params.isTestNetwork ?? false,
     currencyName: params.currencyName ?? 'sFUEL',
     currencyNameLong: params.currencyNameLong ?? 'SKALE FUEL',
-    node: `wss://${params.isTestNetwork ? 'staging-v3' : 'mainnet'
-      }.skalenodes.com/v1/ws/${params.chainName}`,
-    icon: new URL(`../icons/${params.icon ?? 'skl.webp'}`, import.meta.url).href,
+    node: `wss://${
+      params.isTestNetwork ? 'staging-v3' : 'mainnet'
+    }.skalenodes.com/v1/ws/${params.chainName}`,
+    icon: new URL(`../icons/${params.icon ?? 'skl.webp'}`, import.meta.url)
+      .href,
     coingeckoID: 'skale',
     coingeckoPlatform: CoingeckoPlatform.SKALE,
     assetsInfoHandler: getAssetHandler(assets),

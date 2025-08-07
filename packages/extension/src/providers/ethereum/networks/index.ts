@@ -32,10 +32,8 @@ import sepoliaNode from './sepolia';
 import baseNode from './base';
 import celoNode from './celo';
 import shibNode from './shib';
-import artheraNode from './aa';
 import formTestnet from './form-testnet';
 import formNode from './form';
-import artheraTestNode from './aat';
 import syscoinNEVMTestNode from './syscoin/nevm-testnet';
 import syscoinNEVMNode from './syscoin/nevm';
 import rolluxTestNode from './syscoin/rollux-testnet';
@@ -61,7 +59,7 @@ import palmNode from './palm';
 import proofOfPlayApexNode from './pop-apex';
 import scrollNode from './scroll';
 import cotiDevnetNode from './coti-devnet';
-import holeskyNode from './holesky';
+import hoodiNode from './hoodi';
 import bitrockNode from './bitrock';
 import fraxtalNode from './fraxtal';
 import _5ireNode from './5ire';
@@ -78,6 +76,8 @@ import unitZero from './unitzero';
 import unitZeroTestnet from './unitzero-testnet';
 import conflux from './conflux';
 import hemi from './hemi';
+import coredao from './coredao';
+import appLayerTestnet from './applayer-testnet';
 
 export default {
   sepolia: sepoliaNode,
@@ -107,7 +107,6 @@ export default {
   skaleCryptoColosseum: skale.cryptoColosseumNode,
   skaleExorde: skale.exordeNode,
   skaleNebula: skale.nebulaNode,
-  skaleRazor: skale.razorNode,
   skaleTitan: skale.titanNode,
   skaleChaos: skale.chaosNode,
   ontEVM: ontEVMNode,
@@ -122,10 +121,8 @@ export default {
   base: baseNode,
   celo: celoNode,
   shib: shibNode,
-  arthera: artheraNode,
   formTestnet: formTestnet,
   form: formNode,
-  artheraTest: artheraTestNode,
   syscoinNEVMTest: syscoinNEVMTestNode,
   syscoinNEVM: syscoinNEVMNode,
   rolluxTest: rolluxTestNode,
@@ -151,7 +148,7 @@ export default {
   popApex: proofOfPlayApexNode,
   scroll: scrollNode,
   cotiDevnet: cotiDevnetNode,
-  holesky: holeskyNode,
+  hoodi: hoodiNode,
   bitrock: bitrockNode,
   frax: fraxtalNode,
   taraxa: taraxa,
@@ -169,4 +166,6 @@ export default {
   unitZeroTestnet: unitZeroTestnet,
   conflux: conflux,
   hemi: hemi,
+  coredao: coredao,
+  appLayerTestnet: appLayerTestnet,
 };
