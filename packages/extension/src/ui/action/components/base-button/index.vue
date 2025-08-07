@@ -86,7 +86,8 @@ defineProps({
     top: 0;
     z-index: 1;
     opacity: 0;
-    background: linear-gradient(
+    background:
+      linear-gradient(
         0deg,
         rgba(255, 255, 255, 0.08),
         rgba(255, 255, 255, 0.08)
@@ -125,7 +126,8 @@ defineProps({
     color: @primaryLabel;
 
     &::after {
-      background: linear-gradient(
+      background:
+        linear-gradient(
           0deg,
           rgba(255, 255, 255, 0.08),
           rgba(255, 255, 255, 0.08)
@@ -139,7 +141,8 @@ defineProps({
     color: @white;
 
     &::after {
-      background: linear-gradient(
+      background:
+        linear-gradient(
           0deg,
           rgba(255, 255, 255, 0.08),
           rgba(255, 255, 255, 0.08)
@@ -153,7 +156,8 @@ defineProps({
     color: @white;
 
     &::after {
-      background: linear-gradient(
+      background:
+        linear-gradient(
           0deg,
           rgba(255, 255, 255, 0.08),
           rgba(255, 255, 255, 0.08)

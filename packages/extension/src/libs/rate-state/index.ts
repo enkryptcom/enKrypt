@@ -12,12 +12,12 @@ export default class RateState {
   }
 
   /**
-   * 
-   * @param immediate 
+   *
+   * @param immediate
    * @returns boolean
-   * 
+   *
    * allow popup to show immediately
-   * 
+   *
    */
   async showPopup(immediate: boolean = false): Promise<boolean> {
     const state: IState | undefined = await this.storage.get(
@@ -49,8 +49,7 @@ export default class RateState {
 
         await this.storage.set(StorageKeys.rateInfo, state);
         return true;
-      }
-      else if (!state.alreadyRated) {
+      } else if (!state.alreadyRated) {
         if (state.popupTime < now) {
           state.popupTime = popupTime;
 

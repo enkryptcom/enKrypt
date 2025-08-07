@@ -148,7 +148,7 @@ const fileSelected = (file: File) => {
       inputFileError.value = false;
       keystoreFile.value = file;
       enterPasswordAction();
-    } catch (e) {
+    } catch {
       inputFileError.value = true;
     }
   });

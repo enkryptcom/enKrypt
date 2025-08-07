@@ -52,6 +52,7 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Unichain]: `https://tokens.coingecko.com/${CoingeckoPlatform.Unichain}/all.json`,
   [NetworkNames.Sonic]: `https://tokens.coingecko.com/${CoingeckoPlatform.Sonic}/all.json`,
   [NetworkNames.Conflux]: `https://tokens.coingecko.com/${CoingeckoPlatform.Conflux}/all.json`,
+  [NetworkNames.CoreDAO]: `https://tokens.coingecko.com/${CoingeckoPlatform.CoreDAO}/all.json`,
 };
 
 const getKnownNetworkTokens = async (

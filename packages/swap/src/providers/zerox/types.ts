@@ -1,6 +1,5 @@
 import { BN, EVMTransaction } from "../../types";
 
-
 export interface ZeroXResponseTransactionType {
   to: string;
   data: string;

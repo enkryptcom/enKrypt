@@ -124,7 +124,7 @@ const isChecked = (address: string) => {
       props.network.displayAddress(props.address) ===
         props.network.displayAddress(address)
     );
-  } catch (err) {
+  } catch {
     console.error(
       'Error checking if address is checked, probably name resolver',
     );
