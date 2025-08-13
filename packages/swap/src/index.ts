@@ -267,6 +267,7 @@ export {
   TransactionStatus,
   StatusOptionsResponse,
   StatusOptions,
+  ToTokenType,
 };
 
 export default Swap;
