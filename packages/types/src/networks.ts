@@ -62,8 +62,6 @@ export enum NetworkNames {
   KadenaTestnet = "KDATestnet",
   Litecoin = "LTC",
   Dogecoin = "DOGE",
-  FormTestnet = "FormTestnet",
-  Form = "Form",
   AssetHubDOT = "AssetHubDOT",
   AssetHubKSM = "AssetHubKSM",
   SyscoinNEVMTest = "TSYS",

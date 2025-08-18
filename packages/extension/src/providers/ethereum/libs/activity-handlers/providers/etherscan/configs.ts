@@ -44,8 +44,6 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.MaticZK]: 'https://api-zkevm.polygonscan.com/',
   [NetworkNames.Base]: 'https://api.basescan.org/',
   [NetworkNames.Celo]: 'https://explorer.celo.org/mainnet/',
-  [NetworkNames.FormTestnet]: 'https://testnet-explorer.form.network/',
-  [NetworkNames.Form]: 'https://explorer.form.network/',
   [NetworkNames.SyscoinNEVMTest]: 'https://explorer.tanenbaum.io/',
   [NetworkNames.SyscoinNEVM]: 'https://explorer.syscoin.org/',
   [NetworkNames.RolluxTest]: 'https://rollux.tanenbaum.io/',
