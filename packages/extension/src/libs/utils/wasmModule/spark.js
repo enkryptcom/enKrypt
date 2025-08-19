@@ -4248,6 +4248,8 @@ var wasmImports = {
   /** @export */
   invoke_iiiiiiijji,
   /** @export */
+  invoke_iiiiij,
+  /** @export */
   invoke_iiij,
   /** @export */
   invoke_iij,
@@ -4331,10 +4333,14 @@ var _js_getCSparkMintMetaHeight = Module['_js_getCSparkMintMetaHeight'] = wasmEx
 var _js_getCSparkMintMetaId = Module['_js_getCSparkMintMetaId'] = wasmExports['js_getCSparkMintMetaId']
 var _js_getCSparkMintMetaIsUsed = Module['_js_getCSparkMintMetaIsUsed'] = wasmExports['js_getCSparkMintMetaIsUsed']
 var _js_getCSparkMintMetaMemo = Module['_js_getCSparkMintMetaMemo'] = wasmExports['js_getCSparkMintMetaMemo']
+var _js_getCSparkMintMetaNonce = Module['_js_getCSparkMintMetaNonce'] = wasmExports['js_getCSparkMintMetaNonce']
 var _js_getCSparkMintMetaDiversifier = Module['_js_getCSparkMintMetaDiversifier'] = wasmExports['js_getCSparkMintMetaDiversifier']
 var _js_getCSparkMintMetaValue = Module['_js_getCSparkMintMetaValue'] = wasmExports['js_getCSparkMintMetaValue']
 var _js_getCSparkMintMetaType = Module['_js_getCSparkMintMetaType'] = wasmExports['js_getCSparkMintMetaType']
 var _js_getCSparkMintMetaCoin = Module['_js_getCSparkMintMetaCoin'] = wasmExports['js_getCSparkMintMetaCoin']
+var _js_setCSparkMintMetaId = Module['_js_setCSparkMintMetaId'] = wasmExports['js_setCSparkMintMetaId']
+var _js_setCSparkMintMetaHeight = Module['_js_setCSparkMintMetaHeight'] = wasmExports['js_setCSparkMintMetaHeight']
+var _js_getCoinHash = Module['_js_getCoinHash'] = wasmExports['js_getCoinHash']
 var _js_getInputCoinDataCoverSetId = Module['_js_getInputCoinDataCoverSetId'] = wasmExports['js_getInputCoinDataCoverSetId']
 var _js_getInputCoinDataIndex = Module['_js_getInputCoinDataIndex'] = wasmExports['js_getInputCoinDataIndex']
 var _js_getInputCoinDataValue = Module['_js_getInputCoinDataValue'] = wasmExports['js_getInputCoinDataValue']
@@ -4599,6 +4605,17 @@ function invoke_iiij(index,a1,a2,a3) {
   }
 }
 
+function invoke_vij(index,a1,a2) {
+  var sp = stackSave();
+  try {
+    getWasmTableEntry(index)(a1,a2);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
 function invoke_viiiiii(index,a1,a2,a3,a4,a5,a6) {
   var sp = stackSave();
   try {
@@ -4625,17 +4642,6 @@ function invoke_viiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13
   var sp = stackSave();
   try {
     getWasmTableEntry(index)(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14);
-  } catch(e) {
-    stackRestore(sp);
-    if (e !== e+0) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_vij(index,a1,a2) {
-  var sp = stackSave();
-  try {
-    getWasmTableEntry(index)(a1,a2);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
@@ -4680,6 +4686,17 @@ function invoke_viiij(index,a1,a2,a3,a4) {
   var sp = stackSave();
   try {
     getWasmTableEntry(index)(a1,a2,a3,a4);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiiij(index,a1,a2,a3,a4,a5) {
+  var sp = stackSave();
+  try {
+    return getWasmTableEntry(index)(a1,a2,a3,a4,a5);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;

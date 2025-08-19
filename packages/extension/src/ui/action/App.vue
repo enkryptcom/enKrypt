@@ -258,9 +258,10 @@ const init = async () => {
 const synchronize = async () => {
   const setLoadingStatus = await db.readData<string>('setLoadingStatus');
 
-  if (setLoadingStatus && setLoadingStatus !== 'idle') {
-    return;
-  }
+  // if (setLoadingStatus && setLoadingStatus !== 'idle') {
+  //   console.log({ setLoadingStatus });
+  //   return;
+  // }
 
   try {
     if (currentNetwork.value.name !== NetworkNames.Firo) return;
@@ -270,12 +271,17 @@ const synchronize = async () => {
     const setsMeta = await wallet.getAllSparkAnonymitySetMeta();
     const isDBEmpty = !(await db.readData('data'))?.length;
 
+    console.log('setsMeta ->>', setsMeta);
+    console.log('isDBEmpty ->>', isDBEmpty);
+
     if (!isDBEmpty) {
       const dbSetsMeta = await Promise.all(
         setsMeta.map(async (_, index) => {
           return db.getLengthOf('data', index);
         }),
       );
+
+      console.log("downloaded");
 
       const diff: {
         setId: number;
@@ -347,8 +353,13 @@ const synchronize = async () => {
 
     worker.postMessage('');
     worker.onmessage = ({ data }) => {
-      const balance = data.reduce((a: bigint, c: { value: bigint }) => {
-        a += c.value;
+      const balance = data.reduce((a: bigint, c: { coin: { value: bigint } }) => {
+        console.log('worker response:', c);
+        if (typeof c.coin.value !== 'bigint') {
+          console.warn('Invalid value in worker response:', c);
+          return a;
+        }
+        a += c.coin.value
         return a;
       }, 0n);
       const sparkBalance = new BigNumber(balance).toString();

@@ -68,46 +68,84 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref, ComponentPublicInstance } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import CloseIcon from "@action/icons/common/close-icon.vue";
-import BaseButton from "@action/components/base-button/index.vue";
-import VerifyTransactionNetwork from "@/providers/common/ui/verify-transaction/verify-transaction-network.vue";
-import VerifyTransactionAccount from "@/providers/common/ui/verify-transaction/verify-transaction-account.vue";
-import VerifyTransactionAmount from "@/providers/common/ui/verify-transaction/verify-transaction-amount.vue";
-import SendProcess from "@action/views/send-process/index.vue";
-import { getCurrentContext } from "@/libs/messenger/extension";
-import { DEFAULT_BTC_NETWORK, getNetworkByName } from "@/libs/utils/networks";
-import { ActivityStatus, Activity, ActivityType } from "@/types/activity";
-import ActivityState from "@/libs/activity-state";
-import CustomScrollbar from "@action/components/custom-scrollbar/index.vue";
-import { BitcoinNetwork } from "@/providers/bitcoin/types/bitcoin-network";
-import { trackSendEvents } from "@/libs/metrics";
-import { SendEventType } from "@/libs/metrics/types";
-import { VerifyTransactionParams } from "@/providers/bitcoin/ui/types";
-import { sendFromSparkAddress } from "@/libs/spark-handler";
-import { isAxiosError } from "axios";
-import { fromBase } from "@enkryptcom/utils";
-import { BaseNetwork } from "@/types/base-network";
+import { onBeforeMount, ref, ComponentPublicInstance, PropType } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import CloseIcon from '@action/icons/common/close-icon.vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import VerifyTransactionNetwork from '@/providers/common/ui/verify-transaction/verify-transaction-network.vue';
+import VerifyTransactionAccount from '@/providers/common/ui/verify-transaction/verify-transaction-account.vue';
+import VerifyTransactionAmount from '@/providers/common/ui/verify-transaction/verify-transaction-amount.vue';
+import SendProcess from '@action/views/send-process/index.vue';
+import { getCurrentContext } from '@/libs/messenger/extension';
+import { DEFAULT_BTC_NETWORK, getNetworkByName } from '@/libs/utils/networks';
+import { ActivityStatus, Activity, ActivityType } from '@/types/activity';
+import ActivityState from '@/libs/activity-state';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
+import { trackSendEvents } from '@/libs/metrics';
+import { SendEventType } from '@/libs/metrics/types';
+import { VerifyTransactionParams } from '@/providers/bitcoin/ui/types';
+import { sendFromSparkAddress } from '@/libs/spark-handler';
+import { isAxiosError } from 'axios';
+import { fromBase } from '@enkryptcom/utils';
+import { BaseNetwork } from '@/types/base-network';
+import { AccountsHeaderData, SparkAccount } from '@action/types/account.ts';
+
+const props = defineProps({
+  isSyncing: {
+    type: Boolean,
+    default: false,
+  },
+  cryptoAmount: {
+    type: String,
+    default: '0',
+  },
+  fiatAmount: {
+    type: String,
+    default: '0',
+  },
+  symbol: {
+    type: String,
+    default: '',
+  },
+  subnetwork: {
+    type: String,
+    default: '',
+  },
+  network: {
+    type: Object as PropType<BitcoinNetwork>,
+    default: () => ({}),
+  },
+  sparkAccount: {
+    type: Object as PropType<SparkAccount | null>,
+    default: () => {
+      return {};
+    },
+  },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
+});
 
 const emits = defineEmits<{
-  (e: "update:spark-state-changed", network: BaseNetwork): void;
+  (e: 'update:spark-state-changed', network: BaseNetwork): void;
 }>();
 
 const route = useRoute();
 const router = useRouter();
 const selectedNetwork: string = route.query.id as string;
 const txData: VerifyTransactionParams = JSON.parse(
-  Buffer.from(route.query.txData as string, "base64").toString("utf8")
+  Buffer.from(route.query.txData as string, 'base64').toString('utf8'),
 );
 
 const isProcessing = ref(false);
 const network = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
 const isSendDone = ref(false);
-const isPopup: boolean = getCurrentContext() === "new-window";
+const isPopup: boolean = getCurrentContext() === 'new-window';
 const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const isWindowPopup = ref(false);
-const errorMsg = ref("");
+const errorMsg = ref('');
 
 defineExpose({ verifyScrollRef });
 
@@ -117,7 +155,7 @@ onBeforeMount(async () => {
 });
 
 const close = () => {
-  if (getCurrentContext() === "popup") {
+  if (getCurrentContext() === 'popup') {
     router.go(-1);
   } else {
     window.close();
@@ -145,16 +183,17 @@ const sendAction = async () => {
     },
     type: ActivityType.transaction,
     value: txData.toToken.amount,
-    transactionHash: "",
+    transactionHash: '',
   };
 
   const activityState = new ActivityState();
 
   await sendFromSparkAddress(
+    props.network.networkInfo,
     txData.toAddress,
-    fromBase(txData.toToken.amount, txData.toToken.decimals).toString()
+    fromBase(txData.toToken.amount, txData.toToken.decimals).toString(),
   )
-    .then((res) => {
+    .then(res => {
       trackSendEvents(SendEventType.SendComplete, {
         network: network.value.name,
       });
@@ -168,11 +207,11 @@ const sendAction = async () => {
         {
           address: network.value.displayAddress(txData.fromAddress),
           network: network.value.name,
-        }
+        },
       );
 
       isSendDone.value = true;
-      if (getCurrentContext() === "popup") {
+      if (getCurrentContext() === 'popup') {
         setTimeout(() => {
           isProcessing.value = false;
           router.go(-2);
@@ -183,9 +222,9 @@ const sendAction = async () => {
           window.close();
         }, 1500);
       }
-      emits("update:spark-state-changed", network.value);
+      emits('update:spark-state-changed', network.value);
     })
-    .catch((error) => {
+    .catch(error => {
       isProcessing.value = false;
       if (isAxiosError(error)) {
         errorMsg.value = JSON.stringify(error.response?.data.error.message);
@@ -201,13 +240,13 @@ const sendAction = async () => {
         address: txData.fromAddress,
         network: network.value.name,
       });
-      console.error("ERROR", error);
+      console.error('ERROR', error);
     });
 };
 
 const isHasScroll = () => {
   if (verifyScrollRef.value) {
-    return verifyScrollRef.value.$el.classList.contains("ps--active-y");
+    return verifyScrollRef.value.$el.classList.contains('ps--active-y');
   }
 
   return false;
@@ -215,8 +254,8 @@ const isHasScroll = () => {
 </script>
 
 <style lang="less" scoped>
-@import "@action/styles/theme.less";
-@import "@action/styles/custom-scroll.less";
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
 
 .container {
   width: 100%;
@@ -313,7 +352,8 @@ const isHasScroll = () => {
     }
 
     &.border {
-      box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.05),
+      box-shadow:
+        0px 0px 6px rgba(0, 0, 0, 0.05),
         0px 0px 1px rgba(0, 0, 0, 0.25);
     }
 
@@ -329,8 +369,8 @@ const isHasScroll = () => {
   &__scroll-area {
     position: relative;
     margin: auto;
-    width: calc(~"100% + 53px");
-    height: calc(~"100% - 88px");
+    width: calc(~'100% + 53px');
+    height: calc(~'100% - 88px');
     margin: 0;
     padding: 0 53px 0 0 !important;
     margin-right: -53px;

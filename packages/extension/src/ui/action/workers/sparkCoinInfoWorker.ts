@@ -12,6 +12,18 @@ import { AnonymitySetModel } from '@/providers/bitcoin/libs/electrum-client/abst
 
 const db = new IndexedDBHelper();
 
+export interface CheckedCoinData {
+  coin: SparkCoinValue;
+  blockHash: string;
+  setHash: string;
+}
+
+export interface OwnedCoinData {
+  coin: string[];
+  blockHash: string;
+  setHash: string;
+}
+
 async function fetchAllCoinInfos(
   allSets: AnonymitySetModel[],
   fullViewKeyObj: number,
@@ -19,7 +31,7 @@ async function fetchAllCoinInfos(
   Module: WasmModule,
 ) {
   const allPromises: Promise<any>[] = [];
-  const finalResult: SparkCoinValue[] = [];
+  const finalResult: CheckedCoinData[] = [];
 
   allSets.forEach(set => {
     set.coins.forEach(coin => {
@@ -29,7 +41,15 @@ async function fetchAllCoinInfos(
         incomingViewKeyObj,
         wasmModule: Module,
       }).then(res => {
-        finalResult.push(res);
+        console.log(`Checking coin: `, res);
+        if (!res.isUsed) {
+          finalResult.push({
+            blockHash: set.blockHash,
+            setHash: set.setHash,
+            coin: res,
+          });
+        }
+
         return res;
       });
 
@@ -38,6 +58,17 @@ async function fetchAllCoinInfos(
   });
 
   await Promise.allSettled(allPromises);
+  const myCoins = finalResult.map(coinData => ({
+    coin: coinData.coin.originalCoin,
+    blockHash: coinData.blockHash,
+    setHash: coinData.setHash,
+  }));
+
+  const savedMyCoins = (await db.readData('myCoins')) || [];
+  const updatedMyCoins = [...savedMyCoins, ...myCoins];
+
+  console.log('updated coins', updatedMyCoins);
+  await db.saveData('myCoins', updatedMyCoins);
 
   return finalResult;
 }

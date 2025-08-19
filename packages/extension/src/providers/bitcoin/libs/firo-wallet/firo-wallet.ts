@@ -20,6 +20,16 @@ import { BalanceData } from './balance-data';
 import configs from './configs';
 import type { LelantusCoin } from './lelantus-coin';
 import { TransactionItem } from './transaction-item';
+import { callRPC } from '@/libs/spark-handler/callRPC';
+
+// Type definitions for Spark mint metadata
+export interface SparkMintMetadataRequest {
+  coinHashes: Array<{ coinHash: string }>;
+}
+
+export interface SparkMintMetadataResponse {
+  [height: string]: number; // height -> anonymity set id mapping
+}
 
 bitcoin.initEccLib(ecc);
 
@@ -792,6 +802,47 @@ export class FiroWallet {
 
   async getAllSparkAnonymitySetMeta(): Promise<AnonymitySetMetaModel[]> {
     return firoElectrum.getAllSparkAnonymitySetMeta();
+  }
+
+  /**
+   * Get spark mint metadata for given coin hashes
+   * @param coinHashes Array of coin hash strings
+   * @returns Array of metadata objects containing height and anonymity set id for each coin
+   */
+  async getSparkMintMetadata(
+    coinHashes: string[],
+  ): Promise<SparkMintMetadataResponse[]> {
+    try {
+      const params: SparkMintMetadataRequest = {
+        coinHashes: coinHashes.map(hash => ({ coinHash: hash })),
+      };
+
+      const result = await firoElectrum.getCoinIDs(coinHashes);
+
+      return result;
+    } catch (error) {
+      console.error('Error fetching spark mint metadata:', error);
+      throw new Error(
+        `Failed to get spark mint metadata: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
+  }
+
+  /**
+   * Get spark mint metadata for a single coin hash
+   * @param coinHash Single coin hash string
+   * @returns Metadata object containing height and anonymity set id for the coin, or null if not found
+   */
+  async getSparkMintMetadataSingle(
+    coinHash: string,
+  ): Promise<SparkMintMetadataResponse | null> {
+    try {
+      const results = await this.getSparkMintMetadata([coinHash]);
+      return results.length > 0 ? results[0] : null;
+    } catch (error) {
+      console.error('Error fetching single spark mint metadata:', error);
+      throw error;
+    }
   }
 
   private async fixDuplicateCoinIssue(): Promise<boolean> {

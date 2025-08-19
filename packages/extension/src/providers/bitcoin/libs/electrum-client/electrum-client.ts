@@ -65,6 +65,23 @@ export default class FiroElectrum {
     return this.latestBlockheight === false ? -1 : this.latestBlockheight;
   }
 
+  async getCoinIDs(coinHashes: string[]) {
+    return this.mainClient
+      ?.request('spark.getsparkmintmetadata', [
+        {
+          coinHashes: coinHashes,
+        },
+      ])
+      .catch(error => {
+        console.error(
+          'electrum_wallet:getCoinIDs',
+          'Failed to fetch coin IDs:',
+          error,
+        );
+        throw new Error(error);
+      });
+  }
+
   async connectMain() {
     try {
       const peer = getRandomHardcodedPeer();

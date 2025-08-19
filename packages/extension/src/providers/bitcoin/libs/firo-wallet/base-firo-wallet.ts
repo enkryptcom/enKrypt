@@ -41,6 +41,10 @@ export class BaseFiroWallet {
     return this.#wallet.getAllSparkAnonymitySetMeta();
   }
 
+  async getSparkMintMetadata(coinHashes: string[]) {
+    return this.#wallet.getSparkMintMetadata(coinHashes);
+  }
+
   getSecret() {
     return this.#wallet.getSecret();
   }

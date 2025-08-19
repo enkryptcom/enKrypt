@@ -1865,7 +1865,6 @@ __metadata:
     "@typescript-eslint/parser": "npm:^5.62.0"
     assert: "npm:^2.1.0"
     bip32: "npm:2.0.6"
-    bip39: "npm:^3.1.0"
     eslint: "npm:^9.14.0"
     eslint-config-airbnb-base: "npm:^15.0.0"
     eslint-config-prettier: "npm:^9.1.0"

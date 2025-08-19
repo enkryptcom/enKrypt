@@ -23,6 +23,10 @@ export class PublicFiroWallet {
     return this.#wallet.getOnlySpendableUtxos();
   }
 
+  async getSparkMintMetadata(coinHashes: string[]) {
+    return this.#wallet.getSparkMintMetadata(coinHashes);
+  }
+
   async fetchAllAnonymitySets() {
     return this.#wallet.fetchAllAnonymitySets();
   }

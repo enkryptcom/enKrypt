@@ -53,7 +53,7 @@
         <base-button
           title="Send"
           :click="sendAction"
-          :disabled="!isInputsValid || nativeBalanceAfterTransaction.isNeg()"
+          :disabled="!isInputsValid"
         />
       </div>
     </div>
@@ -139,17 +139,17 @@ const isInputsValid = computed<boolean>(() => {
   ) {
     return false;
   }
-  if (
-    Number(sendAmount.value) < (props.network as BitcoinNetwork).dust &&
-    props.isSendToken
-  )
-    return false;
-  if (
-    new BigNumber(sendAmount.value).gt(
-      new BigNumber(props.sparkAccount.sparkBalance.availableBalance),
-    )
-  )
-    return false;
+  // if (
+  //   Number(sendAmount.value) < (props.network as BitcoinNetwork).dust &&
+  //   props.isSendToken
+  // )
+  //   return false;
+  // if (
+  //   new BigNumber(sendAmount.value).gt(
+  //     new BigNumber(props.sparkAccount.sparkBalance.availableBalance),
+  //   )
+  // )
+  //   return false;
   return true;
 });
 
@@ -224,9 +224,9 @@ const setAsset = async () => {
 
     availableAsset.value.price = (marketData[0]?.current_price ?? 0).toString();
   }
-
+  console.log(props.sparkAccount.sparkBalance.availableBalance);
   availableAsset.value.balance = String(
-    props.sparkAccount.sparkBalance.availableBalance,
+    props.sparkAccount.sparkBalance.availableBalance || 400000000, // TODO : remove this fallback value
   );
   availableAsset.value.name = 'Available Balance';
 };

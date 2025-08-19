@@ -6,11 +6,15 @@ interface IArgs {
   incomingViewKeyObj: number;
   fullViewKeyObj: number;
   wasmModule: WasmModule;
+  keepMemory?: boolean;
 }
 
 export interface SparkCoinValue {
   value: bigint;
   isUsed: boolean;
+  originalCoin: string[];
+  metaData: number;
+  deserializedCoinObj: number;
 }
 
 const db = new IndexedDBHelper();
@@ -20,6 +24,7 @@ export const getSparkCoinInfo = async ({
   fullViewKeyObj,
   incomingViewKeyObj,
   wasmModule,
+  keepMemory = false,
 }: IArgs): Promise<SparkCoinValue> => {
   let deserializedCoinObj;
   let inputDataObj;
@@ -254,24 +259,39 @@ export const getSparkCoinInfo = async ({
     return {
       value,
       isUsed: !!metaIsUsed,
+      originalCoin: coin,
+      metaData: metadataObj,
+      deserializedCoinObj,
     };
   } catch (e) {
     throw e;
   } finally {
-    wasmModule.ccall('js_freeCoin', null, ['number'], [deserializedCoinObj]);
-    wasmModule.ccall('js_freeInputCoinData', null, ['number'], [inputDataObj]);
-    wasmModule.ccall(
-      'js_freeInputCoinData',
-      null,
-      ['number'],
-      [inputDataWithMetaObj],
-    );
-    wasmModule.ccall(
-      'js_freeIdentifiedCoinData',
-      null,
-      ['number'],
-      [identifiedCoinObj],
-    );
-    wasmModule.ccall('js_freeCSparkMintMeta', null, ['number'], [metadataObj]);
+    if (!keepMemory) {
+      wasmModule.ccall('js_freeCoin', null, ['number'], [deserializedCoinObj]);
+      wasmModule.ccall(
+        'js_freeInputCoinData',
+        null,
+        ['number'],
+        [inputDataObj],
+      );
+      wasmModule.ccall(
+        'js_freeInputCoinData',
+        null,
+        ['number'],
+        [inputDataWithMetaObj],
+      );
+      wasmModule.ccall(
+        'js_freeIdentifiedCoinData',
+        null,
+        ['number'],
+        [identifiedCoinObj],
+      );
+      wasmModule.ccall(
+        'js_freeCSparkMintMeta',
+        null,
+        ['number'],
+        [metadataObj],
+      );
+    }
   }
 };
