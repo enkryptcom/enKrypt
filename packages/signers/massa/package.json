@@ -24,8 +24,10 @@
   "dependencies": {
     "@enkryptcom/types": "workspace:^",
     "@enkryptcom/utils": "workspace:^",
-    "@massalabs/massa-web3": "^5.2.1-dev",
+    "@noble/ed25519": "^2.3.0",
+    "@noble/hashes": "^1.8.0",
     "bip39": "^3.1.0",
+    "bs58check": "^4.0.0",
     "tweetnacl": "^1.0.3",
     "varint": "^6.0.0"
   },

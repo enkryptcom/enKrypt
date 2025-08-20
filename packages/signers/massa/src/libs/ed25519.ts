@@ -1,5 +1,4 @@
 import { createHmac } from "crypto";
-import { sign } from "tweetnacl";
 
 const ED25519_CURVE = "ed25519 seed";
 const HARDENED_OFFSET = 0x80000000;
@@ -38,15 +37,6 @@ const CKDPriv = ({ key, chainCode }: Keys, index: number): Keys => {
   };
 };
 
-const getPublicKey = (privateKey: Buffer, withZeroByte = true): Buffer => {
-  const keyPair = sign.keyPair.fromSeed(privateKey);
-  const signPk = keyPair.secretKey.subarray(32);
-  const zero = Buffer.alloc(1, 0);
-  return withZeroByte
-    ? Buffer.concat([zero, Buffer.from(signPk)])
-    : Buffer.from(signPk);
-};
-
 const replaceDerive = (val: string): string => val.replace("'", "");
 
 const isValidPath = (path: string): boolean => {
@@ -78,4 +68,4 @@ const derivePath = (path: Path, seed: Hex, offset = HARDENED_OFFSET): Keys => {
   );
 };
 
-export { derivePath, getPublicKey };
+export { derivePath };
