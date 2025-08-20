@@ -112,6 +112,8 @@ export enum NetworkNames {
   Hemi = "Hemi",
   CoreDAO = "CORE",
   AppLayerTestnet = "AppLayerTestnet",
+  Massa = "Massa",
+  MassaBuildnet = "MassaBuildnet",
 }
 
 export enum CoingeckoPlatform {
@@ -181,4 +183,5 @@ export enum CoingeckoPlatform {
   UnitZero = "units-network",
   Conflux = "conflux",
   CoreDAO = "core",
+  Massa = "massa",
 }
