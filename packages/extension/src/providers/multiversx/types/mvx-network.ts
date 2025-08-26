@@ -5,15 +5,15 @@ import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
 import createIcon from '@/providers/ethereum/libs/blockies';
 import { Activity } from '@/types/activity';
 import { BaseNetwork, BaseNetworkOptions } from '@/types/base-network';
-import { BaseTokenOptions } from '@/types/base-token';
+import { BaseToken } from '@/types/base-token';
 import { NFTCollection } from '@/types/nft';
 import { AssetsType, ProviderName } from '@/types/provider';
 import { CoingeckoPlatform, NetworkNames, SignerType } from '@enkryptcom/types';
-import { fromBase } from '@enkryptcom/utils';
-import { Address } from '@multiversx/sdk-core';
+import { fromBase, numberToHex } from '@enkryptcom/utils';
+import { Address, ApiNetworkProvider } from '@multiversx/sdk-core';
 import BigNumber from 'bignumber.js';
 import API from '../libs/api';
-import { MVXToken } from './mvx-token';
+import { MVXToken, MvxTokenOptions } from './mvx-token';
 
 export interface MultiversXNetworkOptions {
   name: NetworkNames;
@@ -102,23 +102,109 @@ export class MultiversXNetwork extends BaseNetwork {
     this.NFTHandler = options.NFTHandler;
   }
 
-  public async getAllTokens(pubkey: string): Promise<MVXToken[]> {
-    const assets = await this.getAllTokenInfo(pubkey);
-    return assets.map(token => {
-      const bTokenOptions: BaseTokenOptions = {
-        decimals: token.decimals,
-        icon: token.icon,
-        name: token.name,
-        symbol: token.symbol,
-        balance: token.balance,
-        price: token.value,
+  public async getAllTokens(pubkey: string): Promise<BaseToken[]> {
+    const native = await this.getNativeTokenInfo(pubkey);
+    const assets = [
+      new MVXToken({
+        decimals: native.decimals,
+        icon: native.icon,
+        name: native.name,
+        symbol: native.symbol,
+        balance: native.balance,
+        price: native.value,
         coingeckoID: this.coingeckoID,
+        type: 'native',
+      }),
+    ];
+
+    const fungibleTokens = await this.getFungibleTokens(pubkey);
+    fungibleTokens.map(token => {
+      const bTokenOptions: MvxTokenOptions = {
+        decimals: token.decimals,
+        icon: token.assets.pngUrl ? token.assets.pngUrl : '',
+        name: token.name,
+        symbol: token.identifier,
+        balance: token.balance,
+        price: new BigNumber(token.price).toString(),
+        coingeckoID: '',
+        type: token.type,
       };
-      return new MVXToken(bTokenOptions);
+      assets.push(new MVXToken(bTokenOptions));
     });
+
+    const nonFungibleTokens = await this.getNonFungibleTokens(pubkey);
+    nonFungibleTokens.map(token => {
+      const icon = token.media?.[0]?.thumbnailUrl
+        ? token.media[0].thumbnailUrl
+        : '';
+      const bTokenOptions: MvxTokenOptions = {
+        decimals: token?.decimals ?? 0,
+        icon: icon,
+        name: token.name,
+        symbol: token.identifier,
+        balance: token.balance,
+        coingeckoID: '',
+        type: token.type,
+      };
+      assets.push(new MVXToken(bTokenOptions));
+    });
+
+    return assets;
   }
 
   public async getAllTokenInfo(pubkey: string): Promise<AssetsType[]> {
+    const assets: AssetsType[] = [];
+    assets.push(await this.getNativeTokenInfo(pubkey));
+
+    const fungibleTokens = await this.getFungibleTokens(pubkey);
+    fungibleTokens.map(token => {
+      console.info('token: ', token);
+      const balance = numberToHex(new BigNumber(token.balance).toFixed());
+      const userBalance = fromBase(balance, token.decimals);
+
+      const asset: AssetsType = {
+        balance: balance,
+        balancef: formatFloatingPointValue(userBalance).value,
+        balanceUSD: token.valueUsd.toNumber(),
+        balanceUSDf: token.valueUsd.toString(),
+        icon: token.assets.pngUrl ? token.assets.pngUrl : '',
+        name: token.name,
+        symbol: token.identifier,
+        value: token.price.toString(),
+        valuef: token.price.toString(),
+        decimals: token.decimals,
+        sparkline: new Sparkline([], 25).dataValues,
+        priceChangePercentage: 0,
+      };
+      assets.push(asset);
+    });
+
+    const nonFungibleTokens = await this.getNonFungibleTokens(pubkey);
+    nonFungibleTokens.map(token => {
+      const icon = token.media?.[0]?.thumbnailUrl
+        ? token.media[0].thumbnailUrl
+        : '';
+      const asset: AssetsType = {
+        balance: token.balance,
+        balancef: formatFloatingPointValue(token.balance).value,
+        balanceUSD: 0,
+        balanceUSDf: '',
+        icon: icon,
+        name: token.name,
+        symbol: token.identifier,
+        value: '',
+        valuef: '',
+        decimals: token?.decimals ?? 0,
+        sparkline: '',
+        priceChangePercentage: 0,
+      };
+      assets.push(asset);
+    });
+
+    return assets;
+  }
+
+  private async getNativeTokenInfo(pubkey: string): Promise<AssetsType> {
     const balance = await (await this.api()).getBalance(pubkey);
 
     let marketData: (CoinGeckoTokenMarket | null)[] = [];
@@ -142,7 +228,6 @@ export class MultiversXNetwork extends BaseNetwork {
       symbol: this.currencyName,
       value: marketData.length ? currentPrice.toString() : '0',
       valuef: marketData.length ? currentPrice.toString() : '0',
-      contract: '',
       decimals: this.decimals,
       sparkline: marketData.length
         ? new Sparkline(marketData[0]!.sparkline_in_24h.price, 25).dataValues
@@ -151,7 +236,25 @@ export class MultiversXNetwork extends BaseNetwork {
         ? marketData[0]!.price_change_percentage_24h_in_currency
         : 0,
     };
-    return [nativeAsset];
+    return nativeAsset;
+  }
+
+  private async getFungibleTokens(pubkey: string): Promise<any[]> {
+    const address = Address.newFromBech32(pubkey);
+    const api = new ApiNetworkProvider(this.options.node);
+
+    return await api.doGetGeneric(
+      `accounts/${address.toBech32()}/tokens?from=0&size=10000`,
+    );
+  }
+
+  private async getNonFungibleTokens(pubkey: string): Promise<any[]> {
+    const address = Address.newFromBech32(pubkey);
+    const api = new ApiNetworkProvider(this.options.node);
+
+    return await api.doGetGeneric(
+      `accounts/${address.toBech32()}/nfts?from=0&size=10000`,
+    );
   }
 
   public getAllActivity(address: string): Promise<Activity[]> {

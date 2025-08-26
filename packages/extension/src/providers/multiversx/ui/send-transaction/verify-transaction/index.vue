@@ -144,7 +144,8 @@ onBeforeMount(async () => {
     price: '0',
     name: 'loading',
     symbol: 'loading',
-    decimals: network.value.decimals,
+    decimals: 0,
+    type: '',
   });
   trackSendEvents(SendEventType.SendVerify, { network: network.value.name });
 });
@@ -162,20 +163,20 @@ const sendAction = async () => {
     network: network.value.name,
   });
   try {
-    // console.info('txdata.toAddress: ', txData.toAddress);
-    // console.info('account.value: ', account.value!);
-    // console.info(
-    //   'txData.TransactionData.value: ',
-    //   txData.TransactionData.value,
-    // );
-    console.info('VERIFY TX FLOW');
-    console.info({ 'txdata ': txData.TransactionData });
-    // should also sign transaction
-    // aici sa facem
+    const tokenToSend = new MVXToken({
+      icon: txData.toToken.icon,
+      balance: txData.toToken.amount,
+      price: txData.toToken.price,
+      name: txData.toToken.name,
+      symbol: txData.toToken.symbol,
+      decimals: txData.toToken.decimals,
+      type: txData.tokenType,
+    });
 
     const transaction = await mvxToken.value!.buildTransaction!(
       txData.toAddress,
       account.value!,
+      tokenToSend,
       txData.TransactionData.value,
       network.value as MultiversXNetwork,
     );

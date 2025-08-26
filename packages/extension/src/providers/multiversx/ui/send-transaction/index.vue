@@ -8,13 +8,6 @@
         </a>
       </div>
 
-      <send-header
-        :is-send-token="isSendToken"
-        :is-nft-available="!!network.NFTHandler"
-        @close="close"
-        @toggle-type="toggleSelector"
-      />
-
       <send-address-input
         ref="addressInputFrom"
         :from="true"
@@ -26,7 +19,6 @@
         @update:input-address="inputAddressFrom"
         @toggle:show-contacts="toggleSelectContactFrom"
       />
-
       <send-from-contacts-list
         :show-accounts="isOpenSelectContactFrom"
         :account-info="accountInfo"
@@ -44,7 +36,6 @@
         @update:input-address="inputAddressTo"
         @toggle:show-contacts="toggleSelectContactTo"
       />
-
       <send-contacts-list
         :show-accounts="isOpenSelectContactTo"
         :account-info="accountInfo"
@@ -59,7 +50,6 @@
         :token="selectedAsset"
         @update:toggle-token-select="toggleSelectToken"
       />
-
       <assets-select-list
         v-model="isOpenSelectToken"
         :is-send="true"
@@ -122,11 +112,7 @@ import CloseIcon from '@action/icons/common/close-icon.vue';
 import { AccountsHeaderData } from '@action/types/account';
 import AssetsSelectList from '@action/views/assets-select-list/index.vue';
 import { isValidDecimals, toBase } from '@enkryptcom/utils';
-import {
-  Address,
-  Transaction,
-  TransactionComputer,
-} from '@multiversx/sdk-core';
+import { Address, Transaction } from '@multiversx/sdk-core';
 import BigNumber from 'bignumber.js';
 import { debounce } from 'lodash';
 import { computed, onMounted, PropType, ref, watch } from 'vue';
@@ -167,14 +153,15 @@ const isOpenSelectToken = ref(false);
 const amount = ref<string>();
 const fee = ref<GasFeeInfo | null>(null);
 const accountAssets = ref<MVXToken[]>([]);
-const selectedAsset = ref<MVXToken | Partial<MVXToken>>(
+const selectedAsset = ref<MVXToken>(
   new MVXToken({
     icon: props.network.icon,
     balance: '0',
     price: '0',
     name: 'loading',
     symbol: 'loading',
-    decimals: props.network.decimals,
+    decimals: 0,
+    type: '',
   }),
 );
 const sendMax = ref(false);
@@ -197,18 +184,7 @@ onMounted(() => {
   fetchTokens();
 });
 
-const validateFields = async () => {
-  errorMsg.value = '';
-  fee.value = null;
-  fieldsValidation.value = {
-    addressTo: true,
-    amount: true,
-  };
-
-  if (!selectedAsset.value) {
-    return;
-  }
-
+const validateReceiver = async () => {
   try {
     if (isAddress.value) {
       const to = props.network.displayAddress(addressTo.value);
@@ -223,88 +199,219 @@ const validateFields = async () => {
       fieldsValidation.value.addressTo = false;
       return;
     }
+  } catch (error: any) {
+    errorMsg.value = error.message || 'An error occurred';
+  }
+};
 
-    let rawAmount = new BigNumber('0');
+const validateFields = async () => {
+  errorMsg.value = '';
+  fee.value = null;
+  fieldsValidation.value = {
+    addressTo: true,
+    amount: true,
+  };
+
+  if (!selectedAsset.value) {
+    return;
+  }
+
+  validateReceiver();
+
+  try {
+    let rawFee: BigNumber = new BigNumber(0);
+    let transaction: Transaction | undefined = undefined;
     const minAmount = new BigNumber(1).shiftedBy(
       -selectedAsset.value.decimals!,
     );
 
-    if (amount.value) {
-      if (!isValidDecimals(amount.value, selectedAsset.value.decimals!)) {
-        fieldsValidation.value.amount = false;
-        errorMsg.value = `Amount cannot have more than ${selectedAsset.value.decimals} decimals`;
-        return;
+    if (selectedAsset.value.type === 'native') {
+      let rawAmount = new BigNumber('0');
+
+      if (amount.value) {
+        if (!isValidDecimals(amount.value, selectedAsset.value.decimals!)) {
+          fieldsValidation.value.amount = false;
+          errorMsg.value = `Amount cannot have more than ${selectedAsset.value.decimals} decimals`;
+          return;
+        }
+
+        if (!isNumericPositive(amount.value)) {
+          fieldsValidation.value.amount = false;
+          errorMsg.value = 'Invalid amount. Amount has to be greater than 0';
+          return;
+        }
+
+        rawAmount = new BigNumber(amount.value).shiftedBy(
+          selectedAsset.value.decimals!,
+        );
+
+        if (rawAmount.lt(minAmount)) {
+          fieldsValidation.value.amount = false;
+          errorMsg.value = `Amount must be greater than ${minAmount.toFixed()}.`;
+          return;
+        }
+
+        const rawBalance = new BigNumber(selectedAsset.value.balance!);
+
+        transaction = await selectedAsset.value.buildTransaction!(
+          addressTo.value,
+          props.accountInfo.selectedAccount,
+          selectedAsset.value,
+          rawAmount.toFixed(0),
+          props.network,
+        );
+
+        rawFee = new BigNumber(transaction.gasLimit.toString());
+        if (rawAmount.plus(rawFee).gt(rawBalance)) {
+          fieldsValidation.value.amount = false;
+          errorMsg.value = 'Not enough balance.';
+          return;
+        }
+        await ensureTransactionCreated(transaction, rawFee);
       }
-
-      if (!isNumericPositive(amount.value)) {
-        fieldsValidation.value.amount = false;
-        errorMsg.value = 'Invalid amount. Amount has to be greater than 0';
-        return;
-      }
-
-      rawAmount = new BigNumber(amount.value.toString()).shiftedBy(
-        selectedAsset.value.decimals!,
-      );
-
-      if (rawAmount.lt(minAmount)) {
-        fieldsValidation.value.amount = false;
-        errorMsg.value = `Amount must be greater than ${minAmount.toFixed()}.`;
-        return;
-      }
-    }
-
-    if (amount.value || sendMax.value) {
-      const rawBalance = new BigNumber(selectedAsset.value.balance!);
-
-      const transaction = await selectedAsset.value.buildTransaction!(
-        addressTo.value,
-        props.accountInfo.selectedAccount,
-        new BigNumber(amount.value!)
-          .shiftedBy(selectedAsset.value.decimals!)
-          .toFixed(0),
-        props.network,
-      );
-
-      const rawFee = new BigNumber(computeTxFee(transaction).toString());
 
       if (sendMax.value) {
-        transaction.value = BigInt(rawBalance.minus(rawFee).toFixed());
-      }
+        const availableBalance = new BigNumber(selectedAsset.value.balance!);
 
-      if (
-        sendMax.value &&
-        selectedAsset.value.name === accountAssets.value[0].name
-      ) {
-        rawAmount = rawBalance.minus(rawFee);
-        if (rawAmount.gt(0)) {
-          amount.value = rawAmount
-            .shiftedBy(-selectedAsset.value.decimals!)
-            .toFixed();
+        transaction = await selectedAsset.value.buildTransaction!(
+          addressTo.value,
+          props.accountInfo.selectedAccount,
+          selectedAsset.value,
+          availableBalance.toFixed(0),
+          props.network,
+        );
+
+        transaction.value = BigInt(
+          availableBalance
+            .minus(new BigNumber(transaction.gasLimit.toString()))
+            .toFixed(),
+        );
+
+        amount.value = new BigNumber(transaction.value.toString())
+          .shiftedBy(-selectedAsset.value.decimals!)
+          .toFixed();
+
+        rawFee = new BigNumber(transaction.gasLimit.toString());
+        await ensureTransactionCreated(transaction, rawFee);
+      }
+    } else {
+      // for ESDT/NFT tokens
+      if (selectedAsset.value.type === 'NonFungibleESDT') {
+        amount.value = '1';
+
+        if (sendMax.value) {
+          amount.value = '1';
+        }
+
+        transaction = await selectedAsset.value.buildTransaction!(
+          addressTo.value,
+          props.accountInfo.selectedAccount,
+          selectedAsset.value,
+          new BigNumber(amount.value!).toString(),
+          props.network,
+        );
+
+        rawFee = new BigNumber(transaction.gasLimit.toString());
+        await ensureTransactionCreated(transaction, rawFee);
+      } else {
+        if (amount.value) {
+          if (!isValidDecimals(amount.value, selectedAsset.value.decimals!)) {
+            fieldsValidation.value.amount = false;
+            errorMsg.value = `Amount cannot have more than ${selectedAsset.value.decimals} decimals`;
+            return;
+          }
+
+          if (!isNumericPositive(amount.value)) {
+            fieldsValidation.value.amount = false;
+            errorMsg.value = 'Invalid amount. Amount has to be greater than 0';
+            return;
+          }
+
+          const rawAmount = new BigNumber(amount.value.toString()).shiftedBy(
+            selectedAsset.value.decimals!,
+          );
+
+          if (rawAmount.lt(minAmount)) {
+            fieldsValidation.value.amount = false;
+            errorMsg.value = `Amount must be greater than ${minAmount.toFixed()}.`;
+            return;
+          }
+          console.info(selectedAsset.value);
+
+          transaction = await selectedAsset.value.buildTransaction!(
+            addressTo.value,
+            props.accountInfo.selectedAccount,
+            selectedAsset.value,
+            new BigNumber(amount.value!)
+              .shiftedBy(selectedAsset.value.decimals!)
+              .toFixed(0),
+            props.network,
+          );
+
+          rawFee = new BigNumber(transaction.gasLimit.toString());
+          await ensureTransactionCreated(transaction, rawFee);
+        }
+
+        if (sendMax.value) {
+          const availableBalance = new BigNumber(
+            selectedAsset.value.balance!,
+          ).shiftedBy(-selectedAsset.value.decimals!);
+
+          amount.value = availableBalance.toFixed();
+          transaction = await selectedAsset.value.buildTransaction!(
+            addressTo.value,
+            props.accountInfo.selectedAccount,
+            selectedAsset.value,
+            availableBalance.toFixed(0),
+            props.network,
+          );
+
+          rawFee = new BigNumber(transaction.gasLimit.toString());
+          await ensureTransactionCreated(transaction, rawFee);
         }
       }
-
-      if (rawAmount.plus(rawFee).gt(rawBalance)) {
-        fieldsValidation.value.amount = false;
-        errorMsg.value = 'Not enough balance.';
-        return;
-      }
-
-      const nativeAsset = accountAssets.value[0];
-      const txFeeHuman = rawFee
-        .shiftedBy(-selectedAsset.value.decimals!)
-        .toFixed();
-
-      const txPrice = new BigNumber(nativeAsset.price!).times(txFeeHuman);
-
-      fee.value = {
-        fiatSymbol: 'USD',
-        fiatValue: txPrice.toString(),
-        nativeSymbol: nativeAsset.symbol ?? '',
-        nativeValue: txFeeHuman.toString(),
-      };
     }
+
+    const gasPrice = transaction ? transaction.gasPrice : 1;
+    const txFeeHuman = rawFee
+      .times(gasPrice)
+      .shiftedBy(-accountAssets.value[0].decimals!);
+
+    const txPrice = new BigNumber(accountAssets.value[0].price!).times(
+      txFeeHuman,
+    );
+
+    fee.value = {
+      fiatSymbol: 'USD',
+      fiatValue: txPrice.toString(),
+      nativeSymbol: accountAssets.value[0].symbol ?? '',
+      nativeValue: txFeeHuman.toFixed(),
+    };
   } catch (error: any) {
     errorMsg.value = error.message || 'An error occurred';
+  }
+};
+
+const ensureTransactionCreated = async (
+  transaction: Transaction | undefined,
+  rawFee: BigNumber,
+) => {
+  if (!transaction) {
+    fieldsValidation.value.amount = false;
+    errorMsg.value = 'An error occurred when creating the transaction.';
+    return;
+  }
+
+  if (transaction.gasLimit > BigInt(accountAssets.value[0].balance!)) {
+    fieldsValidation.value.amount = false;
+    errorMsg.value = 'Not enough balance for fees.';
+    return;
+  }
+
+  if (rawFee.isZero()) {
+    fieldsValidation.value.amount = false;
+    errorMsg.value = 'An error occurred while calculating the fee.';
+    return;
   }
 };
 
@@ -315,18 +422,9 @@ watch(addressFrom, () => {
 });
 
 const fetchTokens = async () => {
-  const networkApi = (await props.network.api()) as MultiversXAPI;
   const networkAssets = await props.network.getAllTokens(addressFrom.value);
   const pricePromises = networkAssets.map(asset => asset.getLatestPrice());
-  const balancePromises = networkAssets.map(asset => {
-    if (!asset.balance) {
-      return asset.getBalance(networkApi.api, addressFrom.value);
-    }
-
-    return Promise.resolve(asset.balance);
-  });
-
-  Promise.all([...pricePromises, ...balancePromises]).then(() => {
+  Promise.all([...pricePromises]).then(() => {
     const nonZeroAssets = networkAssets.filter(
       asset => !toBN(asset.balance ?? '0').isZero(),
     );
@@ -340,18 +438,6 @@ const fetchTokens = async () => {
 
     isLoadingAssets.value = false;
   });
-};
-
-const computeTxFee = (transaction: Transaction): bigint => {
-  const txComputer = new TransactionComputer();
-  const config = {
-    minGasLimit: 50000n,
-    gasPerDataByte: 1500n,
-    gasPriceModifier: 0.01,
-    chainID: '1',
-  };
-
-  return txComputer.computeTransactionFee(transaction, config);
 };
 
 const close = () => {
@@ -401,7 +487,7 @@ const selectAccountTo = (account: string) => {
   isOpenSelectContactTo.value = false;
 };
 
-const selectToken = (token: MVXToken | Partial<MVXToken>) => {
+const selectToken = (token: MVXToken) => {
   selectedAsset.value = token;
   isOpenSelectToken.value = false;
 };
@@ -479,6 +565,7 @@ const sendAction = async () => {
     fromAddressName: fromAccount.name,
     txFee: fee.value!,
     toAddress: addressTo.value,
+    tokenType: selectedAsset.value.type,
   };
 
   const routedRoute = router.resolve({
@@ -496,7 +583,7 @@ const sendAction = async () => {
       url: Browser.runtime.getURL(
         getUiPath(
           `dot-hw-verify?id=${routedRoute.query.id}&txData=${routedRoute.query.txData}`,
-          ProviderName.kadena,
+          ProviderName.multiversx,
         ),
       ),
       type: 'popup',

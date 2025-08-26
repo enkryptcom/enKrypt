@@ -4,6 +4,10 @@ import { EnkryptAccount } from '@enkryptcom/types';
 import { bufferToHex } from '@enkryptcom/utils';
 import {
   Address,
+  GasLimitEstimator,
+  Token,
+  TokenComputer,
+  TokenTransfer,
   Transaction,
   TransactionComputer,
   TransactionsFactoryConfig,
@@ -12,9 +16,16 @@ import {
 import { TransactionSigner } from '../ui/libs/signer';
 import { MultiversXNetwork } from './mvx-network';
 
+export interface MvxTokenOptions extends BaseTokenOptions {
+  type: string;
+}
+
 export class MVXToken extends BaseToken {
-  constructor(options: BaseTokenOptions) {
+  public type: string;
+
+  constructor(options: MvxTokenOptions) {
     super(options);
+    this.type = options.type;
   }
 
   public async getLatestUserBalance(
@@ -35,6 +46,7 @@ export class MVXToken extends BaseToken {
   public async buildTransaction(
     to: string,
     from: EnkryptAccount | any,
+    token: MVXToken,
     amount: string,
     network: MultiversXNetwork,
   ): Promise<Transaction> {
@@ -44,20 +56,55 @@ export class MVXToken extends BaseToken {
     const chainID = await api.getChainId();
 
     const factoryConfig = new TransactionsFactoryConfig({ chainID });
+    const gasEstimator = new GasLimitEstimator({
+      networkProvider: api.networkProvider,
+      gasMultiplier: 1.1,
+    });
     const transferFactory = new TransferTransactionsFactory({
       config: factoryConfig,
+      gasLimitEstimator: gasEstimator,
     });
 
     const sender = Address.newFromBech32(from.address);
     const receiver = Address.newFromBech32(to);
 
-    const transaction = await transferFactory.createTransactionForTransfer(
-      sender,
-      {
+    let transaction: Transaction;
+
+    if (token.type === 'native') {
+      transaction = await transferFactory.createTransactionForTransfer(sender, {
         receiver,
         nativeAmount: BigInt(amount),
-      },
-    );
+      });
+    } else {
+      console.info('token: ', token);
+      const tokenComputer = new TokenComputer();
+      const identifier = tokenComputer.extractIdentifierFromExtendedIdentifier(
+        token.symbol,
+      );
+      const nonce = tokenComputer.extractNonceFromExtendedIdentifier(
+        token.symbol,
+      );
+
+      const tokenObj = new Token({
+        identifier: identifier,
+        nonce: BigInt(nonce.toString()),
+      });
+
+      const transfer = new TokenTransfer({
+        token: tokenObj,
+        amount: BigInt(amount),
+      });
+
+      transaction = await transferFactory.createTransactionForESDTTokenTransfer(
+        sender,
+        {
+          receiver,
+          tokenTransfers: [transfer],
+        },
+      );
+    }
+
+    console.info('transaction before signing: ', transaction.toPlainObject());
 
     transaction.nonce = await api.getAccountNonce(sender);
 

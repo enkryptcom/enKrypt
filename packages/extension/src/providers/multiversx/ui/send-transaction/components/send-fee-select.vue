@@ -18,8 +18,8 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from 'vue';
 import { GasFeeInfo } from '@/providers/ethereum/ui/types';
+import { PropType } from 'vue';
 
 defineProps({
   fee: {
