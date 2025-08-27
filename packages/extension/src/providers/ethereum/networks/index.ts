@@ -32,8 +32,6 @@ import sepoliaNode from './sepolia';
 import baseNode from './base';
 import celoNode from './celo';
 import shibNode from './shib';
-import formTestnet from './form-testnet';
-import formNode from './form';
 import syscoinNEVMTestNode from './syscoin/nevm-testnet';
 import syscoinNEVMNode from './syscoin/nevm';
 import rolluxTestNode from './syscoin/rollux-testnet';
@@ -121,8 +119,6 @@ export default {
   base: baseNode,
   celo: celoNode,
   shib: shibNode,
-  formTestnet: formTestnet,
-  form: formNode,
   syscoinNEVMTest: syscoinNEVMTestNode,
   syscoinNEVM: syscoinNEVMNode,
   rolluxTest: rolluxTestNode,
