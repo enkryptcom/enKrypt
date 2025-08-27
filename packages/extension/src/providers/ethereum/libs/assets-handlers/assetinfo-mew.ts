@@ -143,8 +143,9 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     cgPlatform: CoingeckoPlatform.Blast,
   },
   [NetworkNames.Sanko]: {
-    tbName: 'sanko',
+    tbName: '',
     cgPlatform: CoingeckoPlatform.Sanko,
+    bsEndpoint: true,
   },
   [NetworkNames.Degen]: {
     tbName: 'degen',
