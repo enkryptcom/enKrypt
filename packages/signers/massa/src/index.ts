@@ -43,7 +43,7 @@ export class MassaSigner implements SignerInterface {
   ): Promise<boolean> {
     try {
       const massaPublicKey = PublicKey.fromString(publicKey);
-      const signature = Signature.fromBytes(hexToBuffer(sig));
+      const signature = Signature.fromString(sig);
       return massaPublicKey.verify(hexToBuffer(msgHash), signature);
     } catch (error) {
       console.error("Massa signature verification failed:", error);

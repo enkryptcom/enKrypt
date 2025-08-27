@@ -28,7 +28,6 @@ export default class Ed25519 implements Signer {
     data: Uint8Array,
     signature: Uint8Array,
   ): Promise<boolean> {
-    console.log(publicKey, data, signature);
     return ed.verify(signature, data, publicKey);
   }
 }
