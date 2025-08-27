@@ -20,9 +20,17 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
-    include: [
-      'src/**/*.{test,spec}.ts',
-      'tests/**/*.{test,spec}.ts',
+    include: ['src/**/*.{test,spec}.ts', 'tests/**/*.{test,spec}.ts'],
+  },
+  resolve: {
+    alias: [
+      {
+        find: /^(vite-plugin-node-polyfills\/shims\/.+)/,
+        replacement: '$1',
+        customResolver(source) {
+          return import.meta.resolve(source).replace(/^file:\/\//, '');
+        },
+      },
     ],
   },
 });
