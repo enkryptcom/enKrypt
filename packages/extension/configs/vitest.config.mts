@@ -6,15 +6,10 @@ export default defineConfig({
   plugins: [
     tsconfigPaths() as any,
     nodePolyfills({
-      include: [
-        'crypto',
-        // ... include other Node.js modules if needed
-      ],
+      include: ['crypto'],
     }),
   ],
   define: {
-    // setting __VERSION__ here blows it up for some reason
-    // __VERSION__: 'testing',
     __IS_OPERA__: false,
   },
   test: {
