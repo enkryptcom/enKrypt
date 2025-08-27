@@ -5,16 +5,16 @@ import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import { EtherscanActivity } from '../libs/activity-handlers';
 
 const zkgoerliOptions: EvmNetworkOptions = {
-  name: NetworkNames.ZkSyncGoerli,
-  name_long: 'zkSync Goerli',
+  name: NetworkNames.zkSyncSepolia,
+  name_long: 'zkSync Sepolia',
   homePage: 'https://zksync.io/',
-  blockExplorerTX: 'https://goerli.explorer.zksync.io/tx/[[txHash]]',
-  blockExplorerAddr: 'https://goerli.explorer.zksync.io/address/[[address]]',
-  chainID: '0x118',
+  blockExplorerTX: 'https://sepolia.explorer.zksync.io/tx/[[txHash]]',
+  blockExplorerAddr: 'https://sepolia.explorer.zksync.io/address/[[address]]',
+  chainID: '0x12c',
   isTestNetwork: true,
-  currencyName: 'GöETH',
-  currencyNameLong: 'zkSync Goerli',
-  node: 'wss://testnet.era.zksync.dev/ws',
+  currencyName: 'ETH',
+  currencyNameLong: 'ETH ZKSepolia',
+  node: 'wss://sepolia.era.zksync.dev/ws',
   icon,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };

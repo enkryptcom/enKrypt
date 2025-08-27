@@ -14,7 +14,7 @@ import cantoNode from './canto';
 import rootstockNode from './rsk';
 import rootstockTestnetNode from './rsk-testnet';
 import edgeEvmNode from './edg';
-import zkGoerliNode from './zkgoerli';
+import zkSepoliaNode from './zksepolia';
 import vicNode from './vic';
 import zkSyncNode from './zksync';
 import arbNode from './arb';
@@ -94,7 +94,7 @@ export default {
   rootstock: rootstockNode,
   rootstockTestnet: rootstockTestnetNode,
   edgeEvm: edgeEvmNode,
-  zkGoerli: zkGoerliNode,
+  zkSepolia: zkSepoliaNode,
   vic: vicNode,
   zkSync: zkSyncNode,
   skaleEuropa: skale.europaNode,

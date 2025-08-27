@@ -28,7 +28,7 @@ export enum NetworkNames {
   BifrostKusama = "BNCKusama",
   Edgeware = "EDG",
   EdgeEVM = "evmEDG",
-  ZkSyncGoerli = "zkSyncGoerli",
+  zkSyncSepolia = "zkSyncSepolia",
   TomoChain = "TOMO",
   ZkSync = "zkSync",
   SkaleEuropa = "skaleEUROPA",
