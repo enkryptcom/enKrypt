@@ -35,7 +35,7 @@ export default class MassaProvider
     this.network = network;
     this.toWindow = toWindow;
     this.setMiddleWares();
-    this.requestProvider = getRequestProvider('', this.middlewares);
+    this.requestProvider = getRequestProvider(network.node, this.middlewares);
     this.requestProvider.on('notification', (notif: any) => {
       this.sendNotification(JSON.stringify(notif));
     });

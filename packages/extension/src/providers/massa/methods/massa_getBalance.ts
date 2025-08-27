@@ -1,6 +1,5 @@
 import { MiddlewareFunction } from '@enkryptcom/types';
 import { ProviderRPCRequest } from '@/types/provider';
-import { Address } from '@massalabs/massa-web3';
 import { getCustomError } from '@/libs/error';
 import MassaProvider from '..';
 import { MassaNetwork } from '../networks/massa-base';
@@ -25,7 +24,7 @@ const method: MiddlewareFunction = async function (
       const balance = await api.getBalance(address);
 
       res(null, balance);
-    } catch (error) {
+    } catch {
       res(getCustomError('Could not fetch balance from network'));
     }
   }

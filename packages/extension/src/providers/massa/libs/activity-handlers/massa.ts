@@ -1,5 +1,5 @@
 import { BaseNetwork } from '@/types/base-network';
-import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
+import { Activity } from '@/types/activity';
 import { ActivityHandlerType } from '@/libs/activity-state/types';
 import ActivityState from '@/libs/activity-state';
 

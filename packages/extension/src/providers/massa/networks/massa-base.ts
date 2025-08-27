@@ -13,11 +13,7 @@ import BigNumber from 'bignumber.js';
 import icon from './icons/Massa_logo.webp';
 import createIcon from '../../ethereum/libs/blockies';
 import { TokensState } from '@/libs/tokens-state';
-import {
-  CustomErc20Token,
-  CustomMassaToken,
-  TokenType,
-} from '@/libs/tokens-state/types';
+import { CustomMassaToken, TokenType } from '@/libs/tokens-state/types';
 import Sparkline from '@/libs/sparkline';
 import { MassaActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
@@ -78,7 +74,7 @@ export class MassaNetwork extends BaseNetwork {
             }
           }
         }
-      } catch (priceError) {
+      } catch {
         // Price data not available, continue with default values
       }
 
@@ -150,7 +146,7 @@ export class MassaNetwork extends BaseNetwork {
       const balancePromises = customTokens.map(async token => {
         try {
           return api.getBalanceMRC20(address, token.contract);
-        } catch (error) {
+        } catch {
           return '0';
         }
       });
@@ -227,7 +223,7 @@ export class MassaNetwork extends BaseNetwork {
       });
 
       return [...assets, ...customAssets];
-    } catch (error) {
+    } catch {
       return [];
     }
   }
@@ -242,7 +238,7 @@ export class MassaNetwork extends BaseNetwork {
   isValidAddress = (address: string): boolean => {
     try {
       Address.fromString(address);
-    } catch (error) {
+    } catch {
       return false;
     }
     return true;

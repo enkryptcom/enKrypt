@@ -13,7 +13,7 @@ const method: MiddlewareFunction = async function (
   else {
     try {
       res(null, this.network.name);
-    } catch (error) {
+    } catch {
       res(null, NetworkNames.Massa);
     }
   }

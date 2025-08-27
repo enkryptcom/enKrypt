@@ -5,7 +5,8 @@ import massa_getNetwork from './massa_getNetwork';
 import massa_setNetwork from './massa_setNetwork';
 
 export default (
-  provider: BackgroundProviderInterface,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _provider: BackgroundProviderInterface,
 ): MiddlewareFunction[] => {
   return [
     massa_getBalance,

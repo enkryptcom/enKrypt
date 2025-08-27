@@ -40,7 +40,7 @@ export default class MassaAPI extends ProviderAPIInterface {
     try {
       const networkInfo = await this.provider.networkInfos();
       return networkInfo.minimalFee.toString();
-    } catch (error) {
+    } catch {
       // Return a default minimal fee if network info is not available
       return '10000000'; // 0.01 MAS in base units (9 decimals)
     }
@@ -49,7 +49,7 @@ export default class MassaAPI extends ProviderAPIInterface {
   async getTransactionStatus(opId: string): Promise<OperationStatus | null> {
     try {
       return this.provider.getOperationStatus(opId);
-    } catch (error) {
+    } catch {
       return null;
     }
   }

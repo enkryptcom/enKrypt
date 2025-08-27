@@ -64,9 +64,9 @@ export const initAccounts = async (keyring: KeyRing) => {
     });
   if (ed25519massa.length == 0)
     await keyring.saveNewAccount({
-      basePath: MassaNetworks.mainnet.basePath,
+      basePath: MassaNetworks.Massa.basePath,
       name: 'Massa Account 1',
-      signerType: MassaNetworks.mainnet.signer[0],
+      signerType: MassaNetworks.Massa.signer[0],
       walletType: WalletType.mnemonic,
     });
 };
