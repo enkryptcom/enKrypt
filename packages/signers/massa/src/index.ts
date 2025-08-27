@@ -6,13 +6,7 @@ import {
 import { bufferToHex, hexToBuffer } from "@enkryptcom/utils";
 import { mnemonicToSeedSync } from "bip39";
 import { sign as tweetSign } from "tweetnacl";
-import { derivePath } from "./libs/ed25519";
-import {
-  Address,
-  PublicKey,
-  PrivateKey,
-  Signature,
-} from "@massalabs/massa-web3";
+import { Address, PublicKey, PrivateKey, Signature, derivePath } from "./libs";
 
 export class MassaSigner implements SignerInterface {
   async generate(
