@@ -2,7 +2,6 @@ import icon from './icons/zksync.webp';
 import { NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
-import { EtherscanActivity } from '../libs/activity-handlers';
 
 const zkgoerliOptions: EvmNetworkOptions = {
   name: NetworkNames.zkSyncSepolia,
@@ -16,7 +15,7 @@ const zkgoerliOptions: EvmNetworkOptions = {
   currencyNameLong: 'ETH ZKSepolia',
   node: 'wss://sepolia.era.zksync.dev/ws',
   icon,
-  activityHandler: wrapActivityHandler(EtherscanActivity),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
 const zkgoerli = new EvmNetwork(zkgoerliOptions);

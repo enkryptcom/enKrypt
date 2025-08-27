@@ -29,7 +29,6 @@ const NetworkEndpoints: Record<string, string> = {
     'https://green-giddy-denebola.explorer.mainnet.skalenodes.com/',
   [NetworkNames.SkaleTitan]:
     'https://parallel-stormy-spica.explorer.mainnet.skalenodes.com/',
-  [NetworkNames.zkSyncSepolia]: 'https://sepolia.explorer.zksync.io/',
   [NetworkNames.ZkSync]: 'https://block-explorer-api.mainnet.zksync.io/',
   [NetworkNames.Arbitrum]: 'https://api.arbiscan.io/',
   [NetworkNames.ArbitrumNova]: 'https://nova-explorer.arbitrum.io/',
