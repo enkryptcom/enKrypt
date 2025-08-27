@@ -1454,9 +1454,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@crxjs/vite-plugin@npm:^2.0.0-beta.32":
-  version: 2.0.0-beta.32
-  resolution: "@crxjs/vite-plugin@npm:2.0.0-beta.32"
+"@crxjs/vite-plugin@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "@crxjs/vite-plugin@npm:2.2.0"
   dependencies:
     "@rollup/pluginutils": "npm:^4.1.2"
     "@webcomponents/custom-elements": "npm:^1.5.0"
@@ -1469,11 +1469,12 @@ __metadata:
     fs-extra: "npm:^10.0.1"
     jsesc: "npm:^3.0.2"
     magic-string: "npm:^0.30.12"
-    picocolors: "npm:^1.0.0"
+    pathe: "npm:^2.0.1"
+    picocolors: "npm:^1.1.1"
     react-refresh: "npm:^0.13.0"
     rollup: "npm:2.79.2"
     rxjs: "npm:7.5.7"
-  checksum: 10/ddc2707b8dc4a195677acdbf0739006fcd443192b53c1487a3164e3e20b494d54d7a73333a13d2423569b706130cfad81fcc87f125567a08c7d14a341a0d18f7
+  checksum: 10/e6b707938a3121ce3cae938b92e10695906a25c1696110b8e48821a4dbebb38e52df17fc94bdaf379e783a67c620d00839bf94fca06f16923f2264b9168c5e6d
   languageName: node
   linkType: hard
 
@@ -1672,7 +1673,7 @@ __metadata:
   resolution: "@enkryptcom/extension@workspace:packages/extension"
   dependencies:
     "@amplitude/analytics-browser": "npm:^2.23.4"
-    "@crxjs/vite-plugin": "npm:^2.0.0-beta.32"
+    "@crxjs/vite-plugin": "npm:^2.2.0"
     "@enkryptcom/extension-bridge": "workspace:^"
     "@enkryptcom/hw-wallets": "workspace:^"
     "@enkryptcom/keyring": "workspace:^"
