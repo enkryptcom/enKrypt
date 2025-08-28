@@ -12,7 +12,7 @@
         ref="addressInputFrom"
         :from="true"
         :value="addressFrom"
-        :network="network"
+        :network="network as MassaNetwork"
         :disable-direct-input="true"
         @click="toggleSelectContactFrom(true)"
         @update:input-address="inputAddressFrom"
@@ -31,7 +31,7 @@
       <send-address-input
         ref="addressInputTo"
         :value="addressTo"
-        :network="network"
+        :network="network as MassaNetwork"
         @update:input-address="inputAddressTo"
         @toggle:show-contacts="toggleSelectContactTo"
       />
@@ -71,7 +71,7 @@
 
       <send-alert
         v-show="!hasEnoughBalance && amount && parseFloat(amount) > 0"
-        :native-symbol="selectedAsset?.symbol || network.name"
+        :native-symbol="selectedAsset?.symbol || network.currencyName"
         :price="amountFiatValue"
         :is-balance-zero="
           selectedAsset
@@ -115,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, PropType, computed, watch, nextTick } from 'vue';
+import { ref, onMounted, PropType, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import SendHeader from '@/providers/common/ui/send-transaction/send-header.vue';
 import SendAddressInput from './components/send-address-input.vue';
@@ -139,14 +139,7 @@ import { AssetsType } from '@/types/provider';
 import { VerifyTransactionParams, TxFeeInfo } from '../../types';
 import { routes as RouterNames } from '@/ui/action/router';
 import { SignerType } from '@enkryptcom/types';
-
-interface AccountInfo {
-  address: string;
-  balance: string;
-  name: string;
-  publicKey: string;
-  type: string;
-}
+import { MassaNetwork } from '../../networks/massa-base';
 
 const props = defineProps({
   network: {
@@ -322,7 +315,7 @@ const isInputsValid = computed<boolean>(() => {
   // Check if address is valid
   try {
     Address.fromString(addressTo.value);
-  } catch (error) {
+  } catch {
     return false;
   }
 
@@ -371,7 +364,7 @@ onMounted(async () => {
     const minimalFeeBase = await api.getMinimalFee();
     const minimalFee = formatMas(BigInt(minimalFeeBase));
     fee.value = minimalFee;
-  } catch (error) {
+  } catch {
     // Keep default fee of 0.01 if API call fails
   }
 
@@ -389,7 +382,7 @@ const updateAccountBalance = async () => {
       if (account.value) {
         account.value.balance = balance;
       }
-    } catch (error) {}
+    } catch {}
   }
 };
 
@@ -565,7 +558,7 @@ const sendAction = async () => {
     });
 
     router.push(routedRoute);
-  } catch (error) {}
+  } catch {}
 };
 </script>
 
