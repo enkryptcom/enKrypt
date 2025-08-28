@@ -5,8 +5,8 @@ import { MassaNetwork, createMassaNetworkOptions } from './massa-base';
 const mainnetOptions = createMassaNetworkOptions({
   name: NetworkNames.Massa,
   name_long: 'Massa',
-  blockExplorerTX: 'https://explorer.massa.net/operation/[[txHash]]',
-  blockExplorerAddr: 'https://explorer.massa.net/address/[[address]]',
+  blockExplorerTX: 'https://explorer.massa.net/mainnet/operation/[[txHash]]',
+  blockExplorerAddr: 'https://explorer.massa.net/mainnet/address/[[address]]',
   isTestNetwork: false,
   node: PublicApiUrl.Mainnet,
   chainId: CHAIN_ID.Mainnet,

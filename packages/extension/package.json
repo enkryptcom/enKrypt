@@ -136,7 +136,6 @@
     "typescript": "~5.8.3",
     "url": "^0.11.4",
     "vite": "^6.3.5",
-    "vite-plugin-node-polyfills": "0.24.0",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4",
     "vue-tsc": "^2.2.12",
