@@ -166,7 +166,7 @@ const getAverageRGB = (imgEl: HTMLImageElement) => {
   context.drawImage(imgEl, 0, 0);
   try {
     data = context.getImageData(0, 0, width, height);
-  } catch (e) {
+  } catch {
     return defaultRGB;
   }
   const length = data.data.length;

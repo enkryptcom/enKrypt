@@ -33,7 +33,7 @@ class ENSResolver implements BaseResolver {
 
   public async resolveAddress(
     name: string,
-    coin: CoinType = "ETH"
+    coin: CoinType = "ETH",
   ): Promise<string | null> {
     const resolver = await this.ENSProvider.getResolver(name);
     if (resolver) {

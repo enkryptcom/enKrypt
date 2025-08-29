@@ -1,5 +1,5 @@
 import { ENSOptions } from "./ens/types";
-import {  SIDOptions } from "./sid/types";
+import { SIDOptions } from "./sid/types";
 
 export type CoinType =
   | "BTC"
@@ -146,8 +146,8 @@ export abstract class BaseResolver {
 
   public abstract resolveAddress(
     name: string,
-    coint: CoinType, 
-    paymentIdChain?: string
+    coint: CoinType,
+    paymentIdChain?: string,
   ): Promise<string | null>;
 
   public abstract resolveReverseName(address: string): Promise<string | null>;

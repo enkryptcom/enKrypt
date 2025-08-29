@@ -38,7 +38,6 @@ export enum NetworkNames {
   SkaleCryptoColosseum = "skaleROME",
   SkaleExorde = "skaleEXORDE",
   SkaleNebula = "skaleNEBULA",
-  SkaleRazor = "skaleRAZOR",
   SkaleTitan = "skaleTITAN",
   SkaleChaos = "skaleCHAOS",
   OntologyEVM = "ontologyEVM",
@@ -63,8 +62,6 @@ export enum NetworkNames {
   KadenaTestnet = "KDATestnet",
   Litecoin = "LTC",
   Dogecoin = "DOGE",
-  ArtheraTest = "AATest",
-  Arthera = "AA",
   FormTestnet = "FormTestnet",
   Form = "Form",
   AssetHubDOT = "AssetHubDOT",
@@ -95,7 +92,7 @@ export enum NetworkNames {
   Scroll = "scroll",
   Rari = "rari",
   CotiDevnet = "CotiDevnet",
-  Holesky = "HOLESKY",
+  Hoodi = "Hoodi",
   Bitrock = "bitrock",
   Fraxtal = "fraxtal",
   Fire = "5ire",
@@ -113,6 +110,8 @@ export enum NetworkNames {
   UnitZeroTestnet = "UnitZeroTestnet",
   Conflux = "Conflux",
   Hemi = "Hemi",
+  CoreDAO = "CORE",
+  AppLayerTestnet = "AppLayerTestnet",
   MultiversX = "EGLD",
 }
 
@@ -182,5 +181,6 @@ export enum CoingeckoPlatform {
   Taraxa = "taraxa",
   UnitZero = "units-network",
   Conflux = "conflux",
+  CoreDAO = "core",
   MultiversX = "elrond",
 }

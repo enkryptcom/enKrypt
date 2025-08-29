@@ -1,5 +1,4 @@
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
-import { subscanActivity } from '../../libs/activity-handlers';
 import {
   SubstrateNetwork,
   SubstrateNetworkOptions,
@@ -26,7 +25,7 @@ const quartzOptions: SubstrateNetworkOptions = {
   genesisHash:
     '0xcd4d732201ebe5d6b014edda071c4203e16867305332301dc8d092044b28e554',
   existentialDeposit: toBN(0),
-  activityHandler: wrapActivityHandler(subscanActivity),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
 const quartz = new SubstrateNetwork(quartzOptions);

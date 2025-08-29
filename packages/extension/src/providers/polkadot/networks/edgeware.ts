@@ -1,6 +1,5 @@
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { toBN } from 'web3-utils';
-import { subscanActivity } from '../libs/activity-handlers';
 import {
   SubstrateNetwork,
   SubstrateNetworkOptions,
@@ -20,12 +19,12 @@ const edgewareOptions: SubstrateNetworkOptions = {
   icon,
   decimals: 18,
   prefix: 7,
-  node: 'wss://edgeware.jelliedowl.net',
+  node: 'wss://edgeware-rpc3.jelliedowl.net',
   coingeckoID: 'edgeware',
   coingeckoPlatform: CoingeckoPlatform.Edgeware,
   genesisHash:
     '0x742a2ca70c2fda6cee4f8df98d64c4c670a052d9568058982dad9d5a7a135c5b',
-  activityHandler: wrapActivityHandler(subscanActivity),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
   existentialDeposit: toBN('10000000000000'),
 };
 

@@ -445,7 +445,7 @@ const isValidToAddress = debounce(() => {
           addressIsValid.value = receiverAddressIsValid;
           if (receiverAddressIsValid) checkUpdateQuote();
         });
-    } catch (e) {
+    } catch {
       addressIsValid.value = false;
     }
   }

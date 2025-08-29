@@ -8,9 +8,7 @@ import { polkadotEncodeAddress, fromBase } from '@enkryptcom/utils';
 import createIcon from '../libs/blockies';
 import MarketData from '@/libs/market-data';
 import BigNumber from 'bignumber.js';
-import {
-  formatFloatingPointValue,
-} from '@/libs/utils/number-formatter';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
 import Sparkline from '@/libs/sparkline';
 import { SubstrateNativeToken } from './substrate-native-token';
 import { Activity } from '@/types/activity';
