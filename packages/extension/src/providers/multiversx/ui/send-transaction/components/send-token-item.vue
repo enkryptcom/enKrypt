@@ -24,16 +24,16 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref } from 'vue';
-import KadenaAPI from '@/providers/kadena/libs/api';
+import MultiversXApi from '@/providers/multiversx/libs/api';
 import { AssetsType } from '@/types/provider';
 import BigNumber from 'bignumber.js';
+import { onBeforeMount, ref } from 'vue';
 
 interface IProps {
   token: AssetsType | Partial<AssetsType>;
   selectToken: (token: AssetsType | Partial<AssetsType>) => void;
   activeAccount?: string;
-  api?: KadenaAPI;
+  api?: MultiversXApi;
 }
 
 const props = defineProps<IProps>();

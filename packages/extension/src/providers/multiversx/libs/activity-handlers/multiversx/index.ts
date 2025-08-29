@@ -63,7 +63,11 @@ export const multiversxScanActivity = async (
 
       if (metadata.transfers?.length) {
         for (let i = 0; i < metadata.transfers.length; i++) {
-          const tokenIdentifier = metadata.transfers[i].properties!.identifier!;
+          const tokenIdentifier =
+            metadata.transfers[i].properties!.identifier ||
+            metadata.transfers[i].properties!.token ||
+            '';
+
           const tokenNonce =
             tokenComputer.extractNonceFromExtendedIdentifier(tokenIdentifier);
           let tokenDetails: any;

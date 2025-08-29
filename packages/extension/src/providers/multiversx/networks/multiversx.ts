@@ -18,7 +18,7 @@ const multiversxOptions: MultiversXNetworkOptions = {
     'https://devnet-explorer.multiversx.com/accounts/[[address]]',
   isTestNetwork: false,
   currencyName: 'EGLD',
-  currencyNameLong: 'MultiversX',
+  currencyNameLong: 'EGLD',
   icon,
   decimals: 18,
   node: 'https://devnet-api.multiversx.com',

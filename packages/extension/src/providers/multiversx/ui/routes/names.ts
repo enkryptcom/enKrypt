@@ -9,14 +9,4 @@ export default {
     name: 'mvxSendTransaction',
     component: {},
   },
-  // mvxConnectDApp: {
-  //   path: 'mvx-connect-dapp',
-  //   name: 'mvxConnectDApp',
-  //   component: {},
-  // },
-  // mvxHWVerify: {
-  //   path: 'mvx-hw-verify',
-  //   name: 'mvxHWVerify',
-  //   component: {},
-  // },
 };
