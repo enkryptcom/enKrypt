@@ -158,7 +158,6 @@ export class MultiversXNetwork extends BaseNetwork {
 
     const fungibleTokens = await this.getFungibleTokens(pubkey);
     fungibleTokens.map(token => {
-      console.info('token: ', token);
       const balance = numberToHex(new BigNumber(token.balance).toFixed());
       const userBalance = fromBase(balance, token.decimals);
 

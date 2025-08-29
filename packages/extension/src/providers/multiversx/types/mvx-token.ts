@@ -76,7 +76,6 @@ export class MVXToken extends BaseToken {
         nativeAmount: BigInt(amount),
       });
     } else {
-      console.info('token: ', token);
       const tokenComputer = new TokenComputer();
       const identifier = tokenComputer.extractIdentifierFromExtendedIdentifier(
         token.symbol,
@@ -103,8 +102,6 @@ export class MVXToken extends BaseToken {
         },
       );
     }
-
-    console.info('transaction before signing: ', transaction.toPlainObject());
 
     transaction.nonce = await api.getAccountNonce(sender);
 

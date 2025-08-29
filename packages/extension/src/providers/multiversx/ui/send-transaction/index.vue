@@ -336,7 +336,6 @@ const validateFields = async () => {
             errorMsg.value = `Amount must be greater than ${minAmount.toFixed()}.`;
             return;
           }
-          console.info(selectedAsset.value);
 
           transaction = await selectedAsset.value.buildTransaction!(
             addressTo.value,

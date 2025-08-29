@@ -1613,6 +1613,7 @@ __metadata:
     "@metaplex-foundation/umi": "npm:^1.2.0"
     "@metaplex-foundation/umi-bundle-defaults": "npm:^1.2.0"
     "@multiversx/sdk-core": "npm:^15.0.0"
+    "@multiversx/sdk-transaction-decoder": "npm:^2.0.0"
     "@polkadot/api": "npm:^16.2.2"
     "@polkadot/extension-inject": "npm:^0.59.2"
     "@polkadot/keyring": "npm:^13.5.2"
@@ -6272,6 +6273,15 @@ __metadata:
   dependencies:
     bech32: "npm:^2.0.0"
   checksum: 10/7d741aa52c3e1c1b0ffb4854db510e983809a7f9ca77c64c4a2ac97a84191f9005592a4b41e16c967a278ded565e1156d4b6a669179a26baa7d6493600872355
+  languageName: node
+  linkType: hard
+
+"@multiversx/sdk-transaction-decoder@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@multiversx/sdk-transaction-decoder@npm:2.0.0"
+  dependencies:
+    bech32: "npm:^2.0.0"
+  checksum: 10/aa739d52e962cb9d99f11759d902e07d9b91eb594c60bb392a7779c47614189471f4d3e2f2ad7d7638539902de4a65e06a7e2a0d6000f8f9b16e383149bc8e68
   languageName: node
   linkType: hard
 
