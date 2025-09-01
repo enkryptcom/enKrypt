@@ -112,6 +112,7 @@ export enum NetworkNames {
   Hemi = "Hemi",
   CoreDAO = "CORE",
   AppLayerTestnet = "AppLayerTestnet",
+  TAC = "TAC",
 }
 
 export enum CoingeckoPlatform {
