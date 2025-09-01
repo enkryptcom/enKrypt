@@ -11,7 +11,7 @@ const ethOptions: EvmNetworkOptions = {
   homePage: 'https://tac.build',
   blockExplorerTX: 'https://explorer.tac.build/tx/[[txHash]]',
   blockExplorerAddr: 'https://explorer.tac.build/address/[[address]]',
-  chainID: '0x239',
+  chainID: '0xef',
   isTestNetwork: false,
   currencyName: 'TAC',
   currencyNameLong: 'TAC',
