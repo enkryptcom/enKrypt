@@ -3,7 +3,7 @@ import MarketData from '@/libs/market-data';
 import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
 import { BaseNetwork } from '@/types/base-network';
 import { NFTCollection, NFTItem, NFTType } from '@/types/nft';
-import { TokenComputer } from '@multiversx/sdk-core';
+import { TokenComputer, TransactionStatus } from '@multiversx/sdk-core';
 import { TransactionDecoder } from '@multiversx/sdk-transaction-decoder/lib/src/transaction.decoder';
 import { NetworkEndpoint, NetworkTtl } from './configs';
 
@@ -47,11 +47,13 @@ export const multiversxScanActivity = async (
 
   await Promise.all(
     activities.map(async (activity: any) => {
-      let status = ActivityStatus.failed;
-      if (activity.status === 'pending') {
+      let status = ActivityStatus.success;
+      const txStatus = new TransactionStatus(activity.status);
+
+      if (txStatus.isPending()) {
         status = ActivityStatus.pending;
-      } else if (activity.status === 'success') {
-        status = ActivityStatus.success;
+      } else if (txStatus.isFailed()) {
+        status = ActivityStatus.failed;
       }
 
       const metadata = decoder.getTransactionMetadata({

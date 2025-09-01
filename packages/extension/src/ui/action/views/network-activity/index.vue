@@ -78,6 +78,7 @@ import Swap, {
   TransactionStatus,
   WalletIdentifier,
 } from '@enkryptcom/swap';
+import { TransactionStatus as TxStatus } from '@multiversx/sdk-core';
 import type Web3Eth from 'web3-eth';
 import NetworkActivityLoading from './components/network-activity-loading.vue';
 
@@ -204,10 +205,10 @@ const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {
     if (!info) return;
     const multiversxInfo = info as MultiversXRawInfo;
     if (isActivityUpdating) return;
-    activity.status =
-      multiversxInfo.status == 'success'
-        ? ActivityStatus.success
-        : ActivityStatus.failed;
+    const status = new TxStatus(multiversxInfo.status);
+    activity.status = status.isFailed()
+      ? ActivityStatus.failed
+      : ActivityStatus.success;
     activity.rawInfo = multiversxInfo as MultiversXRawInfo;
     updateActivitySync(activity).then(() => updateVisibleActivity(activity));
   } else if (props.network.provider === ProviderName.solana) {
