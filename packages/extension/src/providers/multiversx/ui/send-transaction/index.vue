@@ -178,9 +178,25 @@ const isAddress = computed(() => {
   return Address.isValid(addressTo.value);
 });
 
+const pendingTokenData = ref<any>(null);
+
 onMounted(() => {
   trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
   isLoadingAssets.value = true;
+
+  // Store token data to be processed after fetching tokens
+  if (route.params.tokenData) {
+    try {
+      pendingTokenData.value = {
+        data: JSON.parse(route.params.tokenData as string),
+        isToken: route.params.isToken === 'true',
+      };
+      console.log('Pending token data:', pendingTokenData.value);
+    } catch (e) {
+      console.error('Failed to parse token data:', e);
+    }
+  }
+
   fetchTokens();
 });
 
@@ -432,9 +448,32 @@ const fetchTokens = async () => {
       nonZeroAssets.push(networkAssets[0]);
     }
 
-    selectedAsset.value = nonZeroAssets[0] as MVXToken;
-    accountAssets.value = nonZeroAssets as MVXToken[];
+    // Handle pending token data from route params
+    if (pendingTokenData.value) {
+      if (pendingTokenData.value.isToken) {
+        // For regular tokens
+        selectedAsset.value = new MVXToken(pendingTokenData.value.data);
+      } else {
+        // For NFTs, find the exact NFT in the fetched tokens by ID
+        const nft = networkAssets.find(
+          asset => asset.symbol === pendingTokenData.value.data.id,
+        );
+        if (nft) {
+          selectedAsset.value = nft as MVXToken;
+        } else {
+          console.error('NFT not found in account assets');
+          selectedAsset.value = nonZeroAssets[0] as MVXToken;
+        }
+      }
+      pendingTokenData.value = null; // Clear pending data after processing
+    } else if (
+      !selectedAsset.value ||
+      selectedAsset.value.symbol === 'loading'
+    ) {
+      selectedAsset.value = nonZeroAssets[0] as MVXToken;
+    }
 
+    accountAssets.value = nonZeroAssets as MVXToken[];
     isLoadingAssets.value = false;
   });
 };
