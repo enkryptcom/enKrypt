@@ -75,6 +75,7 @@ import conflux from './conflux';
 import hemi from './hemi';
 import coredao from './coredao';
 import appLayerTestnet from './applayer-testnet';
+import tac from './tac';
 
 export default {
   sepolia: sepoliaNode,
@@ -161,4 +162,5 @@ export default {
   hemi: hemi,
   coredao: coredao,
   appLayerTestnet: appLayerTestnet,
+  tac: tac,
 };
