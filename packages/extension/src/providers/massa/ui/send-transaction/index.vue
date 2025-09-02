@@ -69,7 +69,7 @@
         @update:input-set-max="setMaxValue"
       />
 
-      <send-alert
+      <send-balance-alert
         v-show="!hasEnoughBalance && amount && parseFloat(amount) > 0"
         :native-symbol="selectedAsset?.symbol || network.currencyName"
         :price="amountFiatValue"
@@ -86,17 +86,24 @@
       />
 
       <div class="fee-input-container">
-        <label>Fee (MAS)</label>
-        <input
-          v-model="fee"
-          type="number"
-          placeholder="0.01"
-          class="fee-input"
-          step="0.000000001"
-          min="0"
-        />
-        <div class="fee-info">Minimal fee from network</div>
+        <div class="fee-input-content">
+          <div class="fee-label">Fee (MAS)</div>
+          <input
+            v-model="fee"
+            type="number"
+            placeholder="{{ minimalFee }}"
+            class="fee-input"
+            step="0.000000001"
+            min="{{ minimalFee }}"
+          />
+        </div>
+        <div class="fee-info">
+          Minimal fee from network:
+          {{ minimalFee }}
+        </div>
       </div>
+
+      <send-alert v-show="errorMsg" :error-msg="errorMsg" />
 
       <div class="send-transaction__buttons">
         <div class="send-transaction__buttons-cancel">
@@ -125,7 +132,8 @@ import SendInputAmount from '@/providers/common/ui/send-transaction/send-input-a
 import SendTokenSelect from './components/send-token-select.vue';
 import AssetsSelectList from '@action/views/assets-select-list/index.vue';
 import BaseButton from '@action/components/base-button/index.vue';
-import SendAlert from '@/providers/common/ui/send-transaction/send-alert.vue';
+import SendAlert from '@/providers/solana/ui/send-transaction/components/send-alert.vue';
+import SendBalanceAlert from '@/providers/common/ui/send-transaction/send-alert.vue';
 import { AccountsHeaderData } from '@action/types/account';
 import { BaseNetwork } from '@/types/base-network';
 import BigNumber from 'bignumber.js';
@@ -157,6 +165,7 @@ const addressInputTo = ref();
 const addressInputFrom = ref();
 const amount = ref<string>('');
 const fee = ref<string>('0.01');
+const minimalFee = ref<string>('0.01');
 const addressTo = ref<string>('');
 const addressFrom = ref<string>('');
 const isOpenSelectContactTo = ref<boolean>(false);
@@ -306,6 +315,19 @@ const sendButtonTitle = computed(() => {
   return title;
 });
 
+const errorMsg = computed(() => {
+  // Check if address is invalid
+  if (
+    addressTo.value &&
+    addressTo.value.trim() !== '' &&
+    !(network.value as MassaNetwork).isValidAddress(addressTo.value)
+  ) {
+    return 'Invalid to address.';
+  }
+
+  return '';
+});
+
 const isInputsValid = computed<boolean>(() => {
   // First check if address is provided
   if (!addressTo.value || addressTo.value.trim() === '') {
@@ -313,9 +335,7 @@ const isInputsValid = computed<boolean>(() => {
   }
 
   // Check if address is valid
-  try {
-    Address.fromString(addressTo.value);
-  } catch {
+  if (!(network.value as MassaNetwork).isValidAddress(addressTo.value)) {
     return false;
   }
 
@@ -362,8 +382,9 @@ onMounted(async () => {
   try {
     const api = (await network.value.api()) as MassaAPI;
     const minimalFeeBase = await api.getMinimalFee();
-    const minimalFee = formatMas(BigInt(minimalFeeBase));
-    fee.value = minimalFee;
+    const minFee = formatMas(BigInt(minimalFeeBase));
+    fee.value = minFee;
+    minimalFee.value = minFee;
   } catch {
     // Keep default fee of 0.01 if API call fails
   }
@@ -607,33 +628,42 @@ const sendAction = async () => {
 }
 
 .fee-input-container {
-  margin: 0 32px 8px 32px;
-  padding: 16px;
+  min-height: 40px;
+  height: auto;
   background: #ffffff;
+  margin: 0 32px 8px 32px;
   border: 1px solid @gray02;
   border-radius: 10px;
   width: calc(~'100% - 64px');
   box-sizing: border-box;
   position: relative;
+  padding: 10px 16px;
 
-  label {
-    display: block;
-    margin-bottom: 8px;
+  .fee-input-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    margin-bottom: 4px;
+  }
+
+  .fee-label {
     font-style: normal;
     font-weight: 400;
-    font-size: 12px;
-    line-height: 16px;
-    letter-spacing: 0.5px;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.25px;
     color: @secondaryLabel;
+    margin: 0;
   }
 
   .fee-input {
-    width: 100%;
-    height: 24px;
+    width: 120px;
+    height: 20px;
     font-style: normal;
     font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
+    font-size: 14px;
+    line-height: 20px;
     letter-spacing: 0.25px;
     color: @primaryLabel;
     border: 0 none;
@@ -641,6 +671,7 @@ const sendAction = async () => {
     padding: 0;
     background: transparent;
     caret-color: @primary;
+    text-align: right;
 
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
@@ -654,13 +685,13 @@ const sendAction = async () => {
   }
 
   .fee-info {
-    margin-top: 8px;
     font-style: normal;
     font-weight: 400;
     font-size: 12px;
     line-height: 16px;
     letter-spacing: 0.5px;
     color: @tertiaryLabel;
+    margin: 0;
   }
 }
 </style>

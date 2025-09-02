@@ -37,7 +37,6 @@
 import { replaceWithEllipsis } from '@/ui/action/utils/filters';
 import { computed, ref } from 'vue';
 import { PropType } from 'vue';
-import { Address } from '@massalabs/massa-web3';
 import { MassaNetwork } from '../../../networks/massa-base';
 
 const isFocus = ref<boolean>(false);
