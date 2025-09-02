@@ -24,7 +24,7 @@ class NameResolver {
       this.ens.init(),
       this.rns.init(),
       this.ud.init(),
-      this.sid.init(),
+      // this.sid.init(),
     ]);
   }
 
@@ -32,7 +32,7 @@ class NameResolver {
     return this.initDone.then(() =>
       Promise.all([
         this.ens.resolveReverseName(address),
-        this.sid.resolveReverseName(address),
+        // this.sid.resolveReverseName(address),
         this.rns.resolveReverseName(address),
         this.ud.resolveReverseName(address),
       ]).then((results) => {
@@ -55,8 +55,8 @@ class NameResolver {
         return this.rns.resolveAddress(name, coin);
       if (this.ud.isSupportedName(name))
         return this.ud.resolveAddress(name, coin);
-      if (this.sid.isSupportedName(name))
-        return this.sid.resolveAddress(name, paymentIdChain);
+      // if (this.sid.isSupportedName(name))
+      //   return this.sid.resolveAddress(name, paymentIdChain);
       if (this.ens.isSupportedName(name))
         return this.ens.resolveAddress(name, coin);
 
