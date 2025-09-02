@@ -1,11 +1,10 @@
 import icon from './icons/tac.webp';
 import { NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
-import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
 import { EtherscanActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
-const ethOptions: EvmNetworkOptions = {
+const tacOptions: EvmNetworkOptions = {
   name: NetworkNames.TAC,
   name_long: 'TAC',
   homePage: 'https://tac.build',
@@ -18,10 +17,9 @@ const ethOptions: EvmNetworkOptions = {
   node: 'https://rpc.ankr.com/tac',
   icon,
   coingeckoID: 'tac',
-  assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 
-const eth = new EvmNetwork(ethOptions);
+const tac = new EvmNetwork(tacOptions);
 
-export default eth;
+export default tac;

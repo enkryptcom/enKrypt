@@ -68,6 +68,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Hemi]: 'https://explorer.hemi.xyz/',
   [NetworkNames.AppLayerTestnet]: 'https://testnet-explorer.applayer.com/api/',
   [NetworkNames.EthereumClassic]: 'https://etc.blockscout.com/',
+  [NetworkNames.TAC]: 'https://explorer.tac.build/',
 };
 
 export { NetworkEndpoints };
