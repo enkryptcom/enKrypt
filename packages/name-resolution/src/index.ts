@@ -48,7 +48,7 @@ class NameResolver {
   public async resolveAddress(
     name: string,
     coin: CoinType = "ETH",
-    paymentIdChain?: string,
+    _paymentIdChain?: string,
   ): Promise<string | null> {
     return this.initDone.then(() => {
       if (this.rns.isSupportedName(name))
