@@ -678,10 +678,6 @@ const sendAction = async () => {
   &__fiat {
     bottom: 12px;
     left: 16px;
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   &__max {
