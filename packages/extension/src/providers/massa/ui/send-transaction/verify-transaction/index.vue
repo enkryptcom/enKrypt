@@ -292,7 +292,11 @@ const sendAction = async () => {
     }
   } catch (error) {
     isProcessing.value = false;
-    errorMsg.value = error instanceof Error ? error.message : String(error);
+    errorMsg.value = (error as any).error
+      ? (error as any).error.message
+      : error instanceof Error
+        ? error.message
+        : String(error);
     trackSendEvents(SendEventType.SendFailed, {
       network: network.value.name,
       error: errorMsg.value,
