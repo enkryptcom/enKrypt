@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import { replaceWithEllipsis } from '@/ui/action/utils/filters';
-import { computed, ref } from 'vue';
+import { computed, ref, nextTick } from 'vue';
 import { PropType } from 'vue';
 import { MassaNetwork } from '../../../networks/massa-base';
 
@@ -96,7 +96,10 @@ const identiconSrc = computed(() => {
     }
   } catch (error) {
     console.error('Error generating identicon:', error);
-    identiconError.value = true;
+    // Set error state outside of computed property
+    nextTick(() => {
+      identiconError.value = true;
+    });
   }
 
   return null;

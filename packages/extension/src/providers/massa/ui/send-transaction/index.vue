@@ -63,26 +63,17 @@
       <send-input-amount
         :amount="amount"
         :fiat-value="tokenPrice"
-        :has-enough-balance="hasEnoughBalance"
+        :has-enough-balance="
+          hasEnoughBalance && hasValidDecimals && hasPositiveSendAmount
+        "
         :show-max="true"
         @update:input-amount="inputAmount"
         @update:input-set-max="setMaxValue"
       />
 
-      <send-balance-alert
+      <send-alert
         v-show="!hasEnoughBalance && amount && parseFloat(amount) > 0"
-        :native-symbol="selectedAsset?.symbol || network.currencyName"
-        :price="amountFiatValue"
-        :is-balance-zero="
-          selectedAsset
-            ? parseFloat(
-                fromBase(selectedAsset.balance || '0', selectedAsset.decimals),
-              ) === 0
-            : parseFloat(accountBalance) === 0
-        "
-        :native-value="insufficientAmount"
-        :decimals="selectedAsset?.decimals || 9"
-        :not-enough="!hasEnoughBalance"
+        :error-msg="'Not enough funds.'"
       />
 
       <div class="fee-input-container">
@@ -133,13 +124,12 @@ import SendTokenSelect from './components/send-token-select.vue';
 import AssetsSelectList from '@action/views/assets-select-list/index.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import SendAlert from '@/providers/solana/ui/send-transaction/components/send-alert.vue';
-import SendBalanceAlert from '@/providers/common/ui/send-transaction/send-alert.vue';
 import { AccountsHeaderData } from '@action/types/account';
 import { BaseNetwork } from '@/types/base-network';
 import BigNumber from 'bignumber.js';
 import { fromBase, toBase, isValidDecimals } from '@enkryptcom/utils';
 import { isNumericPositive } from '@/libs/utils/number-formatter';
-import { Address, formatMas } from '@massalabs/massa-web3';
+import { formatMas } from '@massalabs/massa-web3';
 import MassaAPI from '../../libs/api';
 import PublicKeyRing from '@/libs/keyring/public-keyring';
 import { AssetsType } from '@/types/provider';
@@ -219,10 +209,7 @@ const tokenPrice = computed(() => {
 });
 
 const amountFiatValue = computed(() => {
-  if (
-    !isNumericPositive(sendAmount.value) ||
-    parseFloat(sendAmount.value) <= 0
-  ) {
+  if (!isInputsValid.value) {
     return '0';
   }
   // Calculate fiat value using the selected token price
@@ -250,7 +237,7 @@ const sendAmount = computed(() => {
 });
 
 const hasEnoughBalance = computed(() => {
-  if (!isNumericPositive(sendAmount.value) || !selectedAsset.value) {
+  if (!isInputsValid.value || !selectedAsset.value) {
     return true;
   }
 
@@ -269,61 +256,39 @@ const hasEnoughBalance = computed(() => {
   return amount <= tokenBalance;
 });
 
-const insufficientAmount = computed(() => {
-  if (!isNumericPositive(sendAmount.value) || !selectedAsset.value) {
-    return '0';
-  }
-
-  // Convert all values to base units (smallest unit) for comparison
-  const amountBase = toBase(sendAmount.value, selectedAsset.value.decimals);
-  const balanceBase = selectedAsset.value.balance || '0'; // balance is already in base units
-  const feeBase = toBase(fee.value, 9); // Fee is always in MAS
-
-  const amountNum = BigInt(amountBase);
-  const balanceNum = BigInt(balanceBase);
-  const feeNum = BigInt(feeBase);
-
-  // For MAS token, check if amount + fee <= balance
-  if (selectedAsset.value.symbol === 'MAS') {
-    const totalNeeded = amountNum + feeNum;
-    if (totalNeeded > balanceNum) {
-      const insufficientBase = totalNeeded - balanceNum;
-      return fromBase(insufficientBase.toString(), 9);
-    }
-  } else {
-    // For other tokens, only check if amount <= balance
-    if (amountNum > balanceNum) {
-      const insufficientBase = amountNum - balanceNum;
-      return fromBase(
-        insufficientBase.toString(),
-        selectedAsset.value.decimals,
-      );
-    }
-  }
-  return '0';
-});
-
 const sendButtonTitle = computed(() => {
   let title = 'Send';
-  if (
-    isNumericPositive(sendAmount.value) &&
-    parseFloat(sendAmount.value) > 0 &&
-    selectedAsset.value
-  ) {
-    title = 'Send ' + sendAmount.value + ' ' + selectedAsset.value.symbol;
+  if (isInputsValid.value) {
+    title = 'Send ' + sendAmount.value + ' ' + selectedAsset?.value?.symbol;
   }
   return title;
 });
 
+const hasValidDecimals = computed((): boolean => {
+  if (!selectedAsset.value) return false;
+  return isValidDecimals(sendAmount.value, selectedAsset.value.decimals);
+});
+
+const hasPositiveSendAmount = computed(() => {
+  return isNumericPositive(sendAmount.value);
+});
+
 const errorMsg = computed(() => {
-  // Check if address is invalid
+  if (!hasValidDecimals.value) {
+    return `Too many decimals.`;
+  }
+
+  if (!hasPositiveSendAmount.value) {
+    return `Invalid amount.`;
+  }
+
   if (
     addressTo.value &&
     addressTo.value.trim() !== '' &&
     network.value &&
     !(network.value as MassaNetwork).isValidAddress(addressTo.value)
   ) {
-    return 'Invalid to address.';
+    return `Invalid to address.`;
   }
 
   return '';
@@ -349,7 +314,7 @@ const isInputsValid = computed<boolean>(() => {
   }
 
   // Check if amount has valid decimals for the selected token
-  if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals)) {
+  if (!hasValidDecimals.value) {
     return false;
   }
 
@@ -364,8 +329,7 @@ const isInputsValid = computed<boolean>(() => {
     return false;
   }
 
-  const result = hasEnoughBalance.value;
-  return result;
+  return hasEnoughBalance.value;
 });
 
 // Watch for address changes to update token info
@@ -527,7 +491,7 @@ const setMaxValue = () => {
   }
 };
 
-const toggleSelector = (isTokenSend: boolean) => {
+const toggleSelector = () => {
   // Massa only supports token sending for now
 };
 
@@ -696,6 +660,32 @@ const sendAction = async () => {
     letter-spacing: 0.5px;
     color: @tertiaryLabel;
     margin: 0;
+  }
+}
+
+// Override send-input-amount size for Massa
+:deep(.send-input-amount) {
+  height: 80px;
+  padding: 12px 16px;
+
+  input {
+    width: 250px;
+    height: 32px;
+    font-size: 28px;
+    line-height: 32px;
+  }
+
+  &__fiat {
+    bottom: 12px;
+    left: 16px;
+  }
+
+  &__max {
+    top: 50%;
+    margin-top: -10px;
+    height: 20px;
+    line-height: 20px;
+    font-size: 10px;
   }
 }
 </style>
