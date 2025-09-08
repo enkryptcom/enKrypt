@@ -44,12 +44,12 @@
     "webextension-polyfill": "^0.12.0"
   },
   "devDependencies": {
-    "@types/node": "^22.18.0",
+    "@types/node": "^22.18.1",
     "@types/webextension-polyfill": "^0.12.3",
-    "@typescript-eslint/eslint-plugin": "^8.41.0",
-    "@typescript-eslint/parser": "^8.41.0",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
     "bumpp": "^10.2.3",
-    "eslint": "^9.34.0",
+    "eslint": "^9.35.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-alias": "^1.1.2",
@@ -61,6 +61,6 @@
     "tsup": "^8.5.0",
     "type-fest": "^4.41.0",
     "typescript": "^5.9.2",
-    "typescript-eslint": "8.41.0"
+    "typescript-eslint": "8.43.0"
   }
 }

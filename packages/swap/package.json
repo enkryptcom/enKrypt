@@ -24,7 +24,7 @@
   "dependencies": {
     "@enkryptcom/types": "workspace:^",
     "@enkryptcom/utils": "workspace:^",
-    "@solana/spl-token": "^0.4.13",
+    "@solana/spl-token": "^0.4.14",
     "@solana/web3.js": "^1.98.4",
     "bignumber.js": "^9.3.1",
     "eventemitter3": "^5.0.1",
@@ -39,10 +39,10 @@
     "ws": "^8.18.3"
   },
   "devDependencies": {
-    "@types/node": "^22.18.0",
-    "@typescript-eslint/eslint-plugin": "^8.41.0",
-    "@typescript-eslint/parser": "^8.41.0",
-    "eslint": "^9.34.0",
+    "@types/node": "^22.18.1",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
+    "eslint": "^9.35.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-alias": "^1.1.2",
@@ -53,7 +53,7 @@
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
-    "typescript-eslint": "8.41.0",
+    "typescript-eslint": "8.43.0",
     "vitest": "^3.2.4"
   },
   "repository": {
