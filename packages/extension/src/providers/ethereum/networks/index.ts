@@ -78,6 +78,8 @@ import conflux from './conflux';
 import hemi from './hemi';
 import coredao from './coredao';
 import appLayerTestnet from './applayer-testnet';
+import nibiru from './nibiru';
+import nibiruTestnet from './nibiru-testnet';
 
 export default {
   sepolia: sepoliaNode,
@@ -167,5 +169,7 @@ export default {
   conflux: conflux,
   hemi: hemi,
   coredao: coredao,
+  nibiru: nibiru,
+  nibiruTestnet: nibiruTestnet,
   appLayerTestnet: appLayerTestnet,
 };

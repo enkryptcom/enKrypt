@@ -119,6 +119,8 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 - Gravity
 - Unit Zero
 - Unit Zero Testnet
+- Nibiru
+- Nibiru Testnet
 - More coming soon!
 
 Looking to add your project? [Contact us!](https://mewwallet.typeform.com/enkrypt-inquiry?typeform-source=www.enkrypt.com)
@@ -141,6 +143,7 @@ To get started make sure you have `nodejs` and `nvm` installed on your system
 ### Prerequisites
 
 - npm
+
   ```sh
   nvm install 20
   nvm use 20
@@ -150,30 +153,40 @@ To get started make sure you have `nodejs` and `nvm` installed on your system
 ### Installation
 
 1. Clone the repo
+
    ```sh
    git clone https://github.com/enkryptcom/enKrypt.git
    ```
+
 2. Install NPM packages
+
    ```sh
    yarn install
    ```
+
 3. Build the project and watch for changes
+
    ```sh
    yarn watch-extension # chromium based browsers
    yarn watch:firefox # firefox
    ```
+
 4. Build the project for development and watch for changes
+
    ```sh
    yarn build:all
    cd packages/extension
    yarn watch
    ```
+
 5. Build the project for release (if you are Firefox team dont follow this)
+
    ```sh
    yarn build:all
    yarn build:chrome # chromium based browsers
    yarn build:firefox # firefox
    ```
+
 6. Build the project for release (For Firefox team)
 
    Since Firefox verification team looking for identical builds, you have to build it using docker
@@ -222,7 +235,7 @@ Distributed under the MIT License. See `LICENSE.md` for more information.
 
 Twitter - [@enkrypt](https://twitter.com/enkrypt)
 
-Email - info@enkrypt.com
+Email - <info@enkrypt.com>
 
 Homepage - [https://www.enkrypt.com/](https://www.enkrypt.com/)
 
