@@ -123,6 +123,7 @@ export interface SwapOptions {
 // eslint-disable-next-line no-shadow
 export enum ProviderName {
   oneInch = "oneInch",
+  oneInchFusion = "oneInchFusion",
   paraswap = "paraswap",
   zerox = "zerox",
   changelly = "changelly",
@@ -150,6 +151,7 @@ export interface getQuoteOptions {
 // eslint-disable-next-line no-shadow
 export enum TransactionType {
   evm = "evm",
+  typedMessage = "typedMessage",
   generic = "generic",
   solana = "solana",
 }
@@ -160,7 +162,7 @@ export interface EVMTransaction {
   to: string;
   value: string;
   data: string;
-  type: TransactionType.evm;
+  type: TransactionType.evm | TransactionType.typedMessage;
 }
 
 export interface SolanaTransaction {

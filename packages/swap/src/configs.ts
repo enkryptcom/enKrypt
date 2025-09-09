@@ -21,6 +21,16 @@ const FEE_CONFIGS: Partial<
       fee: 0.025,
     },
   },
+  [ProviderName.oneInchFusion]: {
+    [WalletIdentifier.enkrypt]: {
+      referrer: "0x551d9d8eb02e1c713009da8f7c194870d651054a",
+      fee: 0.00875,
+    },
+    [WalletIdentifier.mew]: {
+      referrer: "0x87A265C93D2A92C6EEEC002283bEaEbb4564Fd20",
+      fee: 0.025,
+    },
+  },
   [ProviderName.paraswap]: {
     [WalletIdentifier.enkrypt]: {
       referrer: "0x9d24aceac6fbfb3f7ff4c751217d41afc12f43b6",

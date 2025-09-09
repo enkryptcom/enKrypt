@@ -1,5 +1,7 @@
 import type Web3Eth from "web3-eth";
-import { numberToHex, toBN } from "web3-utils";
+import { toBN } from "web3-utils";
+import { Address, FusionSDK, QuoteParams } from "@1inch/fusion-sdk";
+import { Bps } from "@1inch/limit-order-sdk";
 import {
   EVMTransaction,
   getQuoteOptions,
@@ -22,67 +24,18 @@ import {
 import {
   DEFAULT_SLIPPAGE,
   FEE_CONFIGS,
-  GAS_LIMITS,
   NATIVE_TOKEN_ADDRESS,
 } from "../../configs";
-import { OneInchResponseType, OneInchSwapResponse } from "./types";
+import { OneInchSwapResponse } from "./types";
 import {
   getAllowanceTransactions,
   TOKEN_AMOUNT_INFINITY_AND_BEYOND,
 } from "../../utils/approvals";
 import estimateEVMGasList from "../../common/estimateGasList";
 import { isEVMAddress } from "../../utils/common";
+import { supportedNetworks } from "../oneInch";
 
-export const ONEINCH_APPROVAL_ADDRESS =
-  "0x111111125421ca6dc452d289314280a0f8842a65";
-export const supportedNetworks: {
-  [key in SupportedNetworkName]?: { approvalAddress: string; chainId: string };
-} = {
-  [SupportedNetworkName.Ethereum]: {
-    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
-    chainId: "1",
-  },
-  [SupportedNetworkName.Binance]: {
-    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
-    chainId: "56",
-  },
-  [SupportedNetworkName.Matic]: {
-    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
-    chainId: "137",
-  },
-  [SupportedNetworkName.Optimism]: {
-    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
-    chainId: "10",
-  },
-  [SupportedNetworkName.Avalanche]: {
-    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
-    chainId: "43114",
-  },
-  [SupportedNetworkName.Fantom]: {
-    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
-    chainId: "250",
-  },
-  [SupportedNetworkName.Gnosis]: {
-    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
-    chainId: "100",
-  },
-  [SupportedNetworkName.Arbitrum]: {
-    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
-    chainId: "42161",
-  },
-  [SupportedNetworkName.Base]: {
-    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
-    chainId: "8453",
-  },
-  [SupportedNetworkName.Zksync]: {
-    approvalAddress: "0x6fd4383cb451173d5f9304f041c7bcbf27d561ff",
-    chainId: "324",
-  },
-};
-
-const BASE_URL = "https://partners.mewapi.io/oneinch/v6.0/";
-
-class OneInch extends ProviderClass {
+class OneInchFusion extends ProviderClass {
   tokenList: TokenType[];
 
   network: SupportedNetworkName;
@@ -95,18 +48,24 @@ class OneInch extends ProviderClass {
 
   toTokens: ProviderToTokenResponse;
 
+  fusionSdk: FusionSDK;
+
   constructor(web3eth: Web3Eth, network: SupportedNetworkName) {
     super();
     this.network = network;
     this.tokenList = [];
     this.web3eth = web3eth;
-    this.name = ProviderName.oneInch;
+    this.name = ProviderName.oneInchFusion;
     this.fromTokens = {};
     this.toTokens = {};
   }
 
   init(tokenList: TokenType[]): Promise<void> {
-    if (!OneInch.isSupported(this.network)) return;
+    if (!OneInchFusion.isSupported(this.network)) return;
+    this.fusionSdk = new FusionSDK({
+      network: Number(supportedNetworks[this.network].chainId),
+      url: "https://fusion.1inch.io",
+    });
     tokenList.forEach((t) => {
       this.fromTokens[t.address] = t;
       if (!this.toTokens[this.network]) this.toTokens[this.network] = {};
@@ -150,67 +109,46 @@ class OneInch extends ProviderClass {
     accurateEstimate: boolean,
   ): Promise<OneInchSwapResponse | null> {
     if (
-      !OneInch.isSupported(
+      !OneInchFusion.isSupported(
         options.toToken.networkInfo.name as SupportedNetworkName,
       ) ||
       this.network !== options.toToken.networkInfo.name
     )
       return Promise.resolve(null);
-    const feeConfig = FEE_CONFIGS[this.name][meta.walletIdentifier];
-    const params = new URLSearchParams({
-      src: options.fromToken.address,
-      dst: options.toToken.address,
-      amount: options.amount.toString(),
-      from: options.fromAddress,
-      receiver: options.toAddress,
-      slippage: meta.slippage ? meta.slippage : DEFAULT_SLIPPAGE,
-      fee: feeConfig ? (feeConfig.fee * 100).toFixed(3) : "0",
-      referrer: feeConfig ? feeConfig.referrer : "",
-      disableEstimate: "true",
-    });
-    return fetch(
-      `${BASE_URL}${
-        supportedNetworks[this.network].chainId
-      }/swap?${params.toString()}`,
+    if (
+      options.fromAddress.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
     )
-      .then((res) => res.json())
-      .then(async (response: OneInchResponseType) => {
-        // OneInch gives us the swap transaction info for us to send
-        // but we might need to set approvals first so our spender address
-        // can perform the swap
+      return Promise.resolve(null);
 
-        if (response.error) {
-          console.error(response.error, response.description);
-          return Promise.resolve(null);
-        }
-
-        /** Transactions to perform in-order for the swap */
+    const feeConfig = FEE_CONFIGS[this.name][meta.walletIdentifier];
+    const quoteParams: QuoteParams = {
+      amount: options.amount.toString(),
+      fromTokenAddress: options.fromToken.address,
+      toTokenAddress: options.toToken.address,
+      enableEstimate: false,
+      isPermit2: false,
+    };
+    if (feeConfig) {
+      quoteParams.source = meta.walletIdentifier;
+      quoteParams.integratorFee = {
+        receiver: new Address(feeConfig.referrer),
+        value: Bps.fromPercent(Math.floor(feeConfig.fee * 100)),
+        share: Bps.fromPercent(100),
+      };
+    }
+    return this.fusionSdk
+      .getQuote(quoteParams)
+      .then(async (quote) => {
         const transactions: EVMTransaction[] = [];
-
-        if (options.fromToken.address !== NATIVE_TOKEN_ADDRESS) {
-          // Prepare to grant our `approvalAddress` approval to spend
-          // `fromToken` on behalf of `fromAddress`
-          const approvalTxs = await getAllowanceTransactions({
-            infinityApproval: meta.infiniteApproval,
-            spender: supportedNetworks[this.network].approvalAddress,
-            web3eth: this.web3eth,
-            amount: options.amount,
-            fromAddress: options.fromAddress,
-            fromToken: options.fromToken,
-          });
-          transactions.push(...approvalTxs);
-        }
-
-        // Prepare the actual swap transaction
-        transactions.push({
-          from: options.fromAddress,
-          gasLimit: GAS_LIMITS.swap,
-          to: response.tx.to,
-          value: numberToHex(response.tx.value),
-          data: response.tx.data,
-          type: TransactionType.evm,
+        const approvalTxs = await getAllowanceTransactions({
+          infinityApproval: meta.infiniteApproval,
+          spender: supportedNetworks[this.network].approvalAddress,
+          web3eth: this.web3eth,
+          amount: options.amount,
+          fromAddress: options.fromAddress,
+          fromToken: options.fromToken,
         });
-
+        transactions.push(...approvalTxs);
         if (accurateEstimate) {
           const accurateGasEstimate = await estimateEVMGasList(
             transactions,
@@ -223,15 +161,37 @@ class OneInch extends ProviderClass {
             });
           }
         }
+        const chainId = Number(supportedNetworks[this.network].chainId);
+        const fusionOrder = quote.createFusionOrder({
+          network: chainId,
+          preset: quote.recommendedPreset,
+          receiver: new Address(options.toAddress),
+        });
+        const orderStruct = fusionOrder.build();
+        const typedMessage = fusionOrder.getTypedData(chainId);
+        const typeTx: EVMTransaction = {
+          data: JSON.stringify(typedMessage),
+          from: "",
+          gasLimit: "0",
+          to: "",
+          type: TransactionType.typedMessage,
+          value: "0",
+        };
+        transactions.push(typeTx);
         return {
           transactions,
-          toTokenAmount: toBN(response.dstAmount),
+          toTokenAmount: toBN(
+            quote.presets[quote.recommendedPreset].auctionEndAmount.toString(),
+          ),
           fromTokenAmount: options.amount,
+          orderStruct: JSON.stringify(orderStruct),
+          quoteId: quote.quoteId,
+          orderHash: fusionOrder.getOrderHash(chainId),
         };
       })
       .catch((e) => {
         console.error(e);
-        return Promise.resolve(null);
+        return null;
       });
   }
 
@@ -278,7 +238,12 @@ class OneInch extends ProviderClass {
         getStatusObject: async (
           options: StatusOptions,
         ): Promise<StatusOptionsResponse> => ({
-          options,
+          options: {
+            ...options,
+            orderStruct: res.orderStruct,
+            orderHash: res.orderHash,
+            quoteId: res.quoteId,
+          },
           provider: this.name,
         }),
       };
@@ -303,4 +268,4 @@ class OneInch extends ProviderClass {
   }
 }
 
-export default OneInch;
+export default OneInchFusion;
