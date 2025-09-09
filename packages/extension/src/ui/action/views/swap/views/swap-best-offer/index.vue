@@ -143,6 +143,7 @@ import {
   ProviderSwapResponse,
   SupportedNetworkName,
   SwapToken,
+  TransactionType,
 } from '@enkryptcom/swap';
 import PublicKeyRing from '@/libs/keyring/public-keyring';
 import { SwapData, ProviderResponseWithStatus } from '../../types';
@@ -260,6 +261,7 @@ const getTransactionFees = async (
   networkName: SupportedNetworkName,
   trade: ProviderResponseWithStatus,
 ): Promise<Partial<GasFeeType>> => {
+  console.log(trade);
   const transactionObjects = await getSwapTransactions(
     networkName,
     trade.transactions,

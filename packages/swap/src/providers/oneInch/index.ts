@@ -15,6 +15,7 @@ import {
   StatusOptionsResponse,
   SupportedNetworkName,
   SwapQuote,
+  SwapType,
   TokenType,
   TransactionStatus,
   TransactionType,
@@ -270,6 +271,7 @@ class OneInch extends ProviderClass {
       const response: ProviderSwapResponse = {
         fromTokenAmount: res.fromTokenAmount,
         provider: this.name,
+        type: SwapType.regular,
         toTokenAmount: res.toTokenAmount,
         transactions: res.transactions,
         additionalNativeFees: toBN(0),

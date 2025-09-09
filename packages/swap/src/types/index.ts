@@ -151,9 +151,13 @@ export interface getQuoteOptions {
 // eslint-disable-next-line no-shadow
 export enum TransactionType {
   evm = "evm",
-  typedMessage = "typedMessage",
   generic = "generic",
   solana = "solana",
+}
+
+export enum SwapType {
+  regular = "regular",
+  rfq = "rfq",
 }
 
 export interface EVMTransaction {
@@ -162,7 +166,7 @@ export interface EVMTransaction {
   to: string;
   value: string;
   data: string;
-  type: TransactionType.evm | TransactionType.typedMessage;
+  type: TransactionType.evm;
 }
 
 export interface SolanaTransaction {
@@ -232,6 +236,11 @@ export type StatusOptionTransaction = {
   sentAt: number;
 };
 
+export interface RFQOptions {
+  [key: string]: any;
+  signatures?: string[];
+}
+
 export interface StatusOptions {
   [key: string]: any;
   transactions: StatusOptionTransaction[];
@@ -242,10 +251,17 @@ export interface StatusOptionsResponse {
   provider: ProviderName;
 }
 
+export interface RFQOptionsResponse {
+  options: RFQOptions;
+  provider: ProviderName;
+}
+
 export interface ProviderSwapResponse {
   transactions: SwapTransaction[];
   toTokenAmount: BN;
   fromTokenAmount: BN;
+  type: SwapType;
+  typedMessages?: string[];
   /**
    * Additional native currency that has to be paid for the transaction
    * For example Changelly bridging fees, Solana rent fees
@@ -256,6 +272,7 @@ export interface ProviderSwapResponse {
   /** Percentage fee 0-1 (100 * basis points) */
   fee: number;
   getStatusObject: (options: StatusOptions) => Promise<StatusOptionsResponse>;
+  getRFQObject?: () => Promise<RFQOptions>;
 }
 
 export type ProviderFromTokenResponse = Record<string, TokenType>;
@@ -299,4 +316,8 @@ export abstract class ProviderClass {
   ): Promise<ProviderSwapResponse | null>;
 
   abstract getStatus(options: StatusOptions): Promise<TransactionStatus>;
+}
+
+export abstract class ProviderWithRFQ extends ProviderClass {
+  abstract submitRFQOrder(options: RFQOptions): Promise<boolean>;
 }
