@@ -64,7 +64,7 @@
         :amount="amount"
         :fiat-value="tokenPrice"
         :has-enough-balance="
-          hasEnoughBalance && hasValidDecimals && hasPositiveSendAmount
+          hasValidDecimals && hasEnoughBalance && hasPositiveSendAmount
         "
         :show-max="true"
         @update:input-amount="inputAmount"
@@ -72,7 +72,12 @@
       />
 
       <send-alert
-        v-show="!hasEnoughBalance && amount && parseFloat(amount) > 0"
+        v-show="
+          hasValidDecimals &&
+          !hasEnoughBalance &&
+          amount &&
+          parseFloat(amount) > 0
+        "
         :error-msg="'Not enough funds.'"
       />
 
@@ -240,7 +245,9 @@ const hasEnoughBalance = computed(() => {
   if (!selectedAsset.value || !sendAmount.value || sendAmount.value === '') {
     return true;
   }
-
+  if (!hasValidDecimals.value) {
+    return false;
+  }
   const amount = BigInt(toBase(sendAmount.value, selectedAsset.value.decimals));
   const tokenBalance = BigInt(selectedAsset.value.balance || '0');
   const masBalance = BigInt(toBase(accountBalance.value, 9));
