@@ -673,6 +673,7 @@ const sendAction = async () => {
     }
 
     &[type='number'] {
+      appearance: textfield;
       -moz-appearance: textfield;
     }
   }
