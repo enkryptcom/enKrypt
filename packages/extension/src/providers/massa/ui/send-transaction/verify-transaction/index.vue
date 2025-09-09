@@ -275,21 +275,12 @@ const sendAction = async () => {
       });
     }
 
-    if (getCurrentContext() === 'popup') {
-      setTimeout(() => {
-        showOperationId.value = false;
-        isProcessing.value = false;
-        callToggleRate();
-        router.push({ name: 'activity', params: { id: network.value.name } });
-      }, 4000);
-    } else {
-      setTimeout(() => {
-        showOperationId.value = false;
-        isProcessing.value = false;
-        callToggleRate();
-        window.close();
-      }, 3000);
-    }
+    setTimeout(() => {
+      showOperationId.value = false;
+      isProcessing.value = false;
+      callToggleRate();
+      router.push({ name: 'activity', params: { id: network.value.name } });
+    }, 4000);
   } catch (error) {
     isProcessing.value = false;
     errorMsg.value = (error as any).error

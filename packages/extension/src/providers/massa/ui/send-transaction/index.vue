@@ -233,11 +233,11 @@ const feeFiatValue = computed(() => {
 
 const sendAmount = computed(() => {
   if (amount.value && amount.value !== '') return amount.value;
-  return '0';
+  return '';
 });
 
 const hasEnoughBalance = computed(() => {
-  if (!isInputsValid.value || !selectedAsset.value) {
+  if (!selectedAsset.value || !sendAmount.value || sendAmount.value === '') {
     return true;
   }
 
@@ -266,19 +266,25 @@ const sendButtonTitle = computed(() => {
 
 const hasValidDecimals = computed((): boolean => {
   if (!selectedAsset.value) return false;
+  if (sendAmount.value === '') return true; // Empty amount is valid
   return isValidDecimals(sendAmount.value, selectedAsset.value.decimals);
 });
 
 const hasPositiveSendAmount = computed(() => {
-  return isNumericPositive(sendAmount.value);
+  return sendAmount.value !== '' && isNumericPositive(sendAmount.value);
 });
 
 const errorMsg = computed(() => {
-  if (!hasValidDecimals.value) {
+  // Only show decimal validation errors if an asset is selected
+  if (selectedAsset.value && !hasValidDecimals.value) {
     return `Too many decimals.`;
   }
 
-  if (!hasPositiveSendAmount.value) {
+  if (
+    !hasPositiveSendAmount.value &&
+    sendAmount.value !== '0' &&
+    sendAmount.value !== ''
+  ) {
     return `Invalid amount.`;
   }
 
@@ -313,19 +319,24 @@ const isInputsValid = computed<boolean>(() => {
     return false;
   }
 
+  // Check if amount is provided and not empty
+  if (!sendAmount.value || sendAmount.value.trim() === '') {
+    return false;
+  }
+
   // Check if amount has valid decimals for the selected token
   if (!hasValidDecimals.value) {
     return false;
   }
 
-  // Check if amount is a valid number
-  const amountNum = parseFloat(sendAmount.value);
-  if (isNaN(amountNum)) {
+  // Check if amount is a valid positive number
+  if (!hasPositiveSendAmount.value) {
     return false;
   }
 
-  // Check if amount is greater than 0
-  if (amountNum <= 0) {
+  // Check if amount is greater than 0 using BigNumber for precision
+  const amountBN = new BigNumber(sendAmount.value);
+  if (amountBN.lte(0)) {
     return false;
   }
 
@@ -452,10 +463,17 @@ const selectAccountFrom = (account: string) => {
 
 const inputAmount = (inputAmount: string) => {
   if (inputAmount === '') {
-    inputAmount = '0';
+    amount.value = '';
+    return;
   }
   const inputAmountBn = new BigNumber(inputAmount);
-  amount.value = inputAmountBn.lt(0) ? '0' : inputAmount;
+  if (inputAmountBn.isNaN()) {
+    // Keep the current valid amount if input is invalid
+    return;
+  }
+
+  // Only allow positive amounts or empty string
+  amount.value = inputAmountBn.lt(0) ? '' : inputAmount;
 };
 
 const setMaxValue = () => {

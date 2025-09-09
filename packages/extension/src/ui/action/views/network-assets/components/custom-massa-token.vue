@@ -110,8 +110,9 @@ import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
 import Tooltip from '@/ui/action/components/tooltip/index.vue';
 import BigNumber from 'bignumber.js';
 import { BaseNetwork } from '@/types/base-network';
-import { Address, MRC20 } from '@massalabs/massa-web3';
+import { MRC20 } from '@massalabs/massa-web3';
 import MassaAPI from '../../../../../providers/massa/libs/api';
+import { MassaNetwork } from '../../../../../providers/massa/networks/massa-base';
 
 interface IProps {
   network: BaseNetwork;
@@ -135,12 +136,9 @@ const isFocus = ref(false);
 
 const isValidAddress = computed(() => {
   if (contractAddress.value) {
-    try {
-      Address.fromString(contractAddress.value);
-      return true;
-    } catch (error) {
-      return false;
-    }
+    return (props.network as MassaNetwork).isValidAddress(
+      contractAddress.value,
+    );
   }
   return false;
 });
@@ -188,7 +186,7 @@ const fetchTokenInfo = async () => {
         contractAddress.value,
       );
       accountBalance.value = balance;
-    } catch (balanceError) {
+    } catch (_error) {
       accountBalance.value = '0';
     }
 
@@ -206,7 +204,7 @@ const addToken = async () => {
 
   try {
     // Add token to state
-    await tokensState.addMassaToken(props.network.name, toRaw(tokenInfo.value));
+    await tokensState.addErc20Token(props.network.name, toRaw(tokenInfo.value));
 
     // Create asset for UI
     const balanceFormatted = fromBase(

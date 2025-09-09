@@ -222,12 +222,24 @@ const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {
   } else if (props.network.provider === ProviderName.massa) {
     if (!info) return;
     const massaInfo = info as MassaRawInfo;
-    if (isActivityUpdating) return;
-    activity.status =
+    if (isActivityUpdating || massaInfo === OperationStatus.PendingInclusion)
+      return;
+
+    let status = ActivityStatus.failed;
+    // if the transaction is not found, and it's been less than 1 minute, wait for it to be processed
+    if (
+      massaInfo === OperationStatus.NotFound &&
+      Date.now() < activity.timestamp + 60_000
+    ) {
+      return;
+    } else if (
       massaInfo === OperationStatus.Success ||
       massaInfo === OperationStatus.SpeculativeSuccess
-        ? ActivityStatus.success
-        : ActivityStatus.failed;
+    ) {
+      status = ActivityStatus.success;
+    }
+
+    activity.status = status;
     activity.rawInfo = massaInfo;
     updateActivitySync(activity).then(() => updateVisibleActivity(activity));
   }
