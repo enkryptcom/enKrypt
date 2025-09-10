@@ -37,7 +37,7 @@
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
     "typescript-eslint": "8.43.0",
-    "viem": "^2.37.4",
+    "viem": "^2.37.5",
     "vitest": "^3.2.4"
   },
   "repository": {
