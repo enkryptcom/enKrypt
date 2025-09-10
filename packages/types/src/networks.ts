@@ -107,6 +107,8 @@ export enum NetworkNames {
   Hemi = "Hemi",
   CoreDAO = "CORE",
   AppLayerTestnet = "AppLayerTestnet",
+  Nibiru = "Nibiru",
+  NibiruTestnet = "NibiruTestnet",
   TAC = "TAC",
 }
 
@@ -177,4 +179,5 @@ export enum CoingeckoPlatform {
   UnitZero = "units-network",
   Conflux = "conflux",
   CoreDAO = "core",
+  Nibiru = "nibiru",
 }
