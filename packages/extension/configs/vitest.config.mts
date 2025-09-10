@@ -6,23 +6,26 @@ export default defineConfig({
   plugins: [
     tsconfigPaths() as any,
     nodePolyfills({
-      include: [
-        'crypto',
-        // ... include other Node.js modules if needed
-      ],
+      include: ['crypto'],
     }),
   ],
   define: {
-    // setting __VERSION__ here blows it up for some reason
-    // __VERSION__: 'testing',
     __IS_OPERA__: false,
   },
   test: {
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
-    include: [
-      'src/**/*.{test,spec}.ts',
-      'tests/**/*.{test,spec}.ts',
+    include: ['src/**/*.{test,spec}.ts', 'tests/**/*.{test,spec}.ts'],
+  },
+  resolve: {
+    alias: [
+      {
+        find: /^(vite-plugin-node-polyfills\/shims\/.+)/,
+        replacement: '$1',
+        customResolver(source) {
+          return import.meta.resolve(source).replace(/^file:\/\//, '');
+        },
+      },
     ],
   },
 });
