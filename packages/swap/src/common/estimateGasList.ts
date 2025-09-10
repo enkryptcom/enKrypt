@@ -8,12 +8,6 @@ const supportedNetworks: {
   [SupportedNetworkName.Ethereum]: {
     url: "https://estimategas.mewapi.io/eth",
   },
-  [SupportedNetworkName.Binance]: {
-    url: "https://estimategas.mewapi.io/bsc",
-  },
-  [SupportedNetworkName.Matic]: {
-    url: "https://estimategas.mewapi.io/matic",
-  },
   [SupportedNetworkName.Arbitrum]: {
     url: "https://nodes.mewapi.io/rpc/arb",
   },
