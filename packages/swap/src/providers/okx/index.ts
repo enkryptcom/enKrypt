@@ -854,12 +854,9 @@ export class OKX extends ProviderClass {
           }
 
           let transaction: Transaction | VersionedTransaction;
-          let transactionType = "unknown";
 
           try {
             transaction = VersionedTransaction.deserialize(buffer);
-            transactionType = "versioned";
-
             try {
               // Check if this is a versioned transaction with address lookup tables
               if (

@@ -24,11 +24,11 @@ const FEE_CONFIGS: Partial<
   [ProviderName.oneInchFusion]: {
     [WalletIdentifier.enkrypt]: {
       referrer: "0x551d9d8eb02e1c713009da8f7c194870d651054a",
-      fee: 0.00875,
+      fee: 88,
     },
     [WalletIdentifier.mew]: {
       referrer: "0x87A265C93D2A92C6EEEC002283bEaEbb4564Fd20",
-      fee: 0.025,
+      fee: 250,
     },
   },
   [ProviderName.paraswap]: {
@@ -131,6 +131,7 @@ const GAS_LIMITS = {
   approval: numberToHex(300000),
   transferToken: numberToHex(300000),
   swap: numberToHex(1000000),
+  Wrap: numberToHex(70000),
 };
 const NATIVE_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 

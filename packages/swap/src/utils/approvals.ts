@@ -1,6 +1,7 @@
 import Web3Eth from "web3-eth";
-import { toBN } from "web3-utils";
+import { numberToHex, toBN } from "web3-utils";
 import Erc20abi from "./abi/erc20";
+import Wrappedabi from "./abi/wrapper";
 import { BN, EVMTransaction, TokenType, TransactionType } from "../types";
 import { GAS_LIMITS } from "../configs";
 
@@ -66,12 +67,29 @@ const getApproval = (options: {
   };
 };
 
+const getNativeWrapTx = (options: {
+  from: string;
+  contract: string;
+  value: BN;
+}): EVMTransaction => {
+  const web3Eth = new Web3Eth();
+  const contract = new web3Eth.Contract(Wrappedabi as any);
+  return {
+    from: options.from,
+    data: contract.methods.deposit().encodeABI(),
+    gasLimit: GAS_LIMITS.Wrap,
+    to: options.contract,
+    value: numberToHex(options.value),
+    type: TransactionType.evm,
+  };
+};
+
 /**
  * Prepare transactions to approval of `spender` to spend `fromToken`
  * on behalf of `fromAddress`
  */
 const getAllowanceTransactions = async (options: {
-  fromToken: TokenType;
+  fromToken: { address: string };
   fromAddress: string;
   spender: string;
   web3eth: Web3Eth;
@@ -130,4 +148,10 @@ const getAllowanceTransactions = async (options: {
   }
   return transactions;
 };
-export { getAllowance, getApproval, getAllowanceTransactions, getTransfer };
+export {
+  getAllowance,
+  getApproval,
+  getAllowanceTransactions,
+  getTransfer,
+  getNativeWrapTx,
+};

@@ -36,6 +36,9 @@ import type {
   StatusOptionsResponse,
   StatusOptions,
   ProviderClass,
+  RFQOptions,
+  RFQOptionsResponse,
+  ProviderWithRFQ,
 } from "./types";
 import {
   SupportedNetworkName,
@@ -240,6 +243,11 @@ class Swap extends EventEmitter {
   getStatus(options: StatusOptionsResponse): Promise<TransactionStatus | null> {
     const provider = this.providers.find((p) => p.name === options.provider);
     return provider.getStatus(options.options);
+  }
+
+  submitRFQOrder(options: RFQOptionsResponse): Promise<string> {
+    const provider = this.providers.find((p) => p.name === options.provider);
+    return (provider as ProviderWithRFQ).submitRFQOrder(options.options);
   }
 
   static networkNameToInfo(networkName: SupportedNetworkName): NetworkInfo {

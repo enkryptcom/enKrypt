@@ -272,7 +272,7 @@ export interface ProviderSwapResponse {
   /** Percentage fee 0-1 (100 * basis points) */
   fee: number;
   getStatusObject: (options: StatusOptions) => Promise<StatusOptionsResponse>;
-  getRFQObject?: () => Promise<RFQOptions>;
+  getRFQObject?: () => Promise<RFQOptionsResponse>;
 }
 
 export type ProviderFromTokenResponse = Record<string, TokenType>;
@@ -319,5 +319,5 @@ export abstract class ProviderClass {
 }
 
 export abstract class ProviderWithRFQ extends ProviderClass {
-  abstract submitRFQOrder(options: RFQOptions): Promise<boolean>;
+  abstract submitRFQOrder(options: RFQOptions): Promise<string>;
 }

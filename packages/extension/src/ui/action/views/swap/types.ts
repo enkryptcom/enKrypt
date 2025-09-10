@@ -10,7 +10,7 @@ import {
   StatusOptionsResponse,
   SolanaTransaction,
 } from '@enkryptcom/swap';
-import { RFQOptions } from '@enkryptcom/swap/src/types';
+import { RFQOptionsResponse } from '@enkryptcom/swap/src/types';
 import { EnkryptAccount } from '@enkryptcom/types';
 export enum SWAP_LOADING {
   LOADING = 'loading',
@@ -31,7 +31,7 @@ export interface SwapData {
 
 export interface ProviderResponseWithStatus extends ProviderSwapResponse {
   status?: StatusOptionsResponse;
-  rfqOptions?: RFQOptions;
+  rfqOptions?: RFQOptionsResponse;
 }
 
 export enum SwapBestOfferWarnings {

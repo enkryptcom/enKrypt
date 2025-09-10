@@ -5,6 +5,8 @@ import {
   FusionSDK,
   QuoteParams,
   RelayerRequest,
+  CHAIN_TO_WRAPPER,
+  OrderStatus,
 } from "@1inch/fusion-sdk";
 import { Bps } from "@1inch/limit-order-sdk";
 import {
@@ -19,6 +21,7 @@ import {
   ProviderWithRFQ,
   QuoteMetaOptions,
   RFQOptions,
+  RFQOptionsResponse,
   StatusOptions,
   StatusOptionsResponse,
   SupportedNetworkName,
@@ -35,6 +38,7 @@ import {
 import { OneInchSwapResponse } from "./types";
 import {
   getAllowanceTransactions,
+  getNativeWrapTx,
   TOKEN_AMOUNT_INFINITY_AND_BEYOND,
 } from "../../utils/approvals";
 import estimateEVMGasList from "../../common/estimateGasList";
@@ -121,16 +125,20 @@ class OneInchFusion extends ProviderWithRFQ {
       this.network !== options.toToken.networkInfo.name
     )
       return Promise.resolve(null);
+    let isFromNative = false;
     if (
       options.fromToken.address.toLowerCase() ===
       NATIVE_TOKEN_ADDRESS.toLowerCase()
     )
-      return Promise.resolve(null);
+      isFromNative = true;
 
     const feeConfig = FEE_CONFIGS[this.name][meta.walletIdentifier];
+    const chainId = Number(supportedNetworks[this.network].chainId);
     const quoteParams: QuoteParams = {
       amount: options.amount.toString(),
-      fromTokenAddress: options.fromToken.address,
+      fromTokenAddress: isFromNative
+        ? CHAIN_TO_WRAPPER[chainId].toString()
+        : options.fromToken.address,
       toTokenAddress: options.toToken.address,
       enableEstimate: false,
       isPermit2: false,
@@ -139,7 +147,7 @@ class OneInchFusion extends ProviderWithRFQ {
       quoteParams.source = meta.walletIdentifier;
       quoteParams.integratorFee = {
         receiver: new Address(feeConfig.referrer),
-        value: Bps.fromPercent(Math.floor(feeConfig.fee * 100)),
+        value: new Bps(BigInt(feeConfig.fee)),
         share: Bps.fromPercent(100),
       };
     }
@@ -155,6 +163,15 @@ class OneInchFusion extends ProviderWithRFQ {
             ? Number(meta.slippage)
             : Number(DEFAULT_SLIPPAGE),
         });
+        console.log({
+          ...quoteParams,
+          preset: quote.recommendedPreset,
+          walletAddress: options.fromAddress,
+          receiver: options.toAddress,
+          slippage: meta.slippage
+            ? Number(meta.slippage)
+            : Number(DEFAULT_SLIPPAGE),
+        });
         const transactions: EVMTransaction[] = [];
         const approvalTxs = await getAllowanceTransactions({
           infinityApproval: meta.infiniteApproval,
@@ -162,9 +179,20 @@ class OneInchFusion extends ProviderWithRFQ {
           web3eth: this.web3eth,
           amount: options.amount,
           fromAddress: options.fromAddress,
-          fromToken: options.fromToken,
+          fromToken: isFromNative
+            ? { address: CHAIN_TO_WRAPPER[chainId].toString() }
+            : options.fromToken,
         });
         transactions.push(...approvalTxs);
+        if (isFromNative) {
+          transactions.push(
+            getNativeWrapTx({
+              from: options.fromAddress,
+              contract: CHAIN_TO_WRAPPER[chainId].toString(),
+              value: options.amount,
+            }),
+          );
+        }
         if (accurateEstimate) {
           const accurateGasEstimate = await estimateEVMGasList(
             transactions,
@@ -177,7 +205,6 @@ class OneInchFusion extends ProviderWithRFQ {
             });
           }
         }
-        const chainId = Number(supportedNetworks[this.network].chainId);
         const orderStruct = order.order.build();
         const typedMessage = order.order.getTypedData(chainId);
         return {
@@ -194,7 +221,7 @@ class OneInchFusion extends ProviderWithRFQ {
         };
       })
       .catch((e) => {
-        console.error(e);
+        console.error(e, "herere");
         return null;
       });
   }
@@ -241,16 +268,19 @@ class OneInchFusion extends ProviderWithRFQ {
         additionalNativeFees: toBN(0),
         slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
         fee: feeConfig * 100,
-        getRFQObject: async (): Promise<RFQOptions> => ({
-          orderStruct: res.orderStruct,
-          orderHash: res.orderHash,
-          quoteId: res.quoteId,
-          extension: res.extension,
+        getRFQObject: async (): Promise<RFQOptionsResponse> => ({
+          options: {
+            orderStruct: res.orderStruct,
+            orderHash: res.orderHash,
+            quoteId: res.quoteId,
+            extension: res.extension,
+          },
+          provider: this.name,
         }),
         getStatusObject: async (
           options: StatusOptions,
         ): Promise<StatusOptionsResponse> => ({
-          options,
+          options: { ...options, orderHash: res.orderHash },
           provider: this.name,
         }),
       };
@@ -259,22 +289,19 @@ class OneInchFusion extends ProviderWithRFQ {
   }
 
   getStatus(options: StatusOptions): Promise<TransactionStatus> {
-    const promises = options.transactions.map(({ hash }) =>
-      this.web3eth.getTransactionReceipt(hash),
-    );
-    return Promise.all(promises).then((receipts) => {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const receipt of receipts) {
-        if (!receipt || (receipt && !receipt.blockNumber)) {
-          return TransactionStatus.pending;
-        }
-        if (receipt && !receipt.status) return TransactionStatus.failed;
+    return this.fusionSdk.getOrderStatus(options.orderHash).then((status) => {
+      if (status.status === OrderStatus.Filled)
+        return TransactionStatus.success;
+      if (status.status === OrderStatus.Pending)
+        return TransactionStatus.pending;
+      else {
+        return TransactionStatus.failed;
       }
-      return TransactionStatus.success;
     });
   }
 
-  submitRFQOrder(options: RFQOptions): Promise<boolean> {
+  submitRFQOrder(options: RFQOptions): Promise<string> {
+    console.log(options);
     if (!options.signatures || !options.signatures.length)
       throw new Error("OneInchFusion: No signatures found");
     const relayRequest = RelayerRequest.new({
@@ -283,13 +310,9 @@ class OneInchFusion extends ProviderWithRFQ {
       quoteId: (options as any).quoteId,
       signature: options.signatures[0],
     });
-    return this.fusionSdk.api
-      .submitOrder(relayRequest)
-      .then(() => true)
-      .catch((e) => {
-        console.error(e);
-        return false;
-      });
+    return this.fusionSdk.api.submitOrder(relayRequest).then(() => {
+      return (options as any).orderHash as string;
+    });
   }
 }
 
