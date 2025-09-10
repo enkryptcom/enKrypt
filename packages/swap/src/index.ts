@@ -36,7 +36,6 @@ import type {
   StatusOptionsResponse,
   StatusOptions,
   ProviderClass,
-  RFQOptions,
   RFQOptionsResponse,
   ProviderWithRFQ,
 } from "./types";
