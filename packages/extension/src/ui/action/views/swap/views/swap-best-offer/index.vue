@@ -405,7 +405,7 @@ const isDisabled = computed(() => {
     (warning.value !== SwapBestOfferWarnings.NONE &&
       warning.value !== SwapBestOfferWarnings.BAD_PRICE) ||
     !gasTier ||
-    gasTier.nativeValue === '0'
+    (gasTier.nativeValue === '0' && pickedTrade.value.transactions.length)
   ) {
     return true;
   }
@@ -487,7 +487,7 @@ const sendAction = async () => {
           timestamp: new Date().getTime(),
           type: ActivityType.swap,
           value: pickedTrade.value.toTokenAmount.toString(),
-          transactionHash: `${txs[0].hash}-swap`,
+          transactionHash: `${pickedTrade.value.type === SwapType.regular ? txs[0].hash : pickedTrade.value.rfqOptions!.options.orderHash}-swap`,
           rawInfo: JSON.parse(JSON.stringify(swapRaw)),
         };
         const activityState = new ActivityState();

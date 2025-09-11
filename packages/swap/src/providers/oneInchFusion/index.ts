@@ -39,6 +39,7 @@ import { OneInchSwapResponse } from "./types";
 import {
   getAllowanceTransactions,
   getNativeWrapTx,
+  isSufficientWrappedAvailable,
   TOKEN_AMOUNT_INFINITY_AND_BEYOND,
 } from "../../utils/approvals";
 import estimateEVMGasList from "../../common/estimateGasList";
@@ -185,13 +186,23 @@ class OneInchFusion extends ProviderWithRFQ {
         });
         transactions.push(...approvalTxs);
         if (isFromNative) {
-          transactions.push(
-            getNativeWrapTx({
+          const isEnoughWrapped = await isSufficientWrappedAvailable(
+            {
               from: options.fromAddress,
               contract: CHAIN_TO_WRAPPER[chainId].toString(),
               value: options.amount,
-            }),
+            },
+            this.web3eth,
           );
+          if (!isEnoughWrapped) {
+            transactions.push(
+              getNativeWrapTx({
+                from: options.fromAddress,
+                contract: CHAIN_TO_WRAPPER[chainId].toString(),
+                value: options.amount,
+              }),
+            );
+          }
         }
         if (accurateEstimate) {
           const accurateGasEstimate = await estimateEVMGasList(

@@ -2,7 +2,7 @@ import Web3Eth from "web3-eth";
 import { numberToHex, toBN } from "web3-utils";
 import Erc20abi from "./abi/erc20";
 import Wrappedabi from "./abi/wrapper";
-import { BN, EVMTransaction, TokenType, TransactionType } from "../types";
+import { BN, EVMTransaction, TransactionType } from "../types";
 import { GAS_LIMITS } from "../configs";
 
 export const TOKEN_AMOUNT_INFINITY_AND_BEYOND =
@@ -65,6 +65,23 @@ const getApproval = (options: {
     value: "0x0",
     type: TransactionType.evm,
   };
+};
+
+const isSufficientWrappedAvailable = (
+  options: {
+    from: string;
+    contract: string;
+    value: BN;
+  },
+  web3eth: Web3Eth,
+): Promise<boolean> => {
+  const contract = new web3eth.Contract(Wrappedabi as any, options.contract);
+  return contract.methods
+    .balanceOf(options.from)
+    .call()
+    .then((balance) => {
+      return toBN(balance).gte(options.value);
+    });
 };
 
 const getNativeWrapTx = (options: {
@@ -154,4 +171,5 @@ export {
   getAllowanceTransactions,
   getTransfer,
   getNativeWrapTx,
+  isSufficientWrappedAvailable,
 };

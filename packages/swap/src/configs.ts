@@ -24,7 +24,7 @@ const FEE_CONFIGS: Partial<
   [ProviderName.oneInchFusion]: {
     [WalletIdentifier.enkrypt]: {
       referrer: "0x551d9d8eb02e1c713009da8f7c194870d651054a",
-      fee: 88,
+      fee: 0, // 88,
     },
     [WalletIdentifier.mew]: {
       referrer: "0x87A265C93D2A92C6EEEC002283bEaEbb4564Fd20",
