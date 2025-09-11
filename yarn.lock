@@ -30,18 +30,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@amplitude/analytics-browser@npm:^2.23.6":
-  version: 2.23.6
-  resolution: "@amplitude/analytics-browser@npm:2.23.6"
+"@amplitude/analytics-browser@npm:^2.23.7":
+  version: 2.23.7
+  resolution: "@amplitude/analytics-browser@npm:2.23.7"
   dependencies:
     "@amplitude/analytics-core": "npm:^2.23.0"
     "@amplitude/analytics-remote-config": "npm:^0.4.0"
-    "@amplitude/plugin-autocapture-browser": "npm:^1.12.0"
+    "@amplitude/plugin-autocapture-browser": "npm:^1.12.1"
     "@amplitude/plugin-network-capture-browser": "npm:^1.5.5"
     "@amplitude/plugin-page-view-tracking-browser": "npm:^2.3.46"
     "@amplitude/plugin-web-vitals-browser": "npm:^0.1.0-beta.21"
     tslib: "npm:^2.4.1"
-  checksum: 10/67535222f4c2cf98e81e9c3c4c4e999f11a3a12a56ca82ea7e2c5bb7e11c80efd38f849f959bbb057ac8d1f80b3a73c32ab6dedc2b8cf65c171047116eb91d46
+  checksum: 10/16f7252d07177ea248e372cd9a2a7b6448d96f784cc7e6c426f02b6570760627d8e743de9af0d173d603e461e5cd2be31e6ec752cfee6f675d46319b8ab7ebee
   languageName: node
   linkType: hard
 
@@ -150,15 +150,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@amplitude/plugin-autocapture-browser@npm:^1.12.0":
-  version: 1.12.0
-  resolution: "@amplitude/plugin-autocapture-browser@npm:1.12.0"
+"@amplitude/plugin-autocapture-browser@npm:^1.12.1":
+  version: 1.12.1
+  resolution: "@amplitude/plugin-autocapture-browser@npm:1.12.1"
   dependencies:
     "@amplitude/analytics-core": "npm:^2.23.0"
     "@amplitude/analytics-remote-config": "npm:^0.6.3"
     rxjs: "npm:^7.8.1"
     tslib: "npm:^2.4.1"
-  checksum: 10/d0a4481c57be98a730365367b8dbd2ffdb0104825a3fc66da9b81e90e609ad533071329817bcb28cf2da621d89d0b25cca3bc2ca88240fb9e6ffc555f93600bf
+  checksum: 10/9da5d4c5bded6387ee352774d4884cf70725d84d2eeae4a39e4a04a0d21b1daf6c46119b098e5302602aef6eeed07c6c1954b0ce5604505088936ff5217d038f
   languageName: node
   linkType: hard
 
@@ -1645,7 +1645,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@enkryptcom/extension@workspace:packages/extension"
   dependencies:
-    "@amplitude/analytics-browser": "npm:^2.23.6"
+    "@amplitude/analytics-browser": "npm:^2.23.7"
     "@crxjs/vite-plugin": "npm:^2.2.0"
     "@enkryptcom/extension-bridge": "workspace:^"
     "@enkryptcom/hw-wallets": "workspace:^"
@@ -1869,7 +1869,7 @@ __metadata:
     tsup: "npm:^8.5.0"
     typescript: "npm:^5.9.2"
     typescript-eslint: "npm:8.43.0"
-    viem: "npm:^2.37.4"
+    viem: "npm:^2.37.5"
     vitest: "npm:^3.2.4"
   languageName: unknown
   linkType: soft
@@ -31253,9 +31253,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@npm:^2.37.4":
-  version: 2.37.4
-  resolution: "viem@npm:2.37.4"
+"viem@npm:^2.37.5":
+  version: 2.37.5
+  resolution: "viem@npm:2.37.5"
   dependencies:
     "@noble/curves": "npm:1.9.1"
     "@noble/hashes": "npm:1.8.0"
@@ -31270,7 +31270,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10/d85799f8c402fa7ffbc8443c7934147be0e72ada539243566f55f9f5b24829f5db222774a15a47c4b6b4b4e97d5d16f0f8a62ba7c17d3e9417f1929c322fa490
+  checksum: 10/00990664ea40c54269ed19245306f378a9511c313ec21a79a75e9775128b42bd6e2e4ec7bc449bbaff5e20548308a797268e91c6f68381bac6c5ca1cfb16b2db
   languageName: node
   linkType: hard
 
