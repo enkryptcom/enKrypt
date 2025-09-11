@@ -39,7 +39,8 @@
     "husky": "^9.1.7",
     "node-notifier": "^10.0.1",
     "nodemon": "^3.1.10",
-    "ultra-runner": "^3.10.5"
+    "ultra-runner": "^3.10.5",
+    "vite-plugin-node-polyfills": "0.24.0"
   },
   "resolutions": {
     "@zondax/ledger-cosmos-js/vue": "^3.5.12",

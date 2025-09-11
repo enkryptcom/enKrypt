@@ -24,6 +24,7 @@
     "node": ">=14.15.0"
   },
   "devDependencies": {
+    "@massalabs/massa-web3": "^5.2.1-dev",
     "@types/node": "^22.18.1",
     "@typescript-eslint/eslint-plugin": "^8.43.0",
     "@typescript-eslint/parser": "^8.43.0",
