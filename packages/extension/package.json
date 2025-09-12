@@ -39,7 +39,7 @@
     "@kadena/client": "^1.18.0",
     "@kadena/pactjs-cli": "^1.18.0",
     "@ledgerhq/hw-transport-webusb": "^6.29.10",
-    "@massalabs/massa-web3": "^5.2.1-dev",
+    "@massalabs/massa-web3": "^5.3.0",
     "@metamask/eth-sig-util": "^8.2.0",
     "@metaplex-foundation/mpl-bubblegum": "^5.0.2",
     "@metaplex-foundation/umi": "^1.4.1",

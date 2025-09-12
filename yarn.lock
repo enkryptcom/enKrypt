@@ -1662,7 +1662,7 @@ __metadata:
     "@kadena/client": "npm:^1.18.0"
     "@kadena/pactjs-cli": "npm:^1.18.0"
     "@ledgerhq/hw-transport-webusb": "npm:^6.29.10"
-    "@massalabs/massa-web3": "npm:^5.2.1-dev"
+    "@massalabs/massa-web3": "npm:^5.3.0"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metaplex-foundation/mpl-bubblegum": "npm:^5.0.2"
     "@metaplex-foundation/umi": "npm:^1.4.1"
@@ -2127,7 +2127,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@enkryptcom/types@workspace:packages/types"
   dependencies:
-    "@massalabs/massa-web3": "npm:^5.2.1-dev"
+    "@massalabs/massa-web3": "npm:^5.3.0"
     "@types/node": "npm:^22.18.1"
     "@typescript-eslint/eslint-plugin": "npm:^8.43.0"
     "@typescript-eslint/parser": "npm:^8.43.0"
@@ -4778,7 +4778,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/cryptoassets-evm-signatures@npm:^13.5.1, @ledgerhq/cryptoassets-evm-signatures@npm:^13.5.7":
+"@ledgerhq/cryptoassets-evm-signatures@npm:^13.5.1":
   version: 13.5.7
   resolution: "@ledgerhq/cryptoassets-evm-signatures@npm:13.5.7"
   dependencies:
@@ -4918,18 +4918,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/domain-service@npm:^1.2.10":
-  version: 1.2.30
-  resolution: "@ledgerhq/domain-service@npm:1.2.30"
+"@ledgerhq/domain-service@npm:^1.2.10, @ledgerhq/domain-service@npm:^1.2.37":
+  version: 1.2.37
+  resolution: "@ledgerhq/domain-service@npm:1.2.37"
   dependencies:
-    "@ledgerhq/errors": "npm:^6.21.0"
-    "@ledgerhq/logs": "npm:^6.12.0"
-    "@ledgerhq/types-live": "npm:^6.71.0"
+    "@ledgerhq/errors": "npm:^6.23.0"
+    "@ledgerhq/logs": "npm:^6.13.0"
+    "@ledgerhq/types-live": "npm:^6.78.0"
     axios: "npm:1.7.7"
     eip55: "npm:^2.1.1"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
-  checksum: 10/4ba9d8c468569e6e85fc59fc55f6690008d8bfe31f0a2719a4487d6518968ee704e398adb721e58b597d283262bf049d907940a1ed2b46b499e6cdb2b03d3cbf
+  checksum: 10/5cdaac6bd18c92182f51557702580b723edaf7e83e7136f81fd46335929ddbe7f77b5cf95913c5418d15567f64e0073968117554adb1d70b2b84a670c29582b0
   languageName: node
   linkType: hard
 
@@ -4945,21 +4945,6 @@ __metadata:
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
   checksum: 10/c69d193247893175b67c6de1e6d71df2cbb82d6924a5c901ebdb3b68d52c135ba240bd3acafe1290c751049673d91f44cb82c928130d1bace468541f81368bbc
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/domain-service@npm:^1.2.37":
-  version: 1.2.37
-  resolution: "@ledgerhq/domain-service@npm:1.2.37"
-  dependencies:
-    "@ledgerhq/errors": "npm:^6.23.0"
-    "@ledgerhq/logs": "npm:^6.13.0"
-    "@ledgerhq/types-live": "npm:^6.78.0"
-    axios: "npm:1.7.7"
-    eip55: "npm:^2.1.1"
-    react: "npm:^18.2.0"
-    react-dom: "npm:^18.2.0"
-  checksum: 10/5cdaac6bd18c92182f51557702580b723edaf7e83e7136f81fd46335929ddbe7f77b5cf95913c5418d15567f64e0073968117554adb1d70b2b84a670c29582b0
   languageName: node
   linkType: hard
 
@@ -5006,17 +4991,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/evm-tools@npm:^1.2.4":
-  version: 1.6.3
-  resolution: "@ledgerhq/evm-tools@npm:1.6.3"
+"@ledgerhq/evm-tools@npm:^1.2.4, @ledgerhq/evm-tools@npm:^1.7.1":
+  version: 1.7.1
+  resolution: "@ledgerhq/evm-tools@npm:1.7.1"
   dependencies:
     "@ethersproject/constants": "npm:^5.7.0"
     "@ethersproject/hash": "npm:^5.7.0"
-    "@ledgerhq/cryptoassets-evm-signatures": "npm:^13.5.7"
-    "@ledgerhq/live-env": "npm:^2.9.0"
+    "@ledgerhq/cryptoassets-evm-signatures": "npm:^13.5.10"
+    "@ledgerhq/live-env": "npm:^2.12.0"
     axios: "npm:1.7.7"
     crypto-js: "npm:4.2.0"
-  checksum: 10/528bba474c0b92ca9424220db5e639080bd178f53be19b58e9709923a3d9874eb4fb88750d2f44b7677fb779a76cdb1c08e5090e52d96b093e1528e6041edbfc
+  checksum: 10/2973bccb9ee9584f1621bcc7d3e34ea850613bb8ff0b641f18d2441af18766942bf31537709e3dc873c0164d45a55211ef1dbee7c4ac1d19a0f8a2cbde897b13
   languageName: node
   linkType: hard
 
@@ -5031,20 +5016,6 @@ __metadata:
     axios: "npm:1.7.7"
     crypto-js: "npm:4.2.0"
   checksum: 10/1ce4135486235865db3b9ea52764c4b3c5c58888f850b99766a0834b45ddfe668acaace1bd924f6a7d7de2809047a65e37a2014840c1d1e30b70c876e023cfbf
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/evm-tools@npm:^1.7.1":
-  version: 1.7.1
-  resolution: "@ledgerhq/evm-tools@npm:1.7.1"
-  dependencies:
-    "@ethersproject/constants": "npm:^5.7.0"
-    "@ethersproject/hash": "npm:^5.7.0"
-    "@ledgerhq/cryptoassets-evm-signatures": "npm:^13.5.10"
-    "@ledgerhq/live-env": "npm:^2.12.0"
-    axios: "npm:1.7.7"
-    crypto-js: "npm:4.2.0"
-  checksum: 10/2973bccb9ee9584f1621bcc7d3e34ea850613bb8ff0b641f18d2441af18766942bf31537709e3dc873c0164d45a55211ef1dbee7c4ac1d19a0f8a2cbde897b13
   languageName: node
   linkType: hard
 
@@ -5909,16 +5880,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/types-live@npm:^6.71.0":
-  version: 6.71.0
-  resolution: "@ledgerhq/types-live@npm:6.71.0"
-  dependencies:
-    bignumber.js: "npm:^9.1.2"
-    rxjs: "npm:^7.8.1"
-  checksum: 10/6b264d46b070572c77cbbe5bba011e2c3a396f99d9a91d5e464e3a1773e40afd40956e80871e217878a5c2da08bf28b5cfd99ed548015979258612c573e96675
-  languageName: node
-  linkType: hard
-
 "@ledgerhq/types-live@npm:^6.83.0":
   version: 6.83.0
   resolution: "@ledgerhq/types-live@npm:6.83.0"
@@ -6008,9 +5969,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@massalabs/massa-web3@npm:^5.2.1-dev":
-  version: 5.2.1-dev.20250730141858
-  resolution: "@massalabs/massa-web3@npm:5.2.1-dev.20250730141858"
+"@massalabs/massa-web3@npm:^5.3.0":
+  version: 5.3.0
+  resolution: "@massalabs/massa-web3@npm:5.3.0"
   dependencies:
     "@noble/ed25519": "npm:^1.7.3"
     "@noble/hashes": "npm:^1.2.0"
@@ -6022,7 +5983,6 @@ __metadata:
     grpc-web: "npm:^1.5.0"
     lodash.isequal: "npm:^4.5.0"
     secure-random: "npm:^1.1.2"
-    tslib: "npm:^2.8.0"
     utf-8-validate: "npm:^6.0.2"
     varint: "npm:^6.0.0"
   dependenciesMeta:
@@ -6030,7 +5990,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 10/56464249fcfbf5f66980eceecef13343b5379bf9badd779be0d6d0ce51882c15310c74d5209ff75d825058eb82ac26e1f7b2ff5fa96a7c690461577710b8e6b1
+  checksum: 10/53178a3b3962140ba0a02e4f4236d86fab09411cb25861858373852c959df4aefd89ee413edfcab2f855c48f830b05fa4fe3c03ff12f0ef1f007b0051df4e68c
   languageName: node
   linkType: hard
 
