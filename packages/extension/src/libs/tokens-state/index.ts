@@ -6,6 +6,7 @@ import {
   CustomToken,
   CustomErc20Token,
   TokenType,
+  CustomMassaToken,
 } from './types';
 import { NetworkNames } from '@enkryptcom/types';
 
@@ -24,7 +25,7 @@ export class TokensState {
    */
   async addErc20Token(
     chainName: NetworkNames,
-    token: CustomErc20Token,
+    token: CustomErc20Token | CustomMassaToken,
   ): Promise<boolean> {
     let state: IState | null = await this.storage.get(StorageKeys.customTokens);
 

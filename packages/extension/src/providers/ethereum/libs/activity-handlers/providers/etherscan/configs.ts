@@ -29,10 +29,6 @@ const NetworkEndpoints: Record<string, string> = {
     'https://green-giddy-denebola.explorer.mainnet.skalenodes.com/',
   [NetworkNames.SkaleTitan]:
     'https://parallel-stormy-spica.explorer.mainnet.skalenodes.com/',
-  [NetworkNames.SkaleChaos]:
-    'https://staging-fast-active-bellatrix.explorer.staging-v3.skalenodes.com/',
-  [NetworkNames.ZkSyncGoerli]:
-    'https://block-explorer-api.testnets.zksync.dev/',
   [NetworkNames.ZkSync]: 'https://block-explorer-api.mainnet.zksync.io/',
   [NetworkNames.Arbitrum]: 'https://api.arbiscan.io/',
   [NetworkNames.ArbitrumNova]: 'https://nova-explorer.arbitrum.io/',
@@ -44,8 +40,6 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.MaticZK]: 'https://api-zkevm.polygonscan.com/',
   [NetworkNames.Base]: 'https://api.basescan.org/',
   [NetworkNames.Celo]: 'https://explorer.celo.org/mainnet/',
-  [NetworkNames.FormTestnet]: 'https://testnet-explorer.form.network/',
-  [NetworkNames.Form]: 'https://explorer.form.network/',
   [NetworkNames.SyscoinNEVMTest]: 'https://explorer.tanenbaum.io/',
   [NetworkNames.SyscoinNEVM]: 'https://explorer.syscoin.org/',
   [NetworkNames.RolluxTest]: 'https://rollux.tanenbaum.io/',
@@ -54,7 +48,6 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Sanko]: 'https://explorer.sanko.xyz/',
   [NetworkNames.Sonic]: 'https://api.sonicscan.org/',
   [NetworkNames.Degen]: 'https://explorer.degen.tips/',
-  [NetworkNames.Ham]: 'https://explorer.ham.fun/',
   [NetworkNames.Ink]: 'https://explorer.inkonchain.com/',
   [NetworkNames.ImmutableZkevm]: 'https://explorer.immutable.com/',
   [NetworkNames.Rari]: 'https://mainnet.explorer.rarichain.org/',
@@ -74,6 +67,7 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Hemi]: 'https://explorer.hemi.xyz/',
   [NetworkNames.AppLayerTestnet]: 'https://testnet-explorer.applayer.com/api/',
   [NetworkNames.EthereumClassic]: 'https://etc.blockscout.com/',
+  [NetworkNames.TAC]: 'https://explorer.tac.build/',
 };
 
 export { NetworkEndpoints };

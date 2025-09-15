@@ -14,7 +14,7 @@ import cantoNode from './canto';
 import rootstockNode from './rsk';
 import rootstockTestnetNode from './rsk-testnet';
 import edgeEvmNode from './edg';
-import zkGoerliNode from './zkgoerli';
+import zkSepoliaNode from './zksepolia';
 import vicNode from './vic';
 import zkSyncNode from './zksync';
 import arbNode from './arb';
@@ -32,19 +32,15 @@ import sepoliaNode from './sepolia';
 import baseNode from './base';
 import celoNode from './celo';
 import shibNode from './shib';
-import formTestnet from './form-testnet';
-import formNode from './form';
 import syscoinNEVMTestNode from './syscoin/nevm-testnet';
 import syscoinNEVMNode from './syscoin/nevm';
 import rolluxTestNode from './syscoin/rollux-testnet';
 import rolluxNode from './syscoin/rollux';
-import cagaAnkara from './cagaAnkara';
 import sonicNode from './sonic';
 import telosNode from './tlos';
 import blastNode from './blast';
 import sankoNode from './dmt';
 import degenNode from './degen';
-import hamNode from './ham';
 import zcdNode from './zcd';
 import immutableZkevmNode from './immutable-zkevm';
 import rariNode from './rari';
@@ -58,7 +54,7 @@ import opbnbNode from './op-bnb';
 import palmNode from './palm';
 import proofOfPlayApexNode from './pop-apex';
 import scrollNode from './scroll';
-import cotiDevnetNode from './coti-devnet';
+import cotiTestnetNode from './coti-testnet';
 import hoodiNode from './hoodi';
 import bitrockNode from './bitrock';
 import fraxtalNode from './fraxtal';
@@ -78,6 +74,7 @@ import conflux from './conflux';
 import hemi from './hemi';
 import coredao from './coredao';
 import appLayerTestnet from './applayer-testnet';
+// import tac from './tac'; waiting for RPC fix
 
 export default {
   sepolia: sepoliaNode,
@@ -97,7 +94,7 @@ export default {
   rootstock: rootstockNode,
   rootstockTestnet: rootstockTestnetNode,
   edgeEvm: edgeEvmNode,
-  zkGoerli: zkGoerliNode,
+  zkSepolia: zkSepoliaNode,
   vic: vicNode,
   zkSync: zkSyncNode,
   skaleEuropa: skale.europaNode,
@@ -108,7 +105,6 @@ export default {
   skaleExorde: skale.exordeNode,
   skaleNebula: skale.nebulaNode,
   skaleTitan: skale.titanNode,
-  skaleChaos: skale.chaosNode,
   ontEVM: ontEVMNode,
   arbitrum: arbNode,
   arbitrumNova: arbNovaNode,
@@ -121,19 +117,15 @@ export default {
   base: baseNode,
   celo: celoNode,
   shib: shibNode,
-  formTestnet: formTestnet,
-  form: formNode,
   syscoinNEVMTest: syscoinNEVMTestNode,
   syscoinNEVM: syscoinNEVMNode,
   rolluxTest: rolluxTestNode,
   rollux: rolluxNode,
-  cagaAnkara: cagaAnkara,
   sonic: sonicNode,
   telos: telosNode,
   blast: blastNode,
   sanko: sankoNode,
   degen: degenNode,
-  ham: hamNode,
   zcd: zcdNode,
   immutableZkevm: immutableZkevmNode,
   rari: rariNode,
@@ -147,7 +139,7 @@ export default {
   palm: palmNode,
   popApex: proofOfPlayApexNode,
   scroll: scrollNode,
-  cotiDevnet: cotiDevnetNode,
+  cotiTestnetNode: cotiTestnetNode,
   hoodi: hoodiNode,
   bitrock: bitrockNode,
   frax: fraxtalNode,
@@ -168,4 +160,5 @@ export default {
   hemi: hemi,
   coredao: coredao,
   appLayerTestnet: appLayerTestnet,
+  // tac: tac, waiting for RPC fix
 };
