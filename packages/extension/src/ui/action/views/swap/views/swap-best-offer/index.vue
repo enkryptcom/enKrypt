@@ -93,6 +93,7 @@
       :is-error="isTXSendError"
       :error-message="TXSendErrorMessage"
       :network="network"
+      :waiting-to-be-mined="waitingToBeMined"
       @update:close="close"
       @update:try-again="sendAction"
     />
@@ -212,6 +213,7 @@ const isTXSendLoading = ref<boolean>(false);
 const isTXSendError = ref(false);
 const TXSendErrorMessage = ref('');
 const isLooking = ref(true);
+const waitingToBeMined = ref(false);
 const swap = ref<Swap>();
 
 const setWarning = async () => {
@@ -446,21 +448,28 @@ const sendAction = async () => {
             if (sig.error) return Promise.reject(sig.error);
             typedMessageSigs.push(JSON.parse(sig.result!));
           }
-          console.log('starting wait');
-          await waitForReceipt(
-            txs.map(tx => tx.hash),
-            network.value!,
-            15,
-          );
-          console.log('wait done');
-          const orderHash = await swap.value!.submitRFQOrder({
-            options: {
-              ...pickedTrade.value.rfqOptions!.options,
-              signatures: typedMessageSigs,
-            },
-            provider: pickedTrade.value.rfqOptions!.provider,
-          });
-          console.log(orderHash);
+          try {
+            waitingToBeMined.value = true;
+            console.log('starting wait');
+            await waitForReceipt(
+              txs.map(tx => tx.hash),
+              network.value!,
+              30,
+            );
+            console.log('wait done');
+            const orderHash = await swap.value!.submitRFQOrder({
+              options: {
+                ...pickedTrade.value.rfqOptions!.options,
+                signatures: typedMessageSigs,
+              },
+              provider: pickedTrade.value.rfqOptions!.provider,
+            });
+            console.log(orderHash);
+          } catch (e: any) {
+            throw new Error(e);
+          } finally {
+            waitingToBeMined.value = false;
+          }
         }
         pickedTrade.value.status!.options.transactions = txs;
         const swapRaw: SwapRawInfo = {
