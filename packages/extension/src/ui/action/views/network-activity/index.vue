@@ -68,6 +68,7 @@ import {
   SwapRawInfo,
   KadenaRawInfo,
   SOLRawInfo,
+  MassaRawInfo,
 } from '@/types/activity';
 import NetworkActivityLoading from './components/network-activity-loading.vue';
 import { ProviderName } from '@/types/provider';
@@ -79,6 +80,7 @@ import Swap, {
 } from '@enkryptcom/swap';
 import EvmAPI from '@/providers/ethereum/libs/api';
 import type Web3Eth from 'web3-eth';
+import { OperationStatus } from '@massalabs/massa-web3';
 
 const props = defineProps({
   network: {
@@ -217,6 +219,29 @@ const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {
     } else {
       return; /* Give the transaction more time to be mined */
     }
+  } else if (props.network.provider === ProviderName.massa) {
+    if (!info) return;
+    const massaInfo = info as MassaRawInfo;
+    if (isActivityUpdating || massaInfo === OperationStatus.PendingInclusion)
+      return;
+
+    let status = ActivityStatus.failed;
+    // if the transaction is not found, and it's been less than 1 minute, wait for it to be processed
+    if (
+      massaInfo === OperationStatus.NotFound &&
+      Date.now() < activity.timestamp + 60_000
+    ) {
+      return;
+    } else if (
+      massaInfo === OperationStatus.Success ||
+      massaInfo === OperationStatus.SpeculativeSuccess
+    ) {
+      status = ActivityStatus.success;
+    }
+
+    activity.status = status;
+    activity.rawInfo = massaInfo;
+    updateActivitySync(activity).then(() => updateVisibleActivity(activity));
   }
 
   // If we're this far in then the transaction has reached a terminal status

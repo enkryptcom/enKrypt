@@ -353,8 +353,8 @@ const sortNetworks = (networks: BaseNetwork[], sortBy: NetworkSort) => {
   return networks.sort((a, b) => {
     if (sortBy.name === NetworkSortOption.Name) {
       return sortBy.direction === NetworkSortDirection.Asc
-        ? a.name.localeCompare(b.name)
-        : b.name.localeCompare(a.name);
+        ? a.name_long.localeCompare(b.name_long)
+        : b.name_long.localeCompare(a.name_long);
     }
     return 0;
   });

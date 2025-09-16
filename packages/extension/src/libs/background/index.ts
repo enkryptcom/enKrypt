@@ -48,6 +48,7 @@ class BackgroundHandler {
       [ProviderName.bitcoin]: {},
       [ProviderName.kadena]: {},
       [ProviderName.solana]: {},
+      [ProviderName.massa]: {},
     };
     this.#providers = Providers;
   }
