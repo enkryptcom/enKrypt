@@ -48,7 +48,6 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Sanko]: 'https://explorer.sanko.xyz/',
   [NetworkNames.Sonic]: 'https://api.sonicscan.org/',
   [NetworkNames.Degen]: 'https://explorer.degen.tips/',
-  [NetworkNames.Ham]: 'https://explorer.ham.fun/',
   [NetworkNames.Ink]: 'https://explorer.inkonchain.com/',
   [NetworkNames.ImmutableZkevm]: 'https://explorer.immutable.com/',
   [NetworkNames.Rari]: 'https://mainnet.explorer.rarichain.org/',

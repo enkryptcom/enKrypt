@@ -4,6 +4,7 @@ import PolkadotNetworks from '@/providers/polkadot/networks';
 import BitcoinNetworks from '@/providers/bitcoin/networks';
 import KadenaNetworks from '@/providers/kadena/networks';
 import SolanaNetworks from '@/providers/solana/networks';
+import MassaNetworks from '@/providers/massa/networks';
 import { NetworkNames, WalletType } from '@enkryptcom/types';
 import { getAccountsByNetworkName } from '@/libs/utils/accounts';
 import BackupState from '../backup-state';
@@ -22,6 +23,9 @@ export const initAccounts = async (keyring: KeyRing) => {
   ).filter(acc => !acc.isTestWallet);
   const ed25519sol = (
     await getAccountsByNetworkName(NetworkNames.Solana)
+  ).filter(acc => !acc.isTestWallet);
+  const ed25519massa = (
+    await getAccountsByNetworkName(NetworkNames.Massa)
   ).filter(acc => !acc.isTestWallet);
   if (secp256k1.length == 0)
     await keyring.saveNewAccount({
@@ -56,6 +60,13 @@ export const initAccounts = async (keyring: KeyRing) => {
       basePath: SolanaNetworks.solana.basePath,
       name: 'Solana Account 1',
       signerType: SolanaNetworks.solana.signer[0],
+      walletType: WalletType.mnemonic,
+    });
+  if (ed25519massa.length == 0)
+    await keyring.saveNewAccount({
+      basePath: MassaNetworks.Massa.basePath,
+      name: 'Massa Account 1',
+      signerType: MassaNetworks.Massa.signer[0],
       walletType: WalletType.mnemonic,
     });
 };

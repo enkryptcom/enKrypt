@@ -3,6 +3,7 @@ import PolkadotProvider from '@/providers/polkadot';
 import BitcoinProvider from '@/providers/bitcoin';
 import KadenaProvider from '@/providers/kadena';
 import SolanaProvider from '@/providers/solana';
+import MassaProvider from '@/providers/massa';
 import { ProviderName } from '@/types/provider';
 
 export default {
@@ -11,4 +12,5 @@ export default {
   [ProviderName.bitcoin]: BitcoinProvider,
   [ProviderName.kadena]: KadenaProvider,
   [ProviderName.solana]: SolanaProvider,
+  [ProviderName.massa]: MassaProvider,
 };

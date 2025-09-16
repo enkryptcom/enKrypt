@@ -6,6 +6,7 @@ import {
   StatusOptionsResponse,
 } from '@enkryptcom/swap';
 import { ICommandResult } from '@kadena/client';
+import { OperationStatus } from '@massalabs/massa-web3';
 
 interface BTCIns {
   address: string;
@@ -91,6 +92,8 @@ interface KadenaDBInfo {
   token: string;
 }
 
+type MassaRawInfo = OperationStatus;
+
 enum ActivityStatus {
   pending = 'pending',
   success = 'success',
@@ -128,7 +131,8 @@ interface Activity {
     | BTCRawInfo
     | SwapRawInfo
     | KadenaRawInfo
-    | SOLRawInfo;
+    | SOLRawInfo
+    | MassaRawInfo;
 }
 
 export {
@@ -143,4 +147,5 @@ export {
   KadenaRawInfo,
   KadenaDBInfo,
   SOLRawInfo,
+  MassaRawInfo,
 };
