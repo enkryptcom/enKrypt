@@ -5,4 +5,5 @@ export enum StorageKeys {
 export type IState = {
   isHideSolanStakingBanner: boolean;
   isHideNetworkAssetSolanStakingBanner: boolean;
+  isHideSurveyPopup: boolean;
 };
