@@ -23,6 +23,7 @@ import {
   SubscanExtrinsicInfo,
   KadenaRawInfo,
   SOLRawInfo,
+  MassaRawInfo,
 } from './activity';
 
 export enum ProviderName {
@@ -32,6 +33,7 @@ export enum ProviderName {
   polkadot = 'polkadot',
   kadena = 'kadena',
   solana = 'solana',
+  massa = 'massa',
 }
 export enum InternalStorageNamespace {
   keyring = 'KeyRing',
@@ -68,6 +70,7 @@ export enum ProviderType {
   bitcoin,
   kadena,
   solana,
+  massa,
 }
 
 export type SendMessageHandler = (
@@ -144,6 +147,7 @@ export abstract class ProviderAPIInterface {
     | BTCRawInfo
     | KadenaRawInfo
     | SOLRawInfo
+    | MassaRawInfo
     | null
   >;
 }
