@@ -278,7 +278,7 @@ class OneInchFusion extends ProviderWithRFQ {
         typedMessages: res.typedMessages,
         additionalNativeFees: toBN(0),
         slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,
-        fee: feeConfig * 100,
+        fee: feeConfig / 100,
         getRFQObject: async (): Promise<RFQOptionsResponse> => ({
           options: {
             orderStruct: res.orderStruct,
