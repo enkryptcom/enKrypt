@@ -18,6 +18,7 @@ import {
   BTCRawInfo,
   EthereumRawInfo,
   KadenaRawInfo,
+  MassaRawInfo,
   MultiversXRawInfo,
   SOLRawInfo,
   SubscanExtrinsicInfo,
@@ -35,6 +36,7 @@ export enum ProviderName {
   kadena = 'kadena',
   solana = 'solana',
   multiversx = 'multiversx',
+  massa = 'massa',
 }
 export enum InternalStorageNamespace {
   keyring = 'KeyRing',
@@ -73,6 +75,7 @@ export enum ProviderType {
   kadena,
   solana,
   multiversx,
+  massa,
 }
 
 export type SendMessageHandler = (
@@ -150,6 +153,7 @@ export abstract class ProviderAPIInterface {
     | KadenaRawInfo
     | SOLRawInfo
     | MultiversXRawInfo
+    | MassaRawInfo
     | null
   >;
 }

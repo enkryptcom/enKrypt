@@ -11,6 +11,7 @@ import { getNetworkByName } from '@/libs/utils/networks';
 import SendTransactionBTC from '@/providers/bitcoin/ui/send-transaction/index.vue';
 import SendTransactionEVM from '@/providers/ethereum/ui/send-transaction/index.vue';
 import SendTransactionKadena from '@/providers/kadena/ui/send-transaction/index.vue';
+import SendTransactionMassa from '@/providers/massa/ui/send-transaction/index.vue';
 import SendTransactionMultiversX from '@/providers/multiversx/ui/send-transaction/index.vue';
 import SendTransactionSubstrate from '@/providers/polkadot/ui/send-transaction/index.vue';
 import SendTransactionSolana from '@/providers/solana/ui/send-transaction/index.vue';
@@ -27,6 +28,7 @@ const sendLayouts: Record<ProviderName, any> = {
   [ProviderName.kadena]: SendTransactionKadena,
   [ProviderName.solana]: SendTransactionSolana,
   [ProviderName.multiversx]: SendTransactionMultiversX,
+  [ProviderName.massa]: SendTransactionMassa,
   [ProviderName.enkrypt]: null,
 };
 

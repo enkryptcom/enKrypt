@@ -7,6 +7,7 @@ import SubstrateAPI from '@/providers/polkadot/libs/api';
 import SolanaAPI from '@/providers/solana/libs/api';
 import { AssetsType, ProviderName } from '@/types/provider';
 import { CoingeckoPlatform, NetworkNames, SignerType } from '@enkryptcom/types';
+import MassaAPI from '../providers/massa/libs/api';
 import { Activity } from './activity';
 import { BaseToken } from './base-token';
 
@@ -40,7 +41,8 @@ export interface BaseNetworkOptions {
     | Promise<BitcoinAPI>
     | Promise<KadenaAPI>
     | Promise<SolanaAPI>
-    | Promise<MultiversXAPI>;
+    | Promise<MultiversXAPI>
+    | Promise<MassaAPI>;
   customTokens?: boolean;
 }
 
@@ -83,7 +85,8 @@ export abstract class BaseNetwork {
     | Promise<BitcoinAPI>
     | Promise<KadenaAPI>
     | Promise<SolanaAPI>
-    | Promise<MultiversXAPI>;
+    | Promise<MultiversXAPI>
+    | Promise<MassaAPI>;
   public customTokens: boolean;
 
   constructor(options: BaseNetworkOptions) {

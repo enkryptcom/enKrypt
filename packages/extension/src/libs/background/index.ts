@@ -1,33 +1,33 @@
+import DomainState from '@/libs/domain-state';
+import { sendToWindow } from '@/libs/messenger/extension';
+import PersistentEvents from '@/libs/persistent-events';
+import TabInfo from '@/libs/utils/tab-info';
+import Providers from '@/providers';
 import {
   InternalMethods,
   InternalOnMessageResponse,
   Message,
 } from '@/types/messenger';
-import { RPCRequestType, OnMessageResponse } from '@enkryptcom/types';
+import { ProviderName } from '@/types/provider';
+import { OnMessageResponse, RPCRequestType } from '@enkryptcom/types';
 import { v4 as randomUUID } from 'uuid';
+import Browser from 'webextension-polyfill';
 import { getCustomError } from '../error';
 import KeyRingBase from '../keyring/keyring';
-import { sendToWindow } from '@/libs/messenger/extension';
-import { ProviderName } from '@/types/provider';
-import Providers from '@/providers';
-import Browser from 'webextension-polyfill';
-import TabInfo from '@/libs/utils/tab-info';
-import PersistentEvents from '@/libs/persistent-events';
-import DomainState from '@/libs/domain-state';
-import { TabProviderType, ProviderType, ExternalMessageOptions } from './types';
-import { getProviderNetworkByName } from '../utils/networks';
-import {
-  sign,
-  getEthereumPubKey,
-  ethereumDecrypt,
-  unlock,
-  changeNetwork,
-  sendToTab,
-  newAccount,
-  lock,
-} from './internal';
-import { handlePersistentEvents } from './external';
 import SettingsState from '../settings-state';
+import { getProviderNetworkByName } from '../utils/networks';
+import { handlePersistentEvents } from './external';
+import {
+  changeNetwork,
+  ethereumDecrypt,
+  getEthereumPubKey,
+  lock,
+  newAccount,
+  sendToTab,
+  sign,
+  unlock,
+} from './internal';
+import { ExternalMessageOptions, ProviderType, TabProviderType } from './types';
 
 class BackgroundHandler {
   #keyring: KeyRingBase;
@@ -49,6 +49,7 @@ class BackgroundHandler {
       [ProviderName.kadena]: {},
       [ProviderName.solana]: {},
       [ProviderName.multiversx]: {},
+      [ProviderName.massa]: {},
     };
     this.#providers = Providers;
   }

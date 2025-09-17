@@ -214,6 +214,8 @@ const openBuyPage = () => {
         return (currentNetwork.value as EvmNetwork).options.buyLink;
       case NetworkNames.MultiversX:
         return (currentNetwork.value as MultiversXNetwork).options.buyLink;
+      case NetworkNames.Massa:
+        return 'https://www.massa.net/get-mas';
       default:
         return `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
           accountHeaderData.value.selectedAccount!.address,
@@ -319,11 +321,12 @@ const setNetwork = async (network: BaseNetwork) => {
     currentSubNetwork.value = '';
   }
   const activeAccounts = await getAccountsByNetworkName(network.name);
-
   const inactiveAccounts = await kr.getAccounts(
     getOtherSigners(network.signer),
   );
+
   const selectedAddress = await domainState.getSelectedAddress();
+
   let selectedAccount = activeAccounts[0];
   if (selectedAddress) {
     const found = activeAccounts.find(acc => acc.address === selectedAddress);

@@ -6,7 +6,6 @@ import exordeNode from './exorde';
 import europaNode from './europa';
 import nebulaNode from './nebula';
 import titanNode from './titan';
-import chaosNode from './chaos';
 
 export {
   blockBrawlersNode,
@@ -17,5 +16,4 @@ export {
   europaNode,
   nebulaNode,
   titanNode,
-  chaosNode,
 };

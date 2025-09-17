@@ -56,7 +56,7 @@ export default defineConfig({
     __BUILD_TIME__:
       BROWSER === 'firefox'
         ? JSON.stringify('FF-build')
-        : new Date().toLocaleString().replace(/\D/g, ''),
+        : JSON.stringify(new Date().toLocaleString().replace(/\D/g, '')),
   },
   plugins: [
     visualizer() as PluginOption,

@@ -14,5 +14,8 @@ export const pathParser = (
   if (type === SignerType.ed25519sol) {
     return `${basePath}/${index}'/0`; // Solana uses hardened paths
   }
+  if (type === SignerType.ed25519mas) {
+    return `${basePath}/${index}'/0'`; // Massa uses hardened paths with BIP-44 coin type 632
+  }
   return `${basePath}/${index}`;
 };

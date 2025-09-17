@@ -19,8 +19,10 @@ import {
   WalletType,
 } from "@enkryptcom/types";
 import { decrypt, encrypt, hexToBuffer, utf8ToHex } from "@enkryptcom/utils";
-import assert from "assert";
 import { entropyToMnemonic, generateMnemonic, mnemonicToEntropy } from "bip39";
+
+import { MassaSigner } from "@enkryptcom/signer-massa";
+import assert from "assert";
 import configs from "./configs";
 import { pathParser } from "./utils";
 
@@ -53,6 +55,7 @@ class KeyRing {
       [SignerType.ed25519kda]: new KadenaSigner(),
       [SignerType.ed25519sol]: new KadenaSigner(),
       [SignerType.ed25519mvx]: new MultiversXSigner(),
+      [SignerType.ed25519mas]: new MassaSigner(),
     };
   }
 

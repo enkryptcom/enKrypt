@@ -5,6 +5,7 @@ import {
 } from '@enkryptcom/swap';
 import { NetworkNames } from '@enkryptcom/types';
 import { ICommandResult } from '@kadena/client';
+import { OperationStatus } from '@massalabs/massa-web3';
 import { BaseTokenOptions } from './base-token';
 
 interface BTCIns {
@@ -104,6 +105,8 @@ interface KadenaDBInfo {
   token: string;
 }
 
+type MassaRawInfo = OperationStatus;
+
 enum ActivityStatus {
   pending = 'pending',
   success = 'success',
@@ -142,7 +145,8 @@ interface Activity {
     | SwapRawInfo
     | KadenaRawInfo
     | SOLRawInfo
-    | MultiversXRawInfo;
+    | MultiversXRawInfo
+    | MassaRawInfo;
 }
 
 export {
@@ -153,6 +157,7 @@ export {
   EthereumRawInfo,
   KadenaDBInfo,
   KadenaRawInfo,
+  MassaRawInfo,
   MultiversXRawInfo,
   SOLRawInfo,
   SubscanExtrinsicInfo,
