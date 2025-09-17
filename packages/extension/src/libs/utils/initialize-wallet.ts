@@ -1,12 +1,13 @@
 import KeyRing from '@/libs/keyring/keyring';
-import EthereumNetworks from '@/providers/ethereum/networks';
-import PolkadotNetworks from '@/providers/polkadot/networks';
-import BitcoinNetworks from '@/providers/bitcoin/networks';
-import KadenaNetworks from '@/providers/kadena/networks';
-import SolanaNetworks from '@/providers/solana/networks';
-import MassaNetworks from '@/providers/massa/networks';
-import { NetworkNames, WalletType } from '@enkryptcom/types';
 import { getAccountsByNetworkName } from '@/libs/utils/accounts';
+import BitcoinNetworks from '@/providers/bitcoin/networks';
+import EthereumNetworks from '@/providers/ethereum/networks';
+import KadenaNetworks from '@/providers/kadena/networks';
+import MassaNetworks from '@/providers/massa/networks';
+import MultiversXNetworks from '@/providers/multiversx/networks';
+import PolkadotNetworks from '@/providers/polkadot/networks';
+import SolanaNetworks from '@/providers/solana/networks';
+import { NetworkNames, WalletType } from '@enkryptcom/types';
 import BackupState from '../backup-state';
 export const initAccounts = async (keyring: KeyRing) => {
   const secp256k1btc = (
@@ -23,6 +24,9 @@ export const initAccounts = async (keyring: KeyRing) => {
   ).filter(acc => !acc.isTestWallet);
   const ed25519sol = (
     await getAccountsByNetworkName(NetworkNames.Solana)
+  ).filter(acc => !acc.isTestWallet);
+  const ed25519mvx = (
+    await getAccountsByNetworkName(NetworkNames.MultiversX)
   ).filter(acc => !acc.isTestWallet);
   const ed25519massa = (
     await getAccountsByNetworkName(NetworkNames.Massa)
@@ -60,6 +64,13 @@ export const initAccounts = async (keyring: KeyRing) => {
       basePath: SolanaNetworks.solana.basePath,
       name: 'Solana Account 1',
       signerType: SolanaNetworks.solana.signer[0],
+      walletType: WalletType.mnemonic,
+    });
+  if (ed25519mvx.length == 0)
+    await keyring.saveNewAccount({
+      basePath: MultiversXNetworks.multiversx.basePath,
+      name: 'MultiversX Account 1',
+      signerType: MultiversXNetworks.multiversx.signer[0],
       walletType: WalletType.mnemonic,
     });
   if (ed25519massa.length == 0)

@@ -1,20 +1,22 @@
-import { ProviderName } from '@/types/provider';
-import { NetworkNames } from '@enkryptcom/types';
-import EthereumNetworks from '@/providers/ethereum/networks';
-import PolkadotNetworks from '@/providers/polkadot/networks';
 import BitcoinNetworks from '@/providers/bitcoin/networks';
-import KadenaNetworks from '@/providers/kadena/networks';
-import SolanaNetworks from '@/providers/solana/networks';
-import { BaseNetwork } from '@/types/base-network';
-import CustomNetworksState from '../custom-networks-state';
-import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network';
-import Ethereum from '@/providers/ethereum/networks/eth';
-import Polkadot from '@/providers/polkadot/networks/polkadot';
 import Bitcoin from '@/providers/bitcoin/networks/bitcoin';
+import EthereumNetworks from '@/providers/ethereum/networks';
+import Ethereum from '@/providers/ethereum/networks/eth';
+import { CustomEvmNetwork } from '@/providers/ethereum/types/custom-evm-network';
+import KadenaNetworks from '@/providers/kadena/networks';
 import Kadena from '@/providers/kadena/networks/kadena';
-import Solana from '@/providers/solana/networks/solana';
 import MassaNetworks from '@/providers/massa/networks';
 import Massa from '@/providers/massa/networks/mainnet';
+import MultiversXNetworks from '@/providers/multiversx/networks';
+import MultiversX from '@/providers/multiversx/networks/multiversx';
+import PolkadotNetworks from '@/providers/polkadot/networks';
+import Polkadot from '@/providers/polkadot/networks/polkadot';
+import SolanaNetworks from '@/providers/solana/networks';
+import Solana from '@/providers/solana/networks/solana';
+import { BaseNetwork } from '@/types/base-network';
+import { ProviderName } from '@/types/provider';
+import { NetworkNames } from '@enkryptcom/types';
+import CustomNetworksState from '../custom-networks-state';
 
 const providerNetworks: Record<ProviderName, Record<string, BaseNetwork>> = {
   [ProviderName.ethereum]: EthereumNetworks,
@@ -22,6 +24,7 @@ const providerNetworks: Record<ProviderName, Record<string, BaseNetwork>> = {
   [ProviderName.bitcoin]: BitcoinNetworks,
   [ProviderName.kadena]: KadenaNetworks,
   [ProviderName.solana]: SolanaNetworks,
+  [ProviderName.multiversx]: MultiversXNetworks,
   [ProviderName.massa]: MassaNetworks,
   [ProviderName.enkrypt]: {},
 };
@@ -38,6 +41,7 @@ const getAllNetworks = async (
     .concat(Object.values(BitcoinNetworks) as BaseNetwork[])
     .concat(Object.values(KadenaNetworks) as BaseNetwork[])
     .concat(Object.values(SolanaNetworks) as BaseNetwork[])
+    .concat(Object.values(MultiversXNetworks) as BaseNetwork[])
     .concat(Object.values(MassaNetworks) as BaseNetwork[]);
 
   if (!includeCustom) {
@@ -72,6 +76,7 @@ const DEFAULT_SUBSTRATE_NETWORK_NAME = NetworkNames.Polkadot;
 const DEFAULT_BTC_NETWORK_NAME = NetworkNames.Bitcoin;
 const DEFAULT_KADENA_NETWORK_NAME = NetworkNames.Kadena;
 const DEFAULT_SOLANA_NETWORK_NAME = NetworkNames.Solana;
+const DEFAULT_MULTIVERSX_NETWORK_NAME = NetworkNames.MultiversX;
 const DEFAULT_MASSA_NETWORK_NAME = NetworkNames.Massa;
 
 const DEFAULT_EVM_NETWORK = Ethereum;
@@ -79,6 +84,7 @@ const DEFAULT_SUBSTRATE_NETWORK = Polkadot;
 const DEFAULT_BTC_NETWORK = Bitcoin;
 const DEFAULT_KADENA_NETWORK = Kadena;
 const DEFAULT_SOLANA_NETWORK = Solana;
+const DEFAULT_MULTIVERSX_NETWORK = MultiversX;
 const DEFAULT_MASSA_NETWORK = Massa;
 
 const POPULAR_NAMES = [
@@ -92,22 +98,25 @@ const POPULAR_NAMES = [
   NetworkNames.Rootstock,
   NetworkNames.Optimism,
   NetworkNames.Arbitrum,
+  NetworkNames.MultiversX,
 ];
 export {
+  DEFAULT_BTC_NETWORK,
+  DEFAULT_BTC_NETWORK_NAME,
+  DEFAULT_EVM_NETWORK,
+  DEFAULT_EVM_NETWORK_NAME,
+  DEFAULT_KADENA_NETWORK,
+  DEFAULT_KADENA_NETWORK_NAME,
+  DEFAULT_MASSA_NETWORK,
+  DEFAULT_MASSA_NETWORK_NAME,
+  DEFAULT_MULTIVERSX_NETWORK,
+  DEFAULT_MULTIVERSX_NETWORK_NAME,
+  DEFAULT_SOLANA_NETWORK,
+  DEFAULT_SOLANA_NETWORK_NAME,
+  DEFAULT_SUBSTRATE_NETWORK,
+  DEFAULT_SUBSTRATE_NETWORK_NAME,
   getAllNetworks,
   getNetworkByName,
   getProviderNetworkByName,
-  DEFAULT_EVM_NETWORK_NAME,
-  DEFAULT_SUBSTRATE_NETWORK_NAME,
-  DEFAULT_BTC_NETWORK_NAME,
   POPULAR_NAMES,
-  DEFAULT_EVM_NETWORK,
-  DEFAULT_SUBSTRATE_NETWORK,
-  DEFAULT_BTC_NETWORK,
-  DEFAULT_KADENA_NETWORK,
-  DEFAULT_KADENA_NETWORK_NAME,
-  DEFAULT_SOLANA_NETWORK,
-  DEFAULT_SOLANA_NETWORK_NAME,
-  DEFAULT_MASSA_NETWORK,
-  DEFAULT_MASSA_NETWORK_NAME,
 };

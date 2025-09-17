@@ -44,6 +44,8 @@
     "@metaplex-foundation/mpl-bubblegum": "^5.0.2",
     "@metaplex-foundation/umi": "^1.4.1",
     "@metaplex-foundation/umi-bundle-defaults": "^1.4.1",
+    "@multiversx/sdk-core": "^15.0.0",
+    "@multiversx/sdk-transaction-decoder": "^2.0.0",
     "@polkadot/api": "^16.4.7",
     "@polkadot/extension-inject": "^0.61.7",
     "@polkadot/keyring": "^13.5.6",
