@@ -38,7 +38,7 @@ function transFormManifest(): CrxPlugin {
         (manifest as any).browser_specific_settings = {
           safari: {
             strict_min_version: '16.6',
-            strict_max_version: '18.*',
+            strict_max_version: '26.*',
           },
         };
       }
