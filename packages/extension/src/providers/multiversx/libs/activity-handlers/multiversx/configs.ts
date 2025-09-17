@@ -1,7 +1,7 @@
 import { NetworkNames } from '@enkryptcom/types';
 
 const NetworkEndpoint = {
-  [NetworkNames.MultiversX]: 'https://devnet-api.multiversx.com',
+  [NetworkNames.MultiversX]: 'https://api.multiversx.com',
 };
 
 const NetworkTtl = {
