@@ -1,16 +1,14 @@
 <template>
-  <div class="solana-staking-banner">
-    <img src="@action/assets/banners/solana-staking-banner.png" alt="" />
-
-    <div class="solana-staking-banner__content">
-      <enkrypt-staking-logo />
-      <h5>Put your SOL to work — safely & easily.</h5>
-      <a href="javascript:void(0);" @click="openStakingLink" class="button"
-        ><span>Start Staking Now</span></a
+  <div class="survey-popup">
+    <div class="survey-popup__content">
+      <h5>Help us improve Enkrypt</h5>
+      <p>Please take a quick survey. We appreciate you!</p>
+      <a href="javascript:void(0);" @click="openSurveyLink" class="button"
+        ><span>Click here</span></a
       >
     </div>
 
-    <a class="solana-staking-banner__close" @click="close">
+    <a class="survey-popup__close" @click="close">
       <close-icon />
     </a>
   </div>
@@ -18,10 +16,7 @@
 
 <script setup lang="ts">
 import CloseIcon from '@action/icons/common/close-icon.vue';
-import EnkryptStakingLogo from '@action/icons/common/enkrypt-staking-logo.vue';
-import { trackSolanaStakingBanner } from '@/libs/metrics';
 import { openLink } from '@action/utils/browser';
-import { SolanaStakingBannerEvents } from '@/libs/metrics/types';
 
 const emit = defineEmits<{
   (e: 'close'): void;
@@ -30,21 +25,18 @@ const emit = defineEmits<{
 const close = () => {
   emit('close');
 };
-const openStakingLink = async () => {
-  trackSolanaStakingBanner(SolanaStakingBannerEvents.NetworkListClicked);
-  setTimeout(() => {
-    openLink('https://staking.enkrypt.com');
-  }, 1000);
+const openSurveyLink = async () => {
+  openLink('https://tally.so/r/nGMpdL');
+  close();
 };
 </script>
 
 <style lang="less">
 @import '@action/styles/theme.less';
 
-.solana-staking-banner {
+.survey-popup {
   position: absolute;
   width: 324px;
-  height: 128px;
   left: 8px;
   bottom: 8px;
   background: #ffffff;
@@ -52,38 +44,32 @@ const openStakingLink = async () => {
     0px 8px 16px -6px rgba(0, 0, 0, 0.12),
     0px 6px 8px -6px rgba(0, 0, 0, 0.12);
   border-radius: 12px;
-  padding: 0 129px 0 12px;
+  padding: 12px;
   box-sizing: border-box;
   overflow: hidden;
   z-index: 2;
 
-  img {
-    height: 128px;
-    position: absolute;
-    right: 0;
-    top: 0;
-  }
-
   &__content {
-    padding: 8px 0 0 0;
-
-    svg {
-      margin-bottom: 4px;
-    }
-
+    display: flex;
+    align-items: center;
+    flex-direction: column;
     h5 {
       font-size: 16px;
       font-style: normal;
       font-weight: 700;
       line-height: 20px;
+      text-align: center;
       /* 125% */
       letter-spacing: 0.15px;
       color: @primaryLabel;
-      margin: 0 0 8px 0;
+      margin: 0;
       background: linear-gradient(to left, #14f195, #64abf2, #9945ff);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
+    }
+    p {
+      text-align: center;
     }
 
     .button {
@@ -93,6 +79,8 @@ const openStakingLink = async () => {
       height: 32px;
       font-size: 12px;
       line-height: 32px;
+      margin-left: auto;
+      margin-right: auto;
     }
   }
 
