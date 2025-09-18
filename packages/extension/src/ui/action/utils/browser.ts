@@ -50,7 +50,7 @@ export const openLink = (url: string) => {
 export const getLatestEnkryptVersion = (): Promise<string> => {
   return fetch(
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/configs/versions.json',
-    { cache: "no-store" }
+    { cache: 'no-store' },
   )
     .then(res => res.json())
     .then(versions => {
@@ -63,17 +63,15 @@ export const getLatestEnkryptVersion = (): Promise<string> => {
 };
 
 export const getLatestEnkryptUpdates = (): Promise<Updates | null> => {
-
   const browser = detectBrowser();
-  const url = 'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/configs/release-versions'
-  const fetchUrl = browser === BROWSER_NAMES.safari ? `${url}-safari.json` : `${url}.json`
-  return fetch(
-    fetchUrl
-  )
+  const url =
+    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/configs/release-versions';
+  const fetchUrl =
+    browser === BROWSER_NAMES.safari ? `${url}-safari.json` : `${url}.json`;
+  return fetch(fetchUrl)
     .then(res => res.json())
-    .catch((error) => {
+    .catch(error => {
       console.error('Failed to fetch updates:', error);
-      return null
-    }
-    );
+      return null;
+    });
 };

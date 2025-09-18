@@ -156,6 +156,12 @@
         </div>
       </div>
     </div>
+
+    <!-- Banners -->
+    <solana-staking-banner
+      v-if="isSolanaStakingBanner && isExpanded"
+      @close="closeSolanaStakingBanner"
+    />
   </div>
 </template>
 
@@ -199,6 +205,8 @@ import { storeToRefs } from 'pinia';
 import { onClickOutside } from '@vueuse/core';
 import SearchIcon from '@action/icons/common/search.vue';
 import { useMenuStore } from '@action/store/menu-store';
+import SolanaStakingBanner from './components/solana-staking-banner.vue';
+import BannersState from '@/libs/banners-state';
 
 const appMenuRef = ref(null);
 
@@ -260,6 +268,9 @@ onMounted(async () => {
   newNetworksWithTags.value.swap = newSwaps.filter(
     net => !usedNetworks.swap.includes(net),
   );
+  if (await bannersState.showSolanaStakingBanner()) {
+    isSolanaStakingBanner.value = true;
+  }
 });
 
 /** -------------------
@@ -342,8 +353,8 @@ const sortNetworks = (networks: BaseNetwork[], sortBy: NetworkSort) => {
   return networks.sort((a, b) => {
     if (sortBy.name === NetworkSortOption.Name) {
       return sortBy.direction === NetworkSortDirection.Asc
-        ? a.name.localeCompare(b.name)
-        : b.name.localeCompare(a.name);
+        ? a.name_long.localeCompare(b.name_long)
+        : b.name_long.localeCompare(a.name_long);
     }
     return 0;
   });
@@ -526,16 +537,30 @@ const updateGradient = (newGradient: string) => {
     (appMenuRef.value as HTMLElement).style.background =
       `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`;
 };
+
+/** ------------------
+ * Banners
+ ------------------*/
+const isSolanaStakingBanner = ref(false);
+const bannersState = new BannersState();
+
+const closeSolanaStakingBanner = () => {
+  isSolanaStakingBanner.value = false;
+  bannersState.hideSolanaStakingBanner();
+};
 </script>
 
 <style lang="less">
 @import '@action/styles/theme.less';
+
 .expand-menu {
   width: 340px;
 }
+
 .collapse-menu {
   width: 56px;
 }
+
 .app__menu {
   height: 600px;
   position: absolute;
@@ -550,16 +575,19 @@ const updateGradient = (newGradient: string) => {
   &-logo {
     margin-left: 8px;
   }
+
   &-updated {
     height: 24px;
     width: 90px;
     cursor: pointer;
     transition: 0.3s;
     filter: brightness(1);
+
     &:hover {
       filter: brightness(0.9);
     }
   }
+
   &-row {
     height: 40px;
     display: flex;
@@ -567,11 +595,13 @@ const updateGradient = (newGradient: string) => {
     align-items: center;
     flex-direction: row;
   }
+
   &__search-icon-container {
     margin-left: -4px;
     padding-top: 4px;
     padding-bottom: 4px;
   }
+
   &-add {
     display: flex;
     box-sizing: border-box;
@@ -674,13 +704,16 @@ const updateGradient = (newGradient: string) => {
       }
     }
   }
+
   .networks-menu {
     &-expand {
       padding: 1px 10px 1px 10px;
     }
+
     &-collapse {
       padding: 1px 6px 1px 4px;
     }
+
     transition: background-color 0.5s ease-in-out;
     background-color: transparent;
     box-shadow: none;
@@ -688,13 +721,16 @@ const updateGradient = (newGradient: string) => {
     transition:
       background-color 0.4s ease-in-out,
       box-shadow 0.4s ease-in-out;
+
     &__scroll-area {
       &-expand {
         height: 448px;
       }
+
       &-collapse {
         height: 496px;
       }
+
       position: static;
       margin: auto;
       width: 100%;
@@ -708,19 +744,23 @@ const updateGradient = (newGradient: string) => {
       padding-left: 3px;
       padding-bottom: 3px;
       padding-top: 3px;
+
       &::-webkit-scrollbar {
         width: 4px;
       }
+
       &::-webkit-scrollbar-thumb {
         background: rgba(0, 0, 0, 0.36);
         border-radius: 20px;
       }
+
       &__message {
         padding-top: 114px;
         height: 100%;
         max-width: 222px;
         margin-left: auto;
         margin-right: auto;
+
         p {
           color: @tertiaryLabel;
           font-size: 14px;
@@ -731,6 +771,7 @@ const updateGradient = (newGradient: string) => {
           margin-top: 0px;
           margin-bottom: 0px;
         }
+
         &__pin {
           display: flex;
           justify-content: center;
@@ -750,12 +791,14 @@ const updateGradient = (newGradient: string) => {
       }
     }
   }
+
   .has-bg {
     background-color: rgba(247, 239, 244, 1);
     box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(40px);
   }
 }
+
 button {
   background: none;
   color: inherit;

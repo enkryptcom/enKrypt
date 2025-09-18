@@ -47,6 +47,7 @@ import {
 import { sortByRank, sortNativeToFront } from "./utils/common";
 import SwapToken from "./swapToken";
 import { Jupiter } from "./providers/jupiter";
+import { OKX } from "./providers/okx";
 
 class Swap extends EventEmitter {
   network: SupportedNetworkName;
@@ -119,6 +120,7 @@ class Swap extends EventEmitter {
           new Jupiter(this.api as Web3Solana, this.network),
           new Rango(this.api as Web3Solana, this.network),
           new Changelly(this.api, this.network),
+          new OKX(this.api as Web3Solana, this.network),
         ];
         break;
       default:
@@ -265,6 +267,7 @@ export {
   TransactionStatus,
   StatusOptionsResponse,
   StatusOptions,
+  ToTokenType,
 };
 
 export default Swap;

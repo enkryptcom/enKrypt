@@ -6,6 +6,7 @@ import {
   CustomToken,
   CustomErc20Token,
   TokenType,
+  CustomMassaToken,
 } from './types';
 import { NetworkNames } from '@enkryptcom/types';
 
@@ -24,7 +25,7 @@ export class TokensState {
    */
   async addErc20Token(
     chainName: NetworkNames,
-    token: CustomErc20Token,
+    token: CustomErc20Token | CustomMassaToken,
   ): Promise<boolean> {
     let state: IState | null = await this.storage.get(StorageKeys.customTokens);
 
@@ -35,7 +36,7 @@ export class TokensState {
         if (
           t.type === TokenType.ERC20 &&
           (t as CustomErc20Token).address.toLowerCase() ===
-          token.address.toLowerCase()
+            token.address.toLowerCase()
         ) {
           return false;
         }
@@ -64,7 +65,9 @@ export class TokensState {
     chainName: NetworkNames,
     address: string,
   ): Promise<boolean> {
-    const state: IState | null = await this.storage.get(StorageKeys.customTokens);
+    const state: IState | null = await this.storage.get(
+      StorageKeys.customTokens,
+    );
 
     if (state && state[chainName]) {
       const tokens = state[chainName];
@@ -75,7 +78,7 @@ export class TokensState {
         if (
           token.type === TokenType.ERC20 &&
           (token as CustomErc20Token).address.toLowerCase() ===
-          address.toLowerCase()
+            address.toLowerCase()
         ) {
           tokens!.splice(i, 1);
 

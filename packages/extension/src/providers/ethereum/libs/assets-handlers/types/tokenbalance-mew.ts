@@ -53,6 +53,7 @@ export type SupportedNetworkNames =
   | NetworkNames.Telos
   | NetworkNames.SyscoinNEVM
   | NetworkNames.Rollux
+  | NetworkNames.Sonic
   | NetworkNames.Sanko
   | NetworkNames.Degen
   | NetworkNames.Blast
@@ -74,4 +75,5 @@ export type SupportedNetworkNames =
   | NetworkNames.Story
   | NetworkNames.Base
   | NetworkNames.ImmutableZkevm
-  | NetworkNames.Conflux;
+  | NetworkNames.Conflux
+  | NetworkNames.CoreDAO;

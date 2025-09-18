@@ -88,7 +88,7 @@
           <div class="provider-verify-transaction__account-info">
             <div>
               <p class="provider-verify-transaction__account-info-to">
-                {{ decodedTx?.toAddress ?? '~' }}
+                {{ (decodedTx?.tokenTo || decodedTx?.toAddress) ?? '~' }}
               </p>
             </div>
           </div>
@@ -234,9 +234,8 @@ onBeforeMount(async () => {
     Request.value.params![0] as EthereumTransaction,
     network.value as EvmNetwork,
   ).then(decoded => {
-    identiconTo.value = network.value.identicon(
-      decoded.toAddress!.toLowerCase(),
-    );
+    const realToAddress = decoded.tokenTo || decoded.toAddress;
+    identiconTo.value = network.value.identicon(realToAddress!.toLowerCase());
     if (decoded.decoded && decoded.dataHex.startsWith(TokenSigs.approve)) {
       isApproval.value = true;
       if (

@@ -50,7 +50,7 @@ class UDResolver implements BaseResolver {
 
   public async resolveAddress(
     name: string,
-    coin: CoinType = "ETH"
+    coin: CoinType = "ETH",
   ): Promise<string | null> {
     return this.UDProvider.addr(name, coin)
       .then((address) => address)

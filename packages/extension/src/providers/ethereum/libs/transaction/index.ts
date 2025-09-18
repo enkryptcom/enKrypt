@@ -105,7 +105,10 @@ class Transaction {
         feeHistory: {} as FeeHistoryResult,
       }));
     // Gets the number of transactions that they will have sent by the next pending block
-    const nonce = await this.web3.getTransactionCount(this.tx.from, 'pending');
+    const nonce = await this.web3.getTransactionCount(
+      this.tx.from.toLowerCase(),
+      'pending',
+    ); // web3 rejects rootstock checksum addr so use lowercase addr
     if (!isFeeMarketNetwork) {
       // Legacy transaction
       const gasPrice = await this.web3.getGasPrice();

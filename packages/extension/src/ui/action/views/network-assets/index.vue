@@ -13,6 +13,12 @@
             :subnetwork="props.subnetwork"
           />
 
+          <!-- Banners -->
+          <network-assets-solana-staking-banner
+            v-if="isSolanaStakingBanner && selectedNetworkName == 'SOLANA'"
+            @close="closeSolanaStakingBanner"
+          />
+
           <network-activity-action v-bind="$attrs" />
           <network-assets-header v-if="!isLoading && assets.length > 0" />
           <network-assets-error
@@ -53,13 +59,13 @@
       />
     </div>
     <!-- prettier-ignore -->
-    <custom-evm-token
-      v-if="showAddCustomTokens"
-      :address="props.accountInfo.selectedAccount?.address!"
-      :network="(props.network as EvmNetwork)"
-      @update:token-added="addCustomAsset"
-      @update:close="toggleShowAddCustomTokens"
-    ></custom-evm-token>
+    <custom-evm-token v-if="showAddCustomTokens && isEvmNetwork" :address="props.accountInfo.selectedAccount?.address!"
+      :network="(props.network as EvmNetwork)" @update:token-added="addCustomAsset"
+      @update:close="toggleShowAddCustomTokens"></custom-evm-token>
+    <!-- prettier-ignore -->
+    <custom-massa-token v-if="showAddCustomTokens && isMassaNetwork" :address="props.accountInfo.selectedAccount?.address!"
+      :network="props.network" @update:token-added="addCustomAsset"
+      @update:close="toggleShowAddCustomTokens"></custom-massa-token>
   </div>
 </template>
 
@@ -81,7 +87,11 @@ import scrollSettings from '@/libs/utils/scroll-settings';
 import Deposit from '@action/views/deposit/index.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import CustomEvmToken from './components/custom-evm-token.vue';
+import CustomMassaToken from './components/custom-massa-token.vue';
 import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
+import { ProviderName } from '@/types/provider';
+import NetworkAssetsSolanaStakingBanner from './components/network-assets-solana-staking-banner.vue';
+import BannersState from '@/libs/banners-state';
 
 const showDeposit = ref(false);
 
@@ -139,9 +149,23 @@ const selectedNetworkName = computed(() => props.network.name);
 const selectedSubnetwork = computed(() => props.subnetwork);
 const showAddCustomTokens = ref(false);
 
+const isSolanaStakingBanner = ref(false);
+const bannersState = new BannersState();
+
+// Network type checks
+const isEvmNetwork = computed(
+  () => props.network.provider === ProviderName.ethereum,
+);
+const isMassaNetwork = computed(
+  () => props.network.provider === ProviderName.massa,
+);
+
 watch([selectedAddress, selectedNetworkName, selectedSubnetwork], updateAssets);
-onMounted(() => {
+onMounted(async () => {
   updateAssets();
+  if (await bannersState.showNetworkAssetsSolanaStakingBanner()) {
+    isSolanaStakingBanner.value = true;
+  }
 });
 
 const toggleDeposit = () => {
@@ -169,6 +193,11 @@ const addCustomAsset = (asset: AssetsType) => {
     // refetches assets to update the custom token
     updateAssets();
   }
+};
+
+const closeSolanaStakingBanner = () => {
+  isSolanaStakingBanner.value = false;
+  bannersState.hideNetworkAssetsSolanaStakingBanner();
 };
 </script>
 

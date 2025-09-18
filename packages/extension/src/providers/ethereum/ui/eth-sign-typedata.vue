@@ -6,7 +6,7 @@
 
     <template #content>
       <h2>Sign Typed Data</h2>
-
+      <hardware-wallet-msg :wallet-type="account.walletType" />
       <div class="common-popup__block">
         <div class="common-popup__account">
           <img :src="identicon" />
@@ -51,22 +51,18 @@ import { JsonTreeView } from '@/libs/json-tree-view';
 import SignLogo from '@action/icons/common/sign-logo.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import CommonPopup from '@action/views/common-popup/index.vue';
-import { getCustomError, getError } from '@/libs/error';
+import HardwareWalletMsg from '@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue';
+import { getError } from '@/libs/error';
 import { ErrorCodes } from '@/providers/ethereum/types';
 import { WindowPromiseHandler } from '@/libs/window-promise';
-import { InternalMethods } from '@/types/messenger';
 import { onMounted, ref } from 'vue';
 import { DEFAULT_EVM_NETWORK, getNetworkByName } from '@/libs/utils/networks';
 import { ProviderRequestOptions } from '@/types/provider';
-import {
-  typedSignatureHash,
-  TypedDataUtils,
-  SignTypedDataVersion,
-} from '@metamask/eth-sig-util';
+import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import { sanitizeData } from '@/providers/ethereum/libs/sanitize-typed-data';
-import { bufferToHex } from '@enkryptcom/utils';
 import { EvmNetwork } from '../types/evm-network';
 import { EnkryptAccount } from '@enkryptcom/types';
+import { TypedMessageSigner } from './libs/signer';
 
 const network = ref<EvmNetwork>(DEFAULT_EVM_NETWORK);
 const account = ref<EnkryptAccount>({
@@ -107,39 +103,21 @@ onMounted(async () => {
 });
 
 const approve = async () => {
-  const { Request, Resolve, sendToBackground } = await windowPromise;
+  const { Request, Resolve } = await windowPromise;
   const version = Request.value.params![2] as SignTypedDataVersion;
   const typedData = Request.value.params![0];
-  let msgHash;
-  try {
-    if (version === SignTypedDataVersion.V1) {
-      msgHash = typedSignatureHash(typedData);
-    } else {
-      msgHash = bufferToHex(TypedDataUtils.eip712Hash(typedData, version));
-    }
-  } catch (e: any) {
-    Resolve.value({
-      error: getCustomError(e.message),
-    });
-  }
-  sendToBackground({
-    method: InternalMethods.sign,
-    params: [msgHash, account.value],
-  }).then(res => {
-    if (res.error) {
-      Resolve.value(res);
-    } else {
-      Resolve.value({
-        result: JSON.stringify(res.result),
-      });
-    }
-  });
+  TypedMessageSigner({
+    account: account.value,
+    network: network.value,
+    version: version as any,
+    typedData,
+  })
+    .then(Resolve.value)
+    .catch(Resolve.value);
 };
 const deny = async () => {
   const { Resolve } = await windowPromise;
-  Resolve.value({
-    error: getError(ErrorCodes.userRejected),
-  });
+  Resolve.value({ error: getError(ErrorCodes.userRejected) });
 };
 </script>
 

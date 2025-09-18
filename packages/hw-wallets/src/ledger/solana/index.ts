@@ -11,6 +11,7 @@ import {
   PathType,
   SignMessageRequest,
   SignTransactionRequest,
+  SignTypedMessageRequest,
   SolSignTransaction,
 } from "../../types";
 import { supportedPaths } from "./configs";
@@ -79,6 +80,12 @@ class LedgerSolana implements HWWalletProvider {
         (options.transaction as SolSignTransaction).solTx,
       )
       .then((result) => bufferToHex(result.signature));
+  }
+
+  signTypedMessage(_request: SignTypedMessageRequest): Promise<string> {
+    return Promise.reject(
+      new Error("ledger-solana: signTypedMessage not supported"),
+    );
   }
 
   getSupportedPaths(): PathType[] {

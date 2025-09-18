@@ -50,6 +50,7 @@ enum SignerType {
   secp256k1btc = "secp256k1-btc", // bitcoin
   ed25519kda = "ed25519-kda", // kadena
   ed25519sol = "ed25519-sol", // solana
+  ed25519mas = "ed25519-mas", // massa
 }
 
 interface KeyRecordAdd {
