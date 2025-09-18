@@ -158,10 +158,19 @@
     </div>
 
     <!-- Banners -->
-    <solana-staking-banner
-      v-if="isSolanaStakingBanner && isExpanded"
-      @close="closeSolanaStakingBanner"
-    />
+    <Transition name="slide-fade">
+      <solana-staking-banner
+        v-if="isSolanaStakingBanner && isExpanded"
+        key="solana-banner"
+        @close="closeSolanaStakingBanner"
+      />
+
+      <survey-popup
+        v-else-if="isSurveyPopup && isExpanded"
+        key="survey-popup"
+        @close="closeSurveyPopup"
+      />
+    </Transition>
   </div>
 </template>
 
@@ -207,6 +216,7 @@ import SearchIcon from '@action/icons/common/search.vue';
 import { useMenuStore } from '@action/store/menu-store';
 import SolanaStakingBanner from './components/solana-staking-banner.vue';
 import BannersState from '@/libs/banners-state';
+import SurveyPopup from './components/survey-popup.vue';
 
 const appMenuRef = ref(null);
 
@@ -268,8 +278,9 @@ onMounted(async () => {
   newNetworksWithTags.value.swap = newSwaps.filter(
     net => !usedNetworks.swap.includes(net),
   );
-  if (await bannersState.showSolanaStakingBanner()) {
-    isSolanaStakingBanner.value = true;
+  isSolanaStakingBanner.value = await bannersState.showSolanaStakingBanner();
+  if (!isSolanaStakingBanner.value) {
+    openSurveyPopup();
   }
 });
 
@@ -542,16 +553,46 @@ const updateGradient = (newGradient: string) => {
  * Banners
  ------------------*/
 const isSolanaStakingBanner = ref(false);
+const isSurveyPopup = ref(false);
+
 const bannersState = new BannersState();
+
+const openSurveyPopup = async () => {
+  if (await bannersState.showSurveyPopup()) {
+    setTimeout(() => {
+      isSurveyPopup.value = true;
+    }, 4000);
+  }
+};
+
+const closeSurveyPopup = () => {
+  isSurveyPopup.value = false;
+  bannersState.hideSurveyPopup();
+};
 
 const closeSolanaStakingBanner = () => {
   isSolanaStakingBanner.value = false;
   bannersState.hideSolanaStakingBanner();
+  openSurveyPopup();
 };
 </script>
 
 <style lang="less">
 @import '@action/styles/theme.less';
+
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.1s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
+}
 
 .expand-menu {
   width: 340px;
