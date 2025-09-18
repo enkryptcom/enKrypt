@@ -5,6 +5,10 @@
       :class="['app__loading', isExpanded ? 'expanded' : 'collapsed']"
     >
       <swap-looking-animation />
+      <div v-if="popupClosed" class="app__loading__text">
+        <h2>Close this window</h2>
+        <p>Continue to onboard on the background page</p>
+      </div>
     </div>
     <div v-show="!isLoading">
       <app-menu
@@ -153,6 +157,7 @@ const updateShow = ref(false);
 const isLoading = ref(true);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
+const popupClosed = ref(false);
 
 /** -------------------
  * Rate
@@ -270,6 +275,11 @@ onMounted(async () => {
   const isInitialized = await kr.isInitialized();
   if (isInitialized) {
     const _isLocked = await isKeyRingLocked();
+    if (__IS_SAFARI__) {
+      setInterval(() => {
+        isKeyRingLocked(); // keepalive safari action window
+      }, 1000 * 5);
+    }
     if (_isLocked) {
       router
         .push({ name: 'lock-screen' })
@@ -300,6 +310,7 @@ onMounted(async () => {
     fetchAndSetRates();
   } else {
     openOnboard().then(() => {
+      popupClosed.value = true;
       window.close();
     });
   }
