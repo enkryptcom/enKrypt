@@ -22,6 +22,8 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
+    "@1inch/fusion-sdk": "^2.3.8",
+    "@1inch/limit-order-sdk": "^5.0.4",
     "@enkryptcom/types": "workspace:^",
     "@enkryptcom/utils": "workspace:^",
     "@solana/spl-token": "^0.4.14",

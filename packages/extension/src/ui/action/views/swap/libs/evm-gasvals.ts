@@ -47,7 +47,20 @@ export const getEVMTransactionFees = async (
   });
 
   const gasVals = await Promise.all(gasPromises);
-
+  if (!gasVals.length) {
+    const zeroFees = {
+      nativeValue: '0',
+      fiatValue: '0.00',
+      nativeSymbol: network.currencyName,
+      fiatSymbol: 'USD',
+    };
+    return {
+      [GasPriceTypes.ECONOMY]: zeroFees,
+      [GasPriceTypes.REGULAR]: zeroFees,
+      [GasPriceTypes.FAST]: zeroFees,
+      [GasPriceTypes.FASTEST]: zeroFees,
+    };
+  }
   const finalVal = gasVals.reduce((prev, curr) => {
     if (!prev) return curr;
 

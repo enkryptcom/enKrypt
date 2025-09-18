@@ -77,6 +77,9 @@ describe("Swap", () => {
       const changellyQuote = quotes.find(
         (q) => q.provider === ProviderName.changelly,
       );
+      const oneInchFusionQuote = quotes.find(
+        (q) => q.provider === ProviderName.oneInchFusion,
+      );
       const zeroxQuote = quotes.find((q) => q.provider === ProviderName.zerox);
       if (quotes?.length > 3) {
         const rangoQuote = quotes.find(
@@ -88,6 +91,7 @@ describe("Swap", () => {
       expect(changellyQuote!.provider).to.be.eq(ProviderName.changelly);
       expect(oneInceQuote!.provider).to.be.eq(ProviderName.oneInch);
       expect(paraswapQuote!.provider).to.be.eq(ProviderName.paraswap);
+      expect(oneInchFusionQuote!.provider).to.be.eq(ProviderName.oneInchFusion);
       const swapOneInch = await enkryptSwap.getSwap(oneInceQuote!.quote);
       expect(swapOneInch?.fromTokenAmount.toString()).to.be.eq(
         amountUSDT.toString(),
@@ -120,12 +124,16 @@ describe("Swap", () => {
       const changellyQuote = quotes.find(
         (q) => q.provider === ProviderName.changelly,
       );
+      const oneInchFusionQuote = quotes.find(
+        (q) => q.provider === ProviderName.oneInchFusion,
+      );
       const zeroxQuote = quotes.find((q) => q.provider === ProviderName.zerox);
       // const rangoQuote = quotes.find((q) => q.provider === ProviderName.rango);
       expect(zeroxQuote!.provider).to.be.eq(ProviderName.zerox);
       expect(changellyQuote!.provider).to.be.eq(ProviderName.changelly);
       expect(oneInceQuote!.provider).to.be.eq(ProviderName.oneInch);
       expect(paraswapQuote!.provider).to.be.eq(ProviderName.paraswap);
+      expect(oneInchFusionQuote!.provider).to.be.eq(ProviderName.oneInchFusion);
       // expect(rangoQuote!.provider).to.be.eq(ProviderName.rango);
     },
   );

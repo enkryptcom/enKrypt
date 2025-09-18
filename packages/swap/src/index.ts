@@ -4,6 +4,7 @@ import type Web3Eth from "web3-eth";
 import type { Connection as Web3Solana } from "@solana/web3.js";
 import { TOKEN_LISTS, TOP_TOKEN_INFO_LIST } from "./configs";
 import OneInch from "./providers/oneInch";
+import OneInchFusion from "./providers/oneInchFusion";
 import Paraswap from "./providers/paraswap";
 import Changelly from "./providers/changelly";
 import ZeroX from "./providers/zerox";
@@ -35,6 +36,8 @@ import type {
   StatusOptionsResponse,
   StatusOptions,
   ProviderClass,
+  RFQOptionsResponse,
+  ProviderWithRFQ,
 } from "./types";
 import {
   SupportedNetworkName,
@@ -127,6 +130,7 @@ class Swap extends EventEmitter {
         // EVM
         this.providers = [
           new OneInch(this.api as Web3Eth, this.network),
+          new OneInchFusion(this.api as Web3Eth, this.network),
           new Paraswap(this.api as Web3Eth, this.network),
           new Changelly(this.api, this.network),
           new ZeroX(this.api as Web3Eth, this.network),
@@ -238,6 +242,11 @@ class Swap extends EventEmitter {
   getStatus(options: StatusOptionsResponse): Promise<TransactionStatus | null> {
     const provider = this.providers.find((p) => p.name === options.provider);
     return provider.getStatus(options.options);
+  }
+
+  submitRFQOrder(options: RFQOptionsResponse): Promise<string> {
+    const provider = this.providers.find((p) => p.name === options.provider);
+    return (provider as ProviderWithRFQ).submitRFQOrder(options.options);
   }
 
   static networkNameToInfo(networkName: SupportedNetworkName): NetworkInfo {

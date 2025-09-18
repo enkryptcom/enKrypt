@@ -48,6 +48,7 @@ import {
   StatusOptionsResponse,
   SupportedNetworkName,
   SwapQuote,
+  SwapType,
   TokenType,
   TokenTypeTo,
   TransactionStatus,
@@ -1185,6 +1186,7 @@ class Rango extends ProviderClass {
     const response: ProviderSwapResponse = {
       fromTokenAmount: res.fromTokenAmount,
       provider: this.name,
+      type: SwapType.regular,
       toTokenAmount: res.toTokenAmount,
       additionalNativeFees: res.additionalNativeFees,
       transactions: res.networkTransactions.transactions,
