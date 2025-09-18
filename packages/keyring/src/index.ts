@@ -317,6 +317,30 @@ class KeyRing {
     await this.#storage.set(configs.STORAGE_KEYS.KEY_INFO, existingKeys);
   }
 
+  async getPrivateKey(
+    options: SignOptions,
+    keyringPassword: string,
+  ): Promise<string> {
+    assert(
+      !Object.values(HWwalletType).includes(
+        options.walletType as unknown as HWwalletType,
+      ),
+      Errors.KeyringErrors.CannotUseKeyring,
+    );
+    if (options.walletType === WalletType.privkey) {
+      const privkeys = await this.#getPrivateKeys(keyringPassword);
+      assert(privkeys[options.pathIndex.toString()], Errors.KeyringErrors.AddressDoesntExists);
+      return privkeys[options.pathIndex.toString()];
+    } else {
+      const mnemonic = await this.#getMnemonic(keyringPassword)
+      const keypair = await this.#signers[options.signerType].generate(
+        mnemonic,
+        pathParser(options.basePath, options.pathIndex, options.signerType),
+      );
+      return keypair.privateKey;
+    }
+  }
+
   async #getPrivateKeys(
     keyringPassword: string,
   ): Promise<Record<string, string>> {

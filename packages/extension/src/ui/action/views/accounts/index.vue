@@ -23,8 +23,10 @@
           :identicon-element="network.identicon"
           :show-edit="true"
           :deletable="account.walletType !== WalletType.mnemonic"
+          :exportable="true"
           @action:rename="renameAccount(index)"
           @action:delete="deleteAccount(index)"
+          @action:export="exportAccount(index)"
         />
 
         <div v-if="displayInactive.length > 0" class="accounts__info">
@@ -100,6 +102,13 @@
     :account="accountToDelete"
   />
 
+  <export-account-form
+    v-if="isExportAccount"
+    v-model="isExportAccount"
+    v-bind="$attrs"
+    :account="accountToExport"
+  />
+
   <import-account
     v-bind="$attrs"
     v-model="isImportAccount"
@@ -114,6 +123,7 @@ import AddAccount from '@action/icons/common/add-account.vue';
 import AddAccountForm from './components/add-account-form.vue';
 import RenameAccountForm from './components/rename-account-form.vue';
 import DeleteAccountForm from './components/delete-account-form.vue';
+import ExportAccountForm from './components/export-account-form.vue';
 import AddHardwareAccount from '@action/icons/actions/add-hardware-account.vue';
 import ImportAccountIcon from '@action/icons/actions/import-account-icon.vue';
 import ImportAccount from '@action/views/import-account/index.vue';
@@ -134,6 +144,7 @@ const emit = defineEmits<{
 }>();
 const isAddAccount = ref(false);
 const isRenameAccount = ref(false);
+const isExportAccount = ref(false);
 const isDeleteAccount = ref(false);
 const isImportAccount = ref(false);
 const hwWallet = new HWwallets();
@@ -154,6 +165,7 @@ const props = defineProps({
 });
 const accountToRename = ref<EnkryptAccount>();
 const accountToDelete = ref<EnkryptAccount>();
+const accountToExport = ref<EnkryptAccount>();
 
 const close = () => {
   props.toggle();
@@ -182,6 +194,14 @@ const renameAccount = (accountIdx: number) => {
   props.toggle();
   setTimeout(() => {
     isRenameAccount.value = true;
+  }, 100);
+};
+
+const exportAccount = (accountIdx: number) => {
+  accountToExport.value = props.accountInfo.activeAccounts[accountIdx];
+  props.toggle();
+  setTimeout(() => {
+    isExportAccount.value = true;
   }, 100);
 };
 
