@@ -1,12 +1,12 @@
-import { NetworkNames } from '@enkryptcom/types';
-import { BaseTokenOptions } from './base-token';
 import {
+  StatusOptionsResponse,
   TokenType,
   TokenTypeTo,
-  StatusOptionsResponse,
 } from '@enkryptcom/swap';
+import { NetworkNames } from '@enkryptcom/types';
 import { ICommandResult } from '@kadena/client';
 import { OperationStatus } from '@massalabs/massa-web3';
+import { BaseTokenOptions } from './base-token';
 
 interface BTCIns {
   address: string;
@@ -22,6 +22,19 @@ interface SOLRawInfo {
   transactionHash: string;
   timestamp: number | null | undefined;
   status: boolean;
+}
+
+interface MultiversXRawInfo {
+  transactionHash: string;
+  timestamp: number;
+  gasLimit: number;
+  gasPrice: number;
+  from: string;
+  to: string;
+  value: string;
+  nonce: number;
+  data: string;
+  status: string;
 }
 
 interface BTCRawInfo {
@@ -132,20 +145,22 @@ interface Activity {
     | SwapRawInfo
     | KadenaRawInfo
     | SOLRawInfo
+    | MultiversXRawInfo
     | MassaRawInfo;
 }
 
 export {
-  EthereumRawInfo,
-  SubstrateRawInfo,
   Activity,
   ActivityStatus,
   ActivityType,
-  SubscanExtrinsicInfo,
   BTCRawInfo,
-  SwapRawInfo,
-  KadenaRawInfo,
+  EthereumRawInfo,
   KadenaDBInfo,
-  SOLRawInfo,
+  KadenaRawInfo,
   MassaRawInfo,
+  MultiversXRawInfo,
+  SOLRawInfo,
+  SubscanExtrinsicInfo,
+  SubstrateRawInfo,
+  SwapRawInfo,
 };

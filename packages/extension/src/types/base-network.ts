@@ -1,14 +1,15 @@
-import EvmAPI from '@/providers/ethereum/libs/api';
-import SubstrateAPI from '@/providers/polkadot/libs/api';
 import BitcoinAPI from '@/providers/bitcoin/libs/api';
+import { BNType } from '@/providers/common/types';
+import EvmAPI from '@/providers/ethereum/libs/api';
 import KadenaAPI from '@/providers/kadena/libs/api';
+import MultiversXAPI from '@/providers/multiversx/libs/api';
+import SubstrateAPI from '@/providers/polkadot/libs/api';
 import SolanaAPI from '@/providers/solana/libs/api';
 import { AssetsType, ProviderName } from '@/types/provider';
-import { CoingeckoPlatform, SignerType, NetworkNames } from '@enkryptcom/types';
+import { CoingeckoPlatform, NetworkNames, SignerType } from '@enkryptcom/types';
+import MassaAPI from '../providers/massa/libs/api';
 import { Activity } from './activity';
 import { BaseToken } from './base-token';
-import { BNType } from '@/providers/common/types';
-import MassaAPI from '../providers/massa/libs/api';
 
 export interface SubNetworkOptions {
   id: string;
@@ -40,6 +41,7 @@ export interface BaseNetworkOptions {
     | Promise<BitcoinAPI>
     | Promise<KadenaAPI>
     | Promise<SolanaAPI>
+    | Promise<MultiversXAPI>
     | Promise<MassaAPI>;
   customTokens?: boolean;
 }
@@ -83,6 +85,7 @@ export abstract class BaseNetwork {
     | Promise<BitcoinAPI>
     | Promise<KadenaAPI>
     | Promise<SolanaAPI>
+    | Promise<MultiversXAPI>
     | Promise<MassaAPI>;
   public customTokens: boolean;
 

@@ -34,6 +34,7 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 - Ethereum
 - Bitcoin
 - Solana
+- MultiversX
 - Acala
 - Amplitude
 - Arbitrum

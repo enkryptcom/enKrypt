@@ -1,9 +1,10 @@
 import BitcoinProvider from '@/providers/bitcoin';
 import type EthereumProvider from '@/providers/ethereum';
-import type PolkadotProvider from '@/providers/polkadot';
 import type KadenaProvider from '@/providers/kadena';
-import SolanaProvider from '@/providers/solana';
 import MassaProvider from '@/providers/massa';
+import MultiversXProvider from '@/providers/multiversx';
+import type PolkadotProvider from '@/providers/polkadot';
+import SolanaProvider from '@/providers/solana';
 
 export interface TabProviderType {
   [key: string]: Record<
@@ -13,6 +14,7 @@ export interface TabProviderType {
     | BitcoinProvider
     | KadenaProvider
     | SolanaProvider
+    | MultiversXProvider
     | MassaProvider
   >;
 }
@@ -23,6 +25,7 @@ export interface ProviderType {
     | typeof BitcoinProvider
     | typeof KadenaProvider
     | typeof SolanaProvider
+    | typeof MultiversXProvider
     | typeof MassaProvider;
 }
 export interface ExternalMessageOptions {
