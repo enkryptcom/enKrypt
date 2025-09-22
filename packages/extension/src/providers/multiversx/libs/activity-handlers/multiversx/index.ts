@@ -215,7 +215,7 @@ export const nftHandler = async (
       name: nft.name,
       id: nft.identifier,
       contract: '',
-      image: nft.media[0]?.url ?? '',
+      image: nft.media?.[0]?.url ?? '',
       type: NFTType.MultiversXNFT,
       url: nft.url,
     };
@@ -230,9 +230,7 @@ export const nftHandler = async (
   const nftCollections: NFTCollection[] = Object.entries(collectionsMap).map(
     ([collectionId, items]) => ({
       name: collectionId,
-      id: collectionId,
       items,
-      type: NFTType.MultiversXNFT,
       image: items[0]?.image ?? '',
       description: '',
       contract: '',
