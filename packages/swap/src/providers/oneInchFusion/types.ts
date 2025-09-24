@@ -5,6 +5,7 @@ export interface OneInchSwapResponse {
   typedMessages: string[];
   toTokenAmount: BN;
   fromTokenAmount: BN;
+  fromUSDValue: string;
   orderStruct: string;
   quoteId: string;
   orderHash: string;

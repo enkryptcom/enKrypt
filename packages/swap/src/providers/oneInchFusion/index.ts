@@ -1,4 +1,5 @@
 import type Web3Eth from "web3-eth";
+import BigNumber from "bignumber.js";
 import { toBN } from "web3-utils";
 import {
   Address,
@@ -45,6 +46,7 @@ import {
 import estimateEVMGasList from "../../common/estimateGasList";
 import { isEVMAddress } from "../../utils/common";
 import { supportedNetworks } from "../oneInch";
+import SwapToken from "../../swapToken";
 
 class OneInchFusion extends ProviderWithRFQ {
   tokenList: TokenType[];
@@ -229,6 +231,7 @@ class OneInchFusion extends ProviderWithRFQ {
           quoteId: order.quoteId,
           orderHash: order.hash,
           extension: order.order.extension.encode(),
+          fromUSDValue: quote.prices.usd.fromToken,
         };
       })
       .catch((e) => {
@@ -243,6 +246,17 @@ class OneInchFusion extends ProviderWithRFQ {
   ): Promise<ProviderQuoteResponse | null> {
     return this.getOneInchSwap(options, meta, false).then(async (res) => {
       if (!res) return null;
+      const minMax = await this.getMinMaxAmount();
+      const fromUSDValue = res.fromUSDValue;
+      const fromToken = new SwapToken(options.fromToken);
+      const minFrom = fromToken.toRaw(
+        new BigNumber(1)
+          .div(Number(fromUSDValue) / 10)
+          .toFixed(fromToken.token.decimals),
+      ); // minimum $10 worth of tokens
+      minMax.minimumFrom = minFrom;
+
+      console.log(`min from: ${minMax}`);
       const response: ProviderQuoteResponse = {
         fromTokenAmount: res.fromTokenAmount,
         toTokenAmount: res.toTokenAmount,
@@ -258,7 +272,7 @@ class OneInchFusion extends ProviderWithRFQ {
             total + toBN(curVal.gasLimit).toNumber(),
           0,
         ),
-        minMax: await this.getMinMaxAmount(),
+        minMax,
       };
       return response;
     });
