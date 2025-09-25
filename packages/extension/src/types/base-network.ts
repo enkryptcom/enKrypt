@@ -8,6 +8,7 @@ import { CoingeckoPlatform, SignerType, NetworkNames } from '@enkryptcom/types';
 import { Activity } from './activity';
 import { BaseToken } from './base-token';
 import { BNType } from '@/providers/common/types';
+import MassaAPI from '../providers/massa/libs/api';
 
 export interface SubNetworkOptions {
   id: string;
@@ -38,7 +39,8 @@ export interface BaseNetworkOptions {
     | Promise<EvmAPI>
     | Promise<BitcoinAPI>
     | Promise<KadenaAPI>
-    | Promise<SolanaAPI>;
+    | Promise<SolanaAPI>
+    | Promise<MassaAPI>;
   customTokens?: boolean;
 }
 
@@ -80,7 +82,8 @@ export abstract class BaseNetwork {
     | Promise<EvmAPI>
     | Promise<BitcoinAPI>
     | Promise<KadenaAPI>
-    | Promise<SolanaAPI>;
+    | Promise<SolanaAPI>
+    | Promise<MassaAPI>;
   public customTokens: boolean;
 
   constructor(options: BaseNetworkOptions) {

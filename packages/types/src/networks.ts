@@ -109,6 +109,8 @@ export enum NetworkNames {
   AppLayerTestnet = "AppLayerTestnet",
   Nibiru = "Nibiru",
   NibiruTestnet = "NibiruTestnet",
+  Massa = "Massa",
+  MassaBuildnet = "MassaBuildnet",
   TAC = "TAC",
 }
 
@@ -180,4 +182,5 @@ export enum CoingeckoPlatform {
   Conflux = "conflux",
   CoreDAO = "core",
   Nibiru = "nibiru",
+  Massa = "massa",
 }

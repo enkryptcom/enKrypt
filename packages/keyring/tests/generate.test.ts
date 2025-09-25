@@ -253,6 +253,57 @@ describe("Keyring create tests", () => {
     },
   );
 
+  it(
+    "keyring should generate massa-ed25519 keys",
+    { timeout: 20_000 },
+    async () => {
+      const memStorage = new MemoryStorage();
+      const storage = new Storage("keyring", { storage: memStorage });
+      const keyring = new KeyRing(storage);
+      await keyring.init(password, { mnemonic: MNEMONIC });
+      const keyAdd: KeyRecordAdd = {
+        basePath: "m/44'/632'",
+        signerType: SignerType.ed25519mas,
+        name: "0index",
+        walletType: WalletType.mnemonic,
+      };
+      await keyring.unlockMnemonic(password);
+      const pair = await keyring.createKey(keyAdd);
+      expect(pair.signerType).equals(SignerType.ed25519mas);
+      expect(pair.pathIndex).equals(0);
+      expect(pair.address).equals(
+        "AU12XkXdPKYBwuy3NANX44dR3cL7WMobsYcj1fWMv1mxkkHU9qBWB",
+      );
+    },
+  );
+
+  it(
+    "keyring should generate massa-ed25519 keys with extra word",
+    { timeout: 20_000 },
+    async () => {
+      const memStorage = new MemoryStorage();
+      const storage = new Storage("keyring", { storage: memStorage });
+      const keyring = new KeyRing(storage);
+      await keyring.init(password, {
+        mnemonic: MNEMONIC,
+        extraWord: EXTRA_WORD,
+      });
+      const keyAdd: KeyRecordAdd = {
+        basePath: "m/44'/632'",
+        signerType: SignerType.ed25519mas,
+        name: "0index",
+        walletType: WalletType.mnemonic,
+      };
+      await keyring.unlockMnemonic(password);
+      const pair = await keyring.createKey(keyAdd);
+      expect(pair.signerType).equals(SignerType.ed25519mas);
+      expect(pair.pathIndex).equals(0);
+      expect(pair.address).equals(
+        "AU12M9c9LwomXh7sEuK779RnV8QbzFfQRZ1qpKhwWzXPpShhrBfz2",
+      );
+    },
+  );
+
   it("keyring should generate ethereum keys", { timeout: 20_000 }, async () => {
     const memStorage = new MemoryStorage();
     const storage = new Storage("keyring", { storage: memStorage });

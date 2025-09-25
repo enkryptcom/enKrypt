@@ -32,9 +32,9 @@
   "devDependencies": {
     "@enkryptcom/types": "workspace:^",
     "@types/hdkey": "^2.1.0",
-    "@types/node": "^24.3.1",
-    "@typescript-eslint/eslint-plugin": "^8.43.0",
-    "@typescript-eslint/parser": "^8.43.0",
+    "@types/node": "^24.4.0",
+    "@typescript-eslint/eslint-plugin": "^8.44.0",
+    "@typescript-eslint/parser": "^8.44.0",
     "eslint": "^9.35.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.8",
@@ -46,7 +46,7 @@
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
-    "typescript-eslint": "8.43.0",
+    "typescript-eslint": "8.44.0",
     "vitest": "^3.2.4"
   },
   "repository": {

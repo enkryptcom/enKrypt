@@ -41,7 +41,6 @@ import telosNode from './tlos';
 import blastNode from './blast';
 import sankoNode from './dmt';
 import degenNode from './degen';
-import hamNode from './ham';
 import zcdNode from './zcd';
 import immutableZkevmNode from './immutable-zkevm';
 import rariNode from './rari';
@@ -77,7 +76,7 @@ import coredao from './coredao';
 import appLayerTestnet from './applayer-testnet';
 import nibiru from './nibiru';
 import nibiruTestnet from './nibiru-testnet';
-import tac from './tac';
+// import tac from './tac'; waiting for RPC fix
 
 export default {
   sepolia: sepoliaNode,
@@ -129,7 +128,6 @@ export default {
   blast: blastNode,
   sanko: sankoNode,
   degen: degenNode,
-  ham: hamNode,
   zcd: zcdNode,
   immutableZkevm: immutableZkevmNode,
   rari: rariNode,
@@ -166,5 +164,5 @@ export default {
   nibiru: nibiru,
   nibiruTestnet: nibiruTestnet,
   appLayerTestnet: appLayerTestnet,
-  tac: tac,
+  // tac: tac, waiting for RPC fix
 };

@@ -21,4 +21,8 @@ export interface CustomErc20Token extends CustomToken {
   address: `0x${string}`;
 }
 
+export interface CustomMassaToken extends CustomToken {
+  address: `AS${string}`;
+}
+
 export type IState = Partial<Record<NetworkNames, CustomToken[]>>;
