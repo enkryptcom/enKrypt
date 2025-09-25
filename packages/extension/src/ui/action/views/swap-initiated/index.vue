@@ -24,8 +24,12 @@
                 :loop="true"
                 class="swap-initiated__loading"
               />
-              <p v-if="isHardware">
+              <p v-if="isHardware && !waitingToBeMined">
                 Follow further instructions on your hardware wallet device
+              </p>
+              <p v-if="waitingToBeMined">
+                Waiting for Transactions to be mined, this can take upto 30
+                seconds
               </p>
             </div>
 
@@ -91,6 +95,7 @@ interface IProps {
   isLoading: boolean;
   isHardware: boolean;
   isError: boolean;
+  waitingToBeMined: boolean;
   errorMessage: string;
   network: BaseNetwork;
 }

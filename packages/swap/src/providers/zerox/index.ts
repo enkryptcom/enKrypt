@@ -15,6 +15,7 @@ import {
   StatusOptionsResponse,
   SupportedNetworkName,
   SwapQuote,
+  SwapType,
   TokenType,
   TransactionStatus,
   TransactionType,
@@ -173,8 +174,8 @@ class ZeroX extends ProviderClass {
     )
       .then((res) => res.json())
       .then(async (response: ZeroXResponseType) => {
-        if (response.name) {
-          console.error(response.name, response.message);
+        if (response.name || !response.transaction) {
+          console.error(response);
           return Promise.resolve(null);
         }
         const transactions: EVMTransaction[] = [];
@@ -258,6 +259,7 @@ class ZeroX extends ProviderClass {
         fromTokenAmount: res.fromTokenAmount,
         provider: this.name,
         toTokenAmount: res.toTokenAmount,
+        type: SwapType.regular,
         additionalNativeFees: toBN(0),
         transactions: res.transactions,
         slippage: quote.meta.slippage || DEFAULT_SLIPPAGE,

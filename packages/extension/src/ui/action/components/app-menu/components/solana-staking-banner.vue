@@ -31,7 +31,7 @@ const close = () => {
   emit('close');
 };
 const openStakingLink = async () => {
-  trackSolanaStakingBanner(SolanaStakingBannerEvents.SolanaWalletClicked);
+  trackSolanaStakingBanner(SolanaStakingBannerEvents.NetworkListClicked);
   setTimeout(() => {
     openLink('https://staking.enkrypt.com');
   }, 1000);

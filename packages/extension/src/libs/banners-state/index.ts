@@ -19,6 +19,7 @@ export default class BannersState {
     const newState: IState = {
       isHideSolanStakingBanner: false,
       isHideNetworkAssetSolanStakingBanner: false,
+      isHideSurveyPopup: false,
     };
     await this.storage.set(StorageKeys.bannersInfo, newState);
     return newState;
@@ -28,6 +29,7 @@ export default class BannersState {
     const state = await this.getOrInitializeState();
     state.isHideNetworkAssetSolanStakingBanner = false;
     state.isHideSolanStakingBanner = false;
+    state.isHideSurveyPopup = false;
     await this.storage.set(StorageKeys.bannersInfo, state);
   }
 
@@ -50,6 +52,17 @@ export default class BannersState {
   async hideSolanaStakingBanner() {
     const state = await this.getOrInitializeState();
     state.isHideSolanStakingBanner = true;
+    await this.storage.set(StorageKeys.bannersInfo, state);
+  }
+
+  async showSurveyPopup(): Promise<boolean> {
+    const state = await this.getOrInitializeState();
+    return !state.isHideSurveyPopup;
+  }
+
+  async hideSurveyPopup() {
+    const state = await this.getOrInitializeState();
+    state.isHideSurveyPopup = true;
     await this.storage.set(StorageKeys.bannersInfo, state);
   }
 }
