@@ -165,11 +165,12 @@
         @close="closeSolanaStakingBanner"
       />
 
-      <survey-popup
+      <!-- Leaving this here for future use -->
+      <!-- <survey-popup
         v-else-if="isSurveyPopup && isExpanded"
         key="survey-popup"
         @close="closeSurveyPopup"
-      />
+      /> -->
     </Transition>
   </div>
 </template>
@@ -216,7 +217,6 @@ import SearchIcon from '@action/icons/common/search.vue';
 import { useMenuStore } from '@action/store/menu-store';
 import SolanaStakingBanner from './components/solana-staking-banner.vue';
 import BannersState from '@/libs/banners-state';
-import SurveyPopup from './components/survey-popup.vue';
 
 const appMenuRef = ref(null);
 
@@ -553,27 +553,12 @@ const updateGradient = (newGradient: string) => {
  * Banners
  ------------------*/
 const isSolanaStakingBanner = ref(false);
-const isSurveyPopup = ref(false);
 
 const bannersState = new BannersState();
-
-const openSurveyPopup = async () => {
-  if (await bannersState.showSurveyPopup()) {
-    setTimeout(() => {
-      isSurveyPopup.value = true;
-    }, 4000);
-  }
-};
-
-const closeSurveyPopup = () => {
-  isSurveyPopup.value = false;
-  bannersState.hideSurveyPopup();
-};
 
 const closeSolanaStakingBanner = () => {
   isSolanaStakingBanner.value = false;
   bannersState.hideSolanaStakingBanner();
-  openSurveyPopup();
 };
 </script>
 
