@@ -16,7 +16,6 @@ const waitForReceipt = async (
     if (new Date().getTime() - timeNow > timeOutSecs * 1000)
       return Promise.reject('Transactions taking too long, timedout');
     promises = hashes.map(hash => web3.getTransactionReceipt(hash));
-    console.log('waiting for confirmations');
   }
 };
 

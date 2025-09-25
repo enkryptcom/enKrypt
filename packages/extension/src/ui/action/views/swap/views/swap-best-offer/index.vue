@@ -266,7 +266,6 @@ const getTransactionFees = async (
   networkName: SupportedNetworkName,
   trade: ProviderResponseWithStatus,
 ): Promise<Partial<GasFeeType>> => {
-  console.log(trade);
   const transactionObjects = await getSwapTransactions(
     networkName,
     trade.transactions,
@@ -450,21 +449,18 @@ const sendAction = async () => {
           }
           try {
             waitingToBeMined.value = true;
-            console.log('starting wait');
             await waitForReceipt(
               txs.map(tx => tx.hash),
               network.value!,
               30,
             );
-            console.log('wait done');
-            const orderHash = await swap.value!.submitRFQOrder({
+            await swap.value!.submitRFQOrder({
               options: {
                 ...pickedTrade.value.rfqOptions!.options,
                 signatures: typedMessageSigs,
               },
               provider: pickedTrade.value.rfqOptions!.provider,
             });
-            console.log(orderHash);
           } catch (e: any) {
             throw new Error(e);
           } finally {
