@@ -166,15 +166,6 @@ class OneInchFusion extends ProviderWithRFQ {
             ? Number(meta.slippage)
             : Number(DEFAULT_SLIPPAGE),
         });
-        console.log({
-          ...quoteParams,
-          preset: quote.recommendedPreset,
-          walletAddress: options.fromAddress,
-          receiver: options.toAddress,
-          slippage: meta.slippage
-            ? Number(meta.slippage)
-            : Number(DEFAULT_SLIPPAGE),
-        });
         const transactions: EVMTransaction[] = [];
         const approvalTxs = await getAllowanceTransactions({
           infinityApproval: meta.infiniteApproval,
@@ -255,8 +246,6 @@ class OneInchFusion extends ProviderWithRFQ {
           .toFixed(fromToken.token.decimals),
       ); // minimum $10 worth of tokens
       minMax.minimumFrom = minFrom;
-
-      console.log(`min from: ${minMax}`);
       const response: ProviderQuoteResponse = {
         fromTokenAmount: res.fromTokenAmount,
         toTokenAmount: res.toTokenAmount,
@@ -326,7 +315,6 @@ class OneInchFusion extends ProviderWithRFQ {
   }
 
   submitRFQOrder(options: RFQOptions): Promise<string> {
-    console.log(options);
     if (!options.signatures || !options.signatures.length)
       throw new Error("OneInchFusion: No signatures found");
     const relayRequest = RelayerRequest.new({

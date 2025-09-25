@@ -47,7 +47,7 @@ describe("OneInchFusion Provider", async () => {
       expect(quote?.toTokenAmount.gtn(0)).to.be.eq(true);
 
       const swap = await oneInch.getSwap(quote!.quote);
-      expect(swap?.transactions.length).to.be.eq(2);
+      expect(swap?.transactions.length).to.be.eq(1);
       expect(swap?.transactions[0].to).to.be.eq(fromToken.address);
       expect((swap?.transactions[0] as EVMTransaction).data).to.be.eq(
         `0x095ea7b3000000000000000000000000${ONEINCH_APPROVAL_ADDRESS.replace(
@@ -74,7 +74,7 @@ describe("OneInchFusion Provider", async () => {
       );
       expect(quote?.quote.meta.infiniteApproval).to.be.eq(false);
       const swap = await oneInch.getSwap(quote!.quote);
-      expect(swap?.transactions.length).to.be.eq(2);
+      expect(swap?.transactions.length).to.be.eq(1);
       expect((swap?.transactions[0] as EVMTransaction).data).to.be.eq(
         `0x095ea7b3000000000000000000000000${ONEINCH_APPROVAL_ADDRESS.replace(
           "0x",
