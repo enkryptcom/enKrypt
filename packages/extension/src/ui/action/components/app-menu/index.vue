@@ -279,9 +279,6 @@ onMounted(async () => {
     net => !usedNetworks.swap.includes(net),
   );
   isSolanaStakingBanner.value = await bannersState.showSolanaStakingBanner();
-  if (!isSolanaStakingBanner.value) {
-    openSurveyPopup();
-  }
 });
 
 /** -------------------
