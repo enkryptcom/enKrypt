@@ -15,6 +15,7 @@ import {
   StatusOptionsResponse,
   SupportedNetworkName,
   SwapQuote,
+  SwapType,
   TokenType,
   TransactionStatus,
   TransactionType,
@@ -287,12 +288,14 @@ class ParaSwap extends ProviderClass {
         if (!jsonRes.priceRoute) {
           if (jsonRes.error) {
             // Sometimes ParaSwap returns this error: "No routes found with enough liquidity"
-            throw new Error(`ParaSwap error getting prices: ${jsonRes.error}`);
+            console.error(`ParaSwap error getting prices: ${jsonRes.error}`);
+            return null;
           } else {
             // Didn't have the expected "priceRoute" property
-            throw new Error(
+            console.error(
               `ParaSwap error getting prices, no "priceRoute" property on response: ${JSON.stringify(jsonRes)}`,
             );
+            return null;
           }
         }
         const res: ParaswpQuoteResponse = jsonRes.priceRoute;
@@ -345,6 +348,7 @@ class ParaSwap extends ProviderClass {
       const response: ProviderSwapResponse = {
         fromTokenAmount: res.fromTokenAmount,
         provider: this.name,
+        type: SwapType.regular,
         toTokenAmount: res.toTokenAmount,
         additionalNativeFees: toBN(0),
         transactions: res.transactions,
