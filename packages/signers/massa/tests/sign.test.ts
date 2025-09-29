@@ -50,7 +50,7 @@ describe("Massa signing", () => {
     );
     expect(isValid).toBe(false);
   });
-  it("should accept invalid signatures", async () => {
+  it("should accept valid signatures", async () => {
     const signer = new MassaSigner();
     const keypair = await signer.generate(MNEMONIC, "m/44'/632'/0'/0'");
     const validSig =
