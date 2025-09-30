@@ -225,8 +225,7 @@ class OneInchFusion extends ProviderWithRFQ {
           fromUSDValue: quote.prices.usd.fromToken,
         };
       })
-      .catch((e) => {
-        console.error(e, "herere");
+      .catch(() => {
         return null;
       });
   }
