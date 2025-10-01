@@ -103,13 +103,14 @@ const logger = new DebugLogger("swap:jupiter");
  * [Solana 101](https://2501babe.github.io/posts/solana101.html)
  */
 
-const JUPITER_TOKENS_URL = "https://tokens.jup.ag/tokens?tags=verified";
+const JUPITER_TOKENS_URL =
+  "https://lite-api.jup.ag/tokens/v2/tag?query=verified";
 
 /**
  * @see https://station.jup.ag/docs/APIs/swap-api
  * @see https://station.jup.ag/api-v6/introduction
  */
-const JUPITER_API_URL = "https://quote-api.jup.ag/v6/";
+const JUPITER_API_URL = "https://lite-api.jup.ag/swap/v1/";
 
 // Jupiter API Tokens
 
@@ -465,6 +466,7 @@ export class Jupiter extends ProviderClass {
       };
       return result;
     } catch (err) {
+      console.log(err);
       if (!context.signal.aborted) {
         console.error(
           `[Jupiter.getQuote] Error calling getQuote: ${String(err)}`,
@@ -1054,7 +1056,9 @@ function sleep(
   duration: number,
   abortable?: { signal?: AbortSignal },
 ): Promise<void> {
-  if (abortable.signal.aborted) return Promise.reject(abortable.signal.reason);
+  console.log(abortable);
+  if (abortable?.signal?.aborted)
+    return Promise.reject(abortable.signal.reason);
   if (duration <= 0) return Promise.resolve();
   return new Promise<void>((res, rej) => {
     function onTimeout() {
