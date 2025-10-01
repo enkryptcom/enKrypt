@@ -42,7 +42,6 @@ describe("Massa signing", () => {
     const keypair = await signer.generate(MNEMONIC, "m/44'/632'/0'/0'");
     const invalidSignature = "0x" + "0".repeat(128); // Invalid signature
     const sig = await signer.sign(msgHash, keypair);
-    console.log(sig);
     const isValid = await signer.verify(
       msgHash,
       invalidSignature,
