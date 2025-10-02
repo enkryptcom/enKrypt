@@ -4,7 +4,6 @@ import App from './App.vue';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import routes from './routes';
 import * as filters from '@action/utils/filters';
-import '@polkadot/wasm-crypto/initOnlyAsm';
 
 global.WeakMap = WeakMap;
 
