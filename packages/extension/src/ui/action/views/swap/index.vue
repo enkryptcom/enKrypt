@@ -168,6 +168,7 @@ import { GenericNameResolver, CoinType } from '@/libs/name-resolver';
 import { trackSwapEvents } from '@/libs/metrics';
 import { SwapEventType } from '@/libs/metrics/types';
 import { Connection } from '@solana/web3.js';
+import { SwapType } from '@enkryptcom/swap/src/types';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const debug = (..._args: any[]) => {};
@@ -837,8 +838,12 @@ const sendAction = async () => {
   const tradeStatusOptions = trades.map(t =>
     t!.getStatusObject({ transactions: [] }),
   );
+  const rfqTrades = trades.filter(t => t!.type === SwapType.rfq);
+  const tradesRfqOptions = rfqTrades.map(t => t!.getRFQObject!());
   const statusObjects = await Promise.all(tradeStatusOptions);
+  const rfqOptionObjects = await Promise.all(tradesRfqOptions);
   trades.forEach((t, idx) => (t!.status = statusObjects[idx]));
+  rfqTrades.forEach((t, idx) => (t!.rfqOptions = rfqOptionObjects[idx]));
   if (!trades.length) {
     swapError.value = SwapError.NO_TRADES;
     toggleLooking();

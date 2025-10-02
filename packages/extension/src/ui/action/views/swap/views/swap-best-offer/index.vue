@@ -93,6 +93,7 @@
       :is-error="isTXSendError"
       :error-message="TXSendErrorMessage"
       :network="network"
+      :waiting-to-be-mined="waitingToBeMined"
       @update:close="close"
       @update:try-again="sendAction"
     />
@@ -137,13 +138,14 @@ import { SwapBestOfferWarnings } from '../../types';
 import { NATIVE_TOKEN_ADDRESS } from '@/providers/ethereum/libs/common';
 import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import { getNetworkByName } from '@/libs/utils/networks';
-import {
+import Swap, {
   getNetworkInfoByName,
   NetworkType,
   ProviderSwapResponse,
   SupportedNetworkName,
   SwapToken,
 } from '@enkryptcom/swap';
+import { TypedMessageSigner as EvmTypedMessageSigner } from '@/providers/ethereum/ui/libs/signer';
 import PublicKeyRing from '@/libs/keyring/public-keyring';
 import { SwapData, ProviderResponseWithStatus } from '../../types';
 import { getSwapTransactions } from '../../libs/swap-txs';
@@ -159,6 +161,8 @@ import { getSolanaTransactionFees } from '../../libs/solana-gasvals';
 import { SolanaNetwork } from '@/providers/solana/types/sol-network';
 import RateState from '@/libs/rate-state';
 import { useRateStore } from '@action/store/rate-store';
+import { SwapType, WalletIdentifier } from '@enkryptcom/swap/src/types';
+import waitForReceipt from '../../libs/evm-waitreceipt';
 
 /** -------------------
  * Rate
@@ -209,6 +213,8 @@ const isTXSendLoading = ref<boolean>(false);
 const isTXSendError = ref(false);
 const TXSendErrorMessage = ref('');
 const isLooking = ref(true);
+const waitingToBeMined = ref(false);
+const swap = ref<Swap>();
 
 const setWarning = async () => {
   if (balance.value.ltn(0)) return;
@@ -309,7 +315,14 @@ onMounted(async () => {
   network.value = (await getNetworkByName(selectedNetwork))!;
   account.value = await KeyRing.getAccount(swapData.fromAddress);
   isWindowPopup.value = account.value.isHardware;
-
+  swap.value = new Swap({
+    api: {} as any,
+    network: network.value!.name as any,
+    walletIdentifier: WalletIdentifier.enkrypt,
+    evmOptions: {
+      infiniteApproval: true,
+    },
+  });
   swapData.trades.forEach((trade, index) => {
     console.log(`Trade ${index + 1}:`, {
       provider: trade.provider,
@@ -393,7 +406,7 @@ const isDisabled = computed(() => {
     (warning.value !== SwapBestOfferWarnings.NONE &&
       warning.value !== SwapBestOfferWarnings.BAD_PRICE) ||
     !gasTier ||
-    gasTier.nativeValue === '0'
+    (gasTier.nativeValue === '0' && pickedTrade.value.transactions.length)
   ) {
     return true;
   }
@@ -417,7 +430,43 @@ const sendAction = async () => {
       swap: pickedTrade.value,
       toToken: swapData.toToken,
     })
-      .then(txs => {
+      .then(async txs => {
+        const typedMessageSigs: string[] = [];
+        if (
+          networkInfo.type === NetworkType.EVM &&
+          pickedTrade.value.type === SwapType.rfq &&
+          pickedTrade.value.typedMessages
+        ) {
+          for (const typedMessage of pickedTrade.value.typedMessages) {
+            const sig = await EvmTypedMessageSigner({
+              account: account.value!,
+              network: network.value!,
+              typedData: JSON.parse(typedMessage),
+              version: 'V4',
+            });
+            if (sig.error) return Promise.reject(sig.error);
+            typedMessageSigs.push(JSON.parse(sig.result!));
+          }
+          try {
+            waitingToBeMined.value = true;
+            await waitForReceipt(
+              txs.map(tx => tx.hash),
+              network.value!,
+              30,
+            );
+            await swap.value!.submitRFQOrder({
+              options: {
+                ...pickedTrade.value.rfqOptions!.options,
+                signatures: typedMessageSigs,
+              },
+              provider: pickedTrade.value.rfqOptions!.provider,
+            });
+          } catch (e: any) {
+            throw new Error(e);
+          } finally {
+            waitingToBeMined.value = false;
+          }
+        }
         pickedTrade.value.status!.options.transactions = txs;
         const swapRaw: SwapRawInfo = {
           fromToken: swapData.fromToken,
@@ -443,7 +492,7 @@ const sendAction = async () => {
           timestamp: new Date().getTime(),
           type: ActivityType.swap,
           value: pickedTrade.value.toTokenAmount.toString(),
-          transactionHash: `${txs[0].hash}-swap`,
+          transactionHash: `${pickedTrade.value.type === SwapType.regular ? txs[0].hash : pickedTrade.value.rfqOptions!.options.orderHash}-swap`,
           rawInfo: JSON.parse(JSON.stringify(swapRaw)),
         };
         const activityState = new ActivityState();
