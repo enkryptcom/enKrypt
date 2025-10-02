@@ -15,6 +15,7 @@ import {
   StatusOptionsResponse,
   SupportedNetworkName,
   SwapQuote,
+  SwapType,
   TokenType,
   TransactionStatus,
   TransactionType,
@@ -35,7 +36,7 @@ import { isEVMAddress } from "../../utils/common";
 
 export const ONEINCH_APPROVAL_ADDRESS =
   "0x111111125421ca6dc452d289314280a0f8842a65";
-const supportedNetworks: {
+export const supportedNetworks: {
   [key in SupportedNetworkName]?: { approvalAddress: string; chainId: string };
 } = {
   [SupportedNetworkName.Ethereum]: {
@@ -61,14 +62,6 @@ const supportedNetworks: {
   [SupportedNetworkName.Fantom]: {
     approvalAddress: ONEINCH_APPROVAL_ADDRESS,
     chainId: "250",
-  },
-  [SupportedNetworkName.Kaia]: {
-    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
-    chainId: "8217",
-  },
-  [SupportedNetworkName.Aurora]: {
-    approvalAddress: ONEINCH_APPROVAL_ADDRESS,
-    chainId: "1313161554",
   },
   [SupportedNetworkName.Gnosis]: {
     approvalAddress: ONEINCH_APPROVAL_ADDRESS,
@@ -278,6 +271,7 @@ class OneInch extends ProviderClass {
       const response: ProviderSwapResponse = {
         fromTokenAmount: res.fromTokenAmount,
         provider: this.name,
+        type: SwapType.regular,
         toTokenAmount: res.toTokenAmount,
         transactions: res.transactions,
         additionalNativeFees: toBN(0),

@@ -34,6 +34,7 @@ import {
   SolanaTransaction,
   TokenNetworkType,
   WalletIdentifier,
+  SwapType,
 } from "../../types";
 import {
   DEFAULT_SLIPPAGE,
@@ -421,6 +422,7 @@ export class OKX extends ProviderClass {
         ),
         additionalNativeFees: toBN(rentFees),
         provider: this.name,
+        type: SwapType.regular,
         slippage: quote.meta.slippage,
         fee: feePercentage,
         getStatusObject: async (
@@ -852,12 +854,9 @@ export class OKX extends ProviderClass {
           }
 
           let transaction: Transaction | VersionedTransaction;
-          let transactionType = "unknown";
 
           try {
             transaction = VersionedTransaction.deserialize(buffer);
-            transactionType = "versioned";
-
             try {
               // Check if this is a versioned transaction with address lookup tables
               if (
