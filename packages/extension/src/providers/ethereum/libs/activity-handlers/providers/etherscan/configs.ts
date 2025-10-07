@@ -11,9 +11,9 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.ShidenEVM]: 'https://blockscout.com/shiden/api?',
   [NetworkNames.Optimism]: 'https://api.etherscan.io/v2/api?chainid=10&',
   [NetworkNames.EdgeEVM]: 'https://edgscan.live/api?',
-  [NetworkNames.Rootstock]: 'https://blockscout.com/rsk/mainnet/api?',
+  [NetworkNames.Rootstock]: 'https://blockscout.com/rsk/mainnet/',
   [NetworkNames.RootstockTestnet]:
-    'https://rootstock-testnet.blockscout.com/api?',
+    'https://rootstock-testnet.blockscout.com/',
   [NetworkNames.SkaleBlockBrawlers]:
     'https://frayed-decent-antares.explorer.mainnet.skalenodes.com/api?',
   [NetworkNames.SkaleCalypso]:
