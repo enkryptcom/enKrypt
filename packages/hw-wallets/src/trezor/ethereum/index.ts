@@ -65,7 +65,7 @@ class TrezorEthereum implements HWWalletProvider {
   }
 
   getSupportedPaths(): PathType[] {
-    return this.isExtension ? networkBasedSupportedPaths[this.network] : [];
+    return networkBasedSupportedPaths[this.network];
   }
 
   close(): Promise<void> {
