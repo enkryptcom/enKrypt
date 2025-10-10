@@ -1,5 +1,3 @@
-import type Transport from "@ledgerhq/hw-transport";
-import webUsbTransport from "@ledgerhq/hw-transport-webusb";
 import bs58 from "bs58";
 import { AppClient, DefaultWalletPolicy } from "ledger-bitcoin";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
@@ -25,9 +23,9 @@ import {
 } from "../../types";
 import { supportedPaths } from "./configs";
 import ConnectToLedger from "../ledgerConnect";
+import LedgerInit from "../ledgerInitializer";
 
-class LedgerBitcoin implements HWWalletProvider {
-  transport: Transport | null;
+class LedgerBitcoin extends LedgerInit implements HWWalletProvider {
 
   network: NetworkNames;
 
@@ -36,30 +34,13 @@ class LedgerBitcoin implements HWWalletProvider {
   isSegwit: boolean;
 
   constructor(network: NetworkNames) {
-    this.transport = null;
+    super()
     this.network = network;
     this.HDNodes = {};
     this.isSegwit = !!(
       this.network === NetworkNames.Bitcoin ||
       this.network === NetworkNames.Litecoin || this.network === NetworkNames.BitcoinTest
     );
-  }
-
-  async init(): Promise<boolean> {
-    if (!this.transport) {
-      const support = await webUsbTransport.isSupported();
-      if (support) {
-        this.transport = await webUsbTransport.openConnected().then((res) => {
-          if (!res) return webUsbTransport.create();
-          return res;
-        });
-      } else {
-        return Promise.reject(
-          new Error("ledger-bitcoin: webusb is not supported"),
-        );
-      }
-    }
-    return true;
   }
 
   async getAddress(options: getAddressRequest): Promise<AddressResponse> {
