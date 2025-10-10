@@ -117,6 +117,11 @@ const bip44Paths = {
     basePath: "m/84'/0'/0'/0",
     label: "Bitcoin",
   },
+  bitcoinTestSegwitTrezor: {
+    path: "m/84'/1'/0'/0/{index}",
+    basePath: "m/84'/1'/0'/0",
+    label: "Bitcoin Test",
+  },
   litecoinSegwitTrezor: {
     path: "m/84'/2'/0'/0/{index}",
     basePath: "m/84'/2'/0'/0",
