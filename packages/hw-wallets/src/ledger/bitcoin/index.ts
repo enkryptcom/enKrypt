@@ -182,7 +182,6 @@ class LedgerBitcoin implements HWWalletProvider {
     });
     const txArg: CreateTransactionArg = {
       inputs: transactionOptions.rawTxs.map((rTx, idx) => {
-        console.log(rTx, transactionOptions)
         return [
           connection.splitTransaction(rTx.replace("0x", ""), true),
           transactionOptions.psbtTx.txInputs[idx].index,
