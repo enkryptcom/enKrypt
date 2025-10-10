@@ -41,7 +41,7 @@ class LedgerBitcoin implements HWWalletProvider {
     this.HDNodes = {};
     this.isSegwit = !!(
       this.network === NetworkNames.Bitcoin ||
-      this.network === NetworkNames.Litecoin
+      this.network === NetworkNames.Litecoin || this.network === NetworkNames.BitcoinTest
     );
   }
 
@@ -181,16 +181,19 @@ class LedgerBitcoin implements HWWalletProvider {
       };
     });
     const txArg: CreateTransactionArg = {
-      inputs: transactionOptions.rawTxs.map((rTx, idx) => [
-        connection.splitTransaction(rTx.replace("0x", ""), true),
-        transactionOptions.psbtTx.txInputs[idx].index,
-        transactionOptions.psbtTx.data.inputs[idx].witnessScript
-          ? transactionOptions.psbtTx.data.inputs[idx].witnessScript.toString(
+      inputs: transactionOptions.rawTxs.map((rTx, idx) => {
+        console.log(rTx, transactionOptions)
+        return [
+          connection.splitTransaction(rTx.replace("0x", ""), true),
+          transactionOptions.psbtTx.txInputs[idx].index,
+          transactionOptions.psbtTx.data.inputs[idx].witnessScript
+            ? transactionOptions.psbtTx.data.inputs[idx].witnessScript.toString(
               "hex",
             )
-          : undefined,
-        undefined,
-      ]),
+            : undefined,
+          undefined,
+        ]
+      }),
       associatedKeysets: transactionOptions.rawTxs.map(() =>
         options.pathType.path.replace(`{index}`, options.pathIndex),
       ),
@@ -218,7 +221,7 @@ class LedgerBitcoin implements HWWalletProvider {
 
   close(): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    return this.transport.close().catch(() => {});
+    return this.transport.close().catch(() => { });
   }
 
   isConnected(networkName: NetworkNames): Promise<boolean> {

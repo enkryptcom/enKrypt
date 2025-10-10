@@ -37,7 +37,7 @@ class HWwalletManager {
         LedgerEthereum,
         LedgerSubstrate,
         LedgerBitcoin,
-        LedgerSolana,
+        LedgerSolana
       ],
       [HWwalletType.trezor]: [TrezorEthereum, TrezorBitcoin, TrezorSolana],
     };
@@ -115,6 +115,7 @@ class HWwalletManager {
     for (const P of this.providerTypes[wallet]) {
       if (P.getSupportedNetworks().includes(network)) return new P(network);
     }
+    console.log(network, 'AAAAAA')
     throw new Error(`hw-wallets: no suitable wallets found:${network}`);
   }
 }

@@ -31,6 +31,7 @@ import {
   SupportedNetworkName,
   SwapQuote,
   SwapTransaction,
+  SwapType,
   TokenType,
   TokenTypeTo,
   TransactionStatus,
@@ -991,6 +992,7 @@ class Changelly extends ProviderClass {
       const retResponse: ProviderSwapResponse = {
         fromTokenAmount: quote.options.amount,
         provider: this.name,
+        type: SwapType.regular,
         toTokenAmount: toBN(baseToAmount).sub(quote.meta.changellynetworkFee),
         additionalNativeFees,
         transactions: [transaction],

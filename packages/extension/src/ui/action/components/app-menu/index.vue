@@ -158,10 +158,20 @@
     </div>
 
     <!-- Banners -->
-    <solana-staking-banner
-      v-if="isSolanaStakingBanner && isExpanded"
-      @close="closeSolanaStakingBanner"
-    />
+    <Transition name="slide-fade">
+      <solana-staking-banner
+        v-if="isSolanaStakingBanner && isExpanded"
+        key="solana-banner"
+        @close="closeSolanaStakingBanner"
+      />
+
+      <!-- Leaving this here for future use -->
+      <!-- <survey-popup
+        v-else-if="isSurveyPopup && isExpanded"
+        key="survey-popup"
+        @close="closeSurveyPopup"
+      /> -->
+    </Transition>
   </div>
 </template>
 
@@ -268,9 +278,7 @@ onMounted(async () => {
   newNetworksWithTags.value.swap = newSwaps.filter(
     net => !usedNetworks.swap.includes(net),
   );
-  if (await bannersState.showSolanaStakingBanner()) {
-    isSolanaStakingBanner.value = true;
-  }
+  isSolanaStakingBanner.value = await bannersState.showSolanaStakingBanner();
 });
 
 /** -------------------
@@ -542,6 +550,7 @@ const updateGradient = (newGradient: string) => {
  * Banners
  ------------------*/
 const isSolanaStakingBanner = ref(false);
+
 const bannersState = new BannersState();
 
 const closeSolanaStakingBanner = () => {
@@ -552,6 +561,20 @@ const closeSolanaStakingBanner = () => {
 
 <style lang="less">
 @import '@action/styles/theme.less';
+
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.1s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
+}
 
 .expand-menu {
   width: 340px;

@@ -19,6 +19,7 @@ const ledgerAppNames = {
   [NetworkNames.Karura]: "Karura",
   [NetworkNames.Edgeware]: "Edgeware",
   [NetworkNames.Bitcoin]: "Bitcoin",
+  [NetworkNames.BitcoinTest]: "Bitcoin Test",
   [NetworkNames.Litecoin]: "Litecoin",
   [NetworkNames.Dogecoin]: "Dogecoin",
   [NetworkNames.Solana]: "Solana",
@@ -85,6 +86,11 @@ const bip44Paths = {
     path: "m/84'/0'/{index}'/0/0",
     basePath: "m/84'/0'",
     label: "Bitcoin",
+  },
+  bitcoinTestSegwitLedger: {
+    path: "m/84'/1'/{index}'/0/0",
+    basePath: "m/84'/1'",
+    label: "Bitcoin Test",
   },
   litecoinSegwitLedger: {
     path: "m/84'/2'/{index}'/0/0",
