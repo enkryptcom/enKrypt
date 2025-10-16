@@ -4,6 +4,7 @@ import { ProviderName, SupportedNetworkName, WalletIdentifier } from "./types";
 
 export type SwapFeeConfig = {
   referrer: string;
+  referrerSolana?: string;
   /** Percentage fee (0 to 1) */
   fee: number;
 };
@@ -53,12 +54,13 @@ const FEE_CONFIGS: Partial<
   },
   [ProviderName.rango]: {
     [WalletIdentifier.enkrypt]: {
-      // TODO: verify this works on SOL transactions
       referrer: "0xabe295bac4b5bce0edcf42d180a3a952ef718b9e",
+      referrerSolana: "4cRrxv2GaHZ78Sekju9UGqRgkpjvDKHa85TAg6uQf8HY",
       fee: 0.00875,
     },
     [WalletIdentifier.mew]: {
       referrer: "0x48ae878bf9f752ee65679c017e32e4cafac51696",
+      referrerSolana: "GNUpYc5tRuBxCPaeMhtDmNa7vU5anoX5mBfRNjaEtPSX",
       fee: 0.025,
     },
   },

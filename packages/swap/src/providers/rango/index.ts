@@ -725,7 +725,11 @@ class Rango extends ProviderClass {
         toAddress: options.toAddress,
         slippage,
         referrerFee: feeConfig ? (feeConfig.fee * 100).toFixed(3) : undefined,
-        referrerAddress: feeConfig?.referrer || undefined,
+        referrerAddress:
+          (supportedNetworks[SupportedNetworkName.Solana].rangoBlockchain ===
+          fromRangoBlockchainName
+            ? feeConfig?.referrerSolana
+            : feeConfig?.referrer) || undefined,
         disableEstimate: true,
       };
 
