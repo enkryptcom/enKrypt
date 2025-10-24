@@ -771,7 +771,7 @@ export class FiroWallet {
         this.fetchAnonymitySetSector(
           i + 1,
           metaItem.blockHash,
-          Math.ceil(metaItem.size / 2),
+          Math.floor(metaItem.size / 2),
           metaItem.size,
         ),
       ]);

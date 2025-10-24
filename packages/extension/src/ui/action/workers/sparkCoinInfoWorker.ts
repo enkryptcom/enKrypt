@@ -14,14 +14,12 @@ const db = new IndexedDBHelper();
 
 export interface CheckedCoinData {
   coin: SparkCoinValue;
-  blockHash: string;
-  setHash: string;
+  setId: number;
 }
 
 export interface OwnedCoinData {
   coin: string[];
-  blockHash: string;
-  setHash: string;
+  setId: number;
 }
 
 async function fetchAllCoinInfos(
@@ -33,7 +31,7 @@ async function fetchAllCoinInfos(
   const allPromises: Promise<any>[] = [];
   const finalResult: CheckedCoinData[] = [];
 
-  allSets.forEach(set => {
+  allSets.forEach((set, index) => {
     set.coins.forEach(coin => {
       const promise = getSparkCoinInfo({
         coin,
@@ -44,9 +42,8 @@ async function fetchAllCoinInfos(
         console.log(`Checking coin: `, res);
         if (!res.isUsed) {
           finalResult.push({
-            blockHash: set.blockHash,
-            setHash: set.setHash,
             coin: res,
+            setId: index + 1,
           });
         }
 
@@ -60,8 +57,7 @@ async function fetchAllCoinInfos(
   await Promise.allSettled(allPromises);
   const myCoins = finalResult.map(coinData => ({
     coin: coinData.coin.originalCoin,
-    blockHash: coinData.blockHash,
-    setHash: coinData.setHash,
+    setId: coinData.setId,
   }));
 
   const savedMyCoins = (await db.readData('myCoins')) || [];

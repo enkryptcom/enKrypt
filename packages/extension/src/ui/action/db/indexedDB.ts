@@ -70,15 +70,15 @@ export class IndexedDBHelper {
     key: string,
     index: number,
     input: {
-      coins: string[][],
-      setHash: string
-      blockHash: string
-    }
+      coins: string[][];
+      setHash: string;
+      blockHash: string;
+    },
   ): Promise<void> {
     const data = await this.readData(key);
     if (!data[index]) throw new Error('Invalid index');
-    data[index].blockHash = input.blockHash
-    data[index].setHash = input.setHash
+    data[index].blockHash = input.blockHash;
+    data[index].setHash = input.setHash;
     data[index].coins = [...data[index].coins, ...input.coins];
     await this.saveData(key, data);
   }
@@ -104,5 +104,20 @@ export class IndexedDBHelper {
     const data = await this.readData(key);
     if (!data[index]) throw new Error('Invalid index');
     return data[index].coins.length;
+  }
+
+  async getBlockHashes(): Promise<string[]> {
+    const data = await this.readData('data');
+    return data.map(set => set.blockHash);
+  }
+
+  async getSetHashes(): Promise<string[]> {
+    const data = await this.readData('data');
+    return data.map(set => set.setHash);
+  }
+
+  async getSetById(id: number): Promise<AnonymitySetModel | null> {
+    const data = await this.readData('data');
+    return data[id - 1] || null;
   }
 }

@@ -4354,6 +4354,7 @@ var _js_createCoverSetData = Module['_js_createCoverSetData'] = wasmExports['js_
 var _js_addCoinToCoverSetData = Module['_js_addCoinToCoverSetData'] = wasmExports['js_addCoinToCoverSetData']
 var _js_createCoverSetDataMapForCreateSparkSpendTransaction = Module['_js_createCoverSetDataMapForCreateSparkSpendTransaction'] = wasmExports['js_createCoverSetDataMapForCreateSparkSpendTransaction']
 var _js_addCoverSetDataForCreateSparkSpendTransaction = Module['_js_addCoverSetDataForCreateSparkSpendTransaction'] = wasmExports['js_addCoverSetDataForCreateSparkSpendTransaction']
+var _js_moveAddCoverSetDataForCreateSparkSpendTransaction = Module['_js_moveAddCoverSetDataForCreateSparkSpendTransaction'] = wasmExports['js_moveAddCoverSetDataForCreateSparkSpendTransaction']
 var _js_createIdAndBlockHashesMapForCreateSparkSpendTransaction = Module['_js_createIdAndBlockHashesMapForCreateSparkSpendTransaction'] = wasmExports['js_createIdAndBlockHashesMapForCreateSparkSpendTransaction']
 var _js_addIdAndBlockHashForCreateSparkSpendTransaction = Module['_js_addIdAndBlockHashForCreateSparkSpendTransaction'] = wasmExports['js_addIdAndBlockHashForCreateSparkSpendTransaction']
 var _js_createSparkSpendTransaction = Module['_js_createSparkSpendTransaction'] = wasmExports['js_createSparkSpendTransaction']

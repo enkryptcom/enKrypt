@@ -32,7 +32,6 @@
           />
           <verify-transaction-amount :token="txData.toToken" />
           <verify-transaction-fee :fee="txData.gasFee" />
-          {{ errorMsg }}
         </div>
       </custom-scrollbar>
 
@@ -152,6 +151,7 @@ const sendAction = async () => {
     network: network.value.name,
   });
 
+  debugger;
   const wasmModule = await wasmInstance.getInstance();
 
   const address2Check = await wallet.getTransactionsAddresses();

@@ -4,7 +4,10 @@
       <swap-looking-animation />
     </div>
     <div v-show="!isLoading" ref="appMenuRef" class="app__menu">
-      <logo-min class="app__menu-logo" />
+      <span>
+        <logo-min class="app__menu-logo" />
+        <button @click="newTab">[ ]</button>
+      </span>
       <base-search
         :value="searchInput"
         :is-border="false"
@@ -281,7 +284,7 @@ const synchronize = async () => {
         }),
       );
 
-      console.log("downloaded");
+      console.log('downloaded');
 
       const diff: {
         setId: number;
@@ -353,15 +356,18 @@ const synchronize = async () => {
 
     worker.postMessage('');
     worker.onmessage = ({ data }) => {
-      const balance = data.reduce((a: bigint, c: { coin: { value: bigint } }) => {
-        console.log('worker response:', c);
-        if (typeof c.coin.value !== 'bigint') {
-          console.warn('Invalid value in worker response:', c);
+      const balance = data.reduce(
+        (a: bigint, c: { coin: { value: bigint } }) => {
+          console.log('worker response:', c);
+          if (typeof c.coin.value !== 'bigint') {
+            console.warn('Invalid value in worker response:', c);
+            return a;
+          }
+          a += c.coin.value;
           return a;
-        }
-        a += c.coin.value
-        return a;
-      }, 0n);
+        },
+        0n,
+      );
       const sparkBalance = new BigNumber(balance).toString();
       db.saveData('sparkBalance', sparkBalance);
       updateSparkBalance(currentNetwork.value).then(async () => {
@@ -743,6 +749,11 @@ const settingsAction = () => {
   closeMoreMenu();
   settingsShow.value = !settingsShow.value;
 };
+
+const newTab = () => {
+  Browser.tabs.create({ url: Browser.runtime.getURL('action.html') });
+};
+
 const toggleMoreMenu = () => {
   if (timeout != null) {
     clearTimeout(timeout);

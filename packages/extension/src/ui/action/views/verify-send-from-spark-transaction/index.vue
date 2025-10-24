@@ -18,16 +18,16 @@
           class="verify-transaction__info"
           :class="{ popup: isPopup, border: isHasScroll() }"
         >
-          <verify-transaction-network :network="network" />
+          <verify-transaction-network :network="BTCNetwork" />
           <verify-transaction-account
             :name="txData.fromAddressName"
             :address="txData.fromAddress"
             :from="true"
-            :network="network"
+            :network="BTCNetwork"
           />
           <verify-transaction-account
             :address="txData.toAddress"
-            :network="network"
+            :network="BTCNetwork"
           />
           <verify-transaction-amount :token="txData.toToken" />
           {{ errorMsg }}
@@ -59,7 +59,7 @@
     <send-process
       v-if="isProcessing"
       :to-address="txData.toAddress"
-      :network="network"
+      :network="BTCNetwork"
       :token="txData.toToken"
       :is-done="isSendDone"
       :is-window-popup="isWindowPopup"
@@ -140,7 +140,7 @@ const txData: VerifyTransactionParams = JSON.parse(
 );
 
 const isProcessing = ref(false);
-const network = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
+const BTCNetwork = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
 const isSendDone = ref(false);
 const isPopup: boolean = getCurrentContext() === 'new-window';
 const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
@@ -150,8 +150,10 @@ const errorMsg = ref('');
 defineExpose({ verifyScrollRef });
 
 onBeforeMount(async () => {
-  network.value = (await getNetworkByName(selectedNetwork)!) as BitcoinNetwork;
-  trackSendEvents(SendEventType.SendVerify, { network: network.value.name });
+  BTCNetwork.value = (await getNetworkByName(
+    selectedNetwork,
+  )!) as BitcoinNetwork;
+  trackSendEvents(SendEventType.SendVerify, { network: BTCNetwork.value.name });
 });
 
 const close = () => {
@@ -165,13 +167,13 @@ const close = () => {
 const sendAction = async () => {
   isProcessing.value = true;
   trackSendEvents(SendEventType.SendApprove, {
-    network: network.value.name,
+    network: BTCNetwork.value.name,
   });
   const txActivity: Activity = {
-    from: network.value.displayAddress(txData.fromAddress),
+    from: BTCNetwork.value.displayAddress(txData.fromAddress),
     to: txData.toAddress,
     isIncoming: txData.fromAddress === txData.toAddress,
-    network: network.value.name,
+    network: BTCNetwork.value.name,
     status: ActivityStatus.pending,
     timestamp: new Date().getTime(),
     token: {
@@ -189,13 +191,13 @@ const sendAction = async () => {
   const activityState = new ActivityState();
 
   await sendFromSparkAddress(
-    props.network.networkInfo,
+    BTCNetwork.value,
     txData.toAddress,
     fromBase(txData.toToken.amount, txData.toToken.decimals).toString(),
   )
     .then(res => {
       trackSendEvents(SendEventType.SendComplete, {
-        network: network.value.name,
+        network: BTCNetwork.value.name,
       });
       activityState.addActivities(
         [
@@ -205,8 +207,8 @@ const sendAction = async () => {
           },
         ],
         {
-          address: network.value.displayAddress(txData.fromAddress),
-          network: network.value.name,
+          address: BTCNetwork.value.displayAddress(txData.fromAddress),
+          network: BTCNetwork.value.name,
         },
       );
 
@@ -222,7 +224,7 @@ const sendAction = async () => {
           window.close();
         }, 1500);
       }
-      emits('update:spark-state-changed', network.value);
+      emits('update:spark-state-changed', BTCNetwork.value);
     })
     .catch(error => {
       isProcessing.value = false;
@@ -232,13 +234,13 @@ const sendAction = async () => {
         errorMsg.value = JSON.stringify(error);
       }
       trackSendEvents(SendEventType.SendFailed, {
-        network: network.value.name,
+        network: BTCNetwork.value.name,
         error: error.message,
       });
       txActivity.status = ActivityStatus.failed;
       activityState.addActivities([txActivity], {
         address: txData.fromAddress,
-        network: network.value.name,
+        network: BTCNetwork.value.name,
       });
       console.error('ERROR', error);
     });
@@ -368,7 +370,6 @@ const isHasScroll = () => {
 
   &__scroll-area {
     position: relative;
-    margin: auto;
     width: calc(~'100% + 53px');
     height: calc(~'100% - 88px');
     margin: 0;
