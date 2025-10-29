@@ -19,6 +19,14 @@ export class PublicFiroWallet {
     return this.#wallet.getSpendableUtxos(numAddresses);
   }
 
+  async getUsedSparkCoinsTags(startPoint: number) {
+    return this.#wallet.getUsedSparkCoinsTags(startPoint);
+  }
+
+  async getUsedCoinsTagsTxHashes() {
+    return this.#wallet.getUsedCoinsTagsTxHashes();
+  }
+
   async getOnlySpendableUtxos() {
     return this.#wallet.getOnlySpendableUtxos();
   }

@@ -274,8 +274,38 @@ const synchronize = async () => {
     const setsMeta = await wallet.getAllSparkAnonymitySetMeta();
     const isDBEmpty = !(await db.readData('data'))?.length;
 
+    const usedCoinsTags = await wallet
+      .getUsedSparkCoinsTags(187000)
+      .finally(() => {
+        console.log(
+          '%c Fetched used coins tags',
+          'color: #00FF00; font-weight: bold; font-size: 24px;',
+        );
+      });
+
+    // console.log('Synchronizing Spark data...');
+    // const usedCoinsTagsTxHashes = await wallet
+    //   .getUsedCoinsTagsTxHashes()
+    //   .catch(err => {
+    //     console.error('Error fetching used coins tags by tx hashes:', err);
+    //     return {};
+    //   })
+    //   .finally(() => {
+    //     console.log(
+    //       '%c Fetched used coins tags by tx hashes',
+    //       'color: #00FF00; font-weight: bold; font-size: 24px;',
+    //     );
+    //   });
+    //
+    // console.log(
+    //   'usedCoinsTagsTxHashes ->>>>>>><<<<<<<<<--',
+    //   usedCoinsTagsTxHashes,
+    // );
+    console.log('usedCoinsTags ->>>>>>><<<<<<<<<--', usedCoinsTags);
     console.log('setsMeta ->>', setsMeta);
     console.log('isDBEmpty ->>', isDBEmpty);
+
+    // db.saveData('usedCoinsTags', usedCoinsTags);
 
     if (!isDBEmpty) {
       const dbSetsMeta = await Promise.all(

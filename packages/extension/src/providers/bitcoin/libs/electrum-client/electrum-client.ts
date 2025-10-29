@@ -136,6 +136,17 @@ export default class FiroElectrum {
     return balance;
   }
 
+  async getUsedCoinsTags(startPoint = [0]): Promise<string> {
+    console.log('electrum_wallet:getUsedCoinsTags', 'startPoint', startPoint);
+    return await this.mainClient!.request('spark.getusedcoinstags', [
+      startPoint.toString(),
+    ]);
+  }
+
+  async getUsedCoinsTagsTxHashes(): Promise<string> {
+    return await this.mainClient!.request('spark.getusedcoinstagstxhashes', []);
+  }
+
   async getTransactionsByAddress(
     address: string,
   ): Promise<Array<TransactionModel>> {
@@ -499,6 +510,14 @@ export default class FiroElectrum {
     this.all_anonymity_sets_meta = await Promise.all(promises);
 
     return this.all_anonymity_sets_meta;
+  }
+
+  async getUsedSparkCoinsTags(pivot: number[]): Promise<string> {
+    return this.getUsedCoinsTags(pivot);
+  }
+
+  async getUsedCoinsTagsTxHashes(): Promise<string> {
+    return this.getUsedCoinsTagsTxHashes();
   }
 
   async getSparkAnonymitySetSector(

@@ -483,6 +483,23 @@ export async function sendFromSparkAddress(
         [spentCoinMeta],
       );
 
+      // const coinPtr = Module.ccall(
+      //   '_js_getCoinFromMeta',
+      //   'number',
+      //   ['number', 'number'],
+      //   [spentCoinMeta, incomingViewKeyObj],
+      // );
+      //
+      // const hash = Module.ccall(
+      //   '_js_getCoinHash',
+      //   'number',
+      //   ['number'],
+      //   [coinPtr],
+      // );
+      //
+      // console.log(
+      //   `coin hash  =>>>>>>======>>>>><<<<<======<<<<<<<======: ${hash}`,
+      // );
       const spentCoinMetaDeserialized = new Uint8Array(
         Module.HEAPU8.buffer,
         spentCoinMeta,
