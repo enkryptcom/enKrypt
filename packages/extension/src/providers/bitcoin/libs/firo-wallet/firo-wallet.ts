@@ -20,7 +20,6 @@ import { BalanceData } from './balance-data';
 import configs from './configs';
 import type { LelantusCoin } from './lelantus-coin';
 import { TransactionItem } from './transaction-item';
-import { callRPC } from '@/libs/spark-handler/callRPC';
 
 // Type definitions for Spark mint metadata
 export interface SparkMintMetadataRequest {
@@ -224,11 +223,23 @@ export class FiroWallet {
 
   async getOnlySpendableUtxos() {
     const address2Check = await this.getTransactionsAddresses();
+    // const utxos2 = await this.multiGetUnspentTransactions(address2Check);
 
     const { data: utxos } = await axios.get<Utxo[]>(
       `https://explorer.firo.org/insight-api-zcoin/addrs/${address2Check.join(',')}/utxo`,
     );
-    return utxos.filter(el => el.confirmations > 0);
+
+    const filteredUtxos = utxos.filter(utxo => utxo.confirmations > 0);
+
+    const allRawTxs = await Promise.all(
+      filteredUtxos.map(utxo => firoElectrum.getTxRaw(utxo.txid)),
+    );
+
+    return filteredUtxos.map((utxo: Utxo, index) => ({
+      ...utxo,
+      index: utxo.vout,
+      raw: allRawTxs[index],
+    }));
   }
 
   async getPublicBalance(): Promise<BigNumber> {
@@ -924,6 +935,14 @@ export class FiroWallet {
 
     callback(callbackIndex++, totalCallbacks);
     await this.fetchAllAnonymitySets();
+  }
+
+  async multiGetUnspentTransactions(addresses: string[]): Promise<any> {
+    return firoElectrum.multiGetUnspentTransactions(addresses);
+  }
+
+  async broadcastTransaction(hex: string): Promise<string> {
+    return firoElectrum.broadcast(hex);
   }
 
   // private async fetchSpendTxs(spendTxIds: string[]): Promise<void> {

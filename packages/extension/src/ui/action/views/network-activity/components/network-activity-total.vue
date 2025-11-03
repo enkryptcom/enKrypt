@@ -150,8 +150,6 @@ const anonymizeFunds = async () => {
   const { inputAmountBn, psbtInputs } =
     await getTotalMintedAmount(spendableUtxos);
 
-  console.log(inputAmountBn.toString());
-
   const tempTx = createTempTx({
     changeAmount: inputAmountBn.minus(amountToSendBN).minus(new BigNumber(500)),
     network: props.network.networkInfo,
