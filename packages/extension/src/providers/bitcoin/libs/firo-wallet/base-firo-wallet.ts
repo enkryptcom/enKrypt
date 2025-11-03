@@ -70,4 +70,8 @@ export class BaseFiroWallet {
       endIndex,
     );
   }
+
+  async broadcastTransaction(hex: string) {
+    return this.#wallet.broadcastTransaction(hex);
+  }
 }

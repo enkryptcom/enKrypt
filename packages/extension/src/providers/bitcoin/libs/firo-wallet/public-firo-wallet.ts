@@ -47,6 +47,10 @@ export class PublicFiroWallet {
     return this.#wallet.getAllSparkAnonymitySetMeta();
   }
 
+  async broadcastTransaction(hex: string): Promise<string> {
+    return this.#wallet.broadcastTransaction(hex);
+  }
+
   async fetchAnonymitySetSector(
     setId: number,
     latestBlockHash: string,

@@ -21,7 +21,7 @@ import { BTCToken } from './btc-token';
 import { GasPriceTypes } from '@/providers/common/types';
 import type HaskoinAPI from '@/providers/bitcoin/libs/api';
 import type SSAPI from '@/providers/bitcoin/libs/api-ss';
-import type FiroAPI from "@/providers/bitcoin/libs/api-firo";
+import type FiroAPI from '@/providers/bitcoin/libs/api-firo';
 import { NFTCollection } from '@/types/nft';
 
 export enum PaymentType {

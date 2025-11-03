@@ -146,178 +146,190 @@ const close = () => {
 };
 
 const sendAction = async () => {
-  isProcessing.value = true;
-  trackSendEvents(SendEventType.SendApprove, {
-    network: network.value.name,
-  });
-
-  debugger;
-  const wasmModule = await wasmInstance.getInstance();
-
-  const address2Check = await wallet.getTransactionsAddresses();
-
-  const { spendableUtxos, addressKeyPairs } =
-    await wallet.getSpendableUtxos(address2Check);
-
-  if (spendableUtxos.length === 0) throw new Error('No UTXOs available!');
-
-  const amountToSendBN = new BigNumber(txData.toToken.amount);
-
-  const mintTxData = await getMintTxData({
-    wasmModule,
-    address: txData.toAddress,
-    amount: amountToSendBN.toString(),
-    utxos: spendableUtxos.map(({ txid, vout }) => ({
-      txHash: Buffer.from(txid),
-      vout,
-      txHashLength: txid.length,
-    })),
-  });
-
-  const psbt = new bitcoin.Psbt({ network: network.value.networkInfo });
-
-  const { inputAmountBn, psbtInputs } =
-    await getTotalMintedAmount(spendableUtxos);
-
-  // Calculate tx fee
-  const tempTx = createTempTx({
-    changeAmount: inputAmountBn.minus(amountToSendBN).minus(new BigNumber(500)),
-    network: network.value.networkInfo,
-    addressKeyPairs,
-    spendableUtxos,
-    mintValueOutput: [
-      {
-        script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
-        value: amountToSendBN.toNumber(),
-      },
-    ],
-    inputs: psbtInputs,
-  });
-
-  const feeBn = await getFee(tempTx);
-  // End calculate fee
-
-  psbtInputs.forEach(el => {
-    psbt.addInput(el);
-  });
-
-  if (inputAmountBn.lt(amountToSendBN.plus(feeBn)))
-    throw new Error('❌ Not enough balance!');
-
-  psbt.addOutput({
-    script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
-    value: amountToSendBN.toNumber(),
-  });
-
-  const changeAmount = inputAmountBn.minus(amountToSendBN).minus(feeBn);
-
-  if (changeAmount.gt(0)) {
-    const firstUtxoAddress = spendableUtxos[0].address;
-    console.log(
-      `🔹 Sending Change (${feeBn.toNumber() / 1e8} FIRO) to ${firstUtxoAddress}`,
-    );
-    psbt.addOutput({
-      address: firstUtxoAddress!,
-      value: changeAmount.toNumber(),
+  try {
+    isProcessing.value = true;
+    trackSendEvents(SendEventType.SendApprove, {
+      network: network.value.name,
     });
-  }
 
-  for (let index = 0; index < spendableUtxos.length; index++) {
-    const utxo = spendableUtxos[index];
-    const keyPair = addressKeyPairs[utxo.address];
+    const wasmModule = await wasmInstance.getInstance();
 
-    console.log(
-      `🔹 Signing input ${index} with key ${keyPair.publicKey.toString('hex')}`,
-    );
+    const address2Check = await wallet.getTransactionsAddresses();
 
-    const Signer = {
-      sign: (hash: Uint8Array) => {
-        return Buffer.from(keyPair.sign(hash));
-      },
-      publicKey: Buffer.from(keyPair.publicKey),
-    } as unknown as bitcoin.Signer;
+    const { spendableUtxos, addressKeyPairs } =
+      await wallet.getSpendableUtxos(address2Check);
 
-    psbt.signInput(index, Signer);
-  }
+    if (spendableUtxos.length === 0) throw new Error('No UTXOs available!');
 
-  if (!psbt.validateSignaturesOfAllInputs(validator)) {
-    throw new Error('Error: Some inputs were not signed!');
-  }
+    const amountToSendBN = new BigNumber(txData.toToken.amount);
 
-  psbt.finalizeAllInputs();
+    const mintTxData = await getMintTxData({
+      wasmModule,
+      address: txData.toAddress,
+      amount: amountToSendBN.toString(),
+      utxos: spendableUtxos.map(({ txid, vout }) => ({
+        txHash: Buffer.from(txid),
+        vout,
+        txHashLength: txid.length,
+      })),
+    });
 
-  const rawTx = psbt.extractTransaction().toHex();
-  console.log('Raw Mint Transaction:', rawTx);
+    const psbt = new bitcoin.Psbt({ network: network.value.networkInfo });
 
-  const txActivity: Activity = {
-    from: network.value.displayAddress(txData.fromAddress),
-    to: txData.toAddress,
-    isIncoming: txData.fromAddress === txData.toAddress,
-    network: network.value.name,
-    status: ActivityStatus.pending,
-    timestamp: new Date().getTime(),
-    token: {
-      decimals: txData.toToken.decimals,
-      icon: txData.toToken.icon,
-      name: txData.toToken.name,
-      symbol: txData.toToken.symbol,
-      price: txData.toToken.price,
-    },
-    type: ActivityType.transaction,
-    value: txData.toToken.amount,
-    transactionHash: '',
-  };
+    const { inputAmountBn, psbtInputs } =
+      await getTotalMintedAmount(spendableUtxos);
 
-  const activityState = new ActivityState();
-
-  const api = (await network.value.api()) as unknown as FiroAPI;
-
-  api
-    .broadcastTx(rawTx)
-    .then(({ txid }) => {
-      trackSendEvents(SendEventType.SendComplete, {
-        network: network.value.name,
-      });
-      activityState.addActivities(
-        [
-          {
-            ...txActivity,
-            ...{ transactionHash: txid },
-          },
-        ],
+    // Calculate tx fee
+    const tempTx = createTempTx({
+      changeAmount: inputAmountBn
+        .minus(amountToSendBN)
+        .minus(new BigNumber(500)),
+      network: network.value.networkInfo,
+      addressKeyPairs,
+      spendableUtxos,
+      mintValueOutput: [
         {
-          address: network.value.displayAddress(txData.fromAddress),
-          network: network.value.name,
+          script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
+          value: amountToSendBN.toNumber(),
         },
-      );
-      isSendDone.value = true;
-      if (getCurrentContext() === 'popup') {
-        setTimeout(() => {
-          isProcessing.value = false;
-          router.go(-2);
-        }, 4500);
-      } else {
-        setTimeout(() => {
-          isProcessing.value = false;
-          window.close();
-        }, 1500);
-      }
-    })
-    .catch(error => {
-      trackSendEvents(SendEventType.SendFailed, {
-        network: network.value.name,
-        error: error.message,
-      });
-      txActivity.status = ActivityStatus.failed;
-      activityState.addActivities([txActivity], {
-        address: txData.fromAddress,
-        network: network.value.name,
-      });
-
-      isProcessing.value = false;
-      errorMsg.value = JSON.stringify(error);
-      console.error('ERROR', error);
+      ],
+      inputs: psbtInputs,
     });
+
+    const feeBn = await getFee(tempTx);
+    // End calculate fee
+
+    psbtInputs.forEach(el => {
+      psbt.addInput(el);
+    });
+
+    if (inputAmountBn.lt(amountToSendBN.plus(feeBn)))
+      throw new Error('❌ Not enough balance!');
+
+    psbt.addOutput({
+      script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
+      value: amountToSendBN.toNumber(),
+    });
+
+    const changeAmount = inputAmountBn.minus(amountToSendBN).minus(feeBn);
+
+    if (changeAmount.gt(0)) {
+      const firstUtxoAddress = spendableUtxos[0].address;
+      console.log(
+        `🔹 Sending Change (${feeBn.toNumber() / 1e8} FIRO) to ${firstUtxoAddress}`,
+      );
+      psbt.addOutput({
+        address: firstUtxoAddress!,
+        value: changeAmount.toNumber(),
+      });
+    }
+
+    for (let index = 0; index < spendableUtxos.length; index++) {
+      const utxo = spendableUtxos[index];
+      const keyPair = addressKeyPairs[utxo.address];
+
+      console.log(
+        `🔹 Signing input ${index} with key ${keyPair.publicKey.toString('hex')}`,
+      );
+
+      const Signer = {
+        sign: (hash: Uint8Array) => {
+          return Buffer.from(keyPair.sign(hash));
+        },
+        publicKey: Buffer.from(keyPair.publicKey),
+      } as unknown as bitcoin.Signer;
+
+      psbt.signInput(index, Signer);
+    }
+
+    if (!psbt.validateSignaturesOfAllInputs(validator)) {
+      throw new Error('Error: Some inputs were not signed!');
+    }
+
+    psbt.finalizeAllInputs();
+
+    const rawTx = psbt.extractTransaction().toHex();
+    console.log('Raw Mint Transaction:', rawTx);
+
+    const txActivity: Activity = {
+      from: network.value.displayAddress(txData.fromAddress),
+      to: txData.toAddress,
+      isIncoming: txData.fromAddress === txData.toAddress,
+      network: network.value.name,
+      status: ActivityStatus.pending,
+      timestamp: new Date().getTime(),
+      token: {
+        decimals: txData.toToken.decimals,
+        icon: txData.toToken.icon,
+        name: txData.toToken.name,
+        symbol: txData.toToken.symbol,
+        price: txData.toToken.price,
+      },
+      type: ActivityType.transaction,
+      value: txData.toToken.amount,
+      transactionHash: '',
+    };
+
+    const activityState = new ActivityState();
+
+    const api = (await network.value.api()) as unknown as FiroAPI;
+
+    api
+      .broadcastTx(rawTx)
+      .then(({ txid }) => {
+        trackSendEvents(SendEventType.SendComplete, {
+          network: network.value.name,
+        });
+        activityState.addActivities(
+          [
+            {
+              ...txActivity,
+              ...{ transactionHash: txid },
+            },
+          ],
+          {
+            address: network.value.displayAddress(txData.fromAddress),
+            network: network.value.name,
+          },
+        );
+        isSendDone.value = true;
+        if (getCurrentContext() === 'popup') {
+          setTimeout(() => {
+            isProcessing.value = false;
+            router.go(-2);
+          }, 4500);
+        } else {
+          setTimeout(() => {
+            isProcessing.value = false;
+            window.close();
+          }, 1500);
+        }
+      })
+      .catch(error => {
+        trackSendEvents(SendEventType.SendFailed, {
+          network: network.value.name,
+          error: error.message,
+        });
+        txActivity.status = ActivityStatus.failed;
+        activityState.addActivities([txActivity], {
+          address: txData.fromAddress,
+          network: network.value.name,
+        });
+
+        isProcessing.value = false;
+        errorMsg.value = JSON.stringify(error);
+        console.error('ERROR', error);
+      });
+  } catch (e: any) {
+    trackSendEvents(SendEventType.SendFailed, {
+      network: network.value.name,
+      error: e.message,
+    });
+
+    isProcessing.value = false;
+    errorMsg.value = JSON.stringify(e);
+    console.error('ERROR', e);
+  }
 };
 const isHasScroll = () => {
   if (verifyScrollRef.value) {

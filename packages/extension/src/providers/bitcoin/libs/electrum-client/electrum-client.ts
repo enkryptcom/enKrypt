@@ -8,7 +8,7 @@ import {
   type AnonymitySetModel,
 } from './abstract-electrum';
 
-import bitcoin from 'bitcoinjs-lib';
+import * as bitcoin from 'bitcoinjs-lib';
 
 const networkInfo = {
   messagePrefix: '\x18Zcoin Signed Message:\n',
@@ -393,35 +393,44 @@ export default class FiroElectrum {
   //   return listUnspent;
   // }
 
-  // async multiGetUnspentTransactionsByAddress(
-  //   addresses: Array<string>,
-  // ): Promise<{ [address: string]: TransactionModel[] }> {
-  //   const scripthashes = [];
-  //   const scripthash2addr: { [revHash: string]: string } = {};
-  //   for (const address of addresses) {
-  //     const script = bitcoin.address.toOutputScript(address, networkInfo);
-  //     const hash = bitcoin.crypto.sha256(script);
+  async getTxRaw(tx_hash: string, verbose = false) {
+    return this.mainClient?.blockchain_transaction_get(tx_hash, verbose);
+  }
 
-  //     const reversedHash = Buffer.from(hash.reverse());
-  //     const reversedHashHex = reversedHash.toString('hex');
-  //     scripthashes.push(reversedHashHex);
-  //     scripthash2addr[reversedHashHex] = address;
-  //   }
-  //   const ret: { [address: string]: TransactionModel[] } = {};
+  async multiGetUnspentTransactions(addresses: Array<string>): Promise<any> {
+    const scripthashes = [];
+    const scripthash2addr: { [revHash: string]: string } = {};
+    for (const address of addresses) {
+      const script = bitcoin.address.toOutputScript(address, networkInfo);
+      const hash = bitcoin.crypto.sha256(script);
 
-  //   const listUnspent = await Promise.all(
-  //     scripthashes.map(sh =>
-  //       this.mainClient?.blockchain_scripthash_listunspent(sh),
-  //     ),
-  //   );
+      const reversedHash = Buffer.from(hash.reverse());
+      const reversedHashHex = reversedHash.toString('hex');
+      scripthashes.push(reversedHashHex);
+      scripthash2addr[reversedHashHex] = address;
+    }
 
-  //   for (const utxo of listUnspent) {
-  //     if (utxo.result.length > 0) {
-  //       ret[scripthash2addr[utxo.param]!] = utxo.result;
-  //     }
-  //   }
-  //   return ret;
-  // }
+    const listUnspent = await Promise.all(
+      scripthashes.map(
+        sh =>
+          this.mainClient?.blockchain_scripthash_listunspent(sh) as Promise<
+            TransactionModel[]
+          >,
+      ),
+    );
+
+    const filterred = listUnspent.filter(el => el.length > 0).flat();
+
+    const rawTxs = await Promise.all(
+      filterred.map(({ tx_hash }) => this.getTxRaw(tx_hash, false)),
+    );
+
+    return filterred.map((el, index) => ({
+      ...el,
+      index: el.tx_pos,
+      raw: rawTxs[index],
+    }));
+  }
 
   async broadcast(hex: string): Promise<string> {
     const broadcast: string =

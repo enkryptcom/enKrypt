@@ -44,7 +44,7 @@ import { BaseNetwork } from '@/types/base-network';
 const router = useRouter();
 defineEmits<{
   (e: 'toggle:deposit'): void;
-  (e: "action:generate-new-spark"): void;
+  (e: 'action:generate-new-spark'): void;
   (e: 'select:subnetwork', id: string): void;
 }>();
 const showAccounts = ref(false);

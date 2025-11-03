@@ -79,22 +79,9 @@ class API implements ProviderAPIInterface {
       .catch(() => '0');
   }
 
-  async broadcastTx(rawtx: string): Promise<{ txid: string }> {
-    return fetch(`${this.node}/insight-api-zcoin/tx/send`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ rawtx }),
-    })
-      .then(res => res.json())
-      .then(response => {
-        if (response.error) {
-          return Promise.reject(response.message);
-        }
-        return response;
-      });
+  async broadcastTx(txHex: string): Promise<{ txid: string }> {
+    const txid = await this.#wallet.broadcastTransaction(txHex);
+    return { txid };
   }
 
   async FiroToHaskoinUTXOs(

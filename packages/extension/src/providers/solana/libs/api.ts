@@ -23,7 +23,7 @@ class API implements ProviderAPIInterface {
     return getSolAddress(pubkey);
   }
 
-  async init(): Promise<void> { }
+  async init(): Promise<void> {}
 
   /**
    * Returns null if the transaction hasn't been received by the node
@@ -33,7 +33,7 @@ class API implements ProviderAPIInterface {
     const tx = await this.web3.getTransaction(hash, {
       maxSupportedTransactionVersion: 0,
       commitment: 'confirmed',
-    })
+    });
 
     if (!tx) {
       // Transaction hasn't been picked up by the node

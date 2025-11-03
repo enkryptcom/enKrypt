@@ -30,10 +30,26 @@ var Module = (() => {
     // Determine the runtime environment we are in. You can customize this by
     // setting the ENVIRONMENT setting at compile time (see settings.js).
 
-    var ENVIRONMENT_IS_WEB = false;
-    var ENVIRONMENT_IS_WORKER = true;
-    var ENVIRONMENT_IS_NODE = false;
-    var ENVIRONMENT_IS_SHELL = false;
+    // Attempt to auto-detect the environment
+    var ENVIRONMENT_IS_WEB = typeof window == 'object';
+    var ENVIRONMENT_IS_WORKER = typeof WorkerGlobalScope != 'undefined';
+    // N.b. Electron.js environment is simultaneously a NODE-environment, but
+    // also a web environment.
+    var ENVIRONMENT_IS_NODE =
+      typeof process == 'object' &&
+      typeof process.versions == 'object' &&
+      typeof process.versions.node == 'string' &&
+      process.type != 'renderer';
+    var ENVIRONMENT_IS_SHELL =
+      !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIRONMENT_IS_WORKER;
+
+    if (ENVIRONMENT_IS_NODE) {
+      // When building an ES module `require` is not normally available.
+      // We need to use `createRequire()` to construct the require()` function.
+      const { createRequire } = await import('module');
+      /** @suppress{duplicate} */
+      var require = createRequire('/');
+    }
 
     // --pre-jses are emitted after the Module integration code, so that they can
     // refer to Module (if they choose; they can also define Module)
@@ -63,10 +79,51 @@ var Module = (() => {
     // Hooks that are implemented differently in different runtime environments.
     var readAsync, readBinary;
 
-    // Note that this includes Node.js workers when relevant (pthreads is enabled).
-    // Node.js workers are detected as a combination of ENVIRONMENT_IS_WORKER and
-    // ENVIRONMENT_IS_NODE.
-    if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
+    if (ENVIRONMENT_IS_NODE) {
+      // These modules will usually be used on Node.js. Load them eagerly to avoid
+      // the complexity of lazy-loading.
+      var fs = require('fs');
+      var nodePath = require('path');
+
+      // EXPORT_ES6 + ENVIRONMENT_IS_NODE always requires use of import.meta.url,
+      // since there's no way getting the current absolute path of the module when
+      // support for that is not available.
+      if (!import.meta.url.startsWith('data:')) {
+        scriptDirectory =
+          nodePath.dirname(require('url').fileURLToPath(import.meta.url)) + '/';
+      }
+
+      // include: node_shell_read.js
+      readBinary = filename => {
+        // We need to re-wrap `file://` strings to URLs.
+        filename = isFileURI(filename) ? new URL(filename) : filename;
+        var ret = fs.readFileSync(filename);
+        return ret;
+      };
+
+      readAsync = async (filename, binary = true) => {
+        // See the comment in the `readBinary` function.
+        filename = isFileURI(filename) ? new URL(filename) : filename;
+        var ret = fs.readFileSync(filename, binary ? undefined : 'utf8');
+        return ret;
+      };
+      // end include: node_shell_read.js
+      if (!Module['thisProgram'] && process.argv.length > 1) {
+        thisProgram = process.argv[1].replace(/\\/g, '/');
+      }
+
+      arguments_ = process.argv.slice(2);
+
+      // MODULARIZE will export the module in the proper place outside, we don't need to export here
+
+      quit_ = (status, toThrow) => {
+        process.exitCode = status;
+        throw toThrow;
+      };
+    } else if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
+      // Note that this includes Node.js workers when relevant (pthreads is enabled).
+      // Node.js workers are detected as a combination of ENVIRONMENT_IS_WORKER and
+      // ENVIRONMENT_IS_NODE.
       if (ENVIRONMENT_IS_WORKER) {
         // Check worker, not web, since window could be polyfilled
         scriptDirectory = self.location.href;
@@ -107,6 +164,27 @@ var Module = (() => {
         }
 
         readAsync = async url => {
+          // Fetch has some additional restrictions over XHR, like it can't be used on a file:// url.
+          // See https://github.com/github/fetch/pull/92#issuecomment-140665932
+          // Cordova or Electron apps are typically loaded from a file:// url.
+          // So use XHR on webview if URL is a file URL.
+          if (isFileURI(url)) {
+            return new Promise((resolve, reject) => {
+              var xhr = new XMLHttpRequest();
+              xhr.open('GET', url, true);
+              xhr.responseType = 'arraybuffer';
+              xhr.onload = () => {
+                if (xhr.status == 200 || (xhr.status == 0 && xhr.response)) {
+                  // file URLs can return 0
+                  resolve(xhr.response);
+                  return;
+                }
+                reject(xhr.status);
+              };
+              xhr.onerror = reject;
+              xhr.send(null);
+            });
+          }
           var response = await fetch(url, { credentials: 'same-origin' });
           if (response.ok) {
             return response.arrayBuffer();
@@ -429,7 +507,16 @@ var Module = (() => {
       if (
         !binary &&
         typeof WebAssembly.instantiateStreaming == 'function' &&
-        !isDataURI(binaryFile)
+        !isDataURI(binaryFile) &&
+        // Don't use streaming for file:// delivered objects in a webview, fetch them synchronously.
+        !isFileURI(binaryFile) &&
+        // Avoid instantiateStreaming() on Node.js environment for now, as while
+        // Node.js v18.1.0 implements it, it does not have a full fetch()
+        // implementation yet.
+        //
+        // Reference:
+        //   https://github.com/emscripten-core/emscripten/pull/16917
+        !ENVIRONMENT_IS_NODE
       ) {
         try {
           var response = fetch(binaryFile, { credentials: 'same-origin' });
@@ -939,6 +1026,12 @@ var Module = (() => {
     };
 
     var initRandomFill = () => {
+      // This block is not needed on v19+ since crypto.getRandomValues is builtin
+      if (ENVIRONMENT_IS_NODE) {
+        var nodeCrypto = require('crypto');
+        return view => nodeCrypto.randomFillSync(view);
+      }
+
       return view => crypto.getRandomValues(view);
     };
     var randomFill = view => {
@@ -1087,7 +1180,44 @@ var Module = (() => {
     var FS_stdin_getChar = () => {
       if (!FS_stdin_getChar_buffer.length) {
         var result = null;
-        {
+        if (ENVIRONMENT_IS_NODE) {
+          // we will read data by chunks of BUFSIZE
+          var BUFSIZE = 256;
+          var buf = Buffer.alloc(BUFSIZE);
+          var bytesRead = 0;
+
+          // For some reason we must suppress a closure warning here, even though
+          // fd definitely exists on process.stdin, and is even the proper way to
+          // get the fd of stdin,
+          // https://github.com/nodejs/help/issues/2136#issuecomment-523649904
+          // This started to happen after moving this logic out of library_tty.js,
+          // so it is related to the surrounding code in some unclear manner.
+          /** @suppress {missingProperties} */
+          var fd = process.stdin.fd;
+
+          try {
+            bytesRead = fs.readSync(fd, buf, 0, BUFSIZE);
+          } catch (e) {
+            // Cross-platform differences: on Windows, reading EOF throws an
+            // exception, but on other OSes, reading EOF returns 0. Uniformize
+            // behavior by treating the EOF exception to return 0.
+            if (e.toString().includes('EOF')) bytesRead = 0;
+            else throw e;
+          }
+
+          if (bytesRead > 0) {
+            result = buf.slice(0, bytesRead).toString('utf-8');
+          }
+        } else if (
+          typeof window != 'undefined' &&
+          typeof window.prompt == 'function'
+        ) {
+          // Browser.
+          result = window.prompt('Input: '); // returns null on cancel
+          if (result !== null) {
+            result += '\n';
+          }
+        } else {
         }
         if (!result) {
           return null;
@@ -1186,7 +1316,7 @@ var Module = (() => {
         },
         put_char(tty, val) {
           if (val === null || val === 10) {
-            // out(UTF8ArrayToString(tty.output));
+            out(UTF8ArrayToString(tty.output));
             tty.output = [];
           } else {
             if (val != 0) tty.output.push(val); // val == 0 would cut text output off in the middle.
@@ -1194,7 +1324,7 @@ var Module = (() => {
         },
         fsync(tty) {
           if (tty.output && tty.output.length > 0) {
-            // out(UTF8ArrayToString(tty.output));
+            out(UTF8ArrayToString(tty.output));
             tty.output = [];
           }
         },
@@ -1770,6 +1900,7 @@ var Module = (() => {
         mounted = null;
         constructor(parent, name, mode, rdev) {
           if (!parent) {
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
             parent = this; // root node sets parent to itself
           }
           this.parent = parent;
@@ -3287,6 +3418,7 @@ var Module = (() => {
               }
               return intArrayFromString(xhr.responseText || '', true);
             };
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
             var lazyArray = this;
             lazyArray.setDataGetter(chunkNum => {
               var start = chunkNum * chunkSize;
@@ -4285,9 +4417,15 @@ var Module = (() => {
       /** @export */
       invoke_iiiiiiiiiiiii,
       /** @export */
+      invoke_iiiiiiijji,
+      /** @export */
+      invoke_iiiiij,
+      /** @export */
       invoke_iiij,
       /** @export */
       invoke_iij,
+      /** @export */
+      invoke_ijiii,
       /** @export */
       invoke_jii,
       /** @export */
@@ -4305,11 +4443,19 @@ var Module = (() => {
       /** @export */
       invoke_viiiii,
       /** @export */
+      invoke_viiiiii,
+      /** @export */
       invoke_viiiiiii,
+      /** @export */
+      invoke_viiiiiiii,
       /** @export */
       invoke_viiiiiiiiii,
       /** @export */
+      invoke_viiiiiiiiiiiiii,
+      /** @export */
       invoke_viiiiiiiiiiiiiii,
+      /** @export */
+      invoke_viiij,
       /** @export */
       invoke_viij,
       /** @export */
@@ -4397,6 +4543,8 @@ var Module = (() => {
       wasmExports['js_getCSparkMintMetaIsUsed']);
     var _js_getCSparkMintMetaMemo = (Module['_js_getCSparkMintMetaMemo'] =
       wasmExports['js_getCSparkMintMetaMemo']);
+    var _js_getCSparkMintMetaNonce = (Module['_js_getCSparkMintMetaNonce'] =
+      wasmExports['js_getCSparkMintMetaNonce']);
     var _js_getCSparkMintMetaDiversifier = (Module[
       '_js_getCSparkMintMetaDiversifier'
     ] = wasmExports['js_getCSparkMintMetaDiversifier']);
@@ -4406,6 +4554,12 @@ var Module = (() => {
       wasmExports['js_getCSparkMintMetaType']);
     var _js_getCSparkMintMetaCoin = (Module['_js_getCSparkMintMetaCoin'] =
       wasmExports['js_getCSparkMintMetaCoin']);
+    var _js_setCSparkMintMetaId = (Module['_js_setCSparkMintMetaId'] =
+      wasmExports['js_setCSparkMintMetaId']);
+    var _js_setCSparkMintMetaHeight = (Module['_js_setCSparkMintMetaHeight'] =
+      wasmExports['js_setCSparkMintMetaHeight']);
+    var _js_getCoinHash = (Module['_js_getCoinHash'] =
+      wasmExports['js_getCoinHash']);
     var _js_getInputCoinDataCoverSetId = (Module[
       '_js_getInputCoinDataCoverSetId'
     ] = wasmExports['js_getInputCoinDataCoverSetId']);
@@ -4413,6 +4567,79 @@ var Module = (() => {
       wasmExports['js_getInputCoinDataIndex']);
     var _js_getInputCoinDataValue = (Module['_js_getInputCoinDataValue'] =
       wasmExports['js_getInputCoinDataValue']);
+    var _js_getInputCoinDataTag_hex = (Module['_js_getInputCoinDataTag_hex'] =
+      wasmExports['js_getInputCoinDataTag_hex']);
+    var _js_createRecipientsVectorForCreateSparkSpendTransaction = (Module[
+      '_js_createRecipientsVectorForCreateSparkSpendTransaction'
+    ] = wasmExports['js_createRecipientsVectorForCreateSparkSpendTransaction']);
+    var _js_addRecipientForCreateSparkSpendTransaction = (Module[
+      '_js_addRecipientForCreateSparkSpendTransaction'
+    ] = wasmExports['js_addRecipientForCreateSparkSpendTransaction']);
+    var _js_createPrivateRecipientsVectorForCreateSparkSpendTransaction =
+      (Module[
+        '_js_createPrivateRecipientsVectorForCreateSparkSpendTransaction'
+      ] =
+        wasmExports[
+          'js_createPrivateRecipientsVectorForCreateSparkSpendTransaction'
+        ]);
+    var _js_addPrivateRecipientForCreateSparkSpendTransaction = (Module[
+      '_js_addPrivateRecipientForCreateSparkSpendTransaction'
+    ] = wasmExports['js_addPrivateRecipientForCreateSparkSpendTransaction']);
+    var _js_createCoinsListForCreateSparkSpendTransaction = (Module[
+      '_js_createCoinsListForCreateSparkSpendTransaction'
+    ] = wasmExports['js_createCoinsListForCreateSparkSpendTransaction']);
+    var _js_addCoinToListForCreateSparkSpendTransaction = (Module[
+      '_js_addCoinToListForCreateSparkSpendTransaction'
+    ] = wasmExports['js_addCoinToListForCreateSparkSpendTransaction']);
+    var _js_createCoverSetData = (Module['_js_createCoverSetData'] =
+      wasmExports['js_createCoverSetData']);
+    var _js_addCoinToCoverSetData = (Module['_js_addCoinToCoverSetData'] =
+      wasmExports['js_addCoinToCoverSetData']);
+    var _js_createCoverSetDataMapForCreateSparkSpendTransaction = (Module[
+      '_js_createCoverSetDataMapForCreateSparkSpendTransaction'
+    ] = wasmExports['js_createCoverSetDataMapForCreateSparkSpendTransaction']);
+    var _js_addCoverSetDataForCreateSparkSpendTransaction = (Module[
+      '_js_addCoverSetDataForCreateSparkSpendTransaction'
+    ] = wasmExports['js_addCoverSetDataForCreateSparkSpendTransaction']);
+    var _js_moveAddCoverSetDataForCreateSparkSpendTransaction = (Module[
+      '_js_moveAddCoverSetDataForCreateSparkSpendTransaction'
+    ] = wasmExports['js_moveAddCoverSetDataForCreateSparkSpendTransaction']);
+    var _js_createIdAndBlockHashesMapForCreateSparkSpendTransaction = (Module[
+      '_js_createIdAndBlockHashesMapForCreateSparkSpendTransaction'
+    ] =
+      wasmExports[
+        'js_createIdAndBlockHashesMapForCreateSparkSpendTransaction'
+      ]);
+    var _js_addIdAndBlockHashForCreateSparkSpendTransaction = (Module[
+      '_js_addIdAndBlockHashForCreateSparkSpendTransaction'
+    ] = wasmExports['js_addIdAndBlockHashForCreateSparkSpendTransaction']);
+    var _js_createSparkSpendTransaction = (Module[
+      '_js_createSparkSpendTransaction'
+    ] = wasmExports['js_createSparkSpendTransaction']);
+    var _js_getCreateSparkSpendTxResultSerializedSpend = (Module[
+      '_js_getCreateSparkSpendTxResultSerializedSpend'
+    ] = wasmExports['js_getCreateSparkSpendTxResultSerializedSpend']);
+    var _js_getCreateSparkSpendTxResultSerializedSpendSize = (Module[
+      '_js_getCreateSparkSpendTxResultSerializedSpendSize'
+    ] = wasmExports['js_getCreateSparkSpendTxResultSerializedSpendSize']);
+    var _js_getCreateSparkSpendTxResultOutputScriptsSize = (Module[
+      '_js_getCreateSparkSpendTxResultOutputScriptsSize'
+    ] = wasmExports['js_getCreateSparkSpendTxResultOutputScriptsSize']);
+    var _js_getCreateSparkSpendTxResultOutputScriptAt = (Module[
+      '_js_getCreateSparkSpendTxResultOutputScriptAt'
+    ] = wasmExports['js_getCreateSparkSpendTxResultOutputScriptAt']);
+    var _js_getCreateSparkSpendTxResultOutputScriptSizeAt = (Module[
+      '_js_getCreateSparkSpendTxResultOutputScriptSizeAt'
+    ] = wasmExports['js_getCreateSparkSpendTxResultOutputScriptSizeAt']);
+    var _js_getCreateSparkSpendTxResultSpentCoinsSize = (Module[
+      '_js_getCreateSparkSpendTxResultSpentCoinsSize'
+    ] = wasmExports['js_getCreateSparkSpendTxResultSpentCoinsSize']);
+    var _js_getCreateSparkSpendTxResultSpentCoinAt = (Module[
+      '_js_getCreateSparkSpendTxResultSpentCoinAt'
+    ] = wasmExports['js_getCreateSparkSpendTxResultSpentCoinAt']);
+    var _js_getCreateSparkSpendTxResultFee = (Module[
+      '_js_getCreateSparkSpendTxResultFee'
+    ] = wasmExports['js_getCreateSparkSpendTxResultFee']);
     var _js_freeSpendKeyData = (Module['_js_freeSpendKeyData'] =
       wasmExports['js_freeSpendKeyData']);
     var _js_freeSpendKey = (Module['_js_freeSpendKey'] =
@@ -4432,6 +4659,24 @@ var Module = (() => {
     var _js_freeIdentifiedCoinData = (Module['_js_freeIdentifiedCoinData'] =
       wasmExports['js_freeIdentifiedCoinData']);
     var _js_freeCoin = (Module['_js_freeCoin'] = wasmExports['js_freeCoin']);
+    var _js_freeSparkSpendRecipientsVector = (Module[
+      '_js_freeSparkSpendRecipientsVector'
+    ] = wasmExports['js_freeSparkSpendRecipientsVector']);
+    var _js_freeSparkSpendPrivateRecipientsVector = (Module[
+      '_js_freeSparkSpendPrivateRecipientsVector'
+    ] = wasmExports['js_freeSparkSpendPrivateRecipientsVector']);
+    var _js_freeSparkSpendCoinsList = (Module['_js_freeSparkSpendCoinsList'] =
+      wasmExports['js_freeSparkSpendCoinsList']);
+    var _js_freeCoverSetData = (Module['_js_freeCoverSetData'] =
+      wasmExports['js_freeCoverSetData']);
+    var _js_freeCoverSetDataMapForCreateSparkSpendTransaction = (Module[
+      '_js_freeCoverSetDataMapForCreateSparkSpendTransaction'
+    ] = wasmExports['js_freeCoverSetDataMapForCreateSparkSpendTransaction']);
+    var _js_freeIdAndBlockHashesMap = (Module['_js_freeIdAndBlockHashesMap'] =
+      wasmExports['js_freeIdAndBlockHashesMap']);
+    var _js_freeCreateSparkSpendTxResult = (Module[
+      '_js_freeCreateSparkSpendTxResult'
+    ] = wasmExports['js_freeCreateSparkSpendTxResult']);
     var _htonl = wasmExports['htonl'];
     var _htons = wasmExports['htons'];
     var _emscripten_builtin_memalign =
@@ -4592,17 +4837,6 @@ var Module = (() => {
       }
     }
 
-    function invoke_iiiiiii(index, a1, a2, a3, a4, a5, a6) {
-      var sp = stackSave();
-      try {
-        return getWasmTableEntry(index)(a1, a2, a3, a4, a5, a6);
-      } catch (e) {
-        stackRestore(sp);
-        if (e !== e + 0) throw e;
-        _setThrew(1, 0);
-      }
-    }
-
     function invoke_viij(index, a1, a2, a3) {
       var sp = stackSave();
       try {
@@ -4637,17 +4871,6 @@ var Module = (() => {
       }
     }
 
-    function invoke_iiij(index, a1, a2, a3) {
-      var sp = stackSave();
-      try {
-        return getWasmTableEntry(index)(a1, a2, a3);
-      } catch (e) {
-        stackRestore(sp);
-        if (e !== e + 0) throw e;
-        _setThrew(1, 0);
-      }
-    }
-
     function invoke_viiiii(index, a1, a2, a3, a4, a5) {
       var sp = stackSave();
       try {
@@ -4659,10 +4882,107 @@ var Module = (() => {
       }
     }
 
+    function invoke_ijiii(index, a1, a2, a3, a4) {
+      var sp = stackSave();
+      try {
+        return getWasmTableEntry(index)(a1, a2, a3, a4);
+      } catch (e) {
+        stackRestore(sp);
+        if (e !== e + 0) throw e;
+        _setThrew(1, 0);
+      }
+    }
+
+    function invoke_iiij(index, a1, a2, a3) {
+      var sp = stackSave();
+      try {
+        return getWasmTableEntry(index)(a1, a2, a3);
+      } catch (e) {
+        stackRestore(sp);
+        if (e !== e + 0) throw e;
+        _setThrew(1, 0);
+      }
+    }
+
     function invoke_vij(index, a1, a2) {
       var sp = stackSave();
       try {
         getWasmTableEntry(index)(a1, a2);
+      } catch (e) {
+        stackRestore(sp);
+        if (e !== e + 0) throw e;
+        _setThrew(1, 0);
+      }
+    }
+
+    function invoke_viiiiii(index, a1, a2, a3, a4, a5, a6) {
+      var sp = stackSave();
+      try {
+        getWasmTableEntry(index)(a1, a2, a3, a4, a5, a6);
+      } catch (e) {
+        stackRestore(sp);
+        if (e !== e + 0) throw e;
+        _setThrew(1, 0);
+      }
+    }
+
+    function invoke_iiiiiiijji(index, a1, a2, a3, a4, a5, a6, a7, a8, a9) {
+      var sp = stackSave();
+      try {
+        return getWasmTableEntry(index)(a1, a2, a3, a4, a5, a6, a7, a8, a9);
+      } catch (e) {
+        stackRestore(sp);
+        if (e !== e + 0) throw e;
+        _setThrew(1, 0);
+      }
+    }
+
+    function invoke_viiiiiiiiiiiiii(
+      index,
+      a1,
+      a2,
+      a3,
+      a4,
+      a5,
+      a6,
+      a7,
+      a8,
+      a9,
+      a10,
+      a11,
+      a12,
+      a13,
+      a14,
+    ) {
+      var sp = stackSave();
+      try {
+        getWasmTableEntry(index)(
+          a1,
+          a2,
+          a3,
+          a4,
+          a5,
+          a6,
+          a7,
+          a8,
+          a9,
+          a10,
+          a11,
+          a12,
+          a13,
+          a14,
+        );
+      } catch (e) {
+        stackRestore(sp);
+        if (e !== e + 0) throw e;
+        _setThrew(1, 0);
+      }
+    }
+
+    function invoke_iiiiiii(index, a1, a2, a3, a4, a5, a6) {
+      var sp = stackSave();
+      try {
+        return getWasmTableEntry(index)(a1, a2, a3, a4, a5, a6);
       } catch (e) {
         stackRestore(sp);
         if (e !== e + 0) throw e;
@@ -4686,6 +5006,39 @@ var Module = (() => {
       var sp = stackSave();
       try {
         getWasmTableEntry(index)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+      } catch (e) {
+        stackRestore(sp);
+        if (e !== e + 0) throw e;
+        _setThrew(1, 0);
+      }
+    }
+
+    function invoke_viiiiiiii(index, a1, a2, a3, a4, a5, a6, a7, a8) {
+      var sp = stackSave();
+      try {
+        getWasmTableEntry(index)(a1, a2, a3, a4, a5, a6, a7, a8);
+      } catch (e) {
+        stackRestore(sp);
+        if (e !== e + 0) throw e;
+        _setThrew(1, 0);
+      }
+    }
+
+    function invoke_viiij(index, a1, a2, a3, a4) {
+      var sp = stackSave();
+      try {
+        getWasmTableEntry(index)(a1, a2, a3, a4);
+      } catch (e) {
+        stackRestore(sp);
+        if (e !== e + 0) throw e;
+        _setThrew(1, 0);
+      }
+    }
+
+    function invoke_iiiiij(index, a1, a2, a3, a4, a5) {
+      var sp = stackSave();
+      try {
+        return getWasmTableEntry(index)(a1, a2, a3, a4, a5);
       } catch (e) {
         stackRestore(sp);
         if (e !== e + 0) throw e;

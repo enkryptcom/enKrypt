@@ -35,10 +35,11 @@ export const getMintTxData = async ({
 
   const outputsArray = [];
 
-  const mintedCoinData = wasmModule._js_createMintedCoinData(
-    decodedAddressPtr,
-    BigInt(amount),
-    memo,
+  const mintedCoinData = wasmModule.ccall(
+    'js_createMintedCoinData',
+    'number',
+    ['number', 'number', 'string'],
+    [decodedAddressPtr, BigInt(amount), memo],
   );
 
   if (!mintedCoinData) {

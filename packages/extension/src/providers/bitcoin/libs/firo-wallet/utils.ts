@@ -1,5 +1,9 @@
 export const chunkedEvery = (
-  data: any[], chunksize: number, callback: (data: any, index?: number) => void, finished: () => void) => {
+  data: any[],
+  chunksize: number,
+  callback: (data: any, index?: number) => void,
+  finished: () => void,
+) => {
   let i = 0;
   (function chunk() {
     const end = Math.min(i + chunksize, data.length);

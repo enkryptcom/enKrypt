@@ -29,7 +29,6 @@ class API implements ProviderAPIInterface {
 
   async init(): Promise<void> {}
   async getRawTransaction(hash: string): Promise<string | null> {
-    debugger;
     return fetch(`${this.node}/api/v1/tx/${hash}/raw`)
       .then(res => res.json())
       .then((tx: { hex: string; error: unknown }) => {

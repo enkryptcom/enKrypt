@@ -1,47 +1,47 @@
-import MarketData from "@/libs/market-data";
-import { FiroTxType } from "@/providers/bitcoin/types";
-import { Activity, ActivityStatus, ActivityType } from "@/types/activity";
-import { BaseNetwork } from "@/types/base-network";
+import MarketData from '@/libs/market-data';
+import { FiroTxType } from '@/providers/bitcoin/types';
+import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
+import { BaseNetwork } from '@/types/base-network';
 
 export default async (
   network: BaseNetwork,
-  pubkey: string
+  pubkey: string,
 ): Promise<Activity[]> => {
   return fetch(
     `${network.node}/insight-api-zcoin/txs?address=${network.displayAddress(
-      pubkey
-    )}&pageSize=40`
+      pubkey,
+    )}&pageSize=40`,
   )
-    .then((res) => res.json())
+    .then(res => res.json())
     .then(async (txs: { txs: FiroTxType[] }) => {
       if ((txs as any).message) return [];
-      let tokenPrice = "0";
+      let tokenPrice = '0';
       if (network.coingeckoID) {
         const marketData = new MarketData();
         await marketData
           .getTokenPrice(network.coingeckoID)
-          .then((mdata) => (tokenPrice = mdata || "0"));
+          .then(mdata => (tokenPrice = mdata || '0'));
       }
 
       const address = network.displayAddress(pubkey);
 
-      const cleanedTxs = txs.txs.map((tx) => {
+      const cleanedTxs = txs.txs.map(tx => {
         return {
           ...tx,
-          vin: tx.vin.filter((vi) => vi.addr),
-          vout: tx.vout.filter((vo) => vo.scriptPubKey.addresses),
+          vin: tx.vin.filter(vi => vi.addr),
+          vout: tx.vout.filter(vo => vo.scriptPubKey.addresses),
         };
       });
 
-      return cleanedTxs.map((tx) => {
-        const isIncoming = !tx.vin.find((i) => i.addr === address);
+      return cleanedTxs.map(tx => {
+        const isIncoming = !tx.vin.find(i => i.addr === address);
 
-        let toAddress = "";
+        let toAddress = '';
         let value = 0;
 
         if (isIncoming) {
           const relevantOut = tx.vout.find(
-            (tx) => tx.scriptPubKey.addresses![0] === address
+            tx => tx.scriptPubKey.addresses![0] === address,
           );
           if (relevantOut) {
             toAddress = relevantOut.scriptPubKey.addresses![0];
@@ -49,7 +49,7 @@ export default async (
           }
         } else {
           const relevantOut = tx.vout.find(
-            (tx) => tx.scriptPubKey.addresses![0] !== address
+            tx => tx.scriptPubKey.addresses![0] !== address,
           );
           if (relevantOut) {
             toAddress = relevantOut.scriptPubKey.addresses![0];
@@ -84,11 +84,11 @@ export default async (
           rawInfo: {
             blockNumber: tx.blockheight,
             fee: Number(tx?.fees),
-            inputs: tx.vin.map((input) => ({
+            inputs: tx.vin.map(input => ({
               address: input.addr,
               value: Number(input.value),
             })),
-            outputs: tx.vout.map((output) => ({
+            outputs: tx.vout.map(output => ({
               address: output.scriptPubKey.addresses![0],
               value: Number(output.value),
               pkscript: output.scriptPubKey.hex,
@@ -100,7 +100,7 @@ export default async (
         return act;
       });
     })
-    .catch((error) => {
+    .catch(error => {
       console.log({ error });
       return [];
     });

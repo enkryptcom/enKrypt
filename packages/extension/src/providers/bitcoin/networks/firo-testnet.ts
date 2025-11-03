@@ -1,28 +1,28 @@
-import { NetworkNames } from "@enkryptcom/types";
+import { NetworkNames } from '@enkryptcom/types';
 import icon from './icons/firo.svg';
 import {
   BitcoinNetwork,
   BitcoinNetworkOptions,
   PaymentType,
-} from "../types/bitcoin-network";
-import { firoHandler } from "../libs/activity-handlers";
-import wrapActivityHandler from "@/libs/activity-state/wrap-activity-handler";
-import FiroApi from "@/providers/bitcoin/libs/api-firo";
-import { GasPriceTypes } from "@/providers/common/types";
+} from '../types/bitcoin-network';
+import { firoHandler } from '../libs/activity-handlers';
+import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
+import FiroApi from '@/providers/bitcoin/libs/api-firo';
+import { GasPriceTypes } from '@/providers/common/types';
 
 const firoOptions: BitcoinNetworkOptions = {
   name: NetworkNames.FiroTest,
-  name_long: "Firo Testnet",
-  homePage: "https://testexplorer.firo.org",
-  blockExplorerTX: "https://testexplorer.firo.org/tx/[[txHash]]",
-  blockExplorerAddr: "https://testexplorer.firo.org/address/[[address]]",
+  name_long: 'Firo Testnet',
+  homePage: 'https://testexplorer.firo.org',
+  blockExplorerTX: 'https://testexplorer.firo.org/tx/[[txHash]]',
+  blockExplorerAddr: 'https://testexplorer.firo.org/address/[[address]]',
   isTestNetwork: true,
-  currencyName: "tFIRO",
-  currencyNameLong: "tFiro",
+  currencyName: 'tFIRO',
+  currencyNameLong: 'tFiro',
   icon,
   decimals: 8,
-  node: "https://testexplorer.firo.org",
-  coingeckoID: "zcoin",
+  node: 'https://testexplorer.firo.org',
+  coingeckoID: 'zcoin',
   dust: 0.0001,
   apiType: FiroApi,
   activityHandler: wrapActivityHandler(firoHandler),
@@ -36,8 +36,8 @@ const firoOptions: BitcoinNetworkOptions = {
     }),
   networkInfo: {
     name: NetworkNames.FiroTest,
-    messagePrefix: "\x18Zcoin Signed Message:\n",
-    bech32: "tb",
+    messagePrefix: '\x18Zcoin Signed Message:\n',
+    bech32: 'tb',
     bip32: {
       public: 0x043587cf,
       private: 0x04358394,
