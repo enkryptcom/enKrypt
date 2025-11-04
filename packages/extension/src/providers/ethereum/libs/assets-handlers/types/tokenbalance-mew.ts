@@ -31,7 +31,6 @@ export type SupportedNetworkNames =
   | NetworkNames.Ethereum
   | NetworkNames.Matic
   | NetworkNames.AstarEVM
-  | NetworkNames.Okc
   | NetworkNames.Optimism
   | NetworkNames.Moonriver
   | NetworkNames.Moonbeam

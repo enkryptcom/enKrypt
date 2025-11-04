@@ -42,10 +42,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'astar',
     cgPlatform: CoingeckoPlatform.Astar,
   },
-  [NetworkNames.Okc]: {
-    tbName: 'okt',
-    cgPlatform: CoingeckoPlatform.Okc,
-  },
   [NetworkNames.Optimism]: {
     tbName: 'op',
     cgPlatform: CoingeckoPlatform.Optimism,
