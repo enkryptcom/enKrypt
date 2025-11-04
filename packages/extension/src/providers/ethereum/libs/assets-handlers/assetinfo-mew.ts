@@ -151,10 +151,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'xlayer',
     cgPlatform: CoingeckoPlatform.XLayer,
   },
-  [NetworkNames.ProofOfPlayApex]: {
-    tbName: 'apex',
-    cgPlatform: undefined,
-  },
   [NetworkNames.Godwoken]: {
     tbName: 'ckb',
     cgPlatform: CoingeckoPlatform.Godwoken,

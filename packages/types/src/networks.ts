@@ -83,7 +83,6 @@ export enum NetworkNames {
   Mode = "mode",
   OpBNB = "OpBNB",
   Palm = "palm",
-  ProofOfPlayApex = "ProofOfPlayApex",
   Scroll = "scroll",
   Rari = "rari",
   CotiTestnet = "CotiTestnet",

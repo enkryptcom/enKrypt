@@ -85,8 +85,6 @@ const lists: Partial<Record<NetworkNames, string>> = {
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/opBNB.json',
   [NetworkNames.Palm]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/palm.json',
-  [NetworkNames.ProofOfPlayApex]:
-    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/popApex.json',
   [NetworkNames.Scroll]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/scroll.json',
   [NetworkNames.Rari]:

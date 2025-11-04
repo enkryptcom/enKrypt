@@ -52,7 +52,6 @@ import mantaPacificNode from './manta-pacific';
 import modeNode from './mode';
 import opbnbNode from './op-bnb';
 import palmNode from './palm';
-import proofOfPlayApexNode from './pop-apex';
 import scrollNode from './scroll';
 import cotiTestnetNode from './coti-testnet';
 import hoodiNode from './hoodi';
@@ -137,7 +136,6 @@ export default {
   mode: modeNode,
   opbnb: opbnbNode,
   palm: palmNode,
-  popApex: proofOfPlayApexNode,
   scroll: scrollNode,
   cotiTestnetNode: cotiTestnetNode,
   hoodi: hoodiNode,

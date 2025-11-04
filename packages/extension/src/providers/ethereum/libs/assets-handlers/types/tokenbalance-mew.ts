@@ -58,7 +58,6 @@ export type SupportedNetworkNames =
   | NetworkNames.Blast
   | NetworkNames.Solana
   | NetworkNames.XLayer
-  | NetworkNames.ProofOfPlayApex
   | NetworkNames.Godwoken
   | NetworkNames.Linea
   | NetworkNames.MantaPacific
