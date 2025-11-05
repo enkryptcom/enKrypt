@@ -143,7 +143,9 @@ class Changelly extends ProviderClass {
 
       // Can currency can be swapped to?
       if (
-        (cur.enabledTo && (cur.fixRateEnabled || cur.protocol === "RBTC") && cur.token)
+        cur.enabledTo &&
+        (cur.fixRateEnabled || cur.protocol === "RBTC") &&
+        cur.token
       ) {
         // Allowing RBTC  and using floating rate
         if (!this.toTokens[changellyToNetwork[cur.blockchain]])
@@ -501,7 +503,7 @@ class Changelly extends ProviderClass {
         );
         return null;
       }
-      if (response.result[0] && response.id) {
+      if (response.result[0] && response.id && method === "getExchangeAmount") {
         // getExchangeAmount returns id in response object
         response.result[0].id = String(response.id);
       }
@@ -530,7 +532,6 @@ class Changelly extends ProviderClass {
       }
 
       const [firstChangellyFixRateQuote] = response.result;
-
       const evmGasLimit =
         options.fromToken.address === NATIVE_TOKEN_ADDRESS &&
         options.fromToken.type === NetworkType.EVM
@@ -691,7 +692,7 @@ class Changelly extends ProviderClass {
         ),
         rateId: quote.meta.changellyQuoteId,
       };
-      
+
       let method: string = "createFixTransaction";
       if ([params.from, params.to].includes("rbtc")) {
         method = "createTransaction"; // floating rate tx
@@ -702,7 +703,6 @@ class Changelly extends ProviderClass {
           params,
           { signal },
         );
-
       if (response.error) {
         console.warn(
           `Changelly "${method}" returned JSONRPC error response, returning no swap` +
