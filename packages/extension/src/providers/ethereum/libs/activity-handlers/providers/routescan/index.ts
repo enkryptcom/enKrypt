@@ -20,8 +20,7 @@ const getAddressActivity = async (
   const decimalChainId = parseInt(chainId, 16);
   const url = `${endpoint}/api/evm/all/transactions?includedChainIds=${decimalChainId}&limit=${limit}&sort=desc&fromAddresses=${address}&toAddresses=${address}`;
   const response = await fetch(url);
-  if (!response.ok) return [];
-
+  if (!response.ok || response.status === 202) return [];
   const res = await response.json();
   if (!res.items) return [];
 
