@@ -41,8 +41,6 @@ const lists: Partial<Record<NetworkNames, string>> = {
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/bifrost.json',
   [NetworkNames.Edgeware]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/edg.json',
-  [NetworkNames.ZkSyncGoerli]:
-    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/zksyncgoerli.json',
   [NetworkNames.ZkSync]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/zksync.json',
   [NetworkNames.Rootstock]:
@@ -75,8 +73,6 @@ const lists: Partial<Record<NetworkNames, string>> = {
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/godwoken.json',
   [NetworkNames.ImmutableZkevm]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/imx.json',
-  [NetworkNames.ZChains]:
-    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/zchains.json',
   [NetworkNames.MantaPacific]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/manta.json',
   [NetworkNames.Mode]:

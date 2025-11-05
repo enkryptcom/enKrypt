@@ -74,7 +74,6 @@ export enum NetworkNames {
   Degen = "degen",
   Ham = "ham",
   XLayer = "XLayer",
-  ZChains = "ZCD",
   ImmutableZkevm = "ImmutableZkevm",
   Forma = "Forma",
   Godwoken = "godwoken",

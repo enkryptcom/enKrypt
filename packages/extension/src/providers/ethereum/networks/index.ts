@@ -41,7 +41,6 @@ import telosNode from './tlos';
 import blastNode from './blast';
 import sankoNode from './dmt';
 import degenNode from './degen';
-import zcdNode from './zcd';
 import immutableZkevmNode from './immutable-zkevm';
 import rariNode from './rari';
 import formaNode from './forma';
@@ -125,7 +124,6 @@ export default {
   blast: blastNode,
   sanko: sankoNode,
   degen: degenNode,
-  zcd: zcdNode,
   immutableZkevm: immutableZkevmNode,
   rari: rariNode,
   forma: formaNode,
