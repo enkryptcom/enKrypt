@@ -142,7 +142,10 @@ class Changelly extends ProviderClass {
       }
 
       // Can currency can be swapped to?
-      if (cur.enabledTo && cur.fixRateEnabled && cur.token) {
+      if (
+        (cur.enabledTo && (cur.fixRateEnabled || cur.protocol === "RBTC") && cur.token)
+      ) {
+        // Allowing RBTC  and using floating rate
         if (!this.toTokens[changellyToNetwork[cur.blockchain]])
           this.toTokens[changellyToNetwork[cur.blockchain]] = {};
         this.toTokens[changellyToNetwork[cur.blockchain]][cur.token.address] = {
@@ -290,7 +293,7 @@ class Changelly extends ProviderClass {
   }
 
   async getMinMaxAmount(
-    options: { fromToken: TokenType; toToken: TokenTypeTo },
+    options: { fromToken: TokenType; toToken: TokenTypeTo; amount?: string },
     context?: { signal?: AbortSignal },
   ): Promise<MinMaxResponse> {
     const { fromToken, toToken } = options;
@@ -305,7 +308,8 @@ class Changelly extends ProviderClass {
     };
 
     try {
-      const params: ChangellyApiGetFixRateParams = {
+      const params: ChangellyApiGetFixRateParams & { amountFrom?: string } = {
+        // Optional amountFrom field only used in getExchangeAmount rpc call for floating rates
         from: this.getTicker(fromToken, this.network),
         to: this.getTicker(
           toToken as TokenType,
@@ -313,9 +317,15 @@ class Changelly extends ProviderClass {
         ),
       };
 
+      let method: string = "getFixRate";
+      if ([params.from, params.to].includes("rbtc")) {
+        // In case of RBTC use floating rate
+        method = "getExchangeAmount";
+        params.amountFrom = options.amount; // amountFrom required only in case of getExchangeAmount
+      }
       const response =
         await this.changellyRequest<ChangellyApiGetFixRateResult>(
-          "getFixRate",
+          method,
           params,
           { signal },
         );
@@ -323,7 +333,7 @@ class Changelly extends ProviderClass {
       if (response.error) {
         // JsonRPC ERR response
         console.warn(
-          `Changelly "getFixRate" returned JSONRPC error response` +
+          `Changelly "${method}" returned JSONRPC error response` +
             `  fromToken=${fromToken.symbol} (${params.from})` +
             `  toToken=${toToken.symbol} (${params.to})` +
             `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
@@ -422,10 +432,14 @@ class Changelly extends ProviderClass {
       );
       return null;
     }
-
+    const amount = fromBase(
+      options.amount.toString(),
+      options.fromToken.decimals,
+    );
     const minMax = await this.getMinMaxAmount({
       fromToken: options.fromToken,
       toToken: options.toToken,
+      amount: amount,
     });
 
     let quoteRequestAmount = options.amount;
@@ -462,9 +476,13 @@ class Changelly extends ProviderClass {
         ),
       };
 
+      let method: string = "getFixRateForAmount";
+      if ([params.from, params.to].includes("rbtc")) {
+        method = "getExchangeAmount";
+      }
       const response =
         await this.changellyRequest<ChangellyApiGetFixRateForAmountResult>(
-          "getFixRateForAmount",
+          method,
           params,
           { signal },
         );
@@ -473,7 +491,7 @@ class Changelly extends ProviderClass {
 
       if (response.error) {
         console.warn(
-          `Changelly "getFixRateForAmount" returned JSONRPC error response,` +
+          `Changelly "${method}" returned JSONRPC error response,` +
             ` returning no quotes` +
             `  fromToken=${options.fromToken.symbol} (${params.from})` +
             `  toToken=${options.toToken.symbol} (${params.to})` +
@@ -483,10 +501,13 @@ class Changelly extends ProviderClass {
         );
         return null;
       }
-
+      if (response.result[0] && response.id) {
+        // getExchangeAmount returns id in response object
+        response.result[0].id = String(response.id);
+      }
       if (!response.result || !response.result[0]?.id) {
         console.warn(
-          `Changelly "getFixRateForAmount" response contains no quotes,` +
+          `Changelly "${method}" response contains no quotes,` +
             ` returning no quotes` +
             `  fromToken=${options.fromToken.symbol} (${params.from})` +
             `  toToken=${options.toToken.symbol} (${params.to})` +
@@ -670,17 +691,21 @@ class Changelly extends ProviderClass {
         ),
         rateId: quote.meta.changellyQuoteId,
       };
-
+      
+      let method: string = "createFixTransaction";
+      if ([params.from, params.to].includes("rbtc")) {
+        method = "createTransaction"; // floating rate tx
+      }
       const response =
         await this.changellyRequest<ChangellyApiCreateFixedRateTransactionResult>(
-          "createFixTransaction",
+          method,
           params,
           { signal },
         );
 
       if (response.error) {
         console.warn(
-          `Changelly "createFixTransaction" returned JSONRPC error response, returning no swap` +
+          `Changelly "${method}" returned JSONRPC error response, returning no swap` +
             `  fromToken=${quote.options.fromToken.symbol} (${params.from})` +
             `  toToken=${quote.options.toToken.symbol} (${params.to})` +
             `  took=${(Date.now() - startedAt).toLocaleString()}ms` +
@@ -692,7 +717,7 @@ class Changelly extends ProviderClass {
 
       if (!response.result.id) {
         console.warn(
-          `Changelly "createFixTransaction" response contains no id, returning no swap` +
+          `Changelly "${method}" response contains no id, returning no swap` +
             `  fromToken=${quote.options.fromToken.symbol} (${params.from})` +
             `  toToken=${quote.options.toToken.symbol} (${params.to})` +
             `  took=${(Date.now() - startedAt).toLocaleString()}ms`,
