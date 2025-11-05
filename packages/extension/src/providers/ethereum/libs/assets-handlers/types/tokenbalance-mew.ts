@@ -31,7 +31,6 @@ export type SupportedNetworkNames =
   | NetworkNames.Ethereum
   | NetworkNames.Matic
   | NetworkNames.AstarEVM
-  | NetworkNames.Okc
   | NetworkNames.Optimism
   | NetworkNames.Moonriver
   | NetworkNames.Moonbeam
@@ -59,7 +58,6 @@ export type SupportedNetworkNames =
   | NetworkNames.Blast
   | NetworkNames.Solana
   | NetworkNames.XLayer
-  | NetworkNames.ProofOfPlayApex
   | NetworkNames.Godwoken
   | NetworkNames.Linea
   | NetworkNames.MantaPacific

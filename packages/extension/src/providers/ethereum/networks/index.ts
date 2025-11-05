@@ -41,7 +41,6 @@ import telosNode from './tlos';
 import blastNode from './blast';
 import sankoNode from './dmt';
 import degenNode from './degen';
-import zcdNode from './zcd';
 import immutableZkevmNode from './immutable-zkevm';
 import rariNode from './rari';
 import formaNode from './forma';
@@ -52,7 +51,6 @@ import mantaPacificNode from './manta-pacific';
 import modeNode from './mode';
 import opbnbNode from './op-bnb';
 import palmNode from './palm';
-import proofOfPlayApexNode from './pop-apex';
 import scrollNode from './scroll';
 import cotiTestnetNode from './coti-testnet';
 import hoodiNode from './hoodi';
@@ -126,7 +124,6 @@ export default {
   blast: blastNode,
   sanko: sankoNode,
   degen: degenNode,
-  zcd: zcdNode,
   immutableZkevm: immutableZkevmNode,
   rari: rariNode,
   forma: formaNode,
@@ -137,7 +134,6 @@ export default {
   mode: modeNode,
   opbnb: opbnbNode,
   palm: palmNode,
-  popApex: proofOfPlayApexNode,
   scroll: scrollNode,
   cotiTestnetNode: cotiTestnetNode,
   hoodi: hoodiNode,

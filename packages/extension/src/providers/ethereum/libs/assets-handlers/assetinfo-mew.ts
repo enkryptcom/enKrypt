@@ -42,10 +42,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'astar',
     cgPlatform: CoingeckoPlatform.Astar,
   },
-  [NetworkNames.Okc]: {
-    tbName: 'okt',
-    cgPlatform: CoingeckoPlatform.Okc,
-  },
   [NetworkNames.Optimism]: {
     tbName: 'op',
     cgPlatform: CoingeckoPlatform.Optimism,
@@ -154,10 +150,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.XLayer]: {
     tbName: 'xlayer',
     cgPlatform: CoingeckoPlatform.XLayer,
-  },
-  [NetworkNames.ProofOfPlayApex]: {
-    tbName: 'apex',
-    cgPlatform: undefined,
   },
   [NetworkNames.Godwoken]: {
     tbName: 'ckb',

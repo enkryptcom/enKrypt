@@ -15,7 +15,7 @@ const astrOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: 'ASTR',
   currencyNameLong: 'Astar',
-  node: 'wss://astar.public.blastapi.io/',
+  node: 'wss://astar.api.onfinality.io/public-ws',
   icon,
   coingeckoID: 'astar',
   coingeckoPlatform: CoingeckoPlatform.Astar,
