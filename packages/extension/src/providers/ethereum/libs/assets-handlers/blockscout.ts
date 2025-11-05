@@ -28,8 +28,8 @@ const getBlockscoutBalances = (
   address: string,
 ): Promise<TokenBalance[]> => {
   const encodedAddress = encodeURIComponent(address);
-  const nativeTokenUrl = `${NetworkEndpoints[chain]}api/v2/addresses/${encodedAddress}`;
-  const tokenBalancesUrl = `${NetworkEndpoints[chain]}api/v2/addresses/${encodedAddress}/tokens?type=ERC-20`;
+  const nativeTokenUrl = `${NetworkEndpoints[chain].replace('api?', '')}api/v2/addresses/${encodedAddress}`;
+  const tokenBalancesUrl = `${NetworkEndpoints[chain].replace('api?', '')}api/v2/addresses/${encodedAddress}/tokens?type=ERC-20`;
 
   return Promise.all([
     fetch(nativeTokenUrl).then(res => res.json()),

@@ -41,12 +41,20 @@ describe("Massa signing", () => {
     const signer = new MassaSigner();
     const keypair = await signer.generate(MNEMONIC, "m/44'/632'/0'/0'");
     const invalidSignature = "0x" + "0".repeat(128); // Invalid signature
-
+    const sig = await signer.sign(msgHash, keypair);
     const isValid = await signer.verify(
       msgHash,
       invalidSignature,
       keypair.publicKey,
     );
     expect(isValid).toBe(false);
+  });
+  it("should accept valid signatures", async () => {
+    const signer = new MassaSigner();
+    const keypair = await signer.generate(MNEMONIC, "m/44'/632'/0'/0'");
+    const validSig =
+      "1Twg6H8WCBMF3QqNr1dyCsgSA6uwxy4r5czVsaRcKvm9vM1gPoGaM36rEH4pz6fZmhoKfgEoqYb9CcUGxdT7Qq2ThJH4NK";
+    const isValid = await signer.verify(msgHash, validSig, keypair.publicKey);
+    expect(isValid).toBe(true);
   });
 });
