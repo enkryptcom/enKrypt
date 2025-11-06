@@ -18,16 +18,16 @@
           class="verify-transaction__info"
           :class="{ popup: isPopup, border: isHasScroll() }"
         >
-          <verify-transaction-network :network="BTCNetwork" />
+          <verify-transaction-network :network="network" />
           <verify-transaction-account
             :name="txData.fromAddressName"
             :address="txData.fromAddress"
             :from="true"
-            :network="BTCNetwork"
+            :network="network"
           />
           <verify-transaction-account
             :address="txData.toAddress"
-            :network="BTCNetwork"
+            :network="network"
           />
           <verify-transaction-amount :token="txData.toToken" />
           {{ errorMsg }}
@@ -59,7 +59,7 @@
     <send-process
       v-if="isProcessing"
       :to-address="txData.toAddress"
-      :network="BTCNetwork"
+      :network="network"
       :token="txData.toToken"
       :is-done="isSendDone"
       :is-window-popup="isWindowPopup"
@@ -89,44 +89,11 @@ import { sendFromSparkAddress } from '@/libs/spark-handler';
 import { isAxiosError } from 'axios';
 import { fromBase } from '@enkryptcom/utils';
 import { BaseNetwork } from '@/types/base-network';
-import { AccountsHeaderData, SparkAccount } from '@action/types/account.ts';
-
-const props = defineProps({
-  isSyncing: {
-    type: Boolean,
-    default: false,
-  },
-  cryptoAmount: {
-    type: String,
-    default: '0',
-  },
-  fiatAmount: {
-    type: String,
-    default: '0',
-  },
-  symbol: {
-    type: String,
-    default: '',
-  },
-  subnetwork: {
-    type: String,
-    default: '',
-  },
-  network: {
-    type: Object as PropType<BitcoinNetwork>,
-    default: () => ({}),
-  },
-  sparkAccount: {
-    type: Object as PropType<SparkAccount | null>,
-    default: () => {
-      return {};
-    },
-  },
-  accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
-    default: () => ({}),
-  },
-});
+import * as bitcoin from 'bitcoinjs-lib';
+import FiroAPI from '@/providers/bitcoin/libs/api-firo.ts';
+import { SPARK_TX_TYPE, LOCK_TIME } from '@/libs/spark-handler/constants.ts';
+import { numberToReversedHex } from '@/libs/spark-handler/utils.ts';
+import { createTempFromSparkTx } from '@/libs/spark-handler/createTempFromSparkTx.ts';
 
 const emits = defineEmits<{
   (e: 'update:spark-state-changed', network: BaseNetwork): void;
@@ -140,7 +107,7 @@ const txData: VerifyTransactionParams = JSON.parse(
 );
 
 const isProcessing = ref(false);
-const BTCNetwork = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
+const network = ref<BitcoinNetwork>(DEFAULT_BTC_NETWORK);
 const isSendDone = ref(false);
 const isPopup: boolean = getCurrentContext() === 'new-window';
 const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
@@ -150,10 +117,8 @@ const errorMsg = ref('');
 defineExpose({ verifyScrollRef });
 
 onBeforeMount(async () => {
-  BTCNetwork.value = (await getNetworkByName(
-    selectedNetwork,
-  )!) as BitcoinNetwork;
-  trackSendEvents(SendEventType.SendVerify, { network: BTCNetwork.value.name });
+  network.value = (await getNetworkByName(selectedNetwork)!) as BitcoinNetwork;
+  trackSendEvents(SendEventType.SendVerify, { network: network.value.name });
 });
 
 const close = () => {
@@ -167,13 +132,13 @@ const close = () => {
 const sendAction = async () => {
   isProcessing.value = true;
   trackSendEvents(SendEventType.SendApprove, {
-    network: BTCNetwork.value.name,
+    network: network.value.name,
   });
   const txActivity: Activity = {
-    from: BTCNetwork.value.displayAddress(txData.fromAddress),
+    from: network.value.displayAddress(txData.fromAddress),
     to: txData.toAddress,
     isIncoming: txData.fromAddress === txData.toAddress,
-    network: BTCNetwork.value.name,
+    network: network.value.name,
     status: ActivityStatus.pending,
     timestamp: new Date().getTime(),
     token: {
@@ -188,27 +153,60 @@ const sendAction = async () => {
     transactionHash: '',
   };
 
-  const activityState = new ActivityState();
+  const psbt = new bitcoin.Psbt({ network: network.value.networkInfo });
 
-  await sendFromSparkAddress(
-    BTCNetwork.value,
+  const txHashSig = await createTempFromSparkTx({
+    network: network.value.networkInfo,
+    to: txData.toAddress,
+    amount: fromBase(txData.toToken.amount, txData.toToken.decimals).toString(),
+  });
+
+  const { scripts, hex, serializedSpendSize } = await sendFromSparkAddress(
     txData.toAddress,
     fromBase(txData.toToken.amount, txData.toToken.decimals).toString(),
-  )
-    .then(res => {
+    txHashSig,
+  );
+
+  psbt.addInput({
+    hash: '0000000000000000000000000000000000000000000000000000000000000000',
+    index: 4294967295,
+    sequence: 4294967295,
+    finalScriptSig: Buffer.from('d3', 'hex'),
+  });
+  psbt.setLocktime(LOCK_TIME);
+  psbt.setVersion(3 | (SPARK_TX_TYPE << 16));
+  scripts.forEach(script => {
+    psbt.addOutput({
+      script: Buffer.from(script),
+      value: 0,
+    });
+  });
+
+  const rawTx = psbt.extractTransaction();
+  const txHex = rawTx.toHex();
+  const sizeHex = numberToReversedHex(serializedSpendSize);
+  const finalTx = txHex + 'fd' + sizeHex + hex;
+
+  const activityState = new ActivityState();
+
+  const api = (await network.value.api()) as unknown as FiroAPI;
+
+  api
+    .broadcastTx(finalTx)
+    .then(({ txid }) => {
       trackSendEvents(SendEventType.SendComplete, {
-        network: BTCNetwork.value.name,
+        network: network.value.name,
       });
       activityState.addActivities(
         [
           {
             ...txActivity,
-            ...{ transactionHash: res },
+            ...{ transactionHash: txid },
           },
         ],
         {
-          address: BTCNetwork.value.displayAddress(txData.fromAddress),
-          network: BTCNetwork.value.name,
+          address: network.value.displayAddress(txData.fromAddress),
+          network: network.value.name,
         },
       );
 
@@ -224,7 +222,7 @@ const sendAction = async () => {
           window.close();
         }, 1500);
       }
-      emits('update:spark-state-changed', BTCNetwork.value);
+      emits('update:spark-state-changed', network.value);
     })
     .catch(error => {
       isProcessing.value = false;
@@ -234,15 +232,14 @@ const sendAction = async () => {
         errorMsg.value = JSON.stringify(error);
       }
       trackSendEvents(SendEventType.SendFailed, {
-        network: BTCNetwork.value.name,
+        network: network.value.name,
         error: error.message,
       });
       txActivity.status = ActivityStatus.failed;
       activityState.addActivities([txActivity], {
         address: txData.fromAddress,
-        network: BTCNetwork.value.name,
+        network: network.value.name,
       });
-      console.error('ERROR', error);
     });
 };
 

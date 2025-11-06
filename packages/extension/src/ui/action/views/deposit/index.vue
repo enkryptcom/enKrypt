@@ -15,16 +15,16 @@
 
       <div v-show="!!sparkAccount" class="deposit__tabs">
         <button
-          :class="activeTab === 'transparent' && 'deposit__tabs-active'"
-          @click="setActiveTab('transparent')"
-        >
-          Transparent address
-        </button>
-        <button
           :class="activeTab === 'spark' && 'deposit__tabs-active'"
           @click="setActiveTab('spark')"
         >
           Spark address
+        </button>
+        <button
+          :class="activeTab === 'transparent' && 'deposit__tabs-active'"
+          @click="setActiveTab('transparent')"
+        >
+          Transparent address
         </button>
       </div>
 
@@ -133,7 +133,7 @@ import { SparkAccount } from '../../types/account';
 
 const isCopied = ref(false);
 const isGenerated = ref(false);
-const activeTab = ref<'transparent' | 'spark'>('transparent');
+const activeTab = ref<'transparent' | 'spark'>('spark');
 const subNetwork = ref<SubNetworkOptions | null>(null);
 
 const props = defineProps({
@@ -202,7 +202,7 @@ watch(
     if (!v) {
       isCopied.value = false;
       isGenerated.value = false;
-      activeTab.value = 'transparent';
+      activeTab.value = 'spark';
     }
   },
 );
