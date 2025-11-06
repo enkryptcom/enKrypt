@@ -147,10 +147,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'degen',
     cgPlatform: CoingeckoPlatform.Degen,
   },
-  [NetworkNames.XLayer]: {
-    tbName: 'xlayer',
-    cgPlatform: CoingeckoPlatform.XLayer,
-  },
   [NetworkNames.Godwoken]: {
     tbName: 'ckb',
     cgPlatform: CoingeckoPlatform.Godwoken,
