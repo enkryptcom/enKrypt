@@ -6,48 +6,22 @@ import {
 import { getSparkCoinInfo } from '@/libs/spark-handler/getSparkCoinInfo.ts';
 import { IndexedDBHelper } from '@action/db/indexedDB.ts';
 import { OwnedCoinData } from '@action/workers/sparkCoinInfoWorker.ts';
-import * as bitcoin from 'bitcoinjs-lib';
-import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet.ts';
-
-import FiroAPI from '@/providers/bitcoin/libs/api-firo.ts';
 import { isSparkAddress } from '@/providers/bitcoin/libs/utils.ts';
 import {
   base64ToHex,
   getSerializedCoin,
 } from '@/libs/spark-handler/getSerializedCoin.ts';
-
-const SPARK_TX_TYPE = 9;
-
-function numberToReversedHex(num: number) {
-  let hex = num.toString(16);
-
-  if (hex.length % 2 !== 0) {
-    hex = '0' + hex;
-  }
-
-  const bytes = hex.match(/.{2}/g);
-  const reversed = bytes?.reverse();
-
-  return reversed?.join('');
-}
-
-function base64ToReversedHex(base64: string): string {
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  const reversed = Array.from(bytes).reverse();
-  return reversed.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+import { base64ToReversedHex } from '@/libs/spark-handler/utils.ts';
 
 export async function sendFromSparkAddress(
-  network: bitcoin.Network,
   to: string,
   amount: string,
-  subtractFee = false,
-) {
+  txHashSig: string,
+): Promise<{
+  scripts: Uint8Array<ArrayBufferLike>[];
+  hex: string;
+  serializedSpendSize: number;
+}> {
   const diversifier = 1n;
   const db = new IndexedDBHelper();
   const Module = await wasmInstance.getInstance();
@@ -301,57 +275,6 @@ export async function sendFromSparkAddress(
     );
   }
 
-  // dummy values
-
-  // const txHashSig = '0000000000';
-
-  const lockTime = 999999;
-
-  const tempTx = new bitcoin.Psbt({ network: network.networkInfo });
-  tempTx.setVersion(3 | (SPARK_TX_TYPE << 16)); // version 3 and tx type in high bits (3 | (SPARK_TX_TYPE << 16));
-  tempTx.setLocktime(lockTime); // new Date().getTime() / 1000
-
-  tempTx.addInput({
-    hash: '0000000000000000000000000000000000000000000000000000000000000000',
-    index: 4294967295,
-    sequence: 4294967295,
-    finalScriptSig: Buffer.from('d3', 'hex'),
-  });
-
-  console.log(
-    'tempTx.data.globalMap',
-    tempTx.data.globalMap,
-    'tempTx.data.inputs',
-    tempTx.data.inputs,
-    'tempTx',
-    tempTx,
-  );
-
-  const tempTxBuffer = tempTx.extractTransaction(true).toBuffer();
-  const extendedTempTxBuffer = Buffer.concat([
-    tempTxBuffer,
-    Buffer.from([0x00]),
-  ]);
-
-  console.log('buffer for temp', extendedTempTxBuffer.toHex());
-
-  const txHash = bitcoin.crypto.hash256(extendedTempTxBuffer);
-  const txHashSig = txHash.reverse().toString('hex');
-
-  // TODO: check not spark case
-  if (!isSparkTransaction) {
-    tempTx.addOutput({
-      address: to,
-      value: parseFloat(amount),
-    });
-  }
-
-  //tempTx// tx.signInput(0, spendKeyObj);  // ? how to sign? Is I need to sign wit all utxo keypairs? // ? how to add subtractFeeFromAmount? // ? what is spend transaction type? // https://github.com/firoorg/sparkmobile/blob/main/include/spark.h#L22
-  // tx.finalizeAllInputs();
-  // const txHash = tx.extractTransaction()
-
-  // const txHashSig = txHash.getHash()
-
   console.log('coinlist', coinsList);
   const additionalTxSize = 0;
 
@@ -511,6 +434,7 @@ export async function sendFromSparkAddress(
       );
     }
 
+    // TODO: check if this is needed
     // Get transaction fee
     const fee = Module.ccall(
       'js_getCreateSparkSpendTxResultFee',
@@ -519,35 +443,9 @@ export async function sendFromSparkAddress(
       [result],
     );
 
-    const psbt = new bitcoin.Psbt({ network: network.networkInfo });
-
-    const api = (await network.api()) as unknown as FiroAPI;
-
-    psbt.addInput({
-      hash: '0000000000000000000000000000000000000000000000000000000000000000',
-      index: 4294967295,
-      sequence: 4294967295,
-      finalScriptSig: Buffer.from('d3', 'hex'),
-    });
-
-    psbt.setLocktime(lockTime);
-
-    psbt.setVersion(3 | (SPARK_TX_TYPE << 16));
-    scripts.forEach(script => {
-      console.log('script is ==>', script);
-      psbt.addOutput({
-        script: Buffer.from(script),
-        value: 0,
-      });
-    });
-
-    const rawTx = psbt.extractTransaction();
-    const txHex = rawTx.toHex();
-    const sizeHex = numberToReversedHex(serializedSpendSize);
-    const finalTx = txHex + 'fd' + sizeHex + hex;
-
-    api.broadcastTx(finalTx).then(console.log);
+    return { scripts, hex, serializedSpendSize };
 
     // TODO: free memory
   }
+  throw new Error('NO RESULT'); // TODO: throw error maybe
 }
