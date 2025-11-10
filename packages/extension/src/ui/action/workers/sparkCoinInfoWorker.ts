@@ -15,6 +15,7 @@ const db = new IndexedDBHelper();
 export interface CheckedCoinData {
   coin: SparkCoinValue;
   setId: number;
+  tag: string;
 }
 
 export interface OwnedCoinData {
@@ -40,13 +41,11 @@ async function fetchAllCoinInfos(
         wasmModule: Module,
       }).then(res => {
         console.log(`Checking coin: `, res);
-        if (!res.isUsed) {
-          finalResult.push({
-            coin: res,
-            setId: index + 1,
-          });
-        }
-
+        finalResult.push({
+          coin: res,
+          setId: index + 1,
+          tag: res.tag,
+        });
         return res;
       });
 
@@ -58,6 +57,9 @@ async function fetchAllCoinInfos(
   const myCoins = finalResult.map(coinData => ({
     coin: coinData.coin.originalCoin,
     setId: coinData.setId,
+    value: coinData.coin.value,
+    tag: coinData.tag,
+    isUsed: false,
   }));
 
   const savedMyCoins = (await db.readData('myCoins')) || [];

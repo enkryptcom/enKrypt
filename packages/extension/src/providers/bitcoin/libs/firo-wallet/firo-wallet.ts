@@ -797,7 +797,7 @@ export class FiroWallet {
     return (await Promise.all(setsPromises)) as AnonymitySetModel[];
   }
 
-  async getUsedSparkCoinsTags(startPoint: number): Promise<string> {
+  async getUsedSparkCoinsTags(startPoint: number) {
     return await firoElectrum.getUsedCoinsTags(startPoint);
   }
 

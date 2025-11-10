@@ -14,6 +14,7 @@ export interface SparkCoinValue {
   isUsed: boolean;
   originalCoin: string[];
   metaData: number;
+  tag: string;
   deserializedCoinObj: number;
 }
 
@@ -93,7 +94,13 @@ export const getSparkCoinInfo = async ({
     }
     console.log('Input Data:', inputDataObj);
 
-    // Example usage of `js_getInputDataWithMeta`
+    const inputTagHex = wasmModule.ccall(
+      'js_getInputCoinDataTag_base64',
+      'string',
+      ['number'],
+      [inputDataObj],
+    );
+
     inputDataWithMetaObj = wasmModule.ccall(
       'js_getInputDataWithMeta',
       'number',
@@ -261,6 +268,7 @@ export const getSparkCoinInfo = async ({
       isUsed: !!metaIsUsed,
       originalCoin: coin,
       metaData: metadataObj,
+      tag: inputTagHex,
       deserializedCoinObj,
     };
   } catch (e) {

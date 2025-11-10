@@ -274,38 +274,8 @@ const synchronize = async () => {
     const setsMeta = await wallet.getAllSparkAnonymitySetMeta();
     const isDBEmpty = !(await db.readData('data'))?.length;
 
-    const usedCoinsTags = await wallet
-      .getUsedSparkCoinsTags(187000)
-      .finally(() => {
-        console.log(
-          '%c Fetched used coins tags',
-          'color: #00FF00; font-weight: bold; font-size: 24px;',
-        );
-      });
-
-    // console.log('Synchronizing Spark data...');
-    // const usedCoinsTagsTxHashes = await wallet
-    //   .getUsedCoinsTagsTxHashes()
-    //   .catch(err => {
-    //     console.error('Error fetching used coins tags by tx hashes:', err);
-    //     return {};
-    //   })
-    //   .finally(() => {
-    //     console.log(
-    //       '%c Fetched used coins tags by tx hashes',
-    //       'color: #00FF00; font-weight: bold; font-size: 24px;',
-    //     );
-    //   });
-    //
-    // console.log(
-    //   'usedCoinsTagsTxHashes ->>>>>>><<<<<<<<<--',
-    //   usedCoinsTagsTxHashes,
-    // );
-    console.log('usedCoinsTags ->>>>>>><<<<<<<<<--', usedCoinsTags);
     console.log('setsMeta ->>', setsMeta);
     console.log('isDBEmpty ->>', isDBEmpty);
-
-    // db.saveData('usedCoinsTags', usedCoinsTags);
 
     if (!isDBEmpty) {
       const dbSetsMeta = await Promise.all(
@@ -450,6 +420,40 @@ const updateGradient = (newGradient: string) => {
     (appMenuRef.value as HTMLElement).style.background =
       `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`;
 };
+
+// =====>>> start tags handling <<<======
+
+const usedCoinsTagsLength = (await db.getLengthOf('usedCoinsTags')) || 0;
+
+const updatedCoinsTags = await wallet
+  .getUsedSparkCoinsTags(usedCoinsTagsLength - 1)
+  .finally(() => {
+    console.log(
+      '%c Fetched used coins tags',
+      'color: #00FF00; font-weight: bold; font-size: 24px;',
+    );
+  });
+
+console.log('usedCoinsTags ->>>>>>><<<<<<<<<--', updatedCoinsTags);
+
+db.appendData('usedCoinsTags', updatedCoinsTags.tags);
+
+const usedCoinsTags = await db.readData<string[]>('usedCoinsTags');
+
+const coinsTagsSet = new Set(usedCoinsTags);
+const myCoins = (await db.readData<{ tag: string }[]>('myCoins')) || [];
+const usedMyCoinsTagsSet = new Set(myCoins.map(coin => coin.tag));
+
+console.log('start filtering coins');
+
+console.log('result of coins filtering --->>>', usedMyCoinsTagsSet);
+
+usedMyCoinsTagsSet.forEach(tag => {
+  db.markCoinsAsUsed(tag);
+});
+console.log();
+
+// =====>>> end tags handling <<<======
 
 const updateSparkBalance = async (network: BaseNetwork) => {
   if (network.name === NetworkNames.Firo) {
