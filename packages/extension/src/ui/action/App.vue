@@ -442,21 +442,21 @@ const usedCoinsTags = await db.readData<string[]>('usedCoinsTags');
 
 const coinsTagsSet = new Set(usedCoinsTags);
 const myCoins = (await db.readData<{ tag: string }[]>('myCoins')) || [];
-const usedMyCoinsTagsSet = new Set(myCoins.map(coin => coin.tag));
+const myCoinsTagsSet = new Set(myCoins.map(coin => coin.tag));
 
-console.log('start filtering coins');
+// TODO:(N) change set intersection to "has"
+// const usedMyCoinsTagsSet = coinsTagsSet.intersection(myCoinsTagsSet);
 
-console.log('result of coins filtering --->>>', usedMyCoinsTagsSet);
-
-usedMyCoinsTagsSet.forEach(tag => {
-  db.markCoinsAsUsed(tag);
-});
-console.log();
+// usedMyCoinsTagsSet.forEach(tag => {
+//   db.markCoinsAsUsed(tag);
+// });
+// console.log();
 
 // =====>>> end tags handling <<<======
 
 const updateSparkBalance = async (network: BaseNetwork) => {
   if (network.name === NetworkNames.Firo) {
+    // TODO:(N) get balance via checking myCoins in db and remove balance from indexedDB
     const sparkBalance = await db.readData<string>('sparkBalance');
 
     if (sparkBalance && accountHeaderData.value.sparkAccount) {
