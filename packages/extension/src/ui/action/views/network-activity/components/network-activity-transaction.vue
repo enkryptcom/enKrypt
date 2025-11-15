@@ -4,7 +4,11 @@
     class="container-empty"
   >
     <a
-      :href="transactionURL"
+      :class="{
+        'network-activity__activity-link-disabled':
+          !isPending && activityLinkDisabled,
+      }"
+      :href="!isPending && activityLinkDisabled ? undefined : transactionURL"
       target="_blank"
       class="network-activity__transaction"
     >
@@ -138,6 +142,9 @@ import { fromBase } from '@enkryptcom/utils';
 import { getNetworkByName } from '@/libs/utils/networks';
 import BigNumber from 'bignumber.js';
 import { imageLoadError } from '@/ui/action/utils/misc';
+import { isSparkAddress } from '@/providers/bitcoin/libs/utils';
+import useAsyncComputed from '@action/composables/async-computed';
+
 const props = defineProps({
   activity: {
     type: Object as PropType<Activity>,
@@ -152,6 +159,21 @@ const props = defineProps({
 const status = ref('~');
 const date = ref('~');
 
+const { value: activityLinkDisabled, isPending } = useAsyncComputed(
+  async () => {
+    const isStatusFailed =
+      status.value === ActivityStatus.failed ||
+      status.value === ActivityStatus.dropped;
+
+    const [isFromSpark, isToSpark] = await Promise.all([
+      isSparkAddress(props.activity.from),
+      isSparkAddress(props.activity.to),
+    ]);
+
+    return isFromSpark && isToSpark && isStatusFailed;
+  },
+  false,
+);
 const transactionURL = computed(() => {
   return props.network.blockExplorerTX.replace(
     '[[txHash]]',
@@ -285,6 +307,10 @@ onMounted(() => {
   display: contents;
 }
 .network-activity {
+  &__activity-link-disabled {
+    cursor: not-allowed !important;
+  }
+
   &__transaction {
     height: 64px;
     padding: 0 8px;
