@@ -30,6 +30,7 @@ export class IndexedDBHelper {
   }
 
   private getObjectStore(mode: IDBTransactionMode): IDBObjectStore {
+    if (!this.db) throw new Error('Missing db');
     const transaction = this.db.transaction(this.storeName, mode);
     return transaction.objectStore(this.storeName);
   }
@@ -67,7 +68,7 @@ export class IndexedDBHelper {
   }
 
   async appendData(key: string, data: any[]): Promise<void> {
-    const oldData = await this.readData(key);
+    const oldData = await this.readData<any[]>(key);
     const newData = (oldData || []).concat(data);
     await this.saveData(key, newData);
   }
@@ -81,7 +82,7 @@ export class IndexedDBHelper {
       blockHash: string;
     },
   ): Promise<void> {
-    const data = await this.readData(key);
+    const data = await this.readData<Record<number, any>>(key);
     if (!data[index]) throw new Error('Invalid index');
     data[index].blockHash = input.blockHash;
     data[index].setHash = input.setHash;
@@ -90,7 +91,7 @@ export class IndexedDBHelper {
   }
 
   async markCoinsAsUsed(tag: string): Promise<void> {
-    const myCoins = await this.readData('myCoins');
+    const myCoins = await this.readData<any[]>('myCoins');
     const updatedCoins = myCoins.map((coin: any) => {
       if (coin.tag === tag) {
         return { ...coin, isUsed: true };
@@ -106,19 +107,19 @@ export class IndexedDBHelper {
     startIndex: number,
     endIndex: number,
   ): Promise<void> {
-    const data = await this.readData(key);
+    const data = await this.readData<Record<number, any>>(key);
     if (!data[index]) throw new Error('Invalid index');
     data[index].coins = data[index].coins.slice(startIndex, endIndex);
     await this.saveData(key, data);
   }
 
   async getLength(key: string): Promise<number> {
-    const data = await this.readData(key);
+    const data = await this.readData<any[]>(key);
     return data.reduce((sum, set) => sum + set.coins.length, 0);
   }
 
   async getLengthOf(key: string, index?: number): Promise<number> {
-    const data = await this.readData(key);
+    const data = await this.readData<any[]>(key);
     if (index) {
       if (!data[index]) throw new Error('Invalid index');
       return data[index].coins.length;
@@ -128,17 +129,17 @@ export class IndexedDBHelper {
   }
 
   async getBlockHashes(): Promise<string[]> {
-    const data = await this.readData('data');
+    const data = await this.readData<any[]>('data');
     return data.map(set => set.blockHash);
   }
 
   async getSetHashes(): Promise<string[]> {
-    const data = await this.readData('data');
+    const data = await this.readData<any[]>('data');
     return data.map(set => set.setHash);
   }
 
   async getSetById(id: number): Promise<AnonymitySetModel | null> {
-    const data = await this.readData('data');
+    const data = await this.readData<any[]>('data');
     return data[id - 1] || null;
   }
 }

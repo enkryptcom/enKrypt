@@ -1,4 +1,4 @@
-import { IndexedDBHelper } from '@action/db/indexedDB.ts';
+import { IndexedDBHelper } from '@action/db/indexedDB';
 import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
 import type { AnonymitySetMetaModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
 

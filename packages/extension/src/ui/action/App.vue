@@ -157,6 +157,7 @@ import AddNetwork from './views/add-network/index.vue';
 import ModalNewVersion from './views/modal-new-version/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
+import { intersectSets } from '@action/utils/intersect-sets.ts';
 
 const wallet = new PublicFiroWallet();
 const db = new IndexedDBHelper();
@@ -272,7 +273,7 @@ const synchronize = async () => {
     isSyncing.value = true;
     await db.saveData('setLoadingStatus', 'pending');
     const setsMeta = await wallet.getAllSparkAnonymitySetMeta();
-    const isDBEmpty = !(await db.readData('data'))?.length;
+    const isDBEmpty = !(await db.readData<any[]>('data'))?.length;
 
     console.log('setsMeta ->>', setsMeta);
     console.log('isDBEmpty ->>', isDBEmpty);
@@ -421,38 +422,40 @@ const updateGradient = (newGradient: string) => {
       `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`;
 };
 
-// =====>>> start tags handling <<<======
-
-const usedCoinsTagsLength = (await db.getLengthOf('usedCoinsTags')) || 0;
-
-const updatedCoinsTags = await wallet
-  .getUsedSparkCoinsTags(usedCoinsTagsLength - 1)
-  .finally(() => {
-    console.log(
-      '%c Fetched used coins tags',
-      'color: #00FF00; font-weight: bold; font-size: 24px;',
-    );
-  });
-
-console.log('usedCoinsTags ->>>>>>><<<<<<<<<--', updatedCoinsTags);
-
-db.appendData('usedCoinsTags', updatedCoinsTags.tags);
-
-const usedCoinsTags = await db.readData<string[]>('usedCoinsTags');
-
-const coinsTagsSet = new Set(usedCoinsTags);
-const myCoins = (await db.readData<{ tag: string }[]>('myCoins')) || [];
-const myCoinsTagsSet = new Set(myCoins.map(coin => coin.tag));
-
-// TODO:(N) change set intersection to "has"
-// const usedMyCoinsTagsSet = coinsTagsSet.intersection(myCoinsTagsSet);
-
-// usedMyCoinsTagsSet.forEach(tag => {
-//   db.markCoinsAsUsed(tag);
+// onMounted(async () => {
+//   if (!db.db) return;
+//   // =====>>> start tags handling <<<======
+//
+//   const usedCoinsTagsLength = (await db.getLengthOf('usedCoinsTags')) || 0;
+//
+//   const updatedCoinsTags = await wallet
+//     .getUsedSparkCoinsTags(usedCoinsTagsLength - 1)
+//     .finally(() => {
+//       console.log(
+//         '%c Fetched used coins tags',
+//         'color: #00FF00; font-weight: bold; font-size: 24px;',
+//       );
+//     });
+//
+//   console.log('usedCoinsTags ->>>>>>><<<<<<<<<--', updatedCoinsTags);
+//
+//   await db.appendData('usedCoinsTags', updatedCoinsTags.tags);
+//
+//   const usedCoinsTags = await db.readData<string[]>('usedCoinsTags');
+//
+//   const coinsTagsSet = new Set(usedCoinsTags);
+//   const myCoins = await db.readData<{ tag: string }[]>('myCoins');
+//   const myCoinsTagsSet = new Set((myCoins ?? []).map(coin => coin.tag));
+//
+//   const usedMyCoinsTagsSet = intersectSets(coinsTagsSet, myCoinsTagsSet);
+//
+//   usedMyCoinsTagsSet.forEach(tag => {
+//     db.markCoinsAsUsed(tag);
+//   });
+//   console.log(usedMyCoinsTagsSet);
+//
+//   // =====>>> end tags handling <<<======
 // });
-// console.log();
-
-// =====>>> end tags handling <<<======
 
 const updateSparkBalance = async (network: BaseNetwork) => {
   if (network.name === NetworkNames.Firo) {
