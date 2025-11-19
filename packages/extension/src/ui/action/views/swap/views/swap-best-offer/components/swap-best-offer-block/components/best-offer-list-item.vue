@@ -1,7 +1,13 @@
 <template>
   <a class="best-offer-list-item" @click="select">
     <div class="best-offer-list-item__info">
-      <p>Offer {{ swapNumber }}</p>
+      <p>
+        {{
+          props.provider
+            ? providerNameProper[props.provider]
+            : 'Unknown Provider'
+        }}
+      </p>
       <h5>{{ amount }}</h5>
     </div>
 
@@ -19,12 +25,20 @@
 import DoneIcon from '@action/icons/common/done_icon.vue';
 import LottieStatusJson from '@action/assets/animation/status.json';
 import { Vue3Lottie } from 'vue3-lottie';
+import { ProviderName, providerNameProper } from '@enkryptcom/swap/src/types';
+import { PropType } from 'vue';
 
-defineProps({
+const props = defineProps({
   select: {
-    type: Function as () => void,
+    type: Function as PropType<() => void>,
     default: () => {
       return null;
+    },
+  },
+  provider: {
+    type: String as PropType<ProviderName>,
+    default: () => {
+      return '';
     },
   },
   swapNumber: {

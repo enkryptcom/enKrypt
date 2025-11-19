@@ -133,6 +133,29 @@ export enum ProviderName {
 }
 
 // eslint-disable-next-line no-shadow
+export enum ProviderNameProper {
+  oneInch = "1inch",
+  oneInchFusion = "1inch Fusion",
+  paraswap = "ParaSwap",
+  zerox = "0x",
+  changelly = "Changelly",
+  rango = "Rango",
+  jupiter = "Jupiter",
+  okx = "Okx",
+}
+
+export const providerNameProper = {
+  [ProviderName.changelly]: ProviderNameProper.changelly,
+  [ProviderName.oneInch]: ProviderNameProper.oneInch,
+  [ProviderName.oneInchFusion]: ProviderNameProper.oneInchFusion,
+  [ProviderName.paraswap]: ProviderNameProper.paraswap,
+  [ProviderName.zerox]: ProviderNameProper.zerox,
+  [ProviderName.rango]: ProviderNameProper.rango,
+  [ProviderName.jupiter]: ProviderNameProper.jupiter,
+  [ProviderName.okx]: ProviderNameProper.okx,
+};
+
+// eslint-disable-next-line no-shadow
 export enum TransactionStatus {
   pending = "pending",
   failed = "failed",
