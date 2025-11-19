@@ -156,6 +156,7 @@ class BackupState {
 
   async restoreBackup(userId: string, keyringPassword: string): Promise<void> {
     const mainWallet = await this.getMainWallet();
+    const exludedSignerTypes = ['ed25519-kda'];
     await sendUsingInternalMessengers({
       method: InternalMethods.unlock,
       params: [keyringPassword, false],
@@ -207,6 +208,7 @@ class BackupState {
 
         for (const key of Object.keys(highestPathIndex)) {
           const [basePath, signerType] = key.split('###');
+          if (exludedSignerTypes.includes(signerType)) continue;
           for (let i = 0; i <= highestPathIndex[key]; i++) {
             const newAccount = getAccountByIndex(
               decryptedBackup.accounts,
