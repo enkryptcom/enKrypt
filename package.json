@@ -34,11 +34,11 @@
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
-    "@swc/core": "^1.14.0",
+    "@swc/core": "^1.15.2",
     "concurrently": "^9.2.1",
     "husky": "^9.1.7",
     "node-notifier": "^10.0.1",
-    "nodemon": "^3.1.10",
+    "nodemon": "^3.1.11",
     "ultra-runner": "^3.10.5",
     "vite-plugin-node-polyfills": "0.24.0"
   },
