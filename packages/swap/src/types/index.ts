@@ -144,17 +144,6 @@ export enum ProviderNameProper {
   okx = "Okx",
 }
 
-export const providerNameProper = {
-  [ProviderName.changelly]: ProviderNameProper.changelly,
-  [ProviderName.oneInch]: ProviderNameProper.oneInch,
-  [ProviderName.oneInchFusion]: ProviderNameProper.oneInchFusion,
-  [ProviderName.paraswap]: ProviderNameProper.paraswap,
-  [ProviderName.zerox]: ProviderNameProper.zerox,
-  [ProviderName.rango]: ProviderNameProper.rango,
-  [ProviderName.jupiter]: ProviderNameProper.jupiter,
-  [ProviderName.okx]: ProviderNameProper.okx,
-};
-
 // eslint-disable-next-line no-shadow
 export enum TransactionStatus {
   pending = "pending",

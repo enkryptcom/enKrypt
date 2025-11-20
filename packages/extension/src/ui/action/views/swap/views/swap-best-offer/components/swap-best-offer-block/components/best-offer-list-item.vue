@@ -1,10 +1,13 @@
 <template>
   <a class="best-offer-list-item" @click="select">
+    <div>
+      <img :src="providersDetails[props.provider].logo" />
+    </div>
     <div class="best-offer-list-item__info">
       <p>
         {{
           props.provider
-            ? providerNameProper[props.provider]
+            ? providersDetails[props.provider].name
             : 'Unknown Provider'
         }}
       </p>
@@ -25,7 +28,8 @@
 import DoneIcon from '@action/icons/common/done_icon.vue';
 import LottieStatusJson from '@action/assets/animation/status.json';
 import { Vue3Lottie } from 'vue3-lottie';
-import { ProviderName, providerNameProper } from '@enkryptcom/swap/src/types';
+import { ProviderName } from '@enkryptcom/swap/src/types';
+import providersDetails from '@/libs/utils/providersDetails';
 import { PropType } from 'vue';
 
 const props = defineProps({
@@ -91,8 +95,8 @@ const props = defineProps({
   }
 
   img {
-    width: 32px;
-    height: 32px;
+    width: 20px;
+    height: 20px;
     margin-right: 8px;
   }
 
