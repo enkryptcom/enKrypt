@@ -11,7 +11,6 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Base]: `https://tokens.coingecko.com/${CoingeckoPlatform.Base}/all.json`,
   [NetworkNames.Binance]: `https://tokens.coingecko.com/${CoingeckoPlatform.Binance}/all.json`,
   [NetworkNames.Blast]: `https://tokens.coingecko.com/${CoingeckoPlatform.Blast}/all.json`,
-  [NetworkNames.Canto]: `https://tokens.coingecko.com/${CoingeckoPlatform.Canto}/all.json`,
   [NetworkNames.Celo]: `https://tokens.coingecko.com/${CoingeckoPlatform.Celo}/all.json`,
   [NetworkNames.Degen]: `https://tokens.coingecko.com/${CoingeckoPlatform.Degen}/all.json`,
   [NetworkNames.Ethereum]: `https://tokens.coingecko.com/${CoingeckoPlatform.Ethereum}/all.json`,

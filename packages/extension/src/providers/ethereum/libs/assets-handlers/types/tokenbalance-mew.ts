@@ -35,7 +35,6 @@ export type SupportedNetworkNames =
   | NetworkNames.Moonriver
   | NetworkNames.Moonbeam
   | NetworkNames.ShidenEVM
-  | NetworkNames.Canto
   | NetworkNames.Rootstock
   | NetworkNames.Arbitrum
   | NetworkNames.ArbitrumNova

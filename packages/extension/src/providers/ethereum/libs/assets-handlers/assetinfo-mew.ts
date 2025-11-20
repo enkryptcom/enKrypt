@@ -58,10 +58,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'sdn',
     cgPlatform: CoingeckoPlatform.Shiden,
   },
-  [NetworkNames.Canto]: {
-    tbName: 'canto',
-    cgPlatform: CoingeckoPlatform.Canto,
-  },
   [NetworkNames.Rootstock]: {
     cgPlatform: CoingeckoPlatform.Rootstock,
     bsEndpoint: true,

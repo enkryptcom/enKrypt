@@ -10,7 +10,6 @@ import okcNode from './okc';
 import shidenEvmNode from './sdn';
 import astarEvmNode from './astr';
 import optimismNode from './op';
-import cantoNode from './canto';
 import rootstockNode from './rsk';
 import rootstockTestnetNode from './rsk-testnet';
 import edgeEvmNode from './edg';
@@ -90,7 +89,6 @@ export default {
   shidenEvm: shidenEvmNode,
   astarEvm: astarEvmNode,
   op: optimismNode,
-  canto: cantoNode,
   rootstock: rootstockNode,
   rootstockTestnet: rootstockTestnetNode,
   edgeEvm: edgeEvmNode,
