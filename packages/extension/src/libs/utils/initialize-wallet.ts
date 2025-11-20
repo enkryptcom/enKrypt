@@ -3,6 +3,7 @@ import EthereumNetworks from '@/providers/ethereum/networks';
 import PolkadotNetworks from '@/providers/polkadot/networks';
 import BitcoinNetworks from '@/providers/bitcoin/networks';
 import SolanaNetworks from '@/providers/solana/networks';
+import KadenaNetworks from '@/providers/kadena/networks';
 import MassaNetworks from '@/providers/massa/networks';
 import { NetworkNames, WalletType } from '@enkryptcom/types';
 import { getAccountsByNetworkName } from '@/libs/utils/accounts';
@@ -16,6 +17,9 @@ export const initAccounts = async (keyring: KeyRing) => {
   ).filter(acc => !acc.isTestWallet);
   const sr25519 = (
     await getAccountsByNetworkName(NetworkNames.Polkadot)
+  ).filter(acc => !acc.isTestWallet);
+  const ed25519kda = (
+    await getAccountsByNetworkName(NetworkNames.Kadena)
   ).filter(acc => !acc.isTestWallet);
   const ed25519sol = (
     await getAccountsByNetworkName(NetworkNames.Solana)
@@ -42,6 +46,13 @@ export const initAccounts = async (keyring: KeyRing) => {
       basePath: BitcoinNetworks.bitcoin.basePath,
       name: 'Bitcoin Account 1',
       signerType: BitcoinNetworks.bitcoin.signer[0],
+      walletType: WalletType.mnemonic,
+    });
+  if (ed25519kda.length == 0)
+    await keyring.saveNewAccount({
+      basePath: KadenaNetworks.kadena.basePath,
+      name: 'Kadena Account 1',
+      signerType: KadenaNetworks.kadena.signer[0],
       walletType: WalletType.mnemonic,
     });
   if (ed25519sol.length == 0)

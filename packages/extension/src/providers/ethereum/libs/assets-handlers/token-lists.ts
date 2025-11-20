@@ -39,7 +39,6 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.SyscoinNEVM]: `https://tokens.coingecko.com/${CoingeckoPlatform.Syscoin}/all.json`,
   [NetworkNames.Telos]: `https://tokens.coingecko.com/${CoingeckoPlatform.Telos}/all.json`,
   [NetworkNames.TomoChain]: `https://tokens.coingecko.com/${CoingeckoPlatform.TomoChain}/all.json`,
-  [NetworkNames.XLayer]: `https://tokens.coingecko.com/${CoingeckoPlatform.XLayer}/all.json`,
   [NetworkNames.ZkSync]: `https://tokens.coingecko.com/${CoingeckoPlatform.Zksync}/all.json`,
   [NetworkNames.Gravity]: `https://tokens.coingecko.com/${CoingeckoPlatform.Gravity}/all.json`,
   [NetworkNames.Abstract]: `https://tokens.coingecko.com/${CoingeckoPlatform.Abstract}/all.json`,

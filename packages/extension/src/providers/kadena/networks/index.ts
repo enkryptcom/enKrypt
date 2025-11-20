@@ -1,9 +1,6 @@
-// import kadena from './kadena';
+import kadena from './kadena';
 // import kadenaTestnet from './kadena-testnet';
 
-// export default {
-//   kadena,
-//   kadenaTestnet,
-// };
-
-export default {};
+export default {
+  kadena,
+};
