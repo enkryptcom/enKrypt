@@ -1,7 +1,10 @@
 <template>
   <a class="best-offer-list-item" @click="select">
     <div>
-      <img :src="providersDetails[props.provider].logo" />
+      <img
+        v-if="providersDetails[props.provider]"
+        :src="providersDetails[props.provider].logo"
+      />
     </div>
     <div class="best-offer-list-item__info">
       <p>
