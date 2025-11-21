@@ -105,6 +105,7 @@ export default defineConfig({
       input: {
         action: 'action.html',
         onboard: 'onboard.html',
+        blocked: 'blocked.html',
         index: 'index.html',
       },
       output: {

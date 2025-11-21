@@ -81,7 +81,7 @@ const props = defineProps({
 .best-offer-list-item {
   height: 56px;
   width: 100%;
-  padding: 8px 12px;
+  padding: 8px 4px;
   box-sizing: border-box;
   display: flex;
   justify-content: flex-start;
@@ -99,7 +99,6 @@ const props = defineProps({
 
   img {
     width: 20px;
-    height: 20px;
     margin-right: 8px;
   }
 

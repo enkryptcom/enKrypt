@@ -194,7 +194,7 @@ const toggleOffers = () => {
 
     img {
       margin-left: 2px;
-      width: 15px;
+      width: 20px;
     }
   }
 
