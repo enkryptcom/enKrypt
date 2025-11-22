@@ -92,7 +92,7 @@ addEventListener('message', async () => {
     throw new Error('Failed to create IncomingViewKey and fullViewKeyObj');
   }
 
-  const allSets = await db.readData('data');
+  const allSets = await db.readData<AnonymitySetModel[]>('data');
 
   const result = await fetchAllCoinInfos(
     allSets,

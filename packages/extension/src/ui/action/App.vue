@@ -273,7 +273,6 @@ const synchronize = async () => {
     if (networkName !== NetworkNames.Firo) return;
 
     isSyncing.value = true;
-    debugger;
 
     // await db.saveData('setLoadingStatus', 'pending');
     const setsMeta = await wallet.getAllSparkAnonymitySetMeta();

@@ -1,5 +1,11 @@
 import { AnonymitySetModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
 
+export const DbKeys = {
+  data: 'data',
+  myCoins: 'myCoins',
+  usedCoinsTags: 'usedCoinsTags',
+} as const;
+
 export class IndexedDBHelper {
   private dbName = 'SparkDatabase';
   private storeName = 'DataStore';
@@ -62,7 +68,16 @@ export class IndexedDBHelper {
       const store = this.getObjectStore('readwrite');
       const request = store.put(data, key);
 
-      request.onsuccess = () => resolve();
+      request.onsuccess = () => () => {
+        if (key === 'myCoins') {
+          const event = new CustomEvent('myCoinsUpdated', { detail: null });
+          console.log(
+            '%c Dispatching myCoinsUpdated event',
+            'color: #0000FF; font-weight: bold; font-size: 24px;',
+          );
+          window.dispatchEvent(event);
+        }
+      };
       request.onerror = () => reject(request.error);
     });
   }
