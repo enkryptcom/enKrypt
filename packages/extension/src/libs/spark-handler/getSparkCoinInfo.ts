@@ -1,4 +1,3 @@
-import { IndexedDBHelper } from '@action/db/indexedDB.ts';
 import { getSerializedCoin } from './getSerializedCoin';
 
 interface IArgs {
@@ -17,8 +16,6 @@ export interface SparkCoinValue {
   tag: string;
   deserializedCoinObj: number;
 }
-
-const db = new IndexedDBHelper();
 
 export const getSparkCoinInfo = async ({
   coin,

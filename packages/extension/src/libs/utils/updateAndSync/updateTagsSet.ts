@@ -1,4 +1,4 @@
-import { DbKeys, IndexedDBHelper } from '@action/db/indexedDB.ts';
+import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB.ts';
 import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet.ts';
 
 type SetsUpdateResult = {
@@ -9,45 +9,94 @@ export type TagsSyncOptions = {
   intervalMs?: number;
   onUpdate?: (results: SetsUpdateResult) => void;
   onError?: (error: unknown) => void;
+  onComplete?: () => void;
 };
 
 const wallet = new PublicFiroWallet();
 const db = new IndexedDBHelper();
 
 const syncTagsOnce = async (): Promise<SetsUpdateResult> => {
-  const localTagsLength = await db.getLengthOf(DbKeys.usedCoinsTags);
+  console.log('%c[updateTagsSet] syncTagsOnce: start', 'color: yellow');
+  try {
 
-  return await wallet.getUsedSparkCoinsTags(localTagsLength - 1);
+    const localTags = await db.readData<{ tags: string[] }>(
+      DB_DATA_KEYS.usedCoinsTags,
+    );
+    console.log(
+      '%c[updateTagsSet] syncTagsOnce: localTagsLength =',
+      'color: yellow',
+      localTags?.tags?.length,
+    );
+
+    const updates = await wallet.getUsedSparkCoinsTags(
+      localTags?.tags?.length ? localTags?.tags?.length - 1 : 0,
+    );
+    const mergedTags = Array.from(
+      new Set([...(localTags?.tags ?? []), ...(updates?.tags ?? [])]),
+    );
+    await db.saveData(DB_DATA_KEYS.usedCoinsTags, { tags: mergedTags });
+    console.log('%c[updateTagsSet] syncTagsOnce: received tags count =', 'color: yellow', updates?.tags);
+
+    return updates;
+  } catch (error) {
+    console.log('%c[updateTagsSet] syncTagsOnce: error', 'color: yellow', error);
+    throw error;
+  }
 };
 
-export const startCoinSetSync = (options?: TagsSyncOptions) => {
+export const startTagSetSync = (options?: TagsSyncOptions) => {
+  console.log('%c[updateTagsSet] startCoinSetSync: starting with intervalMs =', 'color: yellow', options?.intervalMs ?? 60_000);
   const intervalMs = options?.intervalMs ?? 60_000;
   let stopped = false;
   let timer: ReturnType<typeof setTimeout> | null = null;
   let isRunning = false;
+  let hasCompletedOnce = false;
 
   const scheduleNext = () => {
     if (stopped) return;
+    console.log('%c[updateTagsSet] startCoinSetSync: scheduling next run in', 'color: yellow', intervalMs, 'ms');
     timer = setTimeout(run, intervalMs);
   };
 
   const run = async () => {
     if (isRunning) {
+      console.log('%c[updateTagsSet] startCoinSetSync: run already in progress, scheduling next', 'color: yellow');
       scheduleNext();
       return;
     }
 
     isRunning = true;
+    console.log('%c[updateTagsSet] startCoinSetSync: run started', 'color: yellow');
     try {
       const updates = await syncTagsOnce();
+      console.log('%c[updateTagsSet] startCoinSetSync: updates received, tags length =', 'color: yellow', updates?.tags?.length ?? 0);
 
-      if (updates.length) {
+      if (updates?.tags?.length) {
+        console.log('%c[updateTagsSet] startCoinSetSync: calling onUpdate callback', 'color: yellow');
         options?.onUpdate?.(updates);
+      } else {
+        console.log('%c[updateTagsSet] startCoinSetSync: no tags to update', 'color: yellow');
+      }
+
+      if (!hasCompletedOnce) {
+        hasCompletedOnce = true;
+        console.log(
+          '%c[updateTagsSet] startCoinSetSync: first sync completed, calling onComplete',
+          'color: yellow',
+        );
+        options?.onComplete?.();
       }
     } catch (error) {
+      console.log('%c[updateTagsSet] startCoinSetSync: error during run', 'color: yellow', error);
       options?.onError?.(error);
+
+      if (!hasCompletedOnce) {
+        hasCompletedOnce = true;
+        options?.onComplete?.();
+      }
     } finally {
       isRunning = false;
+      console.log('%c[updateTagsSet] startCoinSetSync: run completed', 'color: yellow');
       scheduleNext();
     }
   };
@@ -60,5 +109,6 @@ export const startCoinSetSync = (options?: TagsSyncOptions) => {
       clearTimeout(timer);
       timer = null;
     }
+    console.log('%c[updateTagsSet] startCoinSetSync: stopped', 'color: yellow');
   };
 };

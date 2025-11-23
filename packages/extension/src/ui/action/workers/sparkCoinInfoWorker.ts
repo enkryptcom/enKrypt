@@ -2,13 +2,17 @@ import {
   getSparkCoinInfo,
   SparkCoinValue,
 } from '@/libs/spark-handler/getSparkCoinInfo.ts';
-import { IndexedDBHelper } from '@action/db/indexedDB.ts';
+import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB.ts';
 import { wasmWorkerInstance } from '@/libs/utils/wasm-worker-loader.ts';
 import {
   getIncomingViewKey,
   getSpendKeyObj,
 } from '@/libs/spark-handler/generateSparkWallet.ts';
-import { AnonymitySetModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
+import {
+  AnonymitySetModel,
+  MyCoinModel,
+} from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
+import { differenceSets } from '@action/utils/set-utils.ts';
 
 const db = new IndexedDBHelper();
 
@@ -16,6 +20,7 @@ export interface CheckedCoinData {
   coin: SparkCoinValue;
   setId: number;
   tag: string;
+  setHash: string;
 }
 
 export interface OwnedCoinData {
@@ -24,51 +29,84 @@ export interface OwnedCoinData {
 }
 
 async function fetchAllCoinInfos(
+  firstCoinSetId: number,
+  myCoinsMap: Map<string, MyCoinModel>,
   allSets: AnonymitySetModel[],
   fullViewKeyObj: number,
   incomingViewKeyObj: number,
   Module: WasmModule,
 ) {
-  const allPromises: Promise<any>[] = [];
-  const finalResult: CheckedCoinData[] = [];
+  try {
 
-  allSets.forEach((set, index) => {
-    set.coins.forEach(coin => {
-      const promise = getSparkCoinInfo({
-        coin,
-        fullViewKeyObj,
-        incomingViewKeyObj,
-        wasmModule: Module,
-      }).then(res => {
-        console.log(`Checking coin: `, res);
-        finalResult.push({
-          coin: res,
-          setId: index + 1,
-          tag: res.tag,
-        });
-        return res;
+    const allPromises: Promise<any>[] = [];
+    const finalResult: CheckedCoinData[] = [];
+
+    allSets.slice(firstCoinSetId).forEach((set, index) => {
+      set.coins.forEach(coin => {
+        const setCoin = coin.join();
+
+        if (!myCoinsMap.has(setCoin)) {
+          const promise = getSparkCoinInfo({
+            coin,
+            fullViewKeyObj,
+            incomingViewKeyObj,
+            wasmModule: Module,
+          }).then(async res => {
+            console.log(`Checking coin: `, res);
+            finalResult.push({
+              coin: res,
+              setId: index + 1,
+              tag: res.tag,
+              setHash: set.setHash,
+            });
+            // TODO: initially DB_DATA_KEYS.myCoins is undefined in loop , better to append one by one
+            // const oldCoins = await db.readData<MyCoinModel[]>(
+            //   DB_DATA_KEYS.myCoins,
+            // );
+            // console.log({ oldCoins });
+            // await db.saveData(DB_DATA_KEYS.myCoins, [
+            //   ...(oldCoins ?? []),
+            //   {
+            //     coin: res.originalCoin,
+            //     setId: index + 1,
+            //     setHash: set.setHash,
+            //     value: res.value,
+            //     tag: res.tag,
+            //     isUsed: false,
+            //   },
+            // ]);
+            return res;
+          });
+
+          allPromises.push(promise);
+        }
       });
-
-      allPromises.push(promise);
     });
-  });
 
-  await Promise.allSettled(allPromises);
-  const myCoins = finalResult.map(coinData => ({
-    coin: coinData.coin.originalCoin,
-    setId: coinData.setId,
-    value: coinData.coin.value,
-    tag: coinData.tag,
-    isUsed: false,
-  }));
+    await Promise.allSettled(allPromises);
+    const myCoins = finalResult.map(coinData => ({
+      coin: coinData.coin.originalCoin,
+      setId: coinData.setId,
+      value: coinData.coin.value,
+      tag: coinData.tag,
+      setHash: coinData.setHash,
+      isUsed: false,
+    }));
 
-  const savedMyCoins = (await db.readData('myCoins')) || [];
-  const updatedMyCoins = [...savedMyCoins, ...myCoins];
+    const savedMyCoins = (await db.readData<any[]>(DB_DATA_KEYS.myCoins)) || [];
+    const updatedMyCoinsSet = differenceSets(
+      new Set(savedMyCoins),
+      new Set(myCoins),
+    );
+    const updatedMyCoins = [...savedMyCoins, ...updatedMyCoinsSet.values()];
 
-  console.log('updated coins', updatedMyCoins);
-  await db.saveData('myCoins', updatedMyCoins);
+    console.log('updated coins', updatedMyCoins);
+    await db.saveData(DB_DATA_KEYS.myCoins, updatedMyCoins);
 
-  return finalResult;
+    return finalResult;
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 addEventListener('message', async () => {
@@ -92,9 +130,20 @@ addEventListener('message', async () => {
     throw new Error('Failed to create IncomingViewKey and fullViewKeyObj');
   }
 
-  const allSets = await db.readData<AnonymitySetModel[]>('data');
+  const allSets = await db.readData<AnonymitySetModel[]>(DB_DATA_KEYS.sets);
+  const myCoins = await db.readData<MyCoinModel[]>(DB_DATA_KEYS.myCoins);
+  console.log(myCoins);
+
+  const myCoinsMap = new Map<string, MyCoinModel>();
+  (myCoins ?? []).forEach(coin => {
+    myCoinsMap.set(coin.coin.join(), coin);
+  });
+
+  const firstCoinSetId = (myCoins ?? []).at(-1)?.setId || 0;
 
   const result = await fetchAllCoinInfos(
+    firstCoinSetId,
+    myCoinsMap,
     allSets,
     fullViewKeyObj,
     incomingViewKeyObj,
