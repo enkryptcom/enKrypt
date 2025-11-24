@@ -1,6 +1,9 @@
 <template>
   <div>
-    <div :class="['app', 'restricted-container']" v-if="foundRestrictedAddress">
+    <div
+      :class="['app', 'restricted-container']"
+      v-if="foundRestrictedAddress || geoRestricted"
+    >
       <restricted />
     </div>
     <div :class="[{ locked: isLocked }, 'app']" v-else>
@@ -159,6 +162,7 @@ const updateShow = ref(false);
 const isLoading = ref(true);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
+const geoRestricted = ref(false);
 
 /** -------------------
  * Rate
@@ -273,6 +277,14 @@ const fetchAndSetRates = async () => {
 };
 
 onMounted(async () => {
+  const { isRestricted } = await fetch(
+    'https://partners.mewapi.io/o/ipcomply',
+  ).then(res => {
+    return res.json();
+  });
+
+  geoRestricted.value = isRestricted;
+
   const isInitialized = await kr.isInitialized();
   if (isInitialized) {
     const _isLocked = await isKeyRingLocked();
