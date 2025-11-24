@@ -327,7 +327,6 @@ const setNetwork = async (network: BaseNetwork) => {
   const inactiveAccounts = await kr.getAccounts(
     getOtherSigners(network.signer),
   );
-
   checkAddresses(activeAccounts, inactiveAccounts);
 
   const selectedAddress = await domainState.getSelectedAddress();
@@ -436,23 +435,14 @@ const checkAddresses = async (
   activeAccounts: AccountsHeaderData['activeAccounts'],
   inactiveAccounts: AccountsHeaderData['inactiveAccounts'],
 ) => {
-  const addresses = [activeAccounts, inactiveAccounts].reduce(
-    (arr: string[], accountList) => {
-      accountList.forEach(account => {
-        if (account.address) arr.push(account.address);
-      });
-      return arr;
-    },
-    [] as string[],
-  );
-
-  for (const address of addresses) {
+  const accountsArray = [...activeAccounts, ...inactiveAccounts];
+  for (const account of accountsArray) {
     if (foundRestrictedAddress.value) {
       break;
     }
 
     const addressFetch = await fetch(
-      `https://partners.mewapi.io/o/walletscreen?address=${address}`,
+      `https://partners.mewapi.io/o/walletscreen?address=${account.address}`,
     );
     const { isRestricted } = await addressFetch.json();
     foundRestrictedAddress.value = isRestricted;
