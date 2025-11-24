@@ -1,83 +1,88 @@
 <template>
-  <div :class="[{ locked: isLocked }, 'app']">
-    <div
-      v-if="isLoading"
-      :class="['app__loading', isExpanded ? 'expanded' : 'collapsed']"
-    >
-      <swap-looking-animation />
+  <div>
+    <div :class="['app', 'restricted-container']" v-if="foundRestrictedAddress">
+      <restricted />
     </div>
-    <div v-show="!isLoading">
-      <app-menu
-        :active-network="currentNetwork"
-        @update:network="setNetwork"
-        @show:updates-dialog="setShowUpdatesDialog(true)"
-        @show:settings-dialog="settingsShow = true"
-        @show:other-networks-dialog="addNetworkShow = true"
-        @action:lock-enkrypt="lockAction"
+    <div :class="[{ locked: isLocked }, 'app']" v-else>
+      <div
+        v-if="isLoading"
+        :class="['app__loading', isExpanded ? 'expanded' : 'collapsed']"
+      >
+        <swap-looking-animation />
+      </div>
+      <div v-show="!isLoading">
+        <app-menu
+          :active-network="currentNetwork"
+          @update:network="setNetwork"
+          @show:updates-dialog="setShowUpdatesDialog(true)"
+          @show:settings-dialog="settingsShow = true"
+          @show:other-networks-dialog="addNetworkShow = true"
+          @action:lock-enkrypt="lockAction"
+        />
+      </div>
+
+      <div
+        v-show="!isLoading"
+        :class="[
+          isExpanded ? 'app__content-expand' : 'app__content-collapse',
+          'app__content',
+        ]"
+      >
+        <accounts-header
+          v-show="showNetworkMenu"
+          :account-info="accountHeaderData"
+          :network="currentNetwork"
+          :show-deposit="showDepositWindow"
+          @update:init="init"
+          @address-changed="onSelectedAddressChanged"
+          @select:subnetwork="onSelectedSubnetworkChange"
+          @toggle:deposit="toggleDepositWindow"
+        />
+        <router-view v-slot="{ Component }" name="view">
+          <transition :name="transitionName" mode="out-in">
+            <component
+              :is="Component"
+              :key="route.fullPath"
+              :network="currentNetwork"
+              :subnetwork="currentSubNetwork"
+              :account-info="accountHeaderData"
+              @update:init="init"
+              @toggle:deposit="toggleDepositWindow"
+              @open:buy-action="openBuyPage"
+            />
+          </transition>
+        </router-view>
+
+        <network-menu
+          v-show="showNetworkMenu"
+          :selected="route.params.id as string"
+          :network="currentNetwork"
+        />
+      </div>
+
+      <add-network
+        v-if="addNetworkShow"
+        @close:popup="addNetworkShow = !addNetworkShow"
+      />
+      <settings
+        v-if="settingsShow"
+        @close:popup="settingsShow = !settingsShow"
+        @action:lock="lockAction"
+      />
+      <modal-rate v-model="isRatePopupOpen" />
+      <modal-new-version
+        v-if="updateShow"
+        :current-version="currentVersion"
+        :latest-version="latestVersion"
+        @close:popup="updateShow = !updateShow"
+      />
+      <modal-updates
+        v-if="updatesIsLoaded && showUpdatesDialog"
+        :current-version="currentVersion"
+        :current-network="currentNetwork.name"
+        @close:popup="setShowUpdatesDialog(false)"
       />
     </div>
-
-    <div
-      v-show="!isLoading"
-      :class="[
-        isExpanded ? 'app__content-expand' : 'app__content-collapse',
-        'app__content',
-      ]"
-    >
-      <accounts-header
-        v-show="showNetworkMenu"
-        :account-info="accountHeaderData"
-        :network="currentNetwork"
-        :show-deposit="showDepositWindow"
-        @update:init="init"
-        @address-changed="onSelectedAddressChanged"
-        @select:subnetwork="onSelectedSubnetworkChange"
-        @toggle:deposit="toggleDepositWindow"
-      />
-      <router-view v-slot="{ Component }" name="view">
-        <transition :name="transitionName" mode="out-in">
-          <component
-            :is="Component"
-            :key="route.fullPath"
-            :network="currentNetwork"
-            :subnetwork="currentSubNetwork"
-            :account-info="accountHeaderData"
-            @update:init="init"
-            @toggle:deposit="toggleDepositWindow"
-            @open:buy-action="openBuyPage"
-          />
-        </transition>
-      </router-view>
-
-      <network-menu
-        v-show="showNetworkMenu"
-        :selected="route.params.id as string"
-        :network="currentNetwork"
-      />
-    </div>
-
-    <add-network
-      v-if="addNetworkShow"
-      @close:popup="addNetworkShow = !addNetworkShow"
-    />
-    <settings
-      v-if="settingsShow"
-      @close:popup="settingsShow = !settingsShow"
-      @action:lock="lockAction"
-    />
-    <modal-rate v-model="isRatePopupOpen" />
-    <modal-new-version
-      v-if="updateShow"
-      :current-version="currentVersion"
-      :latest-version="latestVersion"
-      @close:popup="updateShow = !updateShow"
-    />
-    <modal-updates
-      v-if="updatesIsLoaded && showUpdatesDialog"
-      :current-version="currentVersion"
-      :current-network="currentNetwork.name"
-      @close:popup="setShowUpdatesDialog(false)"
-    />
   </div>
 </template>
 
@@ -113,6 +118,7 @@ import AddNetwork from './views/add-network/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
 import ModalUpdates from './views/updates/index.vue';
+import Restricted from './views/restricted/index.vue';
 import { KadenaNetwork } from '@/providers/kadena/types/kadena-network';
 import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
 import RateState from '@/libs/rate-state';
@@ -322,6 +328,8 @@ const setNetwork = async (network: BaseNetwork) => {
     getOtherSigners(network.signer),
   );
 
+  checkAddresses(activeAccounts, inactiveAccounts);
+
   const selectedAddress = await domainState.getSelectedAddress();
 
   let selectedAccount = activeAccounts[0];
@@ -336,6 +344,7 @@ const setNetwork = async (network: BaseNetwork) => {
     selectedAccount,
     activeBalances: activeAccounts.map(() => '~'),
   };
+
   currentNetwork.value = network;
   router.push({ name: 'assets', params: { id: network.name } });
   const tabId = await domainState.getCurrentTabId();
@@ -418,6 +427,35 @@ const setNetwork = async (network: BaseNetwork) => {
     } catch (e) {
       console.error(e);
     }
+  }
+};
+
+const foundRestrictedAddress = ref(false);
+
+const checkAddresses = async (
+  activeAccounts: AccountsHeaderData['activeAccounts'],
+  inactiveAccounts: AccountsHeaderData['inactiveAccounts'],
+) => {
+  const addresses = [activeAccounts, inactiveAccounts].reduce(
+    (arr: string[], accountList) => {
+      accountList.forEach(account => {
+        if (account.address) arr.push(account.address);
+      });
+      return arr;
+    },
+    [] as string[],
+  );
+
+  for (const address of addresses) {
+    if (foundRestrictedAddress.value) {
+      break;
+    }
+
+    const addressFetch = await fetch(
+      `https://partners.mewapi.io/o/walletscreen?address=${address}`,
+    );
+    const { isRestricted } = await addressFetch.json();
+    foundRestrictedAddress.value = isRestricted;
   }
 };
 
@@ -573,5 +611,10 @@ body {
 .slide-right-enter {
   opacity: 0;
   transform: translate(-2em, 0);
+}
+
+.restricted-container {
+  height: 100vh;
+  width: 100vw;
 }
 </style>
