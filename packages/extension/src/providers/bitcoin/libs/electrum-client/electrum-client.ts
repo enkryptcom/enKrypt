@@ -521,7 +521,7 @@ export default class FiroElectrum {
     return this.all_anonymity_sets_meta;
   }
 
-  async getUsedSparkCoinsTags(pivot: number[]): Promise<string> {
+  async getUsedSparkCoinsTags(pivot: number): Promise<{ tags: string[] }> {
     return this.getUsedCoinsTags(pivot);
   }
 

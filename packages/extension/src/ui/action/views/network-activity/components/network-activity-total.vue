@@ -50,7 +50,7 @@ import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-fi
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
 import { BaseNetwork } from '@/types/base-network.ts';
-import { IndexedDBHelper } from '@action/db/indexedDB.ts';
+import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB.ts';
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
 import { AccountsHeaderData, SparkAccount } from '@action/types/account.ts';
 import { NetworkNames } from '@enkryptcom/types/dist';
@@ -299,12 +299,12 @@ const synchronize = async () => {
     await db.saveData('setLoadingStatus', 'pending');
 
     const setsMeta = await wallet.getAllSparkAnonymitySetMeta();
-    const isDBEmpty = !(await db.readData('data'))?.length;
+    const isDBEmpty = !(await db.readData<any[]>(DB_DATA_KEYS.sets))?.length;
 
     if (!isDBEmpty) {
       const dbSetsMeta = await Promise.all(
         setsMeta.map(async (_, index) => {
-          return db.getLengthOf('data', index);
+          return db.getLengthOf(DB_DATA_KEYS.sets, index);
         }),
       );
 
@@ -345,7 +345,7 @@ const synchronize = async () => {
               endIndex,
             );
             console.log('set ->>', set);
-            await db.appendSetData('data', difference.setId - 1, {
+            await db.appendSetData(DB_DATA_KEYS.sets, difference.setId - 1, {
               coins: set.coins,
               blockHash: latestBlockHash,
               setHash,
@@ -359,7 +359,7 @@ const synchronize = async () => {
     } else {
       console.warn('Loading all sets...');
       const allSets = await wallet.fetchAllAnonymitySets();
-      await db.saveData('data', allSets);
+      await db.saveData(DB_DATA_KEYS.sets, allSets);
     }
 
     const worker = new Worker(

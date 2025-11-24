@@ -1,7 +1,8 @@
 import { AnonymitySetModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
+import { differenceSets } from '@action/utils/set-utils.ts';
 
-export const DbKeys = {
-  data: 'data',
+export const DB_DATA_KEYS = {
+  sets: 'sets',
   myCoins: 'myCoins',
   usedCoinsTags: 'usedCoinsTags',
 } as const;
@@ -68,16 +69,7 @@ export class IndexedDBHelper {
       const store = this.getObjectStore('readwrite');
       const request = store.put(data, key);
 
-      request.onsuccess = () => () => {
-        if (key === 'myCoins') {
-          const event = new CustomEvent('myCoinsUpdated', { detail: null });
-          console.log(
-            '%c Dispatching myCoinsUpdated event',
-            'color: #0000FF; font-weight: bold; font-size: 24px;',
-          );
-          window.dispatchEvent(event);
-        }
-      };
+      request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
   }
@@ -101,19 +93,23 @@ export class IndexedDBHelper {
     if (!data[index]) throw new Error('Invalid index');
     data[index].blockHash = input.blockHash;
     data[index].setHash = input.setHash;
-    data[index].coins = [...data[index].coins, ...input.coins];
+    const updatedCoinsSet = differenceSets(
+      new Set(data[index].coins),
+      new Set(input.coins),
+    );
+    data[index].coins = [...updatedCoinsSet.values()];
     await this.saveData(key, data);
   }
 
   async markCoinsAsUsed(tag: string): Promise<void> {
-    const myCoins = await this.readData<any[]>('myCoins');
+    const myCoins = await this.readData<any[]>(DB_DATA_KEYS.myCoins);
     const updatedCoins = myCoins.map((coin: any) => {
       if (coin.tag === tag) {
         return { ...coin, isUsed: true };
       }
       return coin;
     });
-    await this.saveData('myCoins', updatedCoins);
+    await this.saveData(DB_DATA_KEYS.myCoins, updatedCoins);
   }
 
   async removeSector(
@@ -144,17 +140,17 @@ export class IndexedDBHelper {
   }
 
   async getBlockHashes(): Promise<string[]> {
-    const data = await this.readData<any[]>('data');
+    const data = await this.readData<any[]>(DB_DATA_KEYS.sets);
     return data.map(set => set.blockHash);
   }
 
   async getSetHashes(): Promise<string[]> {
-    const data = await this.readData<any[]>('data');
+    const data = await this.readData<any[]>(DB_DATA_KEYS.sets);
     return data.map(set => set.setHash);
   }
 
   async getSetById(id: number): Promise<AnonymitySetModel | null> {
-    const data = await this.readData<any[]>('data');
+    const data = await this.readData<any[]>(DB_DATA_KEYS.sets);
     return data[id - 1] || null;
   }
 }

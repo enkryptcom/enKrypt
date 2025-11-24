@@ -66,3 +66,12 @@ export type AnonymitySetMetaModel = {
 export type UsedSerialsModel = {
   serials: string[];
 };
+
+export type MyCoinModel = {
+  setId: number;
+  setHash: string;
+  coin: string[];
+  tag: string;
+  value: bigint;
+  isUsed: boolean;
+};

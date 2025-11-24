@@ -7,6 +7,7 @@
       <span>
         <logo-min class="app__menu-logo" />
         <button @click="newTab">[ ]</button>
+        <button @click="testIntersect">} {</button>
       </span>
       <base-search
         :value="searchInput"
@@ -157,7 +158,10 @@ import AddNetwork from './views/add-network/index.vue';
 import ModalNewVersion from './views/modal-new-version/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
-import { intersectSets } from '@action/utils/intersect-sets.ts';
+import { intersectSets } from '@action/utils/set-utils';
+import { startCoinSetSync } from '@/libs/utils/updateAndSync/updateCoinSet';
+import { startTagSetSync } from '@/libs/utils/updateAndSync/updateTagsSet';
+import { useSynchronizeSparkState } from '@action/composables/synchronize-spark-state.ts';
 
 const wallet = new PublicFiroWallet();
 const db = new IndexedDBHelper();
@@ -196,6 +200,8 @@ const isLoading = ref(true);
 const isSyncing = ref(false);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
+
+useSynchronizeSparkState(currentNetwork);
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();
@@ -259,166 +265,121 @@ const init = async () => {
   isLoading.value = false;
 };
 
-const synchronize = async () => {
-  const setLoadingStatus = await db.readData<string>('setLoadingStatus');
+const synchronizeWorker = () => {
+  const worker = new Worker(
+    new URL('./workers/sparkCoinInfoWorker.ts', import.meta.url),
+    { type: 'module' },
+  );
 
-  // if (setLoadingStatus && setLoadingStatus !== 'idle') {
-  //   console.log({ setLoadingStatus });
-  //   return;
-  // }
+  console.log('%c[synchronizeWorker] Worker initialized', 'color: green');
 
+  worker.postMessage('');
+
+  console.log('%c[synchronizeWorker] Post message', 'color: green');
+  worker.onmessage = ({ data }) => {
+    console.log(
+      '%c[synchronizeWorker] Worker onmessage data:',
+      'color: green',
+      data,
+    );
+    const balance = data.reduce((a: bigint, c: { coin: { value: bigint } }) => {
+      console.log('worker response:', c);
+      if (typeof c.coin.value !== 'bigint') {
+        console.warn('Invalid value in worker response:', c);
+        return a;
+      }
+      a += c.coin.value;
+      return a;
+    }, 0n);
+    const sparkBalance = new BigNumber(balance).toString();
+    db.saveData('sparkBalance', sparkBalance);
+    updateSparkBalance(currentNetwork.value).then(async () => {
+      await db.saveData('setLoadingStatus', 'idle');
+      isSyncing.value = false;
+    });
+  };
+};
+const synchronize2 = async () => {
   try {
     const networkName = currentNetwork.value.name;
 
     if (networkName !== NetworkNames.Firo) return;
 
-    isSyncing.value = true;
-
-    // await db.saveData('setLoadingStatus', 'pending');
-    const setsMeta = await wallet.getAllSparkAnonymitySetMeta();
-    const isDBEmpty = !(await db.readData<any[]>('data'))?.length;
-
-    console.log('setsMeta ->>', setsMeta);
-    console.log('isDBEmpty ->>', isDBEmpty);
-
-    if (!isDBEmpty) {
-      const dbSetsMeta = await Promise.all(
-        setsMeta.map(async (_, index) => {
-          return db.getLengthOf('data', index);
-        }),
-      );
-
-      console.log('downloaded');
-
-      const diff: {
-        setId: number;
-        latestBlockHash: string;
-        setHash: string;
-        startIndex: number;
-        endIndex: number;
-      }[] = [];
-
-      setsMeta.forEach((setMeta, index) => {
-        if (setMeta.size !== dbSetsMeta[index]) {
-          diff.push({
-            setId: index + 1,
-            latestBlockHash: setMeta.blockHash,
-            startIndex: dbSetsMeta[index],
-            endIndex: setMeta.size,
-            setHash: setMeta.setHash,
-          });
-        }
-      });
-
-      console.log('Loading sets');
-      console.log('diff ->>', diff);
-
-      const promisesArr: Promise<void>[] = [];
-
-      diff.forEach(difference => {
-        promisesArr.push(
-          new Promise(async resolve => {
-            const { setId, latestBlockHash, startIndex, endIndex, setHash } =
-              difference;
-            const set = await wallet.fetchAnonymitySetSector(
-              setId,
-              latestBlockHash,
-              startIndex,
-              endIndex,
-            );
-            console.log('set ->>', set);
-            await db.appendSetData('data', difference.setId - 1, {
-              coins: set.coins,
-              blockHash: latestBlockHash,
-              setHash,
-            });
-            resolve();
-          }),
-        );
-      });
-
-      await Promise.all(promisesArr);
-    } else {
-      console.warn('Loading all sets...');
-      const allSets = await wallet.fetchAllAnonymitySets();
-      await db.saveData('data', allSets);
-    }
-
-    const sparkBalance = await db.readData<string>('sparkBalance');
-
-    if (sparkBalance) {
-      isSyncing.value = false;
-      await updateSparkBalance(currentNetwork.value);
-      await db.saveData('setLoadingStatus', 'idle');
-      return;
-    }
-
-    const worker = new Worker(
-      new URL('./workers/sparkCoinInfoWorker.ts', import.meta.url),
-      { type: 'module' },
-    );
-
-    worker.postMessage('');
-    worker.onmessage = ({ data }) => {
-      const balance = data.reduce(
-        (a: bigint, c: { coin: { value: bigint } }) => {
-          console.log('worker response:', c);
-          if (typeof c.coin.value !== 'bigint') {
-            console.warn('Invalid value in worker response:', c);
-            return a;
-          }
-          a += c.coin.value;
-          return a;
-        },
-        0n,
-      );
-      const sparkBalance = new BigNumber(balance).toString();
-      db.saveData('sparkBalance', sparkBalance);
-      updateSparkBalance(currentNetwork.value).then(async () => {
-        await db.saveData('setLoadingStatus', 'idle');
-        isSyncing.value = false;
-      });
-    };
+    startCoinSetSync({
+      onComplete: () => {
+        console.log('%s coin set sync completed', 'color: red', networkName);
+        synchronizeWorker();
+      },
+    });
+    startTagSetSync();
   } catch (error) {
     console.log('syncing error', error);
-    db.saveData('setLoadingStatus', 'idle');
   }
 
-  {
-    // if (!db.db) return;
-    //   // =====>>> start tags handling <<<======
+  // if (!db.db) return;
+  //   // =====>>> start tags handling <<<======
 
-    console.log(db);
+  // console.log(db);
 
-    const usedCoinsTagsLength = (await db.getLengthOf('usedCoinsTags')) || 0;
-    const updatedCoinsTags = await wallet
-      .getUsedSparkCoinsTags(usedCoinsTagsLength - 1)
-      .finally(() => {
-        console.log(
-          '%c Fetched used coins tags',
-          'color: #00FF00; font-weight: bold; font-size: 24px;',
-        );
-      });
+  // const usedCoinsTagsLength = (await db.getLengthOf('usedCoinsTags')) || 0;
+  // const updatedCoinsTags = await wallet
+  //   .getUsedSparkCoinsTags(usedCoinsTagsLength - 1)
+  //   .finally(() => {
+  //     console.log(
+  //       '%c Fetched used coins tags',
+  //       'color: #00FF00; font-weight: bold; font-size: 24px;',
+  //     );
+  //   });
+  //
+  // console.log('usedCoinsTags ->>>>>>><<<<<<<<<--', updatedCoinsTags);
+  //
+  // await db.appendData('usedCoinsTags', updatedCoinsTags.tags);
 
-    console.log('usedCoinsTags ->>>>>>><<<<<<<<<--', updatedCoinsTags);
+  // const usedCoinsTags = await db.readData<{ tags: string[] }>('usedCoinsTags');
+  //
+  // const coinsTagsSet = new Set(usedCoinsTags?.tags ?? []);
+  // const myCoins = await db.readData<{ tag: string }[]>('myCoins');
+  // const myCoinsTagsSet = new Set((myCoins ?? []).map(coin => coin.tag));
+  //
+  // const usedMyCoinsTagsSet = intersectSets(coinsTagsSet, myCoinsTagsSet);
+  //
+  // usedMyCoinsTagsSet.forEach(tag => {
+  //   db.markCoinsAsUsed(tag);
+  // });
+  // console.log(usedMyCoinsTagsSet);
 
-    await db.appendData('usedCoinsTags', updatedCoinsTags.tags);
+  // =====>>> end tags handling <<<======
+};
 
-    const usedCoinsTags = await db.readData<string[]>('usedCoinsTags');
+const testIntersect = async () => {
+  console.log(db);
 
-    const coinsTagsSet = new Set(usedCoinsTags);
-    const myCoins = await db.readData<{ tag: string }[]>('myCoins');
-    const myCoinsTagsSet = new Set((myCoins ?? []).map(coin => coin.tag));
-
-    const usedMyCoinsTagsSet = intersectSets(coinsTagsSet, myCoinsTagsSet);
-
-    usedMyCoinsTagsSet.forEach(tag => {
-      db.markCoinsAsUsed(tag);
+  const usedCoinsTagsLength = (await db.getLengthOf('usedCoinsTags')) || 0;
+  const updatedCoinsTags = await wallet
+    .getUsedSparkCoinsTags(usedCoinsTagsLength - 1)
+    .finally(() => {
+      console.log(
+        '%c Fetched used coins tags',
+        'color: #00FF00; font-weight: bold; font-size: 24px;',
+      );
     });
-    console.log(usedMyCoinsTagsSet);
 
-    // =====>>> end tags handling <<<======
-  }
+  console.log('usedCoinsTags ->>>>>>><<<<<<<<<--', updatedCoinsTags);
+
+  await db.appendData('usedCoinsTags', updatedCoinsTags.tags);
+
+  const usedCoinsTags = await db.readData<string[]>('usedCoinsTags');
+
+  const coinsTagsSet = new Set(usedCoinsTags);
+  const myCoins = await db.readData<{ tag: string }[]>('myCoins');
+  const myCoinsTagsSet = new Set((myCoins ?? []).map(coin => coin.tag));
+
+  const usedMyCoinsTagsSet = intersectSets(coinsTagsSet, myCoinsTagsSet);
+
+  usedMyCoinsTagsSet.forEach(tag => {
+    db.markCoinsAsUsed(tag);
+  });
+  console.log(usedMyCoinsTagsSet);
 };
 
 onMounted(async () => {
@@ -624,7 +585,7 @@ const setNetwork = async (network: BaseNetwork) => {
   let sparkAccount: SparkAccount | null = null;
 
   if (network.name === NetworkNames.Firo) {
-    await synchronize();
+    // await synchronize();
     if (accountHeaderData.value.selectedAccount) {
       const sparkAccountResponse = await getSparkState();
 
