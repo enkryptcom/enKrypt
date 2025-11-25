@@ -3,11 +3,17 @@
     <logo-big class="blocked-page__logo" />
     <h3>Access restricted</h3>
     <p>
-      Unfortunately we are unable to service your geographic region. Your funds
-      are safe, and you can access them in another wallet by using your recovery
-      phrase.
+      Your wallet address or IP has been flagged as originating from a
+      sanctioned jurisdiction or listed under international sanctions programs.
+      To comply with regulatory obligations, access to our platform is
+      restricted.
     </p>
-    <p>We apologize for the inconvenience.</p>
+    <p>
+      If this address has been incorrectly flagged, you can contact us at
+      <a class="blocked-page__support" href="mailto:support@myetherwallet.com"
+        >support@myetherwallet.com</a
+      >.
+    </p>
     <a class="blocked-page__more-info" href="#">More info</a>
     <div class="blocked-page__divider-top"></div>
     <div class="blocked-page__content">
@@ -232,6 +238,10 @@ const closeForgot = () => {
     letter-spacing: 0.25px;
     color: @primaryLabel;
     margin: 0;
+  }
+
+  &__support {
+    color: @primaryLabel;
   }
 
   p {
