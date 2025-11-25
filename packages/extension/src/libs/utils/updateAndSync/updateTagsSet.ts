@@ -1,5 +1,6 @@
 import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB.ts';
 import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet.ts';
+import { differenceSets } from '@action/utils/set-utils.ts';
 
 type SetsUpdateResult = {
   tags: string[];
@@ -31,11 +32,19 @@ const syncTagsOnce = async (): Promise<SetsUpdateResult> => {
     const updates = await wallet.getUsedSparkCoinsTags(
       localTags?.tags?.length ? localTags?.tags?.length - 1 : 0,
     );
+
+    const diffTags = differenceSets(new Set(updates?.tags ?? []), new Set(localTags?.tags ?? []));
+
     const mergedTags = Array.from(
-      new Set([...(localTags?.tags ?? []), ...(updates?.tags ?? [])]),
+      new Set([...(diffTags.values() ?? []), ...(updates?.tags ?? [])]),
     );
     await db.saveData(DB_DATA_KEYS.usedCoinsTags, { tags: mergedTags });
     console.log('%c[updateTagsSet] syncTagsOnce: received tags count =', 'color: yellow', updates?.tags);
+
+    // Prevent sending updates if there are no new tags
+    if (mergedTags.length === localTags?.tags?.length) {
+      return { tags: [] }
+    }
 
     return updates;
   } catch (error) {
@@ -51,6 +60,13 @@ export const startTagSetSync = (options?: TagsSyncOptions) => {
   let timer: ReturnType<typeof setTimeout> | null = null;
   let isRunning = false;
   let hasCompletedOnce = false;
+
+  const fireCompleteOnce = () => {
+    if (!hasCompletedOnce) {
+      hasCompletedOnce = true;
+      options?.onComplete?.();
+    }
+  };
 
   const scheduleNext = () => {
     if (stopped) return;
@@ -78,22 +94,12 @@ export const startTagSetSync = (options?: TagsSyncOptions) => {
         console.log('%c[updateTagsSet] startCoinSetSync: no tags to update', 'color: yellow');
       }
 
-      if (!hasCompletedOnce) {
-        hasCompletedOnce = true;
-        console.log(
-          '%c[updateTagsSet] startCoinSetSync: first sync completed, calling onComplete',
-          'color: yellow',
-        );
-        options?.onComplete?.();
-      }
+      fireCompleteOnce();
     } catch (error) {
       console.log('%c[updateTagsSet] startCoinSetSync: error during run', 'color: yellow', error);
       options?.onError?.(error);
 
-      if (!hasCompletedOnce) {
-        hasCompletedOnce = true;
-        options?.onComplete?.();
-      }
+      fireCompleteOnce();
     } finally {
       isRunning = false;
       console.log('%c[updateTagsSet] startCoinSetSync: run completed', 'color: yellow');

@@ -137,7 +137,11 @@ export default class FiroElectrum {
   }
 
   async getUsedCoinsTags(startPoint = 0): Promise<{ tags: string[] }> {
-    console.log('electrum_wallet:getUsedCoinsTags', 'startPoint', startPoint);
+    console.log(
+      'electrum_wallet:getUsedCoinsTags',
+      'startPoint',
+      startPoint.toString(),
+    );
     return await this.mainClient!.request('spark.getusedcoinstags', [
       startPoint.toString(),
     ]);

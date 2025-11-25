@@ -1,5 +1,4 @@
 import { AnonymitySetModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
-import { differenceSets } from '@action/utils/set-utils.ts';
 
 export const DB_DATA_KEYS = {
   sets: 'sets',
@@ -93,11 +92,7 @@ export class IndexedDBHelper {
     if (!data[index]) throw new Error('Invalid index');
     data[index].blockHash = input.blockHash;
     data[index].setHash = input.setHash;
-    const updatedCoinsSet = differenceSets(
-      new Set(data[index].coins),
-      new Set(input.coins),
-    );
-    data[index].coins = [...updatedCoinsSet.values()];
+    data[index].coins = [...input.coins];
     await this.saveData(key, data);
   }
 
