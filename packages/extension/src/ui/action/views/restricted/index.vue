@@ -4,9 +4,9 @@
     <h3>Access restricted</h3>
     <p>
       Your wallet address or IP has been flagged as originating from a
-      sanctioned jurisdiction or listed under international sanctions programs.
-      To comply with regulatory obligations, access to our platform is
-      restricted.
+      restricted jurisdiction. Under our platform policies, access to our
+      platform is therefore restricted. Please refer to our geographic policies
+      page for more details.
     </p>
     <p>
       If this address has been incorrectly flagged, you can contact us at
