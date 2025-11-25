@@ -14,7 +14,11 @@
         >support@myetherwallet.com</a
       >.
     </p>
-    <a class="blocked-page__more-info" href="#">More info</a>
+    <a
+      class="blocked-page__more-info"
+      href="https://help.myetherwallet.com/en/articles/12897302-geographic-restrictions-for-mew"
+      >More info</a
+    >
     <div class="blocked-page__divider-top"></div>
     <div class="blocked-page__content">
       <div class="blocked-page__content__header" @click="openUnlock">
