@@ -51,7 +51,6 @@ export class PolkadotSigner implements SignerInterface {
       password,
       undefined,
       options.onlyJS,
-      2048,
     );
     let pair: KeyPair;
     switch (this.type) {

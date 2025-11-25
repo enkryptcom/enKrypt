@@ -9,16 +9,17 @@ const kadenaOptions: KadenaNetworkOptions = {
   name: NetworkNames.Kadena,
   name_long: 'Kadena',
   homePage: 'https://kadena.io/',
-  blockExplorerTX: 'https://explorer.chainweb.com/mainnet/tx/[[txHash]]',
+  blockExplorerTX:
+    'https://explorer.chainweb-community.org/mainnet/tx/[[txHash]]',
   blockExplorerAddr:
-    'https://explorer.chainweb.com/mainnet/account/[[address]]?token=coin',
+    'https://explorer.chainweb-community.org/mainnet/account/[[address]]?token=coin',
   isTestNetwork: false,
   currencyName: 'KDA',
   currencyNameLong: 'Kadena',
   icon,
   decimals: 12,
   prefix: 0,
-  node: 'https://api.chainweb.com/chainweb/0.0',
+  node: 'https://api.chainweb-community.org/chainweb/0.0',
   kadenaApiOptions: {
     networkId: 'mainnet01',
     chainId: '1',

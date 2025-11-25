@@ -2,8 +2,8 @@
   <div class="swap-best-offer-block">
     <h3>
       Best offer including network fee powered by
-      <img :src="providersDetails[props.pickedTrade.provider].logo" />
-      {{ providersDetails[props.pickedTrade.provider].name }}
+      <img :src="PROVIDER_INFO[props.pickedTrade.provider].icon" />
+      {{ PROVIDER_INFO[props.pickedTrade.provider].name }}
     </h3>
     <div class="swap-best-offer-block__for">
       for<img :src="fromToken.logoURI" />
@@ -25,33 +25,18 @@
     </div>
     <!-- <best-offer-warning :fee-warning="true"></best-offer-warning>
     <best-offer-warning :token-warning="true"></best-offer-warning> -->
-    <best-offer-error
-      v-if="warning === SwapBestOfferWarnings.BAD_PRICE"
-      :bad-trade="true"
-    />
+    <best-offer-error v-if="warning === SwapBestOfferWarnings.BAD_PRICE" :bad-trade="true" />
     <div v-if="trades.length > 1" class="swap-best-offer-block__offers">
-      <a
-        class="swap-best-offer-block__offers-link"
-        :class="{ opened: isOffersOpen }"
-        @click="toggleOffers"
-        >{{ trades.length - 1 }} other offers <switch-arrow
-      /></a>
-      <best-offer-list
-        v-show="isOffersOpen"
-        :select="select"
-        :to-token="toToken"
-        :trades="trades"
-        :picked-trade="pickedTrade"
-      />
+      <a class="swap-best-offer-block__offers-link" :class="{ opened: isOffersOpen }" @click="toggleOffers">{{
+        trades.length - 1 }} other offers <switch-arrow /></a>
+      <best-offer-list v-show="isOffersOpen" :select="select" :to-token="toToken" :trades="trades"
+        :picked-trade="pickedTrade" />
     </div>
     <div class="swap-best-offer-block__info">
       <p>
         Provider:
-        <img
-          height="15px"
-          :src="providersDetails[props.pickedTrade.provider].logo"
-        />
-        {{ providersDetails[props.pickedTrade.provider].name }}
+        <img height="15px" :src="PROVIDER_INFO[props.pickedTrade.provider].icon" />
+        {{ PROVIDER_INFO[props.pickedTrade.provider].name }}
       </p>
       <p>
         Rate: 1 {{ fromToken.symbol.toUpperCase() }} ≈
@@ -101,7 +86,7 @@ import {
   SwapToken,
 } from '@enkryptcom/swap';
 import { imageLoadError } from '@/ui/action/utils/misc';
-import providersDetails from '@/libs/utils/providersDetails';
+import { PROVIDER_INFO } from "@enkryptcom/swap";
 
 interface SwapBestOfferProps {
   trades: ProviderSwapResponse[];

@@ -10,7 +10,7 @@ const storyOptions: EvmNetworkOptions = {
   homePage: 'https://www.story.foundation/',
   blockExplorerTX: 'https://www.storyscan.xyz/tx/[[txHash]]',
   blockExplorerAddr: 'https://www.storyscan.xyz/address/[[address]]',
-  chainID: '0x5EF',
+  chainID: '0x5ea',
   isTestNetwork: false,
   currencyName: 'IP',
   currencyNameLong: 'IP',

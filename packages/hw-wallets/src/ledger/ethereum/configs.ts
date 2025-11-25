@@ -29,10 +29,8 @@ const supportedPaths = {
   [NetworkNames.Arbitrum]: DEFAULT_PATHS,
   [NetworkNames.Gnosis]: DEFAULT_PATHS,
   [NetworkNames.Fantom]: DEFAULT_PATHS,
-  [NetworkNames.Klaytn]: DEFAULT_PATHS,
   [NetworkNames.Base]: DEFAULT_PATHS,
   [NetworkNames.Celo]: DEFAULT_PATHS,
-  [NetworkNames.Syscoin]: DEFAULT_PATHS,
   [NetworkNames.Telos]: DEFAULT_PATHS,
   [NetworkNames.Blast]: DEFAULT_PATHS,
 };
