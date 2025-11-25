@@ -1,27 +1,20 @@
 <template>
   <a class="best-offer-list-item" @click="select">
     <div>
-      <img
-        v-if="providersDetails[props.provider]"
-        :src="providersDetails[props.provider].logo"
-      />
+      <img v-if="PROVIDER_INFO[props.provider]" :src="PROVIDER_INFO[props.provider].icon" />
     </div>
     <div class="best-offer-list-item__info">
       <p>
         {{
           props.provider
-            ? providersDetails[props.provider].name
+            ? PROVIDER_INFO[props.provider].name
             : 'Unknown Provider'
         }}
       </p>
       <h5>{{ amount }}</h5>
     </div>
 
-    <Vue3Lottie
-      v-show="isLoading"
-      class="best-offer-list-item__spiner"
-      :animation-data="LottieStatusJson"
-    />
+    <Vue3Lottie v-show="isLoading" class="best-offer-list-item__spiner" :animation-data="LottieStatusJson" />
 
     <done-icon v-show="isChecked" class="best-offer-list-item__checked" />
   </a>
@@ -32,7 +25,7 @@ import DoneIcon from '@action/icons/common/done_icon.vue';
 import LottieStatusJson from '@action/assets/animation/status.json';
 import { Vue3Lottie } from 'vue3-lottie';
 import { ProviderName } from '@enkryptcom/swap/src/types';
-import providersDetails from '@/libs/utils/providersDetails';
+import { PROVIDER_INFO } from "@enkryptcom/swap";
 import { PropType } from 'vue';
 
 const props = defineProps({
