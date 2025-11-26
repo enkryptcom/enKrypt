@@ -25,4 +25,4 @@ export default (asyncFn: () => any, initialValue: any) => {
   });
 
   return { value, isPending, error };
-}
+};

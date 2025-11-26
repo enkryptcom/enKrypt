@@ -28,6 +28,24 @@ export interface OwnedCoinData {
   setId: number;
 }
 
+const removeDuplicates = (coinsResult: Set<MyCoinModel>): Set<MyCoinModel> => {
+  const arr = Array.from(coinsResult);
+  const seen = new Set<string>();
+  const deduped = [];
+
+  for (let i = arr.length - 1; i >= 0; i--) {
+    const item = arr[i];
+    const key = `${item.tag}:${item.coin.join('|')}`;
+
+    if (!seen.has(key)) {
+      seen.add(key);
+      deduped.push(item);
+    }
+  }
+
+  return new Set(deduped.reverse());
+};
+
 async function fetchAllCoinInfos(
   firstCoinSetId: number,
   myCoinsMap: Map<string, MyCoinModel>,
@@ -92,12 +110,19 @@ async function fetchAllCoinInfos(
       isUsed: false,
     }));
 
+    console.log(
+      JSON.stringify(
+        myCoins.map(el => ({ ...el, value: el.value.toString() })),
+      ),
+    );
+
     const savedMyCoins = (await db.readData<any[]>(DB_DATA_KEYS.myCoins)) || [];
     const updatedMyCoinsSet = differenceSets(
       new Set(savedMyCoins),
       new Set(myCoins),
     );
-    await db.saveData(DB_DATA_KEYS.myCoins, Array.from(updatedMyCoinsSet));
+    const dedupedMyCoinsSet = removeDuplicates(updatedMyCoinsSet);
+    await db.saveData(DB_DATA_KEYS.myCoins, Array.from(dedupedMyCoinsSet));
 
     return Array.from(updatedMyCoinsSet);
   } catch (err) {

@@ -47,11 +47,11 @@ export const useSynchronizeSparkState = (
     );
 
     const balance = myCoinsIsUsedApplied
-      .filter(el => el.isUsed)
+      .filter(el => !el.isUsed)
       .reduce((a: bigint, c) => a + c.value, 0n);
 
     const sparkBalance = new BigNumber(balance.toString()).toString();
-    console.log({ sparkBalance });
+
     if (onBalanceCalculated) {
       try {
         onBalanceCalculated(sparkBalance);
@@ -60,11 +60,7 @@ export const useSynchronizeSparkState = (
       }
     }
     await db.saveData('sparkBalance', sparkBalance);
-    // updateSparkBalance(currentNetwork.value).then(async () => {
-    //   await db.saveData('setLoadingStatus', 'idle');
-    //   isSyncing.value = false;
-    // });
-  }
+  };
 
   const synchronizeWorker = () => {
     const worker = new Worker(
@@ -105,7 +101,7 @@ export const useSynchronizeSparkState = (
         onComplete: () => {
           console.log('%cTag set sync completed', 'color: red');
           tagFetchDone.value = true;
-        }
+        },
       });
     } catch (err: any) {
       error.value = err;
@@ -117,17 +113,20 @@ export const useSynchronizeSparkState = (
 
   watch(() => networkRef.value.name, synchronize, { immediate: true });
 
-  watch(() => [coinFetchDone.value, tagFetchDone.value], ([updatedCoinFetchDone, updatedTagFetchDone]) => {
-    console.log(
-      '%c watch: coinFetchDone or tagFetchDone updated',
-      'color: #00FF00; font-weight: bold; font-size: 24px;',
-      updatedCoinFetchDone,
-      updatedTagFetchDone,
-    );
-    if (updatedCoinFetchDone && updatedTagFetchDone) {
-      void markCoinsAsUsed();
-    }
-  });
+  watch(
+    () => [coinFetchDone.value, tagFetchDone.value],
+    ([updatedCoinFetchDone, updatedTagFetchDone]) => {
+      console.log(
+        '%c watch: coinFetchDone or tagFetchDone updated',
+        'color: #00FF00; font-weight: bold; font-size: 24px;',
+        updatedCoinFetchDone,
+        updatedTagFetchDone,
+      );
+      if (updatedCoinFetchDone && updatedTagFetchDone) {
+        void markCoinsAsUsed();
+      }
+    },
+  );
 
   onMounted(() => {
     void synchronize();

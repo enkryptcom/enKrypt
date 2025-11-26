@@ -69,7 +69,6 @@
             @action:generate-new-spark="generateNewSparkAddress"
             @open:buy-action="openBuyPage"
             @update:spark-state-changed="getSparkAccountState"
-            @update:sparkBalanceChanged="updateSparkBalance"
           />
         </transition>
       </router-view>
@@ -198,7 +197,21 @@ const isSyncing = ref(false);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
 
-useSynchronizeSparkState(currentNetwork);
+useSynchronizeSparkState(currentNetwork, sparkBalance => {
+  if (sparkBalance && accountHeaderData.value.sparkAccount) {
+    console.log('UPDATING BALANCE');
+
+    accountHeaderData.value = {
+      ...accountHeaderData.value,
+      sparkAccount: {
+        ...(accountHeaderData.value.sparkAccount ?? {}),
+        sparkBalance: {
+          availableBalance: sparkBalance,
+        },
+      },
+    };
+  }
+});
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();
@@ -331,27 +344,6 @@ const updateGradient = (newGradient: string) => {
   if (appMenuRef.value)
     (appMenuRef.value as HTMLElement).style.background =
       `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`;
-};
-
-const updateSparkBalance = async (network: BaseNetwork) => {
-  if (network.name === NetworkNames.Firo) {
-    // TODO:(N) get balance via checking myCoins in db and remove balance from indexedDB
-    const sparkBalance = await db.readData<string>('sparkBalance');
-
-    if (sparkBalance && accountHeaderData.value.sparkAccount) {
-      console.log('UPDATING BALANCE');
-
-      accountHeaderData.value = {
-        ...accountHeaderData.value,
-        sparkAccount: {
-          ...(accountHeaderData.value.sparkAccount ?? {}),
-          sparkBalance: {
-            availableBalance: sparkBalance,
-          },
-        },
-      };
-    }
-  }
 };
 
 const generateNewSparkAddress = async () => {

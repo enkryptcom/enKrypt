@@ -22,15 +22,6 @@
     >
       Anonymize funds
     </button>
-    <button
-      :disabled="isSynchronizeBtnDisabled"
-      v-if="network.name === NetworkNames.Firo && sparkAccount"
-      class="network-activity-total__sync"
-      :class="{ 'network-activity-total__anonymize-error': !!syncErrorMsg }"
-      @click="synchronize()"
-    >
-      Sync
-    </button>
   </div>
 </template>
 
@@ -49,8 +40,6 @@ import { validator } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
 import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
-import { BaseNetwork } from '@/types/base-network.ts';
-import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB.ts';
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
 import { AccountsHeaderData, SparkAccount } from '@action/types/account.ts';
 import { NetworkNames } from '@enkryptcom/types/dist';
@@ -95,24 +84,13 @@ const props = defineProps({
   },
 });
 
-const emits = defineEmits<{
-  (e: 'update:spark-balance', network: BaseNetwork): void;
-}>();
-
 const wallet = new PublicFiroWallet();
-const db = new IndexedDBHelper();
 
 const isTransferLoading = ref(false);
 const errorMsg = ref();
-const syncErrorMsg = ref();
-const isSyncBtnDisabled = ref(false);
 
 const isAnonymizeBtnDisabled = computed(() => {
   return isTransferLoading.value || Number(props.cryptoAmount) <= 0;
-});
-
-const isSynchronizeBtnDisabled = computed(() => {
-  return isSyncBtnDisabled.value || props.isSyncing;
 });
 
 const anonymizeFunds = async () => {
@@ -284,110 +262,6 @@ const anonymizeFunds = async () => {
       console.error('ERROR', error);
     });
 };
-
-const synchronize = async () => {
-  const setLoadingStatus = await db.readData<string>('setLoadingStatus');
-
-  if (setLoadingStatus && setLoadingStatus !== 'idle') {
-    return;
-  }
-
-  if (props.network.name !== NetworkNames.Firo) return;
-  try {
-    isSyncBtnDisabled.value = true;
-    syncErrorMsg.value = undefined;
-    await db.saveData('setLoadingStatus', 'pending');
-
-    const setsMeta = await wallet.getAllSparkAnonymitySetMeta();
-    const isDBEmpty = !(await db.readData<any[]>(DB_DATA_KEYS.sets))?.length;
-
-    if (!isDBEmpty) {
-      const dbSetsMeta = await Promise.all(
-        setsMeta.map(async (_, index) => {
-          return db.getLengthOf(DB_DATA_KEYS.sets, index);
-        }),
-      );
-
-      const diff: {
-        setId: number;
-        latestBlockHash: string;
-        setHash: string;
-        startIndex: number;
-        endIndex: number;
-      }[] = [];
-
-      setsMeta.forEach((setMeta, index) => {
-        if (setMeta.size !== dbSetsMeta[index]) {
-          diff.push({
-            setId: index + 1,
-            latestBlockHash: setMeta.blockHash,
-            startIndex: dbSetsMeta[index],
-            endIndex: setMeta.size,
-            setHash: setMeta.setHash,
-          });
-        }
-      });
-
-      console.log('Loading sets');
-      console.log('diff ->>', diff);
-
-      const promisesArr: Promise<void>[] = [];
-
-      diff.forEach(difference => {
-        promisesArr.push(
-          new Promise(async resolve => {
-            const { setId, latestBlockHash, startIndex, endIndex, setHash } =
-              difference;
-            const set = await wallet.fetchAnonymitySetSector(
-              setId,
-              latestBlockHash,
-              startIndex,
-              endIndex,
-            );
-            console.log('set ->>', set);
-            await db.appendSetData(DB_DATA_KEYS.sets, difference.setId - 1, {
-              coins: set.coins,
-              blockHash: latestBlockHash,
-              setHash,
-            });
-            resolve();
-          }),
-        );
-      });
-
-      await Promise.all(promisesArr);
-    } else {
-      console.warn('Loading all sets...');
-      const allSets = await wallet.fetchAllAnonymitySets();
-      await db.saveData(DB_DATA_KEYS.sets, allSets);
-    }
-
-    const worker = new Worker(
-      new URL('../../../workers/sparkCoinInfoWorker.ts', import.meta.url),
-      { type: 'module' },
-    );
-
-    worker.postMessage('');
-    worker.onmessage = ({ data }) => {
-      const balance = data.reduce((a: bigint, c: { value: bigint }) => {
-        a += c.value;
-        return a;
-      }, 0n);
-      const sparkBalance = new BigNumber(balance).toString();
-      db.saveData('sparkBalance', sparkBalance)
-        .then(() => {
-          db.saveData('setLoadingStatus', 'idle');
-        })
-        .then(() => {
-          isSyncBtnDisabled.value = false;
-        });
-    };
-  } catch (error) {
-    console.log(error);
-    db.saveData('setLoadingStatus', 'idle');
-    syncErrorMsg.value = JSON.stringify(error);
-  }
-};
 </script>
 
 <style lang="less">
@@ -396,30 +270,6 @@ const synchronize = async () => {
 .network-activity-total {
   display: flex;
   align-items: flex-start;
-
-  &__sync {
-    padding: 8px 16px;
-    margin-left: 8px;
-    outline: none;
-    cursor: pointer;
-    border-radius: 8px;
-    border: 1px solid @darkBg;
-    margin-top: 4px;
-    background: @buttonBg;
-    transition: all 300ms ease-in-out;
-
-    &:hover {
-      background: @darkBg;
-      border: 1px solid @orange01;
-    }
-
-    &:disabled {
-      cursor: not-allowed;
-      color: @black07;
-      background: @gray01;
-      border: 1px solid @gray01;
-    }
-  }
 
   &__anonymize-error {
     border: 1px solid @error !important;

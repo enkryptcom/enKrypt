@@ -313,6 +313,7 @@ const formatPercentageValue = (
   _value: BigNumber | string | number,
 ): FormattedValue => {
   /* Strip '%' if necessary */
+  // @ts-ignore
   const value = new BigNumber(_value.toString().replaceAll('%', ''));
   const unit = FormattedNumberUnit.PERCENT;
   /**
@@ -529,7 +530,6 @@ const isNumericPositive = (value: string) => {
   return !num.isNaN() && num.isPositive() && num.lt(new BigNumber(2).pow(256));
 };
 
-
 export {
   formatIntegerToString,
   formatIntegerValue,
@@ -539,5 +539,5 @@ export {
   formatPercentageValue,
   formatGasValue,
   toBNSafe,
-  isNumericPositive
+  isNumericPositive,
 };

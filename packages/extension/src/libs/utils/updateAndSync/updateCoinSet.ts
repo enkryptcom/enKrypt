@@ -126,65 +126,67 @@ export const syncCoinSetsOnce = async (): Promise<CoinSetUpdateResult[]> => {
     return [];
   }
 
-  const updatesList = await Promise.all(remoteMetas.map(async (remoteMeta, index) => {
-    const setId = index + 1;
-    const localSet = localSets[index];
+  const updatesList = await Promise.all(
+    remoteMetas.map(async (remoteMeta, index) => {
+      const setId = index + 1;
+      const localSet = localSets[index];
 
-    const hasLocalSet = Boolean(localSet);
-    const localCoinCount = localSet?.coins?.length ?? 0;
+      const hasLocalSet = Boolean(localSet);
+      const localCoinCount = localSet?.coins?.length ?? 0;
 
-    if (hasLocalSet) {
-      const hashesMatch = remoteMeta.setHash === localSet!.setHash;
-      const sizesMatch = remoteMeta.size === localCoinCount;
+      if (hasLocalSet) {
+        const hashesMatch = remoteMeta.setHash === localSet!.setHash;
+        const sizesMatch = remoteMeta.size === localCoinCount;
 
-      if (hashesMatch && sizesMatch) {
+        if (hashesMatch && sizesMatch) {
+          return null;
+        }
+      }
+
+      const { coins: newCoins, isFullReplacement } = await fetchNewCoinsForSet(
+        setId,
+        remoteMeta,
+        localSet,
+      );
+
+      if (!newCoins.length) {
         return null;
       }
-    }
 
-    const { coins: newCoins, isFullReplacement } = await fetchNewCoinsForSet(
-      setId,
-      remoteMeta,
-      localSet,
-    );
+      const updatedCoinsSet = differenceSets(
+        new Set(localSets?.[index]?.coins ?? []),
+        new Set(newCoins),
+      );
+      localSets[index] = {
+        blockHash: remoteMeta.blockHash,
+        setHash: remoteMeta.setHash,
+        coins: Array.from(updatedCoinsSet),
+      };
 
-    if (!newCoins.length) {
-      return null;
-    }
+      if (!localSets[index] || isFullReplacement) {
+        await db.saveData(DB_DATA_KEYS.sets, localSets);
+      } else {
+        await db.appendSetData(DB_DATA_KEYS.sets, index, {
+          ...localSets[index],
+        });
+      }
 
-    const updatedCoinsSet = differenceSets(
-      new Set(localSets?.[index]?.coins ?? []),
-      new Set(newCoins),
-    );
-    localSets[index] = {
-      blockHash: remoteMeta.blockHash,
-      setHash: remoteMeta.setHash,
-      coins: Array.from(updatedCoinsSet),
-    };
+      const matchedCoins = newCoins.filter(coin =>
+        myCoinHashes.has(coin?.[0] ?? ''),
+      );
 
-    if (!localSets[index] || isFullReplacement) {
-      await db.saveData(DB_DATA_KEYS.sets, localSets);
-    } else {
-      await db.appendSetData(DB_DATA_KEYS.sets, index, {
-        ...localSets[index],
-      });
-    }
+      return {
+        setId,
+        blockHash: remoteMeta.blockHash,
+        setHash: remoteMeta.setHash,
+        newCoins,
+        containsMyCoins: matchedCoins.length > 0,
+        matchedCoins,
+      };
+    }),
+  );
 
-    const matchedCoins = newCoins.filter(coin =>
-      myCoinHashes.has(coin?.[0] ?? ''),
-    );
-
-    return {
-      setId,
-      blockHash: remoteMeta.blockHash,
-      setHash: remoteMeta.setHash,
-      newCoins,
-      containsMyCoins: matchedCoins.length > 0,
-      matchedCoins,
-    };
-  }))
-
-  return  updatesList.filter(Boolean) as CoinSetUpdateResult[];
+  return updatesList.filter(Boolean) as CoinSetUpdateResult[];
 };
 
 export const startCoinSetSync = (options?: CoinSetSyncOptions) => {
@@ -245,4 +247,3 @@ export const startCoinSetSync = (options?: CoinSetSyncOptions) => {
     }
   };
 };
-
