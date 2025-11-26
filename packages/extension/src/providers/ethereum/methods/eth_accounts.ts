@@ -20,7 +20,8 @@ const method: MiddlewareFunction = async function (
     if (payload.options && payload.options.domain) {
       if (!isInitialized) {
         res(null, payload.method === 'eth_coinbase' ? '' : []);
-        return throttledOpenOnboard();
+        throttledOpenOnboard();
+        return;
       }
       const accountsState = new AccountState();
       accountsState
