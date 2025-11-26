@@ -270,7 +270,6 @@ const closeForgot = () => {
     font-size: 16px;
     line-height: 20px;
     letter-spacing: 0.25px;
-    margin: 0 0 16px 0;
     color: @primaryLabel;
   }
 

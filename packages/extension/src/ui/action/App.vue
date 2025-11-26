@@ -1,43 +1,90 @@
 <template>
   <div>
-    <div :class="['app', 'restricted-container', 'expanded']" v-if="foundRestrictedAddress || geoRestricted">
+    <div
+      :class="['app', 'restricted-container', 'expanded']"
+      v-if="foundRestrictedAddress || geoRestricted"
+    >
       <restricted :isInitialized="isWalletInitialized" />
     </div>
     <div :class="[{ locked: isLocked }, 'app']" v-else>
-      <div v-if="isLoading" :class="['app__loading', isExpanded ? 'expanded' : 'collapsed']">
+      <div
+        v-if="isLoading"
+        :class="['app__loading', isExpanded ? 'expanded' : 'collapsed']"
+      >
         <swap-looking-animation />
       </div>
       <div v-show="!isLoading">
-        <app-menu :active-network="currentNetwork" @update:network="setNetwork"
-          @show:updates-dialog="setShowUpdatesDialog(true)" @show:settings-dialog="settingsShow = true"
-          @show:other-networks-dialog="addNetworkShow = true" @action:lock-enkrypt="lockAction" />
+        <app-menu
+          :active-network="currentNetwork"
+          @update:network="setNetwork"
+          @show:updates-dialog="setShowUpdatesDialog(true)"
+          @show:settings-dialog="settingsShow = true"
+          @show:other-networks-dialog="addNetworkShow = true"
+          @action:lock-enkrypt="lockAction"
+        />
       </div>
 
-      <div v-show="!isLoading" :class="[
-        isExpanded ? 'app__content-expand' : 'app__content-collapse',
-        'app__content',
-      ]">
-        <accounts-header v-show="showNetworkMenu" :account-info="accountHeaderData" :network="currentNetwork"
-          :show-deposit="showDepositWindow" @update:init="init" @address-changed="onSelectedAddressChanged"
-          @select:subnetwork="onSelectedSubnetworkChange" @toggle:deposit="toggleDepositWindow" />
+      <div
+        v-show="!isLoading"
+        :class="[
+          isExpanded ? 'app__content-expand' : 'app__content-collapse',
+          'app__content',
+        ]"
+      >
+        <accounts-header
+          v-show="showNetworkMenu"
+          :account-info="accountHeaderData"
+          :network="currentNetwork"
+          :show-deposit="showDepositWindow"
+          @update:init="init"
+          @address-changed="onSelectedAddressChanged"
+          @select:subnetwork="onSelectedSubnetworkChange"
+          @toggle:deposit="toggleDepositWindow"
+        />
         <router-view v-slot="{ Component }" name="view">
           <transition :name="transitionName" mode="out-in">
-            <component :is="Component" :key="route.fullPath" :network="currentNetwork" :subnetwork="currentSubNetwork"
-              :account-info="accountHeaderData" @update:init="init" @toggle:deposit="toggleDepositWindow"
-              @open:buy-action="openBuyPage" />
+            <component
+              :is="Component"
+              :key="route.fullPath"
+              :network="currentNetwork"
+              :subnetwork="currentSubNetwork"
+              :account-info="accountHeaderData"
+              @update:init="init"
+              @toggle:deposit="toggleDepositWindow"
+              @open:buy-action="openBuyPage"
+            />
           </transition>
         </router-view>
 
-        <network-menu v-show="showNetworkMenu" :selected="route.params.id as string" :network="currentNetwork" />
+        <network-menu
+          v-show="showNetworkMenu"
+          :selected="route.params.id as string"
+          :network="currentNetwork"
+        />
       </div>
 
-      <add-network v-if="addNetworkShow" @close:popup="addNetworkShow = !addNetworkShow" />
-      <settings v-if="settingsShow" @close:popup="settingsShow = !settingsShow" @action:lock="lockAction" />
+      <add-network
+        v-if="addNetworkShow"
+        @close:popup="addNetworkShow = !addNetworkShow"
+      />
+      <settings
+        v-if="settingsShow"
+        @close:popup="settingsShow = !settingsShow"
+        @action:lock="lockAction"
+      />
       <modal-rate v-model="isRatePopupOpen" />
-      <modal-new-version v-if="updateShow" :current-version="currentVersion" :latest-version="latestVersion"
-        @close:popup="updateShow = !updateShow" />
-      <modal-updates v-if="updatesIsLoaded && showUpdatesDialog" :current-version="currentVersion"
-        :current-network="currentNetwork.name" @close:popup="setShowUpdatesDialog(false)" />
+      <modal-new-version
+        v-if="updateShow"
+        :current-version="currentVersion"
+        :latest-version="latestVersion"
+        @close:popup="updateShow = !updateShow"
+      />
+      <modal-updates
+        v-if="updatesIsLoaded && showUpdatesDialog"
+        :current-version="currentVersion"
+        :current-network="currentNetwork.name"
+        @close:popup="setShowUpdatesDialog(false)"
+      />
     </div>
   </div>
 </template>
@@ -181,8 +228,9 @@ const openBuyPage = () => {
       default:
         return `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
           accountHeaderData.value.selectedAccount!.address,
-        )}&network=${currentNetwork.value.name}&crypto=${currentNetwork.value.currencyName
-          }&platform=enkrypt`;
+        )}&network=${currentNetwork.value.name}&crypto=${
+          currentNetwork.value.currencyName
+        }&platform=enkrypt`;
     }
   })();
   Browser.tabs.create({ url: buyLink });
@@ -471,7 +519,8 @@ const lockAction = async () => {
 
 <style lang="less">
 @import './styles/theme.less';
-@import (css) url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
+@import (css)
+  url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
 
 body {
   margin: 0;
@@ -515,9 +564,12 @@ body {
     align-items: center;
     justify-content: center;
     position: relative;
-    background: radial-gradient(100% 50% at 100% 50%,
+    background: radial-gradient(
+        100% 50% at 100% 50%,
         rgba(250, 250, 250, 0.92) 0%,
-        rgba(250, 250, 250, 0.98) 100%) @primary;
+        rgba(250, 250, 250, 0.98) 100%
+      )
+      @primary;
 
     svg {
       width: 132px;
