@@ -5,30 +5,30 @@
  * If you extend this module, please check that the functions are working in both Node.js and the browser.
  */
 
-const KEY_SIZE_BYTES = 32
-const IV_SIZE_BYTES = 12
-const AUTH_TAG_SIZE_BYTES = 16
+const KEY_SIZE_BYTES = 32;
+const IV_SIZE_BYTES = 12;
+const AUTH_TAG_SIZE_BYTES = 16;
 
-const U8_SIZE_BITS = 8
+const U8_SIZE_BITS = 8;
 
 function isNode(): boolean {
   // inspired from secure-random.js
   // we check for process.pid to prevent browserify from tricking us
   return (
-    typeof process !== 'undefined' &&
-    typeof process.pid === 'number' &&
-    typeof process.versions?.node === 'string'
-  )
+    typeof process !== "undefined" &&
+    typeof process.pid === "number" &&
+    typeof process.versions?.node === "string"
+  );
 }
 
 async function pbkdf2Node(
   password: string,
   salt: Buffer,
-  opts: PBKDF2Options
+  opts: PBKDF2Options,
 ): Promise<Uint8Array> {
-  const { iterations, keyLength, hash } = opts
+  const { iterations, keyLength, hash } = opts;
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const crypto = require('crypto')
+  const crypto = require("crypto");
   return new Promise((resolve, reject) => {
     crypto.pbkdf2(
       password,
@@ -37,55 +37,55 @@ async function pbkdf2Node(
       keyLength,
       hash,
       (err, derivedKey) => {
-        if (err) reject(err)
-        else resolve(derivedKey)
-      }
-    )
-  })
+        if (err) reject(err);
+        else resolve(derivedKey);
+      },
+    );
+  });
 }
 
 async function pbkdf2Browser(
   password: string,
   salt: Buffer,
-  opts: PBKDF2Options
+  opts: PBKDF2Options,
 ): Promise<Uint8Array> {
-  const { iterations, keyLength, hash } = opts
+  const { iterations, keyLength, hash } = opts;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const crypto = window.crypto || (window as any).msCrypto
+  const crypto = window.crypto || (window as any).msCrypto;
 
-  if (!crypto) throw new Error('Your browser does not expose window.crypto.')
+  if (!crypto) throw new Error("Your browser does not expose window.crypto.");
 
   const keyMaterial = await crypto.subtle.importKey(
-    'raw',
+    "raw",
     new TextEncoder().encode(password),
-    { name: 'PBKDF2' },
+    { name: "PBKDF2" },
     false,
-    ['deriveBits', 'deriveKey']
-  )
+    ["deriveBits", "deriveKey"],
+  );
   const derivedKey = await crypto.subtle.deriveKey(
     {
-      name: 'PBKDF2',
+      name: "PBKDF2",
       salt: salt,
       iterations: iterations,
       hash: { name: hash },
     },
     keyMaterial,
-    { name: 'AES-GCM', length: keyLength * U8_SIZE_BITS },
+    { name: "AES-GCM", length: keyLength * U8_SIZE_BITS },
     false,
-    ['encrypt', 'decrypt']
-  )
+    ["encrypt", "decrypt"],
+  );
 
-  const exportedKey = await crypto.subtle.exportKey('raw', derivedKey)
-  const buffer = Buffer.from(exportedKey)
+  const exportedKey = await crypto.subtle.exportKey("raw", derivedKey);
+  const buffer = Buffer.from(exportedKey);
 
-  return buffer
+  return buffer;
 }
 
 export type PBKDF2Options = {
-  iterations: number
-  keyLength: number
-  hash: string
-}
+  iterations: number;
+  keyLength: number;
+  hash: string;
+};
 
 /**
  * Derives a cryptographic key using PBKDF2.
@@ -99,13 +99,13 @@ export type PBKDF2Options = {
 export async function pbkdf2(
   password: string,
   salt: Buffer,
-  opts: PBKDF2Options
+  opts: PBKDF2Options,
 ): Promise<Uint8Array> {
   if (isNode()) {
-    return pbkdf2Node(password, salt, opts)
+    return pbkdf2Node(password, salt, opts);
   }
 
-  return pbkdf2Browser(password, salt, opts)
+  return pbkdf2Browser(password, salt, opts);
 }
 
 /**
@@ -123,39 +123,39 @@ export async function pbkdf2(
 export async function aesGCMEncrypt(
   data: Uint8Array,
   key: Uint8Array,
-  iv: Uint8Array
+  iv: Uint8Array,
 ): Promise<Uint8Array> {
   if (key.length !== KEY_SIZE_BYTES) {
-    throw new Error(`key must be ${KEY_SIZE_BYTES} bytes`)
+    throw new Error(`key must be ${KEY_SIZE_BYTES} bytes`);
   }
   if (iv.length !== IV_SIZE_BYTES) {
-    throw new Error(`iv must be ${IV_SIZE_BYTES} bytes`)
+    throw new Error(`iv must be ${IV_SIZE_BYTES} bytes`);
   }
   if (isNode()) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const crypto = require('crypto')
-    const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
+    const crypto = require("crypto");
+    const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
     const encrypted = Buffer.concat([
       cipher.update(data),
       cipher.final(),
       cipher.getAuthTag(),
-    ])
-    return encrypted
+    ]);
+    return encrypted;
   }
 
   const keyData = await window.crypto.subtle.importKey(
-    'raw',
+    "raw",
     key,
-    { name: 'AES-GCM' },
+    { name: "AES-GCM" },
     false,
-    ['encrypt']
-  )
+    ["encrypt"],
+  );
   const encrypted = await window.crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv: iv },
+    { name: "AES-GCM", iv: iv },
     keyData,
-    data
-  )
-  return Buffer.from(encrypted)
+    data,
+  );
+  return Buffer.from(encrypted);
 }
 
 /**
@@ -176,42 +176,42 @@ export async function aesGCMEncrypt(
 export async function aesGCMDecrypt(
   encryptedData: Uint8Array,
   key: Uint8Array,
-  iv: Uint8Array
+  iv: Uint8Array,
 ): Promise<Uint8Array> {
   if (key.length !== KEY_SIZE_BYTES) {
-    throw new Error(`key must be ${KEY_SIZE_BYTES} bytes`)
+    throw new Error(`key must be ${KEY_SIZE_BYTES} bytes`);
   }
   if (iv.length !== IV_SIZE_BYTES) {
-    throw new Error(`iv must be ${IV_SIZE_BYTES} bytes`)
+    throw new Error(`iv must be ${IV_SIZE_BYTES} bytes`);
   }
   if (isNode()) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const crypto = require('crypto')
-    encryptedData = Buffer.from(encryptedData)
-    const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv)
+    const crypto = require("crypto");
+    encryptedData = Buffer.from(encryptedData);
+    const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv);
     decipher.setAuthTag(
-      encryptedData.slice(encryptedData.length - AUTH_TAG_SIZE_BYTES)
-    )
+      encryptedData.slice(encryptedData.length - AUTH_TAG_SIZE_BYTES),
+    );
     const decrypted = Buffer.concat([
       decipher.update(
-        encryptedData.slice(0, encryptedData.length - AUTH_TAG_SIZE_BYTES)
+        encryptedData.slice(0, encryptedData.length - AUTH_TAG_SIZE_BYTES),
       ),
       decipher.final(),
-    ])
-    return decrypted
+    ]);
+    return decrypted;
   }
 
   const keyData = await window.crypto.subtle.importKey(
-    'raw',
+    "raw",
     key,
-    { name: 'AES-GCM' },
+    { name: "AES-GCM" },
     false,
-    ['decrypt']
-  )
+    ["decrypt"],
+  );
   const decrypted = await window.crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv: iv },
+    { name: "AES-GCM", iv: iv },
     keyData,
-    encryptedData
-  )
-  return Buffer.from(decrypted)
+    encryptedData,
+  );
+  return Buffer.from(decrypted);
 }

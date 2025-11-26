@@ -16,21 +16,24 @@
     </p>
     <a
       class="blocked-page__more-info"
+      target="_blank"
       href="https://help.myetherwallet.com/en/articles/12897302-geographic-restrictions-for-mew"
       >More info</a
     >
-    <div class="blocked-page__divider-top"></div>
-    <div class="blocked-page__content">
-      <div class="blocked-page__content__header" @click="openUnlock">
-        <h4>View My Secret Recovery Phrase</h4>
-        <arrow-next />
+    <div v-if="isInitialized">
+      <div class="blocked-page__divider-top"></div>
+      <div class="blocked-page__content">
+        <div class="blocked-page__content__header" @click="openUnlock">
+          <h4>View My Secret Recovery Phrase</h4>
+          <arrow-next />
+        </div>
+        <p class="blocked-page__content__body">
+          Use this phrase to restore access to your funds in another wallet.
+          Don't show this to anyone
+        </p>
       </div>
-      <p class="blocked-page__content__body">
-        Use this phrase to restore access to your funds in another wallet. Don't
-        show this to anyone
-      </p>
+      <div class="blocked-page__divider-bottom"></div>
     </div>
-    <div class="blocked-page__divider-bottom"></div>
     <div class="blocked-page__footer">
       <div @click="supportAction">Contact support</div>
     </div>
@@ -71,6 +74,15 @@ import ModalForgot from '@action/views/modal-forgot/index.vue';
 import SettingsRecovery from '@action/views/settings/views/settings-recovery/index.vue';
 import { MnemonicWithExtraWord } from '@enkryptcom/types';
 import { ref } from 'vue';
+
+defineProps({
+  isInitialized: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
+});
 
 const supportAction = () => {
   window.open('mailto:support@myetherwallet.com', '_blank', 'noopener');
@@ -185,6 +197,7 @@ const closeForgot = () => {
       cursor: pointer;
     }
   }
+
   &__logo {
     margin-bottom: 24px;
   }
@@ -195,12 +208,14 @@ const closeForgot = () => {
     background: @darkBg;
     margin: 50px 0 20px;
   }
+
   &__divider-bottom {
     width: 100%;
     height: 1px;
     background: @darkBg;
     margin: 20px 0 50px;
   }
+
   &__content {
     &__header {
       display: flex;
@@ -213,6 +228,7 @@ const closeForgot = () => {
         height: 35px !important;
       }
     }
+
     &__body {
       font-style: normal;
       font-weight: 400;
@@ -257,6 +273,7 @@ const closeForgot = () => {
     margin: 0 0 16px 0;
     color: @primaryLabel;
   }
+
   &__more-info {
     font-style: normal;
     font-weight: 400;

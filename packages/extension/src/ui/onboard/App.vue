@@ -31,11 +31,25 @@ import ArrowBack from '@action/icons/common/arrow-back.vue';
 import ExtensionIcon from '@action/icons/tip/extension-icon.vue';
 import OnlineIcon from '@action/icons/tip/online-icon.vue';
 import PinIcon from '@action/icons/tip/pin-icon.vue';
+import { onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { isGeoRestricted } from '@/libs/utils/screening';
 
 const route = useRoute();
 const router = useRouter();
 
+onMounted(async () => {
+  isGeoRestricted().then(restricted => {
+    if (restricted) {
+      window.open(
+        'https://help.myetherwallet.com/en/articles/12897302-geographic-restrictions-for-mew',
+        '_blank',
+        'noopener',
+      );
+      window.close();
+    }
+  });
+});
 const isShowBackButton = () => {
   return (
     route.name &&

@@ -1,23 +1,43 @@
 <template>
   <div class="lock-screen__container">
-    <div v-show="!isForgot && !isLocked && !isUnlocking" class="lock-screen__wrap">
+    <div
+      v-show="!isForgot && !isLocked && !isUnlocking"
+      class="lock-screen__wrap"
+    >
       <logo-big class="lock-screen__logo" />
       <h4>Unlock with password</h4>
-      <lock-screen-password-input :is-error="isError" :value="password" @update:value="passwordChanged"
-        @keyup.enter="unlockAction" />
-      <base-button title="Unlock" :click="unlockAction" :disabled="isDisabled" />
+      <lock-screen-password-input
+        :is-error="isError"
+        :value="password"
+        @update:value="passwordChanged"
+        @keyup.enter="unlockAction"
+      />
+      <base-button
+        title="Unlock"
+        :click="unlockAction"
+        :disabled="isDisabled"
+      />
     </div>
 
     <div v-show="isUnlocking" class="lock-screen__unlocking">
       <swap-looking-animation />
     </div>
 
-    <lock-screen-forgot v-show="isForgot" :reset="resetAction" @toggle:forgot="toggleForgot" />
+    <lock-screen-forgot
+      v-show="isForgot"
+      :reset="resetAction"
+      @toggle:forgot="toggleForgot"
+    />
 
     <lock-screen-timer v-show="isLocked" :close="closeLockedAction" />
 
-    <base-button v-show="!isForgot && !isUnlocking" title="I forgot my password" :click="forgotAction"
-      :no-background="true" class="lock-screen__forgot" />
+    <base-button
+      v-show="!isForgot && !isUnlocking"
+      title="I forgot my password"
+      :click="forgotAction"
+      :no-background="true"
+      class="lock-screen__forgot"
+    />
   </div>
 </template>
 
@@ -103,9 +123,12 @@ const closeLockedAction = () => {
     left: 0;
     top: 0;
     z-index: 999;
-    background: radial-gradient(100% 50% at 100% 50%,
+    background: radial-gradient(
+        100% 50% at 100% 50%,
         rgba(250, 250, 250, 0.92) 0%,
-        rgba(250, 250, 250, 0.98) 100%) @primary;
+        rgba(250, 250, 250, 0.98) 100%
+      )
+      @primary;
     display: flex;
     flex-direction: row;
     align-items: center;

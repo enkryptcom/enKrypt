@@ -1,90 +1,43 @@
 <template>
   <div>
-    <div
-      :class="['app', 'restricted-container']"
-      v-if="foundRestrictedAddress || geoRestricted"
-    >
-      <restricted />
+    <div :class="['app', 'restricted-container', 'expanded']" v-if="foundRestrictedAddress || geoRestricted">
+      <restricted :isInitialized="isWalletInitialized" />
     </div>
     <div :class="[{ locked: isLocked }, 'app']" v-else>
-      <div
-        v-if="isLoading"
-        :class="['app__loading', isExpanded ? 'expanded' : 'collapsed']"
-      >
+      <div v-if="isLoading" :class="['app__loading', isExpanded ? 'expanded' : 'collapsed']">
         <swap-looking-animation />
       </div>
       <div v-show="!isLoading">
-        <app-menu
-          :active-network="currentNetwork"
-          @update:network="setNetwork"
-          @show:updates-dialog="setShowUpdatesDialog(true)"
-          @show:settings-dialog="settingsShow = true"
-          @show:other-networks-dialog="addNetworkShow = true"
-          @action:lock-enkrypt="lockAction"
-        />
+        <app-menu :active-network="currentNetwork" @update:network="setNetwork"
+          @show:updates-dialog="setShowUpdatesDialog(true)" @show:settings-dialog="settingsShow = true"
+          @show:other-networks-dialog="addNetworkShow = true" @action:lock-enkrypt="lockAction" />
       </div>
 
-      <div
-        v-show="!isLoading"
-        :class="[
-          isExpanded ? 'app__content-expand' : 'app__content-collapse',
-          'app__content',
-        ]"
-      >
-        <accounts-header
-          v-show="showNetworkMenu"
-          :account-info="accountHeaderData"
-          :network="currentNetwork"
-          :show-deposit="showDepositWindow"
-          @update:init="init"
-          @address-changed="onSelectedAddressChanged"
-          @select:subnetwork="onSelectedSubnetworkChange"
-          @toggle:deposit="toggleDepositWindow"
-        />
+      <div v-show="!isLoading" :class="[
+        isExpanded ? 'app__content-expand' : 'app__content-collapse',
+        'app__content',
+      ]">
+        <accounts-header v-show="showNetworkMenu" :account-info="accountHeaderData" :network="currentNetwork"
+          :show-deposit="showDepositWindow" @update:init="init" @address-changed="onSelectedAddressChanged"
+          @select:subnetwork="onSelectedSubnetworkChange" @toggle:deposit="toggleDepositWindow" />
         <router-view v-slot="{ Component }" name="view">
           <transition :name="transitionName" mode="out-in">
-            <component
-              :is="Component"
-              :key="route.fullPath"
-              :network="currentNetwork"
-              :subnetwork="currentSubNetwork"
-              :account-info="accountHeaderData"
-              @update:init="init"
-              @toggle:deposit="toggleDepositWindow"
-              @open:buy-action="openBuyPage"
-            />
+            <component :is="Component" :key="route.fullPath" :network="currentNetwork" :subnetwork="currentSubNetwork"
+              :account-info="accountHeaderData" @update:init="init" @toggle:deposit="toggleDepositWindow"
+              @open:buy-action="openBuyPage" />
           </transition>
         </router-view>
 
-        <network-menu
-          v-show="showNetworkMenu"
-          :selected="route.params.id as string"
-          :network="currentNetwork"
-        />
+        <network-menu v-show="showNetworkMenu" :selected="route.params.id as string" :network="currentNetwork" />
       </div>
 
-      <add-network
-        v-if="addNetworkShow"
-        @close:popup="addNetworkShow = !addNetworkShow"
-      />
-      <settings
-        v-if="settingsShow"
-        @close:popup="settingsShow = !settingsShow"
-        @action:lock="lockAction"
-      />
+      <add-network v-if="addNetworkShow" @close:popup="addNetworkShow = !addNetworkShow" />
+      <settings v-if="settingsShow" @close:popup="settingsShow = !settingsShow" @action:lock="lockAction" />
       <modal-rate v-model="isRatePopupOpen" />
-      <modal-new-version
-        v-if="updateShow"
-        :current-version="currentVersion"
-        :latest-version="latestVersion"
-        @close:popup="updateShow = !updateShow"
-      />
-      <modal-updates
-        v-if="updatesIsLoaded && showUpdatesDialog"
-        :current-version="currentVersion"
-        :current-network="currentNetwork.name"
-        @close:popup="setShowUpdatesDialog(false)"
-      />
+      <modal-new-version v-if="updateShow" :current-version="currentVersion" :latest-version="latestVersion"
+        @close:popup="updateShow = !updateShow" />
+      <modal-updates v-if="updatesIsLoaded && showUpdatesDialog" :current-version="currentVersion"
+        :current-network="currentNetwork.name" @close:popup="setShowUpdatesDialog(false)" />
     </div>
   </div>
 </template>
@@ -137,6 +90,7 @@ import BackupState from '@/libs/backup-state';
 import { useMenuStore } from './store/menu-store';
 import { useCurrencyStore, type Currency } from './views/settings/store';
 import { useRateStore } from './store/rate-store';
+import { isGeoRestricted, isWalletRestricted } from '@/libs/utils/screening';
 
 const domainState = new DomainState();
 const rateState = new RateState();
@@ -163,6 +117,7 @@ const isLoading = ref(true);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
 const geoRestricted = ref(false);
+const isWalletInitialized = ref(false);
 
 /** -------------------
  * Rate
@@ -226,9 +181,8 @@ const openBuyPage = () => {
       default:
         return `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
           accountHeaderData.value.selectedAccount!.address,
-        )}&network=${currentNetwork.value.name}&crypto=${
-          currentNetwork.value.currencyName
-        }&platform=enkrypt`;
+        )}&network=${currentNetwork.value.name}&crypto=${currentNetwork.value.currencyName
+          }&platform=enkrypt`;
     }
   })();
   Browser.tabs.create({ url: buyLink });
@@ -277,15 +231,10 @@ const fetchAndSetRates = async () => {
 };
 
 onMounted(async () => {
-  const { isRestricted } = await fetch(
-    'https://partners.mewapi.io/o/ipcomply',
-  ).then(res => {
-    return res.json();
-  });
-
-  geoRestricted.value = isRestricted;
-
+  geoRestricted.value = await isGeoRestricted();
   const isInitialized = await kr.isInitialized();
+  isWalletInitialized.value = isInitialized;
+  if (geoRestricted.value) return;
   if (isInitialized) {
     const _isLocked = await isKeyRingLocked();
     if (_isLocked) {
@@ -339,7 +288,6 @@ const setNetwork = async (network: BaseNetwork) => {
   const inactiveAccounts = await kr.getAccounts(
     getOtherSigners(network.signer),
   );
-  checkAddresses(activeAccounts, inactiveAccounts);
 
   const selectedAddress = await domainState.getSelectedAddress();
 
@@ -357,6 +305,9 @@ const setNetwork = async (network: BaseNetwork) => {
   };
 
   currentNetwork.value = network;
+
+  checkAddresses(activeAccounts);
+
   router.push({ name: 'assets', params: { id: network.name } });
   const tabId = await domainState.getCurrentTabId();
   const curSavedNetwork = await domainState.getSelectedNetWork();
@@ -445,20 +396,13 @@ const foundRestrictedAddress = ref(false);
 
 const checkAddresses = async (
   activeAccounts: AccountsHeaderData['activeAccounts'],
-  inactiveAccounts: AccountsHeaderData['inactiveAccounts'],
 ) => {
-  const accountsArray = [...activeAccounts, ...inactiveAccounts];
-  for (const account of accountsArray) {
-    if (foundRestrictedAddress.value) {
-      break;
-    }
-
-    const addressFetch = await fetch(
-      `https://partners.mewapi.io/o/walletscreen?address=${account.address}`,
-    );
-    const { isRestricted } = await addressFetch.json();
-    foundRestrictedAddress.value = isRestricted;
-  }
+  const promises: Promise<boolean>[] = activeAccounts.map(ac =>
+    isWalletRestricted(currentNetwork.value.displayAddress(ac.address)),
+  );
+  await Promise.all(promises).then(results => {
+    if (results.includes(true)) foundRestrictedAddress.value = true;
+  });
 };
 
 const onSelectedSubnetworkChange = async (id: string) => {
@@ -527,8 +471,7 @@ const lockAction = async () => {
 
 <style lang="less">
 @import './styles/theme.less';
-@import (css)
-  url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
+@import (css) url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
 
 body {
   margin: 0;
@@ -536,12 +479,15 @@ body {
   overflow: hidden;
   font-family: 'Roboto', sans-serif;
 }
+
 .collapsed {
   width: 516px;
 }
+
 .expanded {
   width: 800px;
 }
+
 .app {
   height: 600px;
   overflow: hidden;
@@ -569,12 +515,9 @@ body {
     align-items: center;
     justify-content: center;
     position: relative;
-    background: radial-gradient(
-        100% 50% at 100% 50%,
+    background: radial-gradient(100% 50% at 100% 50%,
         rgba(250, 250, 250, 0.92) 0%,
-        rgba(250, 250, 250, 0.98) 100%
-      )
-      @primary;
+        rgba(250, 250, 250, 0.98) 100%) @primary;
 
     svg {
       width: 132px;
@@ -587,14 +530,17 @@ body {
     width: 460px;
     height: 600px;
     position: relative;
+
     &-expand {
       padding-left: 340px;
     }
+
     &-collapse {
       padding-left: 56px;
     }
   }
 }
+
 .slide-left-enter-active,
 .slide-left-leave-active,
 .slide-right-enter-active,
@@ -604,11 +550,13 @@ body {
   transition-timing-function: cubic-bezier(0.55, 0, 0.1, 1);
   overflow: hidden;
 }
+
 .slide-left-enter,
 .slide-right-leave-active {
   opacity: 0;
   transform: translate(2em, 0);
 }
+
 .slide-left-leave-active,
 .slide-right-enter {
   opacity: 0;
@@ -616,7 +564,7 @@ body {
 }
 
 .restricted-container {
-  height: 100vh;
-  width: 100vw;
+  width: 800px;
+  height: 600px;
 }
 </style>

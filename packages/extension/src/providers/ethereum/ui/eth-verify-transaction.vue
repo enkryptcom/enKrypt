@@ -43,7 +43,10 @@
           </div>
         </div>
 
-        <div v-if="!isApproval && decodedTx" class="provider-verify-transaction__amount">
+        <div
+          v-if="!isApproval && decodedTx"
+          class="provider-verify-transaction__amount"
+        >
           <img :src="decodedTx?.tokenImage || network.icon" />
 
           <div class="provider-verify-transaction__amount-info">
@@ -92,12 +95,20 @@
         </div>
       </div>
 
-      <send-fee-select :in-swap="true" :selected="selectedFee" :fee="gasCostValues[selectedFee]"
-        @open-popup="toggleSelectFee" />
+      <send-fee-select
+        :in-swap="true"
+        :selected="selectedFee"
+        :fee="gasCostValues[selectedFee]"
+        @open-popup="toggleSelectFee"
+      />
 
       <div class="provider-verify-transaction__data">
-        <a class="provider-verify-transaction__data-link" :class="{ open: isOpenData }" @click="toggleData"><span>Show
-            data</span> <right-chevron /></a>
+        <a
+          class="provider-verify-transaction__data-link"
+          :class="{ open: isOpenData }"
+          @click="toggleData"
+          ><span>Show data</span> <right-chevron
+        /></a>
 
         <div v-show="isOpenData" class="provider-verify-transaction__data-text">
           <p>Data Hex: {{ decodedTx?.dataHex || '0x' }}</p>
@@ -106,16 +117,31 @@
       <p v-if="errorMsg != ''" class="provider-verify-transaction__error">
         {{ errorMsg }}
       </p>
-      <transaction-fee-view v-model="isOpenSelectFee" :fees="gasCostValues" :selected="selectedFee" :is-header="true"
-        is-popup @gas-type-changed="selectFee" />
+      <transaction-fee-view
+        v-model="isOpenSelectFee"
+        :fees="gasCostValues"
+        :selected="selectedFee"
+        :is-header="true"
+        is-popup
+        @gas-type-changed="selectFee"
+      />
     </template>
 
     <template #button-left>
-      <base-button title="Decline" :click="deny" :no-background="true" :disabled="isProcessing" />
+      <base-button
+        title="Decline"
+        :click="deny"
+        :no-background="true"
+        :disabled="isProcessing"
+      />
     </template>
 
     <template #button-right>
-      <base-button title="Send" :click="approve" :disabled="isProcessing || errorMsg != ''" />
+      <base-button
+        title="Send"
+        :click="approve"
+        :disabled="isProcessing || errorMsg != ''"
+      />
     </template>
   </common-popup>
 </template>
@@ -314,11 +340,11 @@ const approve = async () => {
             to: tx.to
               ? tx.to.toString()
               : bufferToHex(
-                generateAddress(
-                  tx.getSenderAddress().toBytes(),
-                  bigIntToBytes(tx.nonce),
+                  generateAddress(
+                    tx.getSenderAddress().toBytes(),
+                    bigIntToBytes(tx.nonce),
+                  ),
                 ),
-              ),
             isIncoming: tx.getSenderAddress().toString() === tx.to?.toString(),
             network: network.value.name,
             status: ActivityStatus.pending,
