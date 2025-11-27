@@ -10,50 +10,109 @@
         </div>
 
         <div class="swap__wrap">
-          <swap-token-amount-input v-if="fromToken" :value="fromAmount || ''" :token="fromToken" :autofocus="true"
-            :error-message="errors.inputAmount" @update:input-max="setMax" @toggle:select="toggleFromToken"
-            @update:value="inputAmountFrom" />
+          <swap-token-amount-input
+            v-if="fromToken"
+            :value="fromAmount || ''"
+            :token="fromToken"
+            :autofocus="true"
+            :error-message="errors.inputAmount"
+            @update:input-max="setMax"
+            @toggle:select="toggleFromToken"
+            @update:value="inputAmountFrom"
+          />
 
           <a class="swap__arrows"><swap-arrows /></a>
 
-          <swap-network-select v-if="toNetwork" :network="toNetwork" @toggle:select="toggleToNetwork" />
+          <swap-network-select
+            v-if="toNetwork"
+            :network="toNetwork"
+            @toggle:select="toggleToNetwork"
+          />
 
-          <swap-token-to-amount :token="toToken" :is-finding-rate="isFindingRate" :fast-list="trendingToTokens"
-            :total-tokens="toTokens.length - trendingToTokens.length" :amount="toAmount"
-            :no-providers="errors.noProviders" @update:select-asset="selectTokenTo" @toggle:select="toggleToToken" />
+          <swap-token-to-amount
+            :token="toToken"
+            :is-finding-rate="isFindingRate"
+            :fast-list="trendingToTokens"
+            :total-tokens="toTokens.length - trendingToTokens.length"
+            :amount="toAmount"
+            :no-providers="errors.noProviders"
+            @update:select-asset="selectTokenTo"
+            @toggle:select="toggleToToken"
+          />
 
-          <send-address-input ref="addressInput" :value="address" :is-valid-address="addressIsValid"
-            :network-name="toAddressInputMeta.networkName" :display-address="toAddressInputMeta.displayAddress"
-            :identicon="toAddressInputMeta.identicon" @update:input-address="inputAddress"
-            @toggle:show-contacts="toggleSelectContact" />
+          <send-address-input
+            ref="addressInput"
+            :value="address"
+            :is-valid-address="addressIsValid"
+            :network-name="toAddressInputMeta.networkName"
+            :display-address="toAddressInputMeta.displayAddress"
+            :identicon="toAddressInputMeta.identicon"
+            @update:input-address="inputAddress"
+            @toggle:show-contacts="toggleSelectContact"
+          />
 
-          <send-contacts-list :show-accounts="isOpenSelectContact" :accounts="toAccounts" :address="address"
-            :display-address="toAddressInputMeta.displayAddress" :identicon="toAddressInputMeta.identicon"
-            @selected:account="selectAccount" @update:paste-from-clipboard="addressInput.pasteFromClipboard()"
-            @close="toggleSelectContact" />
+          <send-contacts-list
+            :show-accounts="isOpenSelectContact"
+            :accounts="toAccounts"
+            :address="address"
+            :display-address="toAddressInputMeta.displayAddress"
+            :identicon="toAddressInputMeta.identicon"
+            @selected:account="selectAccount"
+            @update:paste-from-clipboard="addressInput.pasteFromClipboard()"
+            @close="toggleSelectContact"
+          />
         </div>
 
         <div class="swap__buttons">
           <div class="swap__buttons-cancel">
-            <base-button title="Cancel" :no-background="true" @click="router.go(-1)" />
+            <base-button
+              title="Cancel"
+              :no-background="true"
+              @click="router.go(-1)"
+            />
           </div>
           <div class="swap__buttons-send">
-            <base-button :title="sendButtonTitle" :click="sendAction" :disabled="isDisabled" />
+            <base-button
+              :title="sendButtonTitle"
+              :click="sendAction"
+              :disabled="isDisabled"
+            />
           </div>
         </div>
       </div>
     </div>
 
-    <network-select-list v-model="toNetworkOpen" :assets="toNetworks" @update:select-asset="selectToNetwork" />
+    <network-select-list
+      v-model="toNetworkOpen"
+      :assets="toNetworks"
+      @update:select-asset="selectToNetwork"
+    />
 
-    <assets-select-list v-model="fromSelectOpened" :assets="fromTokens" @update:select-asset="selectTokenFrom" />
+    <assets-select-list
+      v-model="fromSelectOpened"
+      :assets="fromTokens"
+      @update:select-asset="selectTokenFrom"
+    />
 
-    <assets-select-list v-model="toSelectOpened" :is-select-to-token="true" :assets="toTokens"
-      :is-loading="fetchingTokens" @update:select-asset="selectTokenTo" />
+    <assets-select-list
+      v-model="toSelectOpened"
+      :is-select-to-token="true"
+      :assets="toTokens"
+      :is-loading="fetchingTokens"
+      @update:select-asset="selectTokenTo"
+    />
 
-    <swap-looking v-show="isLooking" :loading-type="LoadingType" :close="toggleLooking" />
-    <swap-error-popup v-if="showSwapError" :error="swapError" :network-name="network.name_long"
-      :close="toggleSwapError" />
+    <swap-looking
+      v-show="isLooking"
+      :loading-type="LoadingType"
+      :close="toggleLooking"
+    />
+    <swap-error-popup
+      v-if="showSwapError"
+      :error="swapError"
+      :network-name="network.name_long"
+      :close="toggleSwapError"
+    />
   </div>
 </template>
 
@@ -112,7 +171,7 @@ import { Connection } from '@solana/web3.js';
 import { SwapType } from '@enkryptcom/swap/src/types';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const debug = (..._args: any[]) => { };
+const debug = (..._args: any[]) => {};
 // Use this debug instead to enable debug logging
 // const debug = console.debug.bind(console);
 
@@ -256,10 +315,10 @@ onMounted(async () => {
         if (props.network.name === net) {
           thisNetwork =
             swapToTokens.all[net as unknown as SupportedNetworkName].length ===
-              1
+            1
               ? getNetworkInfoByName(
-                NetworkNames.Ethereum as unknown as SupportedNetworkName,
-              )
+                  NetworkNames.Ethereum as unknown as SupportedNetworkName,
+                )
               : netInfo;
         }
         toNetworks.value.push(netInfo);
@@ -550,7 +609,7 @@ const updateQuote = () => {
   } catch (err) {
     console.warn(
       `Failed to convert amount to raw: ${err}` +
-      `  fromAmount.value=${fromAmount.value} (${typeof fromAmount.value})`,
+        `  fromAmount.value=${fromAmount.value} (${typeof fromAmount.value})`,
     );
     throw err;
   }
@@ -737,8 +796,8 @@ const sendAction = async () => {
   if (!fromToken.value!.cgId) {
     console.warn(
       `Source token ${fromToken.value!.symbol} (${fromToken.value!.name})` +
-      ` ${fromToken.value!.address} has no CoinGecko ID, setting price` +
-      ` to 0`,
+        ` ${fromToken.value!.address} has no CoinGecko ID, setting price` +
+        ` to 0`,
     );
     fromPrice = 0;
   } else {
@@ -750,8 +809,8 @@ const sendAction = async () => {
   if (!toToken.value!.cgId) {
     console.warn(
       `Destination token ${toToken.value!.symbol} (${toToken.value!.name})` +
-      ` ${toToken.value!.address} has no CoinGecko ID, setting price` +
-      ` to 0`,
+        ` ${toToken.value!.address} has no CoinGecko ID, setting price` +
+        ` to 0`,
     );
     toPrice = 0;
   } else {
