@@ -961,7 +961,7 @@ const sendAction = async () => {
     position: absolute;
     left: 0;
     bottom: 0;
-    padding: 32px;
+    padding: 28px;
     display: flex;
     justify-content: space-between;
     align-items: center;

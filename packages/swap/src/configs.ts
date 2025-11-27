@@ -1,11 +1,62 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { numberToHex } from "web3-utils";
-import { ProviderName, SupportedNetworkName, WalletIdentifier } from "./types";
+import {
+  ProviderName,
+  ProviderNameProper,
+  SupportedNetworkName,
+  WalletIdentifier,
+} from "./types";
+
+import oneInchIcon from "./common/icons/1inch-logo.png";
+import paraswapIcon from "./common/icons/paraswap-logo.png";
+import zeroxIcon from "./common/icons/0x-logo.png";
+import changellyIcon from "./common/icons/changelly-logo.png";
+import jupiterIcon from "./common/icons/jupiter-logo.png";
+import okxIcon from "./common/icons/okx-logo.png";
+import rangoIcon from "./common/icons/rango-logo.png";
 
 export type SwapFeeConfig = {
   referrer: string;
   /** Percentage fee (0 to 1) */
   fee: number;
+};
+
+const PROVIDER_INFO: Record<
+  ProviderName,
+  { name: ProviderNameProper; icon: any }
+> = {
+  [ProviderName.oneInch]: {
+    name: ProviderNameProper.oneInch,
+    icon: oneInchIcon,
+  },
+  [ProviderName.oneInchFusion]: {
+    name: ProviderNameProper.oneInchFusion,
+    icon: oneInchIcon,
+  },
+  [ProviderName.paraswap]: {
+    name: ProviderNameProper.paraswap,
+    icon: paraswapIcon,
+  },
+  [ProviderName.zerox]: {
+    name: ProviderNameProper.zerox,
+    icon: zeroxIcon,
+  },
+  [ProviderName.rango]: {
+    name: ProviderNameProper.rango,
+    icon: rangoIcon,
+  },
+  [ProviderName.jupiter]: {
+    name: ProviderNameProper.jupiter,
+    icon: jupiterIcon,
+  },
+  [ProviderName.okx]: {
+    name: ProviderNameProper.okx,
+    icon: okxIcon,
+  },
+  [ProviderName.changelly]: {
+    name: ProviderNameProper.changelly,
+    icon: changellyIcon,
+  },
 };
 
 const FEE_CONFIGS: Partial<
@@ -146,4 +197,5 @@ export {
   CHANGELLY_LIST,
   TOP_TOKEN_INFO_LIST,
   DEFAULT_SLIPPAGE,
+  PROVIDER_INFO,
 };

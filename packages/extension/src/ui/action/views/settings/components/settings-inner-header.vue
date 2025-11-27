@@ -1,6 +1,6 @@
 <template>
   <div class="settings__inner-header">
-    <a class="settings__back" @click="$emit('window:back')">
+    <a class="settings__back" @click="$emit('window:back')" v-if="hasBack">
       <arrow-back />
     </a>
     <h2 v-show="isGeneral">General</h2>
@@ -24,6 +24,10 @@ defineEmits<{
   (e: 'window:back'): void;
 }>();
 defineProps({
+  hasBack: {
+    type: Boolean,
+    default: true,
+  },
   isGeneral: {
     type: Boolean,
     default: false,

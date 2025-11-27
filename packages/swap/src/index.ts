@@ -2,7 +2,7 @@ import { merge } from "lodash";
 import EventEmitter from "eventemitter3";
 import type Web3Eth from "web3-eth";
 import type { Connection as Web3Solana } from "@solana/web3.js";
-import { TOKEN_LISTS, TOP_TOKEN_INFO_LIST } from "./configs";
+import { TOKEN_LISTS, TOP_TOKEN_INFO_LIST, PROVIDER_INFO } from "./configs";
 import OneInch from "./providers/oneInch";
 import OneInchFusion from "./providers/oneInchFusion";
 import Paraswap from "./providers/paraswap";
@@ -277,6 +277,7 @@ export {
   StatusOptionsResponse,
   StatusOptions,
   ToTokenType,
+  PROVIDER_INFO,
 };
 
 export default Swap;
