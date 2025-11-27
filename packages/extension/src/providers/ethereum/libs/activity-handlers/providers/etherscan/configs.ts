@@ -57,7 +57,6 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Linea]: 'https://api.lineascan.build/api?',
   [NetworkNames.MantaPacific]: 'https://pacific-explorer.manta.network/api?',
   [NetworkNames.Mode]: 'https://explorer.mode.network/api?',
-  [NetworkNames.ProofOfPlayApex]: 'https://explorer.apex.proofofplay.com/api?',
   [NetworkNames.Scroll]: 'https://api.scrollscan.com/api?',
   [NetworkNames.Fraxtal]: 'https://api.etherscan.io/v2/api?chainid=252&',
   [NetworkNames.Coti]: 'https://mainnet.cotiscan.io/api?',

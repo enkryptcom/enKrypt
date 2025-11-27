@@ -108,10 +108,12 @@ const closeLockedAction = () => {
 
 <style lang="less" scoped>
 @import '@action/styles/theme.less';
+
 .lock-screen {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
+
   &__container {
     height: 600px;
     width: 100%;
@@ -132,11 +134,13 @@ const closeLockedAction = () => {
     align-items: center;
     justify-content: center;
   }
+
   &__wrap {
     width: 320px;
     height: auto;
     box-sizing: border-box;
     position: relative;
+
     h4 {
       font-style: normal;
       font-weight: 700;
@@ -146,6 +150,7 @@ const closeLockedAction = () => {
       margin: 0 0 8px 0;
     }
   }
+
   &__unlocking {
     width: 300px;
     height: 300px;
@@ -161,9 +166,11 @@ const closeLockedAction = () => {
       z-index: 2;
     }
   }
+
   &__logo {
     margin-bottom: 24px;
   }
+
   &__forgot {
     position: absolute;
     width: 320px;

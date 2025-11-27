@@ -28,6 +28,7 @@ import {
 } from './internal';
 import { handlePersistentEvents } from './external';
 import SettingsState from '../settings-state';
+import { isGeoRestricted } from '../utils/screening';
 
 class BackgroundHandler {
   #keyring: KeyRingBase;
@@ -36,6 +37,7 @@ class BackgroundHandler {
   #persistentEvents: PersistentEvents;
   #domainState: DomainState;
   #settingsState: SettingsState;
+  #geoRestricted: boolean | undefined;
 
   constructor() {
     this.#keyring = new KeyRingBase();
@@ -51,6 +53,10 @@ class BackgroundHandler {
       [ProviderName.massa]: {},
     };
     this.#providers = Providers;
+    this.#geoRestricted = undefined;
+    isGeoRestricted().then(restricted => {
+      this.#geoRestricted = restricted;
+    });
   }
   async init(): Promise<void> {
     await handlePersistentEvents.bind(this)();
@@ -83,6 +89,9 @@ class BackgroundHandler {
         method === InternalMethods.newWindowUnload
       ) {
         this.#persistentEvents.deleteEvents(_tabid);
+        isGeoRestricted().then(restricted => {
+          this.#geoRestricted = restricted;
+        });
         return {
           result: JSON.stringify(true),
         };
@@ -95,6 +104,15 @@ class BackgroundHandler {
       }
       return {
         error: JSON.stringify(getCustomError('Enkrypt: not implemented')),
+      };
+    }
+    if (this.#geoRestricted !== undefined && this.#geoRestricted) {
+      return {
+        error: JSON.stringify(
+          getCustomError(
+            'Enkrypt: Geo restricted https://www.myetherwallet.com/blocked',
+          ),
+        ),
       };
     }
     const tabInfo = TabInfo(await Browser.tabs.get(_tabid));

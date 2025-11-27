@@ -10,7 +10,6 @@ import okcNode from './okc';
 import shidenEvmNode from './sdn';
 import astarEvmNode from './astr';
 import optimismNode from './op';
-import cantoNode from './canto';
 import rootstockNode from './rsk';
 import rootstockTestnetNode from './rsk-testnet';
 import edgeEvmNode from './edg';
@@ -41,7 +40,6 @@ import telosNode from './tlos';
 import blastNode from './blast';
 import sankoNode from './dmt';
 import degenNode from './degen';
-import zcdNode from './zcd';
 import immutableZkevmNode from './immutable-zkevm';
 import rariNode from './rari';
 import formaNode from './forma';
@@ -52,7 +50,6 @@ import mantaPacificNode from './manta-pacific';
 import modeNode from './mode';
 import opbnbNode from './op-bnb';
 import palmNode from './palm';
-import proofOfPlayApexNode from './pop-apex';
 import scrollNode from './scroll';
 import cotiTestnetNode from './coti-testnet';
 import hoodiNode from './hoodi';
@@ -74,6 +71,8 @@ import conflux from './conflux';
 import hemi from './hemi';
 import coredao from './coredao';
 import appLayerTestnet from './applayer-testnet';
+import nibiru from './nibiru';
+import nibiruTestnet from './nibiru-testnet';
 // import tac from './tac'; waiting for RPC fix
 
 export default {
@@ -90,7 +89,6 @@ export default {
   shidenEvm: shidenEvmNode,
   astarEvm: astarEvmNode,
   op: optimismNode,
-  canto: cantoNode,
   rootstock: rootstockNode,
   rootstockTestnet: rootstockTestnetNode,
   edgeEvm: edgeEvmNode,
@@ -126,7 +124,6 @@ export default {
   blast: blastNode,
   sanko: sankoNode,
   degen: degenNode,
-  zcd: zcdNode,
   immutableZkevm: immutableZkevmNode,
   rari: rariNode,
   forma: formaNode,
@@ -137,7 +134,6 @@ export default {
   mode: modeNode,
   opbnb: opbnbNode,
   palm: palmNode,
-  popApex: proofOfPlayApexNode,
   scroll: scrollNode,
   cotiTestnetNode: cotiTestnetNode,
   hoodi: hoodiNode,
@@ -159,6 +155,8 @@ export default {
   conflux: conflux,
   hemi: hemi,
   coredao: coredao,
+  nibiru: nibiru,
+  nibiruTestnet: nibiruTestnet,
   appLayerTestnet: appLayerTestnet,
   // tac: tac, waiting for RPC fix
 };

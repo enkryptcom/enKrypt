@@ -1,6 +1,10 @@
 <template>
   <div class="settings__recovery-phrase">
-    <settings-inner-header v-bind="$attrs" :is-phrase="true" />
+    <settings-inner-header
+      v-bind="$attrs"
+      :is-phrase="true"
+      :has-back="hasBack"
+    />
 
     <div class="settings__recovery-phrase-wrap">
       <p class="warning">
@@ -43,6 +47,10 @@ import { MnemonicWithExtraWord } from '@enkryptcom/types';
 import { computed, PropType } from 'vue';
 
 const props = defineProps({
+  hasBack: {
+    type: Boolean,
+    default: true,
+  },
   mnemonic: {
     type: Object as PropType<MnemonicWithExtraWord>,
     default: () => ({ mnemonic: '', extraWord: '' }),
