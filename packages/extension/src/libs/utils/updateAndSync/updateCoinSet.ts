@@ -61,14 +61,13 @@ const getMyCoinHashes = async (): Promise<Set<string>> => {
     if (!Array.isArray(myCoins)) {
       return new Set();
     }
-    const hashes = new Set(
+    return new Set(
       myCoins
         .map(entry => entry?.coin?.[0])
         .filter(
           (hash): hash is string => typeof hash === 'string' && hash.length > 0,
         ),
     );
-    return hashes;
   } catch (error) {
     console.warn(
       'updateCoinSet:getMyCoinHashes',
@@ -85,13 +84,8 @@ const fetchNewCoinsForSet = async (
   localSet: StoredAnonymitySet | undefined,
 ): Promise<{ coins: string[][]; isFullReplacement: boolean }> => {
   const localCoinsCount = localSet?.coins?.length ?? 0;
-  console.log(
-    '[updateCoinSet] fetchNewCoinsForSet:',
-    { setId, blockHash: meta.blockHash, metaSize: meta.size, localCoinsCount },
-  );
 
-  if (!localSet || meta.size <= localCoinsCount) {
-    console.log('[updateCoinSet] fetchNewCoinsForSet: performing full fetch');
+  if (!localSet || meta.size <= localCoinsCount + 1) {
     const [firstChunk, secondChunk] = await Promise.all([
       wallet.fetchAnonymitySetSector(
         setId,
@@ -110,7 +104,6 @@ const fetchNewCoinsForSet = async (
     return { coins, isFullReplacement: true };
   }
 
-  console.log('[updateCoinSet] fetchNewCoinsForSet: performing incremental fetch from', localCoinsCount);
   const sector = await wallet.fetchAnonymitySetSector(
     setId,
     meta.blockHash,
@@ -119,129 +112,81 @@ const fetchNewCoinsForSet = async (
   );
 
   const coins = sector.coins ?? [];
-  console.log('[updateCoinSet] fetchNewCoinsForSet: fetched incremental coins count =', coins.length);
   return { coins, isFullReplacement: false };
 };
 
 export const syncCoinSetsOnce = async (): Promise<CoinSetUpdateResult[]> => {
-  console.log('[updateCoinSet] syncCoinSetsOnce: start');
   const [remoteMetas, localSets, myCoinHashes] = await Promise.all([
     wallet.getAllSparkAnonymitySetMeta(),
     getLocalSets(),
     getMyCoinHashes(),
   ]);
 
-  console.log(
-    '[updateCoinSet] syncCoinSetsOnce: remoteMetas length =',
-    remoteMetas,
-    ', localSets length =',
-    localSets,
-    ', myCoinHashes size =',
-    myCoinHashes,
-  );
-
   if (!Array.isArray(remoteMetas) || remoteMetas.length === 0) {
-    console.warn('[updateCoinSet] No remote metas received.');
     return [];
   }
 
-  const updatesList = await Promise.all(remoteMetas.map(async (remoteMeta, index) => {
-    const setId = index + 1;
-    const localSet = localSets[index];
-    console.log(
-      '[updateCoinSet] syncCoinSetsOnce: iterating remoteMetas index =',
-      index,
-      'setId =',
-      setId,
-    );
+  const updatesList = await Promise.all(
+    remoteMetas.map(async (remoteMeta, index) => {
+      const setId = index + 1;
+      const localSet = localSets[index];
 
-    console.log('[updateCoinSet] syncCoinSetsOnce: processing setId =', setId);
+      const hasLocalSet = Boolean(localSet);
+      const localCoinCount = localSet?.coins?.length ?? 0;
 
-    const hasLocalSet = Boolean(localSet);
-    const localCoinCount = localSet?.coins?.length ?? 0;
+      if (hasLocalSet) {
+        const hashesMatch = remoteMeta.setHash === localSet!.setHash;
+        const sizesMatch = remoteMeta.size === localCoinCount;
 
-    if (hasLocalSet) {
-      const hashesMatch = remoteMeta.setHash === localSet!.setHash;
-      const sizesMatch = remoteMeta.size === localCoinCount;
-      console.log(
-        '[updateCoinSet] syncCoinSetsOnce: hashesMatch =',
-        hashesMatch,
-        ', sizesMatch =',
-        sizesMatch,
+        if (hashesMatch && sizesMatch) {
+          return null;
+        }
+      }
+
+      const { coins: newCoins, isFullReplacement } = await fetchNewCoinsForSet(
+        setId,
+        remoteMeta,
+        localSet,
       );
 
-      if (hashesMatch && sizesMatch) {
-        console.log('[updateCoinSet] syncCoinSetsOnce: skipping (no changes)');
+      if (!newCoins.length) {
         return null;
       }
-    }
 
-    const { coins: newCoins, isFullReplacement } = await fetchNewCoinsForSet(
-      setId,
-      remoteMeta,
-      localSet,
-    );
+      const updatedCoinsSet = differenceSets(
+        new Set(localSets?.[index]?.coins ?? []),
+        new Set(newCoins),
+      );
+      localSets[index] = {
+        blockHash: remoteMeta.blockHash,
+        setHash: remoteMeta.setHash,
+        coins: Array.from(updatedCoinsSet),
+      };
 
-    console.log(
-      '[updateCoinSet] syncCoinSetsOnce: newCoins.length =',
-      newCoins.length,
-    );
+      if (!localSets[index] || isFullReplacement) {
+        await db.saveData(DB_DATA_KEYS.sets, localSets);
+      } else {
+        await db.appendSetData(DB_DATA_KEYS.sets, index, {
+          ...localSets[index],
+        });
+      }
 
-    if (!newCoins.length) {
-      console.log('[updateCoinSet] syncCoinSetsOnce: skipping (no new coins)');
-      return null;
-    }
-
-    const updatedCoinsSet = differenceSets(
-      new Set(localSets?.[index]?.coins ?? []),
-      new Set(newCoins),
-    );
-    localSets[index] = {
-      blockHash: remoteMeta.blockHash,
-      setHash: remoteMeta.setHash,
-      coins: [...updatedCoinsSet.values()],
-    };
-
-    if (!localSets[index] || isFullReplacement) {
-      console.log(
-        '[updateCoinSet] syncCoinSetsOnce: saving full replacement for index =',
-        index,
+      const matchedCoins = newCoins.filter(coin =>
+        myCoinHashes.has(coin?.[0] ?? ''),
       );
 
-      await db.saveData(DB_DATA_KEYS.sets, localSets);
-    } else {
-      console.log(
-        '[updateCoinSet] syncCoinSetsOnce: appending new sector data for index =',
-        index,
-      );
-
-      await db.appendSetData(DB_DATA_KEYS.sets, index, {
-        ...localSets[index],
-      });
-    }
-
-    const matchedCoins = newCoins.filter(coin =>
-      myCoinHashes.has(coin?.[0] ?? ''),
-    );
-
-    return {
-      setId,
-      blockHash: remoteMeta.blockHash,
-      setHash: remoteMeta.setHash,
-      newCoins,
-      containsMyCoins: matchedCoins.length > 0,
-      matchedCoins,
-    };
-  }))
-
-  // TODO: (V) check , in some cases the length is one , and all coins are cleared
-  const filtered = updatesList.filter(Boolean) as CoinSetUpdateResult[];
-  console.log(
-    '[updateCoinSet] syncCoinSetsOnce COMPLETED → updates =',
-    filtered.length,
+      return {
+        setId,
+        blockHash: remoteMeta.blockHash,
+        setHash: remoteMeta.setHash,
+        newCoins,
+        containsMyCoins: matchedCoins.length > 0,
+        matchedCoins,
+      };
+    }),
   );
 
-  return filtered;
+  return updatesList.filter(Boolean) as CoinSetUpdateResult[];
 };
 
 export const startCoinSetSync = (options?: CoinSetSyncOptions) => {
@@ -260,13 +205,11 @@ export const startCoinSetSync = (options?: CoinSetSyncOptions) => {
 
   const scheduleNext = () => {
     if (stopped) return;
-    console.log('[updateCoinSet] startCoinSetSync: scheduling next run in', intervalMs, 'ms');
     timer = setTimeout(run, intervalMs);
   };
 
   const run = async () => {
     if (isRunning) {
-      console.log('[updateCoinSet] startCoinSetSync: run already in progress, scheduling next');
       scheduleNext();
       return;
     }
@@ -302,7 +245,5 @@ export const startCoinSetSync = (options?: CoinSetSyncOptions) => {
       clearTimeout(timer);
       timer = null;
     }
-    console.log('[updateCoinSet] startCoinSetSync stopped:', stopped);
   };
 };
-

@@ -69,7 +69,6 @@
             @action:generate-new-spark="generateNewSparkAddress"
             @open:buy-action="openBuyPage"
             @update:spark-state-changed="getSparkAccountState"
-            @update:sparkBalanceChanged="updateSparkBalance"
           />
         </transition>
       </router-view>
@@ -139,7 +138,6 @@ import { getLatestEnkryptVersion } from '@action/utils/browser';
 import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import { fromBase } from '@enkryptcom/utils';
 import { onClickOutside } from '@vueuse/core';
-import BigNumber from 'bignumber.js';
 import { gt as semverGT } from 'semver';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -159,9 +157,7 @@ import ModalNewVersion from './views/modal-new-version/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
 import { intersectSets } from '@action/utils/set-utils';
-import { startCoinSetSync } from '@/libs/utils/updateAndSync/updateCoinSet';
-import { startTagSetSync } from '@/libs/utils/updateAndSync/updateTagsSet';
-import { useSynchronizeSparkState } from '@action/composables/synchronize-spark-state.ts';
+import { useSynchronizeSparkState } from '@action/composables/synchronize-spark-state';
 
 const wallet = new PublicFiroWallet();
 const db = new IndexedDBHelper();
@@ -201,7 +197,21 @@ const isSyncing = ref(false);
 const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
 
-useSynchronizeSparkState(currentNetwork);
+useSynchronizeSparkState(currentNetwork, sparkBalance => {
+  if (sparkBalance && accountHeaderData.value.sparkAccount) {
+    console.log('UPDATING BALANCE');
+
+    accountHeaderData.value = {
+      ...accountHeaderData.value,
+      sparkAccount: {
+        ...(accountHeaderData.value.sparkAccount ?? {}),
+        sparkBalance: {
+          availableBalance: sparkBalance,
+        },
+      },
+    };
+  }
+});
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();
@@ -263,92 +273,6 @@ const init = async () => {
   }
   await setActiveNetworks();
   isLoading.value = false;
-};
-
-const synchronizeWorker = () => {
-  const worker = new Worker(
-    new URL('./workers/sparkCoinInfoWorker.ts', import.meta.url),
-    { type: 'module' },
-  );
-
-  console.log('%c[synchronizeWorker] Worker initialized', 'color: green');
-
-  worker.postMessage('');
-
-  console.log('%c[synchronizeWorker] Post message', 'color: green');
-  worker.onmessage = ({ data }) => {
-    console.log(
-      '%c[synchronizeWorker] Worker onmessage data:',
-      'color: green',
-      data,
-    );
-    const balance = data.reduce((a: bigint, c: { coin: { value: bigint } }) => {
-      console.log('worker response:', c);
-      if (typeof c.coin.value !== 'bigint') {
-        console.warn('Invalid value in worker response:', c);
-        return a;
-      }
-      a += c.coin.value;
-      return a;
-    }, 0n);
-    const sparkBalance = new BigNumber(balance).toString();
-    db.saveData('sparkBalance', sparkBalance);
-    updateSparkBalance(currentNetwork.value).then(async () => {
-      await db.saveData('setLoadingStatus', 'idle');
-      isSyncing.value = false;
-    });
-  };
-};
-const synchronize2 = async () => {
-  try {
-    const networkName = currentNetwork.value.name;
-
-    if (networkName !== NetworkNames.Firo) return;
-
-    startCoinSetSync({
-      onComplete: () => {
-        console.log('%s coin set sync completed', 'color: red', networkName);
-        synchronizeWorker();
-      },
-    });
-    startTagSetSync();
-  } catch (error) {
-    console.log('syncing error', error);
-  }
-
-  // if (!db.db) return;
-  //   // =====>>> start tags handling <<<======
-
-  // console.log(db);
-
-  // const usedCoinsTagsLength = (await db.getLengthOf('usedCoinsTags')) || 0;
-  // const updatedCoinsTags = await wallet
-  //   .getUsedSparkCoinsTags(usedCoinsTagsLength - 1)
-  //   .finally(() => {
-  //     console.log(
-  //       '%c Fetched used coins tags',
-  //       'color: #00FF00; font-weight: bold; font-size: 24px;',
-  //     );
-  //   });
-  //
-  // console.log('usedCoinsTags ->>>>>>><<<<<<<<<--', updatedCoinsTags);
-  //
-  // await db.appendData('usedCoinsTags', updatedCoinsTags.tags);
-
-  // const usedCoinsTags = await db.readData<{ tags: string[] }>('usedCoinsTags');
-  //
-  // const coinsTagsSet = new Set(usedCoinsTags?.tags ?? []);
-  // const myCoins = await db.readData<{ tag: string }[]>('myCoins');
-  // const myCoinsTagsSet = new Set((myCoins ?? []).map(coin => coin.tag));
-  //
-  // const usedMyCoinsTagsSet = intersectSets(coinsTagsSet, myCoinsTagsSet);
-  //
-  // usedMyCoinsTagsSet.forEach(tag => {
-  //   db.markCoinsAsUsed(tag);
-  // });
-  // console.log(usedMyCoinsTagsSet);
-
-  // =====>>> end tags handling <<<======
 };
 
 const testIntersect = async () => {
@@ -420,27 +344,6 @@ const updateGradient = (newGradient: string) => {
   if (appMenuRef.value)
     (appMenuRef.value as HTMLElement).style.background =
       `radial-gradient(137.35% 97% at 100% 50%, rgba(250, 250, 250, 0.94) 0%, rgba(250, 250, 250, 0.96) 28.91%, rgba(250, 250, 250, 0.98) 100%), linear-gradient(180deg, ${newGradient} 80%, #684CFF 100%)`;
-};
-
-const updateSparkBalance = async (network: BaseNetwork) => {
-  if (network.name === NetworkNames.Firo) {
-    // TODO:(N) get balance via checking myCoins in db and remove balance from indexedDB
-    const sparkBalance = await db.readData<string>('sparkBalance');
-
-    if (sparkBalance && accountHeaderData.value.sparkAccount) {
-      console.log('UPDATING BALANCE');
-
-      accountHeaderData.value = {
-        ...accountHeaderData.value,
-        sparkAccount: {
-          ...(accountHeaderData.value.sparkAccount ?? {}),
-          sparkBalance: {
-            availableBalance: sparkBalance,
-          },
-        },
-      };
-    }
-  }
 };
 
 const generateNewSparkAddress = async () => {
@@ -585,7 +488,6 @@ const setNetwork = async (network: BaseNetwork) => {
   let sparkAccount: SparkAccount | null = null;
 
   if (network.name === NetworkNames.Firo) {
-    // await synchronize();
     if (accountHeaderData.value.selectedAccount) {
       const sparkAccountResponse = await getSparkState();
 

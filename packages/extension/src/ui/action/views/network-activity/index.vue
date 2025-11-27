@@ -15,7 +15,6 @@
           :network="props.network as BitcoinNetwork"
           :spark-account="props.accountInfo.sparkAccount"
           @update:spark-state="updateSparkState"
-          @update:spark-balance="updateSparkBalance"
         />
 
         <network-activity-action
@@ -107,7 +106,6 @@ const props = defineProps({
 
 const emits = defineEmits<{
   (e: 'update:spark-state-changed', network: BaseNetwork): void;
-  (e: 'update:sparkBalanceChanged', network: BaseNetwork): void;
 }>();
 
 const { cryptoAmount, fiatAmount } = accountInfoComposable(
@@ -175,10 +173,6 @@ const updateAssets = () => {
 const updateSparkState = (network: BaseNetwork) => {
   updateAssets();
   emits('update:spark-state-changed', network);
-};
-
-const updateSparkBalance = (network: BaseNetwork) => {
-  emits('update:sparkBalanceChanged', network);
 };
 
 const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {

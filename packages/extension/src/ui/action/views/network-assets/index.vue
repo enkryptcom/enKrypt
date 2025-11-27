@@ -16,7 +16,6 @@
             :account-info="props.accountInfo"
             :spark-account="props.accountInfo.sparkAccount"
             @update:spark-state="updateSparkState"
-            @update:spark-balance="updateSparkBalance"
           />
 
           <network-activity-action v-bind="$attrs" />
@@ -109,7 +108,6 @@ const isLoading = ref(false);
 
 const emits = defineEmits<{
   (e: 'update:spark-state-changed', network: BaseNetwork): void;
-  (e: 'update:sparkBalanceChanged', network: BaseNetwork): void;
 }>();
 
 const { cryptoAmount, fiatAmount } = accountInfoComposable(
@@ -117,10 +115,6 @@ const { cryptoAmount, fiatAmount } = accountInfoComposable(
   toRef(props, 'accountInfo'),
 );
 const selected: string = route.params.id as string;
-
-const updateSparkBalance = (network: BaseNetwork) => {
-  emits('update:sparkBalanceChanged', network);
-};
 
 const updateAssets = () => {
   isLoading.value = true;
