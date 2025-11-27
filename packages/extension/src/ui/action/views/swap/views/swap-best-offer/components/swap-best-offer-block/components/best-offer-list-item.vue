@@ -1,7 +1,19 @@
 <template>
   <a class="best-offer-list-item" @click="select">
+    <div>
+      <img
+        v-if="PROVIDER_INFO[props.provider]"
+        :src="PROVIDER_INFO[props.provider].icon"
+      />
+    </div>
     <div class="best-offer-list-item__info">
-      <p>Offer {{ swapNumber }}</p>
+      <p>
+        {{
+          props.provider
+            ? PROVIDER_INFO[props.provider].name
+            : 'Unknown Provider'
+        }}
+      </p>
       <h5>{{ amount }}</h5>
     </div>
 
@@ -19,12 +31,21 @@
 import DoneIcon from '@action/icons/common/done_icon.vue';
 import LottieStatusJson from '@action/assets/animation/status.json';
 import { Vue3Lottie } from 'vue3-lottie';
+import { ProviderName } from '@enkryptcom/swap/src/types';
+import { PROVIDER_INFO } from '@enkryptcom/swap';
+import { PropType } from 'vue';
 
-defineProps({
+const props = defineProps({
   select: {
-    type: Function as () => void,
+    type: Function as PropType<() => void>,
     default: () => {
       return null;
+    },
+  },
+  provider: {
+    type: String as PropType<ProviderName>,
+    default: () => {
+      return '';
     },
   },
   swapNumber: {
@@ -77,8 +98,8 @@ defineProps({
   }
 
   img {
-    width: 32px;
-    height: 32px;
+    width: 20px;
+    height: 20px;
     margin-right: 8px;
   }
 
