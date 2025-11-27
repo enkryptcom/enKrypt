@@ -1,14 +1,12 @@
 <template>
   <div>
     <div :class="['app', 'restricted-container', 'expanded']" v-if="foundRestrictedAddress || geoRestricted">
-      <<<<<<< HEAD <swap-looking-animation />
+      <swap-looking-animation />
       <div v-if="popupClosed" class="app__loading__text">
         <h2>Close this window</h2>
         <p>Continue to onboard on the background page</p>
       </div>
-      =======
       <restricted :isInitialized="isWalletInitialized" />
-      >>>>>>> main
     </div>
     <div :class="[{ locked: isLocked }, 'app']" v-else>
       <div v-if="isLoading" :class="['app__loading', isExpanded ? 'expanded' : 'collapsed']">
