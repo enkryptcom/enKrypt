@@ -31,12 +31,10 @@ export type SupportedNetworkNames =
   | NetworkNames.Ethereum
   | NetworkNames.Matic
   | NetworkNames.AstarEVM
-  | NetworkNames.Okc
   | NetworkNames.Optimism
   | NetworkNames.Moonriver
   | NetworkNames.Moonbeam
   | NetworkNames.ShidenEVM
-  | NetworkNames.Canto
   | NetworkNames.Rootstock
   | NetworkNames.Arbitrum
   | NetworkNames.ArbitrumNova
@@ -58,8 +56,6 @@ export type SupportedNetworkNames =
   | NetworkNames.Degen
   | NetworkNames.Blast
   | NetworkNames.Solana
-  | NetworkNames.XLayer
-  | NetworkNames.ProofOfPlayApex
   | NetworkNames.Godwoken
   | NetworkNames.Linea
   | NetworkNames.MantaPacific

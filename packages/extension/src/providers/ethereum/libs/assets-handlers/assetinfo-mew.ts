@@ -42,10 +42,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'astar',
     cgPlatform: CoingeckoPlatform.Astar,
   },
-  [NetworkNames.Okc]: {
-    tbName: 'okt',
-    cgPlatform: CoingeckoPlatform.Okc,
-  },
   [NetworkNames.Optimism]: {
     tbName: 'op',
     cgPlatform: CoingeckoPlatform.Optimism,
@@ -61,10 +57,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.ShidenEVM]: {
     tbName: 'sdn',
     cgPlatform: CoingeckoPlatform.Shiden,
-  },
-  [NetworkNames.Canto]: {
-    tbName: 'canto',
-    cgPlatform: CoingeckoPlatform.Canto,
   },
   [NetworkNames.Rootstock]: {
     cgPlatform: CoingeckoPlatform.Rootstock,
@@ -150,14 +142,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Degen]: {
     tbName: 'degen',
     cgPlatform: CoingeckoPlatform.Degen,
-  },
-  [NetworkNames.XLayer]: {
-    tbName: 'xlayer',
-    cgPlatform: CoingeckoPlatform.XLayer,
-  },
-  [NetworkNames.ProofOfPlayApex]: {
-    tbName: 'apex',
-    cgPlatform: undefined,
   },
   [NetworkNames.Godwoken]: {
     tbName: 'ckb',
