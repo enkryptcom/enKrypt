@@ -10,18 +10,28 @@
     >
       <delete-icon /><span class="delete">Delete</span>
     </a>
+    <a
+      v-if="exportable"
+      class="accounts-item__edit-item"
+      @click.stop="$emit('action:export')"
+    >
+      <view-icon /><span class="export">Export</span>
+    </a>
   </div>
 </template>
 
 <script setup lang="ts">
 import EditIcon from '@action/icons/actions/edit.vue';
 import DeleteIcon from '@action/icons/actions/delete.vue';
+import ViewIcon from '@action/icons/actions/view.vue';
 defineEmits<{
   (e: 'action:rename'): void;
   (e: 'action:delete'): void;
+  (e: 'action:export'): void;
 }>();
 defineProps({
   deletable: Boolean,
+  exportable: Boolean,
 });
 </script>
 
@@ -76,6 +86,10 @@ defineProps({
 
         &.delete {
           color: @error;
+        }
+
+        &.export {
+          color: @grayPrimary;
         }
       }
     }
