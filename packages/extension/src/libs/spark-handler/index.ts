@@ -4,24 +4,28 @@ import {
   getSpendKeyObj,
 } from '@/libs/spark-handler/generateSparkWallet.ts';
 import { getSparkCoinInfo } from '@/libs/spark-handler/getSparkCoinInfo.ts';
-import { IndexedDBHelper } from '@action/db/indexedDB.ts';
+import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB.ts';
 import { OwnedCoinData } from '@action/workers/sparkCoinInfoWorker.ts';
+import * as bitcoin from 'bitcoinjs-lib';
+
 import { isSparkAddress } from '@/providers/bitcoin/libs/utils.ts';
 import {
   base64ToHex,
   getSerializedCoin,
 } from '@/libs/spark-handler/getSerializedCoin.ts';
-import { base64ToReversedHex } from '@/libs/spark-handler/utils.ts';
+import {
+  base64ToReversedHex,
+  numberToReversedHex,
+} from '@/libs/spark-handler/utils.ts';
+import { LOCK_TIME, SPARK_TX_TYPE } from '@/libs/spark-handler/constants.ts';
+import { intersectSets } from '@action/utils/set-utils.ts';
 
 export async function sendFromSparkAddress(
+  network: bitcoin.Network,
   to: string,
   amount: string,
-  txHashSig: string,
-): Promise<{
-  scripts: Uint8Array<ArrayBufferLike>[];
-  hex: string;
-  serializedSpendSize: number;
-}> {
+  subtractFee = false,
+): Promise<string | undefined> {
   const diversifier = 1n;
   const db = new IndexedDBHelper();
   const Module = await wasmInstance.getInstance();
@@ -30,9 +34,15 @@ export async function sendFromSparkAddress(
 
   const ownedCoins = ((await db.readData('myCoins')) || []) as OwnedCoinData[];
 
-  const uniqCoins = ownedCoins.filter(ownedCoin => {
-    console.log(ownedCoin);
-    return ownedCoin.setId === 7; // TODO: rm after fix duplicate coin fetch
+  const usedCoinsTags = await db.readData<{ tags: string[] }>(
+    DB_DATA_KEYS.usedCoinsTags,
+  );
+  const coinsTagsSet = new Set(usedCoinsTags.tags);
+  const myCoinsTagsSet = new Set((ownedCoins ?? []).map(coin => coin.tag));
+
+  const usedMyCoinsTagsSet = intersectSets(coinsTagsSet, myCoinsTagsSet);
+  const revalidatedCoins = ownedCoins.filter(ownedCoin => {
+    return !usedMyCoinsTagsSet.has(ownedCoin.tag);
   });
 
   const spendCoinList: {
@@ -100,7 +110,7 @@ export async function sendFromSparkAddress(
 
   const coinMetaPromiseList: Promise<void>[] = [];
 
-  uniqCoins.forEach(ownedCoin => {
+  revalidatedCoins.forEach(ownedCoin => {
     const myCoinMetaData = getSparkCoinInfo({
       coin: ownedCoin.coin,
       fullViewKeyObj,
@@ -275,6 +285,51 @@ export async function sendFromSparkAddress(
     );
   }
 
+  const tempTx = new bitcoin.Psbt({ network: network.networkInfo });
+  tempTx.setVersion(3 | (SPARK_TX_TYPE << 16)); // version 3 and tx type in high bits (3 | (SPARK_TX_TYPE << 16));
+  tempTx.setLocktime(LOCK_TIME); // new Date().getTime() / 1000
+
+  tempTx.addInput({
+    hash: '0000000000000000000000000000000000000000000000000000000000000000',
+    index: 4294967295,
+    sequence: 4294967295,
+    finalScriptSig: Buffer.from('d3', 'hex'),
+  });
+
+  console.log(
+    'tempTx.data.globalMap',
+    tempTx.data.globalMap,
+    'tempTx.data.inputs',
+    tempTx.data.inputs,
+    'tempTx',
+    tempTx,
+  );
+
+  const tempTxBuffer = tempTx.extractTransaction(true).toBuffer();
+  const extendedTempTxBuffer = Buffer.concat([
+    tempTxBuffer,
+    Buffer.from([0x00]),
+  ]);
+
+  console.log('buffer for temp', extendedTempTxBuffer.toHex());
+
+  const txHash = bitcoin.crypto.hash256(extendedTempTxBuffer);
+  const txHashSig = txHash.reverse().toString('hex');
+
+  // TODO: check not spark case
+  if (!isSparkTransaction) {
+    tempTx.addOutput({
+      address: to,
+      value: parseFloat(amount),
+    });
+  }
+
+  //tempTx// tx.signInput(0, spendKeyObj);  // ? how to sign? Is I need to sign wit all utxo keypairs? // ? how to add subtractFeeFromAmount? // ? what is spend transaction type? // https://github.com/firoorg/sparkmobile/blob/main/include/spark.h#L22
+  // tx.finalizeAllInputs();
+  // const txHash = tx.extractTransaction()
+
+  // const txHashSig = txHash.getHash()
+
   console.log('coinlist', coinsList);
   const additionalTxSize = 0;
 
@@ -443,9 +498,37 @@ export async function sendFromSparkAddress(
       [result],
     );
 
-    return { scripts, hex, serializedSpendSize };
+    const psbt = new bitcoin.Psbt({ network: network.networkInfo });
+
+    // const api = (await network.api()) as unknown as FiroAPI;
+
+    psbt.addInput({
+      hash: '0000000000000000000000000000000000000000000000000000000000000000',
+      index: 4294967295,
+      sequence: 4294967295,
+      finalScriptSig: Buffer.from('d3', 'hex'),
+    });
+
+    psbt.setLocktime(LOCK_TIME);
+
+    psbt.setVersion(3 | (SPARK_TX_TYPE << 16));
+    scripts.forEach(script => {
+      console.log('script is ==>', script);
+      psbt.addOutput({
+        script: Buffer.from(script),
+        value: 0,
+      });
+    });
+
+    const rawTx = psbt.extractTransaction();
+    const txHex = rawTx.toHex();
+    const sizeHex = numberToReversedHex(serializedSpendSize);
+    const finalTx = txHex + 'fd' + sizeHex + hex;
+
+    console.log('Final TX to broadcast:', finalTx);
+
+    return finalTx;
 
     // TODO: free memory
   }
-  throw new Error('NO RESULT'); // TODO: throw error maybe
 }

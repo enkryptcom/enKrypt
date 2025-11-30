@@ -280,7 +280,13 @@ const testIntersect = async () => {
 
   const usedCoinsTagsLength = (await db.getLengthOf('usedCoinsTags')) || 0;
   const updatedCoinsTags = await wallet
-    .getUsedSparkCoinsTags(usedCoinsTagsLength - 1)
+    .getUsedSparkCoinsTags(
+      usedCoinsTagsLength ? usedCoinsTagsLength - 1 : usedCoinsTagsLength,
+    )
+    .catch(err => {
+      console.error('Error fetching used coins tags:', err);
+      return { tags: [], txHashes: [] };
+    })
     .finally(() => {
       console.log(
         '%c Fetched used coins tags',
@@ -288,13 +294,15 @@ const testIntersect = async () => {
       );
     });
 
+  // const updatedCoinsTagsTxHashes = await wallet.getUsedCoinsTagsTxHashes(0);
+  // console.log('usedCoinsTags ->>>>>>><<<<<<<<<--', updatedCoinsTagsTxHashes);
   console.log('usedCoinsTags ->>>>>>><<<<<<<<<--', updatedCoinsTags);
 
-  await db.appendData('usedCoinsTags', updatedCoinsTags.tags);
+  // await db.appendData('usedCoinsTags', updatedCoinsTags.tags);
 
   const usedCoinsTags = await db.readData<string[]>('usedCoinsTags');
 
-  const coinsTagsSet = new Set(usedCoinsTags);
+  const coinsTagsSet = new Set(usedCoinsTags.tags);
   const myCoins = await db.readData<{ tag: string }[]>('myCoins');
   const myCoinsTagsSet = new Set((myCoins ?? []).map(coin => coin.tag));
 

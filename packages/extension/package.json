@@ -16,7 +16,7 @@
     "build:chrome": "yarn prebuild && cross-env BROWSER='chrome' MINIFY='true' vite build",
     "build:firefox": "yarn prebuild && cross-env BROWSER='firefox' MINIFY='true' vite build && node configs/get-system-info.js",
     "build:opera": "yarn prebuild && cross-env BROWSER='opera' MINIFY='true' vite build",
-    "kadena:prebuild": "pactjs contract-generate --contract=coin --api https://api.chainweb.com/chainweb/0.0/mainnet01/chain/1/pact",
+    "kadena:prebuild": "",
     "test": "vitest run -c ./configs/vitest.config.mts",
     "watch": "yarn dev",
     "watch:chrome": "yarn dev",

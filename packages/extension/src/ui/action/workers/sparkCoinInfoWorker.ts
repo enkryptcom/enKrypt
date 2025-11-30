@@ -26,6 +26,10 @@ export interface CheckedCoinData {
 export interface OwnedCoinData {
   coin: string[];
   setId: number;
+  isUsed: boolean;
+  setHash: string;
+  tag: string;
+  value: bigint;
 }
 
 const removeDuplicates = (coinsResult: Set<MyCoinModel>): Set<MyCoinModel> => {
