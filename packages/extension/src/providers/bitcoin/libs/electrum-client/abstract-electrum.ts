@@ -1,15 +1,21 @@
-export class BalanceModel {
-  confirmed: number = 0;
-  unconfirmed: number = 0;
-  addresses: Map<string, string> = new Map();
-}
-
 export class TransactionModel {
   tx_hash: string = '';
   height: number = 0;
   tx_pos: number = 0;
   value: number = 0;
 }
+
+export type UnspentTxOutputModel = {
+  index: number;
+  raw: string;
+  height: number;
+  amount: number;
+  satoshis: number;
+  txid: string;
+  confirmations: number;
+  address: string;
+  scriptPubKey: string;
+};
 
 export type VIn = {
   address: string;

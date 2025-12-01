@@ -176,7 +176,7 @@ class KeyRing {
 
     const privateKey = child!.privateKey!.toString("hex");
 
-    return { pk: privateKey, nextIndex: 1 };
+    return { pk: privateKey };
   }
 
   async getSavedMnemonic(password: string) {

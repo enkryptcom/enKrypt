@@ -1,14 +1,15 @@
 import ElectrumClient from 'electrum-client-browser';
 import {
   AnonymitySetMetaModel,
-  BalanceModel,
   FullTransactionModel,
   TransactionModel,
+  UnspentTxOutputModel,
   UsedSerialsModel,
-  type AnonymitySetModel,
 } from './abstract-electrum';
 
 import * as bitcoin from 'bitcoinjs-lib';
+import BigNumber from 'bignumber.js';
+import { SATOSHI } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet.ts';
 
 const networkInfo = {
   messagePrefix: '\x18Zcoin Signed Message:\n',
@@ -61,10 +62,6 @@ export default class FiroElectrum {
 
   private all_anonymity_sets_meta: AnonymitySetMetaModel[] = [];
 
-  getLatestBlockHeight(): number {
-    return this.latestBlockheight === false ? -1 : this.latestBlockheight;
-  }
-
   async getCoinIDs(coinHashes: string[]) {
     return this.mainClient
       ?.request('spark.getsparkmintmetadata', [
@@ -112,28 +109,14 @@ export default class FiroElectrum {
     }
   }
 
-  addChangeListener(onChange: () => void): void {
-    this.listeners.push(onChange);
-  }
-
-  removeChangeListener(onChange: () => void): void {
-    this.listeners = this.listeners.filter(listener => {
-      return listener !== onChange;
-    });
-  }
-
-  async getBalanceByAddress(
-    address: string,
-  ): Promise<Omit<BalanceModel, 'addresses'>> {
+  async getBalanceByAddress(address: string): Promise<any> {
     const script = bitcoin.address.toOutputScript(address, networkInfo);
     const hash = bitcoin.crypto.sha256(script);
 
     const reversedHash = Buffer.from(hash.reverse());
-    const balance = await this.mainClient!.blockchain_scripthash_getBalance(
+    return await this.mainClient!.blockchain_scripthash_getBalance(
       reversedHash.toString('hex'),
     );
-
-    return balance;
   }
 
   async getUsedCoinsTags(startPoint = 0): Promise<{ tags: string[] }> {
@@ -147,8 +130,12 @@ export default class FiroElectrum {
     ]);
   }
 
-  async getUsedCoinsTagsTxHashes(): Promise<string> {
-    return await this.mainClient!.request('spark.getusedcoinstagstxhashes', []);
+  async getUsedCoinsTagsTxHashes(
+    startNumber: number,
+  ): Promise<{ tagsandtxids: string[] }> {
+    return await this.mainClient!.request('spark.getusedcoinstagstxhashes', [
+      startNumber.toString(),
+    ]);
   }
 
   async getTransactionsByAddress(
@@ -161,9 +148,6 @@ export default class FiroElectrum {
     const history = await this.mainClient?.blockchain_scripthash_getHistory(
       reversedHash.toString('hex'),
     );
-    // for (const h of history || []) {
-    //   if (h.tx_hash) txhashHeightCache[h.tx_hash] = h.height; // cache tx height
-    // }
     return history as TransactionModel[];
   }
 
@@ -382,56 +366,89 @@ export default class FiroElectrum {
     return ret;
   }
 
-  // async getUnspentTransactionsByAddress(
-  //   address: string,
-  // ): Promise<Array<TransactionModel>> {
-  //   this.checkConnection('getUnspentTransactionsByAddress');
+  addressToScriptPubKey(address: string): string {
+    const output = bitcoin.address.toOutputScript(address, networkInfo);
+    return Buffer.from(output).toString("hex");
+  }
 
-  //   const script = bitcoin.address.toOutputScript(address, firo.networkInfo);
-  //   const hash = bitcoin.crypto.sha256(script);
+  async getUnspentTransactionsByAddress(
+    address: string,
+  ): Promise<Omit<UnspentTxOutputModel, 'raw'>[]> {
+    const header = await this.mainClient?.request(
+      'blockchain.headers.subscribe',
+      [],
+    );
+    const tipHeight = header.height;
 
-  //   const reversedHash = Buffer.from(reverse(hash));
-  //   const listUnspent = await this.mainClient.blockchainScripthash_listunspent(
-  //     reversedHash.toString('hex'),
-  //   );
-  //   return listUnspent;
-  // }
+    const script = bitcoin.address.toOutputScript(address, networkInfo);
+    const hash = bitcoin.crypto.sha256(script);
+
+    const reversedHash = Buffer.from(hash.reverse());
+    const reversedHashHex = reversedHash.toString('hex');
+
+    const listUnspent =
+      (await this.mainClient?.blockchain_scripthash_listunspent(
+        reversedHashHex,
+      )) as unknown as TransactionModel[];
+
+    return listUnspent.map((u: any) => ({
+      txid: u.tx_hash,
+      index: u.tx_pos,
+      satoshis: u.value,
+      amount: new BigNumber(u.value).div(new BigNumber(SATOSHI)).toNumber(),
+      height: u.height,
+      confirmations: u.height > 0 ? tipHeight - u.height + 1 : 0,
+      address: address,
+      scriptPubKey: this.addressToScriptPubKey(address),
+    }));
+  }
 
   async getTxRaw(tx_hash: string, verbose = false) {
     return this.mainClient?.blockchain_transaction_get(tx_hash, verbose);
   }
 
-  async multiGetUnspentTransactions(addresses: Array<string>): Promise<any> {
-    const scripthashes = [];
-    const scripthash2addr: { [revHash: string]: string } = {};
-    for (const address of addresses) {
-      const script = bitcoin.address.toOutputScript(address, networkInfo);
-      const hash = bitcoin.crypto.sha256(script);
-
-      const reversedHash = Buffer.from(hash.reverse());
-      const reversedHashHex = reversedHash.toString('hex');
-      scripthashes.push(reversedHashHex);
-      scripthash2addr[reversedHashHex] = address;
-    }
+  async multiGetUnspentTransactions(
+    addresses: string[],
+  ): Promise<UnspentTxOutputModel[]> {
+    const header = await this.mainClient?.request(
+      'blockchain.headers.subscribe',
+      [],
+    );
+    const tipHeight = header.height;
 
     const listUnspent = await Promise.all(
-      scripthashes.map(
-        sh =>
-          this.mainClient?.blockchain_scripthash_listunspent(sh) as Promise<
-            TransactionModel[]
-          >,
-      ),
+      addresses.map(async address => {
+        const script = bitcoin.address.toOutputScript(address, networkInfo);
+        const hash = bitcoin.crypto.sha256(script);
+
+        const reversedHash = Buffer.from(hash.reverse());
+        const reversedHashHex = reversedHash.toString('hex');
+
+        const utxos = (await this.mainClient?.blockchain_scripthash_listunspent(
+          reversedHashHex,
+        )) as unknown as TransactionModel[];
+
+        return utxos.map((u: any) => ({
+          txid: u.tx_hash,
+          index: u.tx_pos,
+          satoshis: u.value,
+          amount: new BigNumber(u.value).div(new BigNumber(SATOSHI)).toNumber(),
+          height: u.height,
+          confirmations: u.height > 0 ? tipHeight - u.height + 1 : 0,
+          address: address,
+          scriptPubKey: this.addressToScriptPubKey(address),
+        }));
+      }),
     );
 
     const filterred = listUnspent.filter(el => el.length > 0).flat();
 
     const rawTxs = await Promise.all(
-      filterred.map(({ tx_hash }) => this.getTxRaw(tx_hash, false)),
+      filterred.map(({ txid }) => this.getTxRaw(txid, false)),
     );
 
     return filterred.map((el, index) => ({
       ...el,
-      index: el.tx_pos,
       raw: rawTxs[index],
     }));
   }
@@ -441,42 +458,6 @@ export default class FiroElectrum {
       (await this.mainClient?.blockchain_transaction_broadcast(hex)) as string;
 
     return broadcast;
-  }
-
-  async getAnonymitySet(
-    setId: number,
-    startBlockHash: string,
-  ): Promise<AnonymitySetModel> {
-    const params = [];
-    params.push(setId + '');
-    params.push(startBlockHash);
-    const result = await this.mainClient?.request(
-      'spark.getsparkanonymityset',
-      [setId + '', startBlockHash],
-    );
-
-    if (result instanceof Error) {
-      throw result;
-    }
-
-    const _result = result as AnonymitySetModel;
-
-    _result.blockHash = Buffer.from(_result.blockHash, 'base64')
-      .reverse()
-      .toString('hex');
-    _result.setHash = Buffer.from(_result.setHash, 'base64').toString('hex');
-    _result.coins = _result.coins.map(coinData => {
-      let amount = coinData[2];
-      if (typeof amount !== 'number') {
-        amount = Buffer.from(amount, 'base64').toString('hex');
-      }
-      return [
-        Buffer.from(coinData[0], 'base64').toString('hex'),
-        Buffer.from(coinData[1], 'base64').reverse().toString('hex'),
-        Buffer.from(coinData[2], 'base64').reverse().toString('hex'),
-      ];
-    });
-    return _result;
   }
 
   async getLatestSetId(): Promise<number> {
