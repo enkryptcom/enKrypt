@@ -7,7 +7,6 @@
       <span>
         <logo-min class="app__menu-logo" />
         <button @click="newTab">[ ]</button>
-        <button @click="getUsedCoinsTagsTxHashes">{ }</button>
       </span>
       <base-search
         :value="searchInput"
@@ -211,14 +210,6 @@ useSynchronizeSparkState(currentNetwork, sparkBalance => {
     };
   }
 });
-
-const getUsedCoinsTagsTxHashes = async () => {
-  // TODO: Remove in future
-  // const tagsTxHashes = await wallet.getUsedCoinsTagsTxHashes(1);
-  // console.log(tagsTxHashes);
-  const c = await wallet.getOnlySpendableUtxos();
-  console.log(c);
-};
 
 const setActiveNetworks = async () => {
   const activeNetworkNames = await networksState.getActiveNetworkNames();

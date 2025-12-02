@@ -1,7 +1,6 @@
 import * as ecc from '@bitcoinerlab/secp256k1';
 import { Storage } from '@enkryptcom/storage';
 import { NetworkNames } from '@enkryptcom/types/dist';
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import type { BIP32Interface } from 'bip32';
 import * as bip32 from 'bip32';
@@ -9,10 +8,10 @@ import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
 import ECPairFactory from 'ecpair';
 import { PaymentType } from '../../types/bitcoin-network';
-import { Utxo } from '../../types/utxo';
 import {
   AnonymitySetMetaModel,
   AnonymitySetModel,
+  UnspentTxOutputModel,
 } from '../electrum-client/abstract-electrum';
 import { firoElectrum } from '../electrum-client/electrum-client';
 import configs from './configs';
@@ -145,13 +144,9 @@ export class FiroWallet {
       addressKeyPairs[address!] = keyPair;
 
       try {
-        const { data } = await axios.get<Utxo[]>(
-          `https://explorer.firo.org/insight-api-zcoin/addr/${address}/utxo`,
-        );
-        if (data.length > 0) {
-          console.log(`✅ Found ${data.length} UTXOs for ${address}`);
-          console.log({ data });
+        const data = await firoElectrum.getUnspentTransactionsByAddress(address);
 
+        if (data.length > 0) {
           // Filter for confirmed UTXOs
           const spendableUtxos = data.filter(utxo => utxo.confirmations > 0);
 
@@ -170,32 +165,21 @@ export class FiroWallet {
 
   async getOnlySpendableUtxos() {
     const address2Check = await this.getTransactionsAddresses();
-    // const utxos2 = await this.multiGetUnspentTransactions(address2Check);
 
-    const { data: utxos } = await axios.get<Utxo[]>(
-      `https://explorer.firo.org/insight-api-zcoin/addrs/${address2Check.join(',')}/utxo`,
-    );
+    const utxos = await firoElectrum.multiGetUnspentTransactions(address2Check);
 
     const filteredUtxos = utxos.filter(utxo => utxo.confirmations > 0);
 
-    const allRawTxs = await Promise.all(
-      filteredUtxos.map(utxo => firoElectrum.getTxRaw(utxo.txid)),
-    );
-
-    return filteredUtxos.map((utxo: Utxo, index) => ({
+    return filteredUtxos.map((utxo: UnspentTxOutputModel) => ({
       ...utxo,
       index: utxo.vout,
-      raw: allRawTxs[index],
     }));
   }
 
   async getPublicBalance(): Promise<BigNumber> {
     const address2Check = await this.getTransactionsAddresses();
 
-    const { data: utxos } = await axios.get<Utxo[]>(
-      `https://explorer.firo.org/insight-api-zcoin/addrs/${address2Check.join(',')}/utxo`,
-    );
-
+    const utxos = await firoElectrum.multiGetUnspentTransactions(address2Check);
     const spendable = utxos.filter(el => el.confirmations > 0);
 
     let balanceSat = 0;

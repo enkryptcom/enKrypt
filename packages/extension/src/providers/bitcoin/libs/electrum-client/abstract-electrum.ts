@@ -6,7 +6,7 @@ export class TransactionModel {
 }
 
 export type UnspentTxOutputModel = {
-  index: number;
+  vout: number;
   raw: string;
   height: number;
   amount: number;

@@ -24,7 +24,6 @@ interface CreateTempTxArgs {
     amount: number;
     satoshis: number;
     confirmations: number;
-    ts: number;
   }[];
   addressKeyPairs: Record<string, any>;
 }
