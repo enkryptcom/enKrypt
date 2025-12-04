@@ -5,6 +5,7 @@
         v-for="(trade, index) in trades"
         :key="trade.provider"
         :swap-number="index + 1"
+        :provider="trade.provider"
         :amount="`~${getReadable(index)}`"
         :select="() => select(trade)"
         :is-checked="trade.provider === pickedTrade.provider"

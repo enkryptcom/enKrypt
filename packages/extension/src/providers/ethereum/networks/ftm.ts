@@ -14,7 +14,7 @@ const ftmOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: 'FTM',
   currencyNameLong: 'Fantom',
-  node: 'wss://fantom-rpc.publicnode.com',
+  node: 'https://rpc.fantom.network',
   icon,
   coingeckoID: 'fantom',
   coingeckoPlatform: CoingeckoPlatform.Fantom,

@@ -1,6 +1,10 @@
 <template>
   <div class="swap-best-offer-block">
-    <h3>Best offer including network fee</h3>
+    <h3>
+      Best offer including network fee powered by
+      <img :src="PROVIDER_INFO[props.pickedTrade.provider].icon" />
+      {{ PROVIDER_INFO[props.pickedTrade.provider].name }}
+    </h3>
     <div class="swap-best-offer-block__for">
       for<img :src="fromToken.logoURI" />
       <p>
@@ -41,6 +45,14 @@
       />
     </div>
     <div class="swap-best-offer-block__info">
+      <p>
+        Provider:
+        <img
+          height="15px"
+          :src="PROVIDER_INFO[props.pickedTrade.provider].icon"
+        />
+        {{ PROVIDER_INFO[props.pickedTrade.provider].name }}
+      </p>
       <p>
         Rate: 1 {{ fromToken.symbol.toUpperCase() }} ≈
         {{ $filters.formatFloatingPointValue(ratio).value }}
@@ -89,6 +101,7 @@ import {
   SwapToken,
 } from '@enkryptcom/swap';
 import { imageLoadError } from '@/ui/action/utils/misc';
+import { PROVIDER_INFO } from '@enkryptcom/swap';
 
 interface SwapBestOfferProps {
   trades: ProviderSwapResponse[];
@@ -178,6 +191,11 @@ const toggleOffers = () => {
     letter-spacing: 0.15px;
     color: @primaryLabel;
     margin: 0 0 8px 0;
+
+    img {
+      margin-left: 2px;
+      width: 15px;
+    }
   }
 
   &__for {

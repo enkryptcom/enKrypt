@@ -502,7 +502,10 @@ export class OKX extends ProviderClass {
       }
 
       const data = await response.json();
-      return data.data;
+      if (data.data) {
+        return data.data;
+      }
+      return [];
     });
   }
 
