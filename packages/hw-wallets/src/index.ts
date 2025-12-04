@@ -37,7 +37,7 @@ class HWwalletManager {
         LedgerEthereum,
         LedgerSubstrate,
         LedgerBitcoin,
-        LedgerSolana,
+        LedgerSolana
       ],
       [HWwalletType.trezor]: [TrezorEthereum, TrezorBitcoin, TrezorSolana],
     };
@@ -122,3 +122,13 @@ class HWwalletManager {
 export default HWwalletManager;
 
 export { ledgerAppNames };
+
+export type {
+  AddressResponse,
+  getAddressRequest,
+  HWWalletProvider,
+  isConnectedRequest,
+  PathType,
+  SignMessageRequest,
+  SignTransactionRequest,
+}

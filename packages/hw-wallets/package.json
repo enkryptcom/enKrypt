@@ -1,10 +1,17 @@
 {
   "name": "@enkryptcom/hw-wallets",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Hardware wallet manager for enkrypt",
   "type": "module",
   "main": "src/index.ts",
   "module": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
   "publishConfig": {
     "main": "dist/index.cjs",
     "module": "dist/index.js",
@@ -19,7 +26,7 @@
     "test": "vitest run"
   },
   "engines": {
-    "node": ">=14.15.0"
+    "node": ">=20"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
@@ -56,6 +63,7 @@
     "@ledgerhq/hw-app-eth": "^6.47.0",
     "@ledgerhq/hw-app-solana": "^7.6.0",
     "@ledgerhq/hw-transport": "^6.31.13",
+    "@ledgerhq/hw-transport-web-ble": "^6.29.13",
     "@ledgerhq/hw-transport-webusb": "^6.29.13",
     "@ledgerhq/live-common": "^34.20.0",
     "@metamask/eth-sig-util": "^8.2.0",
