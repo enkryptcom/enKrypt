@@ -94,9 +94,9 @@ import ActivityState from '@/libs/activity-state';
 import { EnkryptAccount } from '@enkryptcom/types';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
-import BitcoinAPI from '@/providers/bitcoin/libs/api';
 import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
+import FiroAPI from '@/providers/bitcoin/libs/api-firo.ts';
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -155,7 +155,7 @@ const sendAction = async () => {
     transactionHash: '',
   };
   const activityState = new ActivityState();
-  const api = (await network.value.api()) as BitcoinAPI;
+  const api = (await network.value.api()) as unknown as FiroAPI;
   TransactionSigner({
     account: account.value!,
     network: network.value as BitcoinNetwork,

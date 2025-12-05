@@ -7,7 +7,6 @@
       <span>
         <logo-min class="app__menu-logo" />
         <button @click="newTab">[ ]</button>
-        <button @click="testIntersect">} {</button>
       </span>
       <base-search
         :value="searchInput"
@@ -109,7 +108,6 @@ import { trackBuyEvents, trackNetworkSelected } from '@/libs/metrics';
 import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
 import NetworksState from '@/libs/networks-state';
 import RateState from '@/libs/rate-state';
-import { getSparkState } from '@/libs/spark-handler/generateSparkWallet.ts';
 import {
   getAccountsByNetworkName,
   getOtherSigners,
@@ -120,7 +118,6 @@ import {
   getNetworkByName,
 } from '@/libs/utils/networks';
 import openOnboard from '@/libs/utils/open-onboard';
-import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
 import BTCAccountState from '@/providers/bitcoin/libs/accounts-state';
 import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
 import EVMAccountState from '@/providers/ethereum/libs/accounts-state';
@@ -132,7 +129,7 @@ import SolAccountState from '@/providers/solana/libs/accounts-state';
 import { BaseNetwork } from '@/types/base-network';
 import { InternalMethods } from '@/types/messenger';
 import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
-import { IndexedDBHelper } from '@action/db/indexedDB.ts';
+import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB';
 import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
 import { getLatestEnkryptVersion } from '@action/utils/browser';
 import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
@@ -156,15 +153,18 @@ import AddNetwork from './views/add-network/index.vue';
 import ModalNewVersion from './views/modal-new-version/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
-import { intersectSets } from '@action/utils/set-utils';
 import { useSynchronizeSparkState } from '@action/composables/synchronize-spark-state';
 
 const wallet = new PublicFiroWallet();
 const db = new IndexedDBHelper();
-
 const domainState = new DomainState();
 const networksState = new NetworksState();
 const rateState = new RateState();
+
+const defaultNetwork = DEFAULT_EVM_NETWORK;
+const currentVersion = __PACKAGE_VERSION__;
+let timeout: ReturnType<typeof setTimeout> | null = null;
+
 const appMenuRef = ref(null);
 const showDepositWindow = ref(false);
 const accountHeaderData = ref<AccountsHeaderData>({
@@ -175,14 +175,11 @@ const accountHeaderData = ref<AccountsHeaderData>({
   sparkAccount: null,
 });
 const isOpenMore = ref(false);
-let timeout: ReturnType<typeof setTimeout> | null = null;
-defineExpose({ appMenuRef });
 const router = useRouter();
 const route = useRoute();
 const transitionName = 'fade';
 const searchInput = ref('');
 const networks = ref<BaseNetwork[]>([]);
-const defaultNetwork = DEFAULT_EVM_NETWORK;
 const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const currentSubNetwork = ref<string>('');
 const kr = new PublicKeyRing();
@@ -194,8 +191,9 @@ const dropdown = ref(null);
 const toggle = ref(null);
 const isLoading = ref(true);
 const isSyncing = ref(false);
-const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
+
+defineExpose({ appMenuRef });
 
 useSynchronizeSparkState(currentNetwork, sparkBalance => {
   if (sparkBalance && accountHeaderData.value.sparkAccount) {
@@ -275,37 +273,6 @@ const init = async () => {
   isLoading.value = false;
 };
 
-const testIntersect = async () => {
-  console.log(db);
-
-  const usedCoinsTagsLength = (await db.getLengthOf('usedCoinsTags')) || 0;
-  const updatedCoinsTags = await wallet
-    .getUsedSparkCoinsTags(usedCoinsTagsLength - 1)
-    .finally(() => {
-      console.log(
-        '%c Fetched used coins tags',
-        'color: #00FF00; font-weight: bold; font-size: 24px;',
-      );
-    });
-
-  console.log('usedCoinsTags ->>>>>>><<<<<<<<<--', updatedCoinsTags);
-
-  await db.appendData('usedCoinsTags', updatedCoinsTags.tags);
-
-  const usedCoinsTags = await db.readData<string[]>('usedCoinsTags');
-
-  const coinsTagsSet = new Set(usedCoinsTags);
-  const myCoins = await db.readData<{ tag: string }[]>('myCoins');
-  const myCoinsTagsSet = new Set((myCoins ?? []).map(coin => coin.tag));
-
-  const usedMyCoinsTagsSet = intersectSets(coinsTagsSet, myCoinsTagsSet);
-
-  usedMyCoinsTagsSet.forEach(tag => {
-    db.markCoinsAsUsed(tag);
-  });
-  console.log(usedMyCoinsTagsSet);
-};
-
 onMounted(async () => {
   const isInitialized = await kr.isInitialized();
   if (isInitialized) {
@@ -347,120 +314,27 @@ const updateGradient = (newGradient: string) => {
 };
 
 const generateNewSparkAddress = async () => {
-  const wasm = await wasmInstance.getInstance();
-  const keyring = new PublicKeyRing();
-  const seed = await wallet.getSecret();
-  const { pk, nextIndex } = await keyring.getPrivateKey(seed);
+  wallet.skipAddress();
+  const defaultAddress = await wallet.getSparkAddressAsync();
 
-  if (wasm) {
-    const keyData = Buffer.from(pk, 'hex');
-    const index = nextIndex;
-    const diversifier = 1n;
-    const is_test_network = 0;
-
-    const keyDataPtr = wasm._malloc(keyData.length);
-    wasm.HEAPU8.set(keyData, keyDataPtr);
-
-    const spendKeyDataObj = wasm.ccall(
-      'js_createSpendKeyData',
-      'number',
-      ['number', 'number'],
-      [keyDataPtr, index],
-    );
-
-    if (spendKeyDataObj === 0) {
-      console.error('Failed to create SpendKeyData');
-      wasm._free(keyDataPtr);
-      return;
-    }
-
-    const spendKeyObj = wasm.ccall(
-      'js_createSpendKey',
-      'number',
-      ['number'],
-      [spendKeyDataObj],
-    );
-
-    if (spendKeyObj === 0) {
-      console.error('Failed to create SpendKey');
-      wasm.ccall('js_freeSpendKeyData', null, ['number'], [spendKeyDataObj]);
-      wasm._free(keyDataPtr);
-      return;
-    }
-
-    const fullViewKeyObj = wasm.ccall(
-      'js_createFullViewKey',
-      'number',
-      ['number'],
-      [spendKeyObj],
-    );
-
-    if (fullViewKeyObj === 0) {
-      console.error('Failed to create FullViewKey');
-      wasm.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
-      wasm.ccall('js_freeSpendKeyData', null, ['number'], [spendKeyDataObj]);
-      wasm._free(keyDataPtr);
-      return;
-    }
-
-    const incomingViewKeyObj = wasm.ccall(
-      'js_createIncomingViewKey',
-      'number',
-      ['number'],
-      [fullViewKeyObj],
-    );
-
-    if (incomingViewKeyObj === 0) {
-      console.error('Failed to create IncomingViewKey');
-      wasm.ccall('js_freeFullViewKey', null, ['number'], [fullViewKeyObj]);
-      wasm.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
-      wasm.ccall('js_freeSpendKeyData', null, ['number'], [spendKeyDataObj]);
-      wasm._free(keyDataPtr);
-      return;
-    }
-
-    const addressObj = wasm.ccall(
-      'js_getAddress',
-      'number',
-      ['number', 'number'],
-      [incomingViewKeyObj, diversifier],
-    );
-
-    if (addressObj === 0) {
-      console.error('Failed to get Address');
-      wasm.ccall(
-        'js_freeIncomingViewKey',
-        null,
-        ['number'],
-        [incomingViewKeyObj],
-      );
-      wasm.ccall('js_freeFullViewKey', null, ['number'], [fullViewKeyObj]);
-      wasm.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
-      wasm.ccall('js_freeSpendKeyData', null, ['number'], [spendKeyDataObj]);
-      wasm._free(keyDataPtr);
-      return;
-    }
-
-    const address_enc_main = wasm.ccall(
-      'js_encodeAddress',
-      'string',
-      ['number', 'number'],
-      [addressObj, is_test_network],
-    );
-    console.log('Address string (main):', address_enc_main);
-
-    if (accountHeaderData.value.sparkAccount) {
-      accountHeaderData.value.sparkAccount.defaultAddress = address_enc_main;
-    }
+  if (accountHeaderData.value.sparkAccount && defaultAddress) {
+    accountHeaderData.value.sparkAccount.defaultAddress = defaultAddress;
   }
 };
 
 const getSparkAccountState = async (network: BaseNetwork) => {
   if (network.name === NetworkNames.Firo) {
     if (accountHeaderData.value.selectedAccount) {
-      const sparkAccountResponse = await getSparkState();
-      if (sparkAccountResponse) {
-        accountHeaderData.value.sparkAccount = { ...sparkAccountResponse };
+      const defaultAddress = await wallet.getSparkAddressAsync();
+      await db.waitInit();
+      const availableBalance = await db.readData<string>(
+        DB_DATA_KEYS.sparkBalance,
+      );
+      if (defaultAddress) {
+        accountHeaderData.value.sparkAccount = {
+          defaultAddress,
+          sparkBalance: { availableBalance },
+        };
       }
     }
   }
@@ -485,15 +359,21 @@ const setNetwork = async (network: BaseNetwork) => {
     if (found) selectedAccount = found;
   }
 
-  let sparkAccount: SparkAccount | null = null;
+  const sparkAccount = {} as SparkAccount;
 
   if (network.name === NetworkNames.Firo) {
     if (accountHeaderData.value.selectedAccount) {
-      const sparkAccountResponse = await getSparkState();
+      const defaultAddress = await wallet.getSparkAddressAsync();
 
-      if (sparkAccountResponse) {
-        sparkAccount = { ...sparkAccountResponse };
+      await db.waitInit();
+      const availableBalance = await db.readData<string>(
+        DB_DATA_KEYS.sparkBalance,
+      );
+
+      if (defaultAddress) {
+        sparkAccount['defaultAddress'] = defaultAddress;
       }
+      sparkAccount['sparkBalance'] = { availableBalance };
     }
   }
 

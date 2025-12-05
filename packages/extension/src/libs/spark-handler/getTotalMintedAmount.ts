@@ -1,20 +1,23 @@
-import { Utxo } from '@/providers/bitcoin/types/utxo';
-import axios from 'axios';
 import BigNumber from 'bignumber.js';
+import { firoElectrum } from '@/providers/bitcoin/libs/electrum-client/electrum-client';
+import { UnspentTxOutputModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
+import { ECPairInterface } from 'ecpair';
 
-export const getTotalMintedAmount = async (spendableUtxos: Utxo[]) => {
+type SpendableUtxo = Omit<UnspentTxOutputModel, 'raw'> & {
+  keyPair: ECPairInterface;
+};
+
+export const getTotalMintedAmount = async (spendableUtxos: SpendableUtxo[]) => {
   let inputAmount = 0;
   const psbtInputs = [];
 
   for (const utxo of spendableUtxos) {
-    const rawTx = await axios.get(
-      `https://explorer.firo.org/insight-api-zcoin/rawtx/${utxo.txid}`,
-    );
+    const txRaw = await firoElectrum.getTxRaw(utxo.txid);
 
     psbtInputs.push({
       hash: utxo.txid,
       index: utxo.vout,
-      nonWitnessUtxo: Buffer.from(rawTx.data.rawtx, 'hex'),
+      nonWitnessUtxo: Buffer.from(txRaw, 'hex'),
     });
 
     inputAmount += utxo.satoshis;

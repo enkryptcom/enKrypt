@@ -8,8 +8,8 @@ import {
   HaskoinUnspentType,
 } from '../types';
 import { getAddress as getBitcoinAddress } from '../types/bitcoin-network';
-import { Utxo } from '../types/utxo';
 import { PublicFiroWallet } from './firo-wallet/public-firo-wallet';
+import { UnspentTxOutputModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum.ts';
 
 class API implements ProviderAPIInterface {
   node: string;
@@ -120,7 +120,7 @@ class API implements ProviderAPIInterface {
     return ret;
   }
 
-  async getUTXOs(pubkey: string): Promise<Utxo[]> {
+  async getUTXOs(pubkey: string): Promise<UnspentTxOutputModel[]> {
     const spendableUtxos = await this.#wallet.getOnlySpendableUtxos();
 
     if ((spendableUtxos as any).message || !spendableUtxos.length) return [];

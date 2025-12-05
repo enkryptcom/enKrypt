@@ -86,7 +86,6 @@ import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
 import { VerifyTransactionParams } from '@/providers/bitcoin/ui/types';
 import { sendFromSparkAddress } from '@/libs/spark-handler';
-import { isAxiosError } from 'axios';
 import { fromBase } from '@enkryptcom/utils';
 import { BaseNetwork } from '@/types/base-network';
 import * as bitcoin from 'bitcoinjs-lib';
@@ -226,11 +225,7 @@ const sendAction = async () => {
     })
     .catch(error => {
       isProcessing.value = false;
-      if (isAxiosError(error)) {
-        errorMsg.value = JSON.stringify(error.response?.data.error.message);
-      } else {
-        errorMsg.value = JSON.stringify(error);
-      }
+      errorMsg.value = JSON.stringify(error);
       trackSendEvents(SendEventType.SendFailed, {
         network: network.value.name,
         error: error.message,
