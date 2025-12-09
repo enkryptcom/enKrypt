@@ -12,7 +12,7 @@
     "lint": "eslint . --fix && yarn format",
     "format": "prettier --write src/",
     "zip": "cd dist; zip -r release.zip *;",
-    "prebuild": "",
+    "prebuild": "yarn kadena:prebuild",
     "build:chrome": "yarn prebuild && cross-env BROWSER='chrome' MINIFY='true' vite build",
     "build:firefox": "yarn prebuild && cross-env BROWSER='firefox' MINIFY='true' vite build && node configs/get-system-info.js",
     "build:opera": "yarn prebuild && cross-env BROWSER='opera' MINIFY='true' vite build",
