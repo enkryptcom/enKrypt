@@ -342,7 +342,7 @@ const setNetwork = async (network: BaseNetwork) => {
     const found = activeAccounts.find(acc => acc.address === selectedAddress);
     if (found) selectedAccount = found;
   }
-  checkAddress(selectedAccount);
+
   accountHeaderData.value = {
     activeAccounts,
     inactiveAccounts,
@@ -351,7 +351,7 @@ const setNetwork = async (network: BaseNetwork) => {
   };
 
   currentNetwork.value = network;
-
+  checkAddress(selectedAccount);
   router.push({ name: 'assets', params: { id: network.name } });
   const tabId = await domainState.getCurrentTabId();
   const curSavedNetwork = await domainState.getSelectedNetWork();
