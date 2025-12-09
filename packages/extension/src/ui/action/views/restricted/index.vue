@@ -3,10 +3,9 @@
     <logo-big class="blocked-page__logo" />
     <h3>Access restricted</h3>
     <p v-if="!isAddressRestricted">
-      Your wallet address or IP has been flagged as originating from a
-      restricted jurisdiction. Under our platform policies, access to our
-      platform is therefore restricted. Please refer to our geographic policies
-      page for more details.
+      Your IP has been flagged as originating from a restricted jurisdiction.
+      Under our platform policies, access to our platform is therefore
+      restricted. Please refer to our geographic policies page for more details.
     </p>
     <p v-if="isAddressRestricted">
       Your wallet address [{{ restrictedAddress }}] is associated with suspect
