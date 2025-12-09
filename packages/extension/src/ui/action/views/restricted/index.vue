@@ -2,21 +2,43 @@
   <div class="blocked-page">
     <logo-big class="blocked-page__logo" />
     <h3>Access restricted</h3>
-    <p>
+    <p v-if="!isAddressRestricted">
       Your wallet address or IP has been flagged as originating from a
       restricted jurisdiction. Under our platform policies, access to our
       platform is therefore restricted. Please refer to our geographic policies
       page for more details.
     </p>
-    <p>
-      If this address has been incorrectly flagged, you can contact us at
-      <a class="blocked-page__support" href="mailto:support@myetherwallet.com">support@myetherwallet.com</a>.
+    <p v-if="isAddressRestricted">
+      Your wallet address [{{ restrictedAddress }}] is associated with suspect
+      activities. Under our platform policies, access to our platform is
+      therefore restricted.
     </p>
-    <a class="blocked-page__more-info" target="_blank" rel="noopener noreferrer"
-      href="https://help.myetherwallet.com/en/articles/12897302-geographic-restrictions-for-mew">More info</a>
+    <p>
+      If this has been incorrectly flagged, you can contact us at
+      <a class="blocked-page__support" href="mailto:support@myetherwallet.com"
+        >support@myetherwallet.com</a
+      >.
+    </p>
+    <a
+      class="blocked-page__more-info"
+      target="_blank"
+      rel="noopener noreferrer"
+      href="https://help.myetherwallet.com/en/articles/12897302-geographic-restrictions-for-mew"
+      >More info</a
+    >
     <div v-if="isInitialized">
       <div class="blocked-page__divider-top"></div>
-      <div class="blocked-page__content">
+      <div v-if="isAddressRestricted" class="blocked-page__content">
+        <div
+          class="blocked-page__content__header"
+          @click="emit('restricted:switchAccount')"
+        >
+          <h4>Switch Address</h4>
+          <arrow-next />
+        </div>
+        <p class="blocked-page__content__body">Switch to a different address</p>
+      </div>
+      <div v-if="!isAddressRestricted" class="blocked-page__content">
         <div class="blocked-page__content__header" @click="openUnlock">
           <h4>View My Secret Recovery Phrase</h4>
           <arrow-next />
@@ -32,17 +54,31 @@
       <div @click="supportAction">Contact support</div>
     </div>
 
-    <modal-sign v-if="isOpenSign" :is-unlock="true" v-bind="$attrs" @window:close="closeUnlock"
-      @toggle:forgot="openForgot" @action:recovery-phrase="displayMnemonic" />
+    <modal-sign
+      v-if="isOpenSign"
+      :is-unlock="true"
+      v-bind="$attrs"
+      @window:close="closeUnlock"
+      @toggle:forgot="openForgot"
+      @action:recovery-phrase="displayMnemonic"
+    />
 
-    <modal-forgot v-if="isOpenForgot" :is-forgot="isOpenForgot" @toggle:forgot="closeForgot" />
+    <modal-forgot
+      v-if="isOpenForgot"
+      :is-forgot="isOpenForgot"
+      @toggle:forgot="closeForgot"
+    />
   </div>
 
   <div class="settings__container" v-if="showMnemonic">
     <div class="settings__overlay" @click="closeMnemonic()" />
     <div class="settings__wrap">
-      <settings-recovery :has-back="false" :mnemonic="mnemonic" @window:back="closeMnemonic"
-        @window:close="closeMnemonic" />
+      <settings-recovery
+        :has-back="false"
+        :mnemonic="mnemonic"
+        @window:back="closeMnemonic"
+        @window:close="closeMnemonic"
+      />
     </div>
   </div>
 </template>
@@ -62,7 +98,23 @@ defineProps({
       return false;
     },
   },
+  isAddressRestricted: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
+  restrictedAddress: {
+    type: String,
+    default: () => {
+      return '';
+    },
+  },
 });
+
+const emit = defineEmits<{
+  (e: 'restricted:switchAccount'): void;
+}>();
 
 const supportAction = () => {
   window.open('mailto:support@myetherwallet.com', '_blank', 'noopener');

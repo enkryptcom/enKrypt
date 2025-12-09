@@ -2,9 +2,14 @@
   <div>
     <div
       :class="['app', 'restricted-container', 'expanded']"
-      v-if="foundRestrictedAddress || geoRestricted"
+      v-if="isAddressRestricted.isRestricted || geoRestricted"
     >
-      <restricted :isInitialized="isWalletInitialized" />
+      <restricted
+        :isInitialized="isWalletInitialized"
+        :is-address-restricted="isAddressRestricted.isRestricted"
+        :restricted-address="isAddressRestricted.address"
+        @restricted:switch-account="switchToUnrestrictedAddress"
+      />
     </div>
     <div :class="[{ locked: isLocked }, 'app']" v-else>
       <div
@@ -122,7 +127,6 @@ import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
 import ModalUpdates from './views/updates/index.vue';
 import Restricted from './views/restricted/index.vue';
-import { KadenaNetwork } from '@/providers/kadena/types/kadena-network';
 import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
 import RateState from '@/libs/rate-state';
 import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
@@ -165,6 +169,10 @@ const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
 const geoRestricted = ref(false);
 const isWalletInitialized = ref(false);
+const isAddressRestricted = ref<{ isRestricted: boolean; address: string }>({
+  isRestricted: false,
+  address: '',
+});
 
 /** -------------------
  * Rate
@@ -213,16 +221,6 @@ const toggleDepositWindow = () => {
 const openBuyPage = () => {
   const buyLink = (() => {
     switch (currentNetwork.value.name) {
-      case NetworkNames.KadenaTestnet:
-        return (currentNetwork.value as KadenaNetwork).options.buyLink;
-      case NetworkNames.SyscoinNEVM:
-      case NetworkNames.Rollux:
-        return `${(currentNetwork.value as EvmNetwork).options.buyLink}&address=${currentNetwork.value.displayAddress(
-          accountHeaderData.value.selectedAccount!.address,
-        )}`;
-      case NetworkNames.SyscoinNEVMTest:
-      case NetworkNames.RolluxTest:
-        return (currentNetwork.value as EvmNetwork).options.buyLink;
       case NetworkNames.Massa:
         return 'https://www.massa.net/get-mas';
       default:
@@ -344,7 +342,7 @@ const setNetwork = async (network: BaseNetwork) => {
     const found = activeAccounts.find(acc => acc.address === selectedAddress);
     if (found) selectedAccount = found;
   }
-
+  checkAddress(selectedAccount);
   accountHeaderData.value = {
     activeAccounts,
     inactiveAccounts,
@@ -353,8 +351,6 @@ const setNetwork = async (network: BaseNetwork) => {
   };
 
   currentNetwork.value = network;
-
-  checkAddresses(activeAccounts);
 
   router.push({ name: 'assets', params: { id: network.name } });
   const tabId = await domainState.getCurrentTabId();
@@ -440,17 +436,20 @@ const setNetwork = async (network: BaseNetwork) => {
   }
 };
 
-const foundRestrictedAddress = ref(false);
-
-const checkAddresses = async (
-  activeAccounts: AccountsHeaderData['activeAccounts'],
-) => {
-  const promises: Promise<boolean>[] = activeAccounts.map(ac =>
-    isWalletRestricted(currentNetwork.value.displayAddress(ac.address)),
+const checkAddress = async (activeAccount: EnkryptAccount) => {
+  isAddressRestricted.value = {
+    isRestricted: false,
+    address: '',
+  };
+  const isRestricted = await isWalletRestricted(
+    currentNetwork.value.displayAddress(activeAccount.address),
   );
-  await Promise.all(promises).then(results => {
-    if (results.includes(true)) foundRestrictedAddress.value = true;
-  });
+  if (isRestricted) {
+    isAddressRestricted.value = {
+      isRestricted,
+      address: currentNetwork.value.displayAddress(activeAccount.address),
+    };
+  }
 };
 
 const onSelectedSubnetworkChange = async (id: string) => {
@@ -461,6 +460,7 @@ const onSelectedSubnetworkChange = async (id: string) => {
 
 const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
   accountHeaderData.value.selectedAccount = newAccount;
+  checkAddress(newAccount);
   const accountStates = {
     [ProviderName.ethereum]: EVMAccountState,
     [ProviderName.bitcoin]: BTCAccountState,
@@ -498,6 +498,15 @@ const showNetworkMenu = computed(() => {
       route.name == 'dapps')
   );
 });
+
+const switchToUnrestrictedAddress = () => {
+  const newAccount = accountHeaderData.value.activeAccounts.find(
+    aa =>
+      currentNetwork.value.displayAddress(aa.address) !==
+      isAddressRestricted.value.address,
+  );
+  if (newAccount) onSelectedAddressChanged(newAccount);
+};
 
 const isLocked = computed(() => {
   return route.name == 'lock-screen';
