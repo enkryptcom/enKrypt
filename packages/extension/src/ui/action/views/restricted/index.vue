@@ -14,7 +14,7 @@
       therefore restricted.
     </p>
     <p>
-      If this has been incorrectly flagged, you can contact us at
+      If you believe this has been incorrectly flagged, you can contact us at
       <a class="blocked-page__support" href="mailto:support@myetherwallet.com"
         >support@myetherwallet.com</a
       >.
