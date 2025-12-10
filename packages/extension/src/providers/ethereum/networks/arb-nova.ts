@@ -1,8 +1,8 @@
-import icon from './icons/arbitrum-nova.png';
+import icon from './icons/arbitrum-nova.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
-import shNFTHandler from '@/libs/nft-handlers/simplehash';
+import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
 const arbNovaOptions: EvmNetworkOptions = {
   name: NetworkNames.ArbitrumNova,
@@ -19,8 +19,7 @@ const arbNovaOptions: EvmNetworkOptions = {
   coingeckoID: 'ethereum',
   coingeckoPlatform: CoingeckoPlatform.ArbitrumNova,
   assetsInfoHandler,
-  NFTHandler: shNFTHandler,
-  activityHandler: () => Promise.resolve([]),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
 const arb = new EvmNetwork(arbNovaOptions);

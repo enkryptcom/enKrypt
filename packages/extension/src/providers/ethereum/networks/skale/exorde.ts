@@ -6,7 +6,7 @@ const skaleOptions: SkaleParams = {
   name_long: 'Exorde | SKALE',
   chainName: 'light-vast-diphda',
   chainID: '0x7f8cb400',
-  icon: 'skaleExorde.png',
+  icon: 'skaleExorde.webp',
 };
 
 export default createSkaleEvmNetwork(skaleOptions);

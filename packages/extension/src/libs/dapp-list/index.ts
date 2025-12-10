@@ -33,16 +33,12 @@ const lists: Partial<Record<NetworkNames, string>> = {
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/okc.json',
   [NetworkNames.Optimism]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/op.json',
-  [NetworkNames.Canto]:
-    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/canto.json',
   [NetworkNames.Bifrost]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/bifrost.json',
   [NetworkNames.BifrostKusama]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/bifrost.json',
   [NetworkNames.Edgeware]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/edg.json',
-  [NetworkNames.ZkSyncGoerli]:
-    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/zksyncgoerli.json',
   [NetworkNames.ZkSync]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/zksync.json',
   [NetworkNames.Rootstock]:
@@ -55,8 +51,6 @@ const lists: Partial<Record<NetworkNames, string>> = {
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/avax.json',
   [NetworkNames.Fantom]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/ftm.json',
-  [NetworkNames.Klaytn]:
-    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/klay.json',
   [NetworkNames.Aurora]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/aurora.json',
   [NetworkNames.Base]:
@@ -67,8 +61,6 @@ const lists: Partial<Record<NetworkNames, string>> = {
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/matic-zkevm.json',
   [NetworkNames.Bitcoin]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/btc.json',
-  [NetworkNames.Arthera]:
-    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/arthera.json',
   [NetworkNames.Blast]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/blast.json',
   [NetworkNames.ArbitrumNova]:
@@ -79,8 +71,6 @@ const lists: Partial<Record<NetworkNames, string>> = {
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/godwoken.json',
   [NetworkNames.ImmutableZkevm]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/imx.json',
-  [NetworkNames.ZChains]:
-    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/zchains.json',
   [NetworkNames.MantaPacific]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/manta.json',
   [NetworkNames.Mode]:
@@ -89,8 +79,6 @@ const lists: Partial<Record<NetworkNames, string>> = {
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/opBNB.json',
   [NetworkNames.Palm]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/palm.json',
-  [NetworkNames.ProofOfPlayApex]:
-    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/popApex.json',
   [NetworkNames.Scroll]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/scroll.json',
   [NetworkNames.Rari]:

@@ -5,6 +5,7 @@ import TomoScan from './providers/tomoscan';
 import OntEVMActivity from './providers/ont-evm';
 import TelosActivity from './providers/telos';
 import GodwokenActivity from './providers/godwoken';
+import RoutescanActivity from './providers/routescan';
 export {
   RivetActivity,
   EtherscanActivity,
@@ -13,4 +14,5 @@ export {
   TomoScan,
   TelosActivity,
   GodwokenActivity,
+  RoutescanActivity,
 };

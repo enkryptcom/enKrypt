@@ -24,12 +24,10 @@
     />
 
     <nft-detail-view
-      v-if="isDetail"
+      v-model="isDetail"
       :item="item"
       :is-favorite="isFavorite"
-      :link-action="openLink"
       v-bind="$attrs"
-      @close:popup="toggleDetail"
     />
   </div>
 </template>
@@ -41,18 +39,14 @@ import { PropType } from 'vue';
 import NetworkNftsItemMoreMenu from './network-nfts-item-more-menu.vue';
 import NftDetailView from '@action/views/nft-detail-view/index.vue';
 import { onClickOutside } from '@vueuse/core';
-import DomainState from '@/libs/domain-state';
-import { NetworkNames } from '@enkryptcom/types';
 import { imageLoadError } from '@/ui/action/utils/misc';
-
-const domainState = new DomainState();
 
 const isOpenMore = ref(false);
 const isDetail = ref(false);
 const dropdown = ref(null);
 const toggle = ref(null);
 
-const props = defineProps({
+defineProps({
   item: {
     type: Object as PropType<NFTItem>,
     default: () => {
@@ -77,22 +71,6 @@ const toggleMoreMenu = () => {
 };
 const toggleDetail = () => {
   isDetail.value = !isDetail.value;
-};
-const openLink = async () => {
-  const selectedNetwork =
-    (await domainState.getSelectedNetWork()) as NetworkNames;
-
-  let url: string | null = null;
-
-  if (selectedNetwork === NetworkNames.Optimism) {
-    url = `https://qx.app/asset/${props.item.contract}/${props.item.id}`;
-  } else {
-    url = props.item.url;
-  }
-
-  if (url) {
-    window.open(url, '_blank');
-  }
 };
 onClickOutside(
   dropdown,

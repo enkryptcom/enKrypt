@@ -2,7 +2,7 @@ import MarketData from '@/libs/market-data';
 import { BaseNetwork } from '@/types/base-network';
 import { computed, ref, watch, onMounted, Ref } from 'vue';
 import { AccountsHeaderData } from '../types/account';
-import { formatFloatingPointValue, formatFiatValue } from '../utils/filters';
+import { formatFloatingPointValue } from '../utils/filters';
 const defaultFiatVal = '0.00';
 export default (
   network: Ref<BaseNetwork>,
@@ -31,15 +31,11 @@ export default (
   const updateFiatValues = async () => {
     fiatAmount.value = defaultFiatVal;
     if (network.value.coingeckoID && cryptoAmountRaw.value != '~') {
-      fiatAmount.value = `${
-        formatFiatValue(
-          await marketData.getTokenValue(
-            cryptoAmountRaw.value,
-            network.value.coingeckoID,
-            'USD',
-          ),
-        ).value
-      } USD`;
+      fiatAmount.value = `${await marketData.getTokenValue(
+        cryptoAmountRaw.value,
+        network.value.coingeckoID,
+        'USD',
+      )}`;
     }
   };
   watch(cryptoAmount, updateFiatValues);

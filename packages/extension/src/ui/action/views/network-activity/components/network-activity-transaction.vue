@@ -15,7 +15,11 @@
       <div class="network-activity__transaction-info">
         <img
           :src="
-            network.identicon(activity.isIncoming ? activity.from : activity.to)
+            network.identicon(
+              network.displayAddress(
+                activity.isIncoming ? activity.from : activity.to,
+              ),
+            )
           "
           @error="imageLoadError"
         />
@@ -73,7 +77,7 @@
           <span>{{ activity.token.symbol }}</span>
         </h4>
         <p v-show="getFiatValue.gt(0)">
-          $ {{ $filters.formatFiatValue(getFiatValue).value }}
+          {{ $filters.parseCurrency(getFiatValue) }}
         </p>
       </div>
     </a>
@@ -115,13 +119,11 @@
               fromBase(activity.value, activity.token.decimals),
             ).value
           }}
-          <span>{{
-            activity.token.symbol.length > 40
-              ? activity.token.symbol.substring(0, 40) + '...'
-              : activity.token.symbol
-          }}</span>
+          <span>{{ $filters.truncate(activity.token.symbol, 40) }}</span>
         </h4>
-        <p>$ {{ $filters.formatFiatValue(getFiatValue).value }}</p>
+        <p>
+          {{ $filters.parseCurrency(getFiatValue) }}
+        </p>
       </div>
     </section>
   </section>
@@ -313,7 +315,7 @@ onMounted(() => {
 
   &__transaction {
     height: 64px;
-    padding: 0 8px;
+    padding: 0 4px;
     position: relative;
     box-sizing: border-box;
     display: flex;
@@ -322,7 +324,7 @@ onMounted(() => {
     flex-direction: row;
     text-decoration: none;
     cursor: pointer;
-    margin: 0 12px;
+    margin: 0 16px;
     border-radius: 10px;
     transition: background 300ms ease-in-out;
 

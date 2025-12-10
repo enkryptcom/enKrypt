@@ -5,7 +5,9 @@
         <img :src="token.icon" @error="imageLoadError" />
       </div>
       <div class="assets-select-list__token-info-name">
-        <h4>{{ token.name }}</h4>
+        <h4>
+          {{ $filters.truncate(token.name, 25) }}
+        </h4>
         <p>
           {{ balance ? $filters.formatFloatingPointValue(balance).value : '~' }}
           <span>{{ token.symbol }}</span>
@@ -13,7 +15,9 @@
       </div>
     </div>
     <div class="assets-select-list__token-price">
-      <h4>${{ price ? $filters.formatFiatValue(price).value : '~' }}</h4>
+      <h4>
+        {{ price ? $filters.parseCurrency(price) : '~' }}
+      </h4>
     </div>
   </a>
 </template>
@@ -93,6 +97,7 @@ const select = () => {
         img {
           width: 100%;
           height: 100%;
+          object-fit: contain;
         }
       }
 

@@ -10,7 +10,7 @@ const skaleOptions: SkaleParams = {
   name_long: 'Calypso NFT Hub | SKALE',
   chainName: 'honorable-steel-rasalhague',
   chainID: '0x5d456c62',
-  icon: 'skaleCalypsoNFTHub.png',
+  icon: 'skaleCalypsoNFTHub.webp',
 };
 
 const assets: ICustomSKALEAsset[] = [

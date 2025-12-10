@@ -2,7 +2,6 @@
   <div class="form__container">
     <send-address-input
       ref="addressInputFrom"
-      class="no-margin"
       :from="true"
       :value="addressFrom"
       :network="network as BitcoinNetwork"
@@ -13,7 +12,6 @@
     />
 
     <send-from-contacts-list
-      class="no-margin"
       :show-accounts="isOpenSelectContactFrom"
       :account-info="accountInfo"
       :address="addressFrom"
@@ -22,7 +20,6 @@
       @close="toggleSelectContactFrom"
     />
 
-    <div class="form__container-send-input">
       <send-spark-address-input
         v-if="network.name === 'Firo'"
         ref="addressInputTo"
@@ -36,15 +33,14 @@
       <send-address-input
         v-if="network.name !== 'Firo'"
         ref="addressInputTo"
-        class="no-margin"
         title="To address"
         :value="addressTo"
         :network="network as BitcoinNetwork"
         @update:input-address="inputAddressTo"
         @toggle:show-contacts="toggleSelectContactTo"
       />
+
       <send-contacts-list
-        class="no-margin"
         :show-accounts="isOpenSelectContactTo"
         :account-info="accountInfo"
         :address="addressTo"
@@ -53,17 +49,11 @@
         @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
         @close="toggleSelectContactTo"
       />
-    </div>
 
-    <send-token-select
-      v-if="isSendToken"
-      class="no-margin"
-      :token="selectedAsset"
-    />
+    <send-token-select v-if="isSendToken" :token="selectedAsset" />
 
     <send-nft-select
       v-if="!isSendToken && !isSendSpark"
-      class="no-margin"
       :item="selectedNft"
       :is-sending-disabled="false"
       @toggle-select="toggleSelectNft"
@@ -71,17 +61,14 @@
 
     <nft-select-list
       v-show="isOpenSelectNft"
-      class="no-margin"
       :address="addressFrom"
       :network="network"
       :selected-nft="paramNFTData"
-      @close="toggleSelectNft"
       @select-nft="selectNFT"
     />
 
     <send-input-amount
       v-if="isSendToken"
-      class="no-margin"
       :amount="amount"
       :fiat-value="selectedAsset.price"
       :has-enough-balance="!nativeBalanceAfterTransaction.isNeg()"
@@ -89,7 +76,6 @@
       @update:input-set-max="setMaxValue"
     />
     <send-fee-select
-      class="no-margin"
       :in-swap="false"
       :selected="selectedFee"
       :fee="gasCostValues[selectedFee]"
@@ -98,48 +84,49 @@
 
     <transaction-fee-view
       :fees="gasCostValues"
-      :show-fees="isOpenSelectFee"
       :selected="selectedFee"
       :is-header="true"
-      @close-popup="toggleSelectFee"
       @gas-type-changed="selectFee"
     />
 
     <send-alert
       v-show="
-        nativeBalanceAfterTransaction.isNeg() ||
-        (Number(sendAmount) < (props.network as BitcoinNetwork).dust &&
-          Number(sendAmount) > 0)
-      "
+          nativeBalanceAfterTransaction.isNeg() ||
+          (Number(sendAmount) < (props.network as BitcoinNetwork).dust &&
+            Number(sendAmount) > 0)
+        "
       :native-symbol="network.name"
       :price="selectedAsset.price || '0'"
+      :is-balance-zero="UTXOBalance.isZero()"
       :native-value="
-        fromBase(
-          nativeBalanceAfterTransaction.abs().toString(),
-          network.decimals,
-        )
-      "
+          fromBase(
+            nativeBalanceAfterTransaction.abs().toString(),
+            network.decimals,
+          )
+        "
       :decimals="network.decimals"
-      :below-dust="Number(sendAmount) < (props.network as BitcoinNetwork).dust"
+      :below-dust="
+          Number(sendAmount) < (props.network as BitcoinNetwork).dust
+        "
       :dust="(props.network as BitcoinNetwork).dust.toString()"
       :not-enough="nativeBalanceAfterTransaction.isNeg()"
     />
-  </div>
 
-  <div class="send-transaction__buttons">
-    <div class="send-transaction__buttons-cancel">
-      <base-button title="Cancel" :click="close" :no-background="true" />
-    </div>
-    <div class="send-transaction__buttons-send">
-      <base-button
-        :title="sendButtonTitle"
-        :click="
+    <div class="send-transaction__buttons">
+      <div class="send-transaction__buttons-cancel">
+        <base-button title="Cancel" :click="close" :no-background="true" />
+      </div>
+      <div class="send-transaction__buttons-send">
+        <base-button
+          :title="sendButtonTitle"
+          :click="
           !isAddress(addressTo, network.networkInfo)
             ? sendSparkAction
             : sendAction
         "
-        :disabled="!isInputsValid"
-      />
+          :disabled="!isInputsValid"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -149,7 +136,10 @@ import PublicKeyRing from '@/libs/keyring/public-keyring';
 import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
 import getUiPath from '@/libs/utils/get-ui-path';
-import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
+import {
+  formatFloatingPointValue,
+  isNumericPositive,
+} from '@/libs/utils/number-formatter';
 import BitcoinAPI from '@/providers/bitcoin/libs/api';
 import {
   getTxInfo as getBTCTxInfo,
@@ -186,6 +176,7 @@ import { VerifyTransactionParams } from '../../types';
 import SendAddressInput from '../components/send-address-input.vue';
 import SendSparkAddressInput from '../components/send-spark-address-input.vue';
 import SendTokenSelect from '../components/send-token-select.vue';
+import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
 
 const route = useRoute();
 const router = useRouter();
@@ -244,6 +235,10 @@ onMounted(async () => {
 });
 
 const nativeBalanceAfterTransaction = computed(() => {
+  if (!isNumericPositive(sendAmount.value)) {
+    return toBN(0);
+  }
+
   if (
     selectedAsset.value &&
     isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
@@ -281,18 +276,15 @@ const setBaseCosts = () => {
 
 const updateUTXOs = async () => {
   const api = (await props.network.api()) as BitcoinAPI;
-  return api
-    .getUTXOs(addressFrom.value)
-    .then(utxos => {
-      accountUTXOs.value = utxos;
-      const txSize = calculateSizeBasedOnType(
-        accountUTXOs.value.length + (props.isSendToken ? 0 : 1),
-        2,
-        (props.network as BitcoinNetwork).networkInfo.paymentType,
-      );
-      setTransactionFees(Math.ceil(txSize));
-    })
-    .catch(e => console.log(e, 123));
+  return api.getUTXOs(addressFrom.value).then(utxos => {
+    accountUTXOs.value = utxos;
+    const txSize = calculateSizeBasedOnType(
+      accountUTXOs.value.length + (props.isSendToken ? 0 : 1),
+      2,
+      (props.network as BitcoinNetwork).networkInfo.paymentType,
+    );
+    setTransactionFees(Math.ceil(txSize));
+  });
 };
 
 const fetchAssets = () => {
@@ -319,9 +311,8 @@ const isInputsValid = computed<boolean>(() => {
   if (
     !isSparkAddress(addressTo.value) &&
     !isAddress(addressTo.value, (props.network as BitcoinNetwork).networkInfo)
-  ) {
+  )
     return false;
-  }
   if (
     props.isSendToken &&
     !isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
@@ -336,7 +327,10 @@ const isInputsValid = computed<boolean>(() => {
     props.isSendToken
   )
     return false;
-  if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) return false;
+
+  const sendAmountBigNumber = new BigNumber(sendAmount.value);
+  if (sendAmountBigNumber.isNaN()) return false;
+  if (sendAmountBigNumber.gt(assetMaxValue.value)) return false;
   return true;
 });
 
@@ -482,7 +476,14 @@ const sendSparkAction = async () => {
   });
 };
 
+const recentlySentAddresses = new RecentlySentAddressesState();
+
 const sendAction = async () => {
+  await recentlySentAddresses.addRecentlySentAddress(
+    props.network,
+    addressTo.value,
+  );
+
   const keyring = new PublicKeyRing();
   const fromAccountInfo = await keyring.getAccount(addressFrom.value);
   const currentFee = toBN(

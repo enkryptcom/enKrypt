@@ -80,14 +80,11 @@ const toggleAccounts = () => {
   position: fixed;
   width: 460px;
   height: 56px;
-  left: 340px;
   top: 0;
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(50px);
   -webkit-backdrop-filter: blur(50px);
-  box-shadow:
-    0px 0px 6px rgba(0, 0, 0, 0.05),
-    0px 0px 1px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 3px 3px -3px rgba(0, 0, 0, 0.16);
   z-index: 2;
 }
 </style>

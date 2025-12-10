@@ -1,4 +1,4 @@
-import icon from './icons/viction.png';
+import icon from './icons/viction.webp';
 import { NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
@@ -15,7 +15,7 @@ const tomoOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: 'VIC',
   currencyNameLong: 'Viction',
-  node: 'wss://ws.tomochain.com',
+  node: 'wss://ws.viction.xyz',
   icon,
   coingeckoID: 'tomochain',
   basePath: "m/44'/889'/0'/0",

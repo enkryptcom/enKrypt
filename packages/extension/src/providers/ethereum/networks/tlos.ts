@@ -1,4 +1,4 @@
-import icon from './icons/telos.svg';
+import icon from './icons/telos.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
@@ -15,7 +15,7 @@ const ethOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: 'TLOS',
   currencyNameLong: 'Telos',
-  node: 'https://mainnet-eu.telos.net/evm',
+  node: 'https://rpc.telos.net',
   icon,
   coingeckoID: 'telos',
   coingeckoPlatform: CoingeckoPlatform.Telos,

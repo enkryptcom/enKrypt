@@ -5,6 +5,7 @@ import { PaymentType } from './bitcoin-network';
 export const BitcoinNetworks = {
   livenet: NetworkNames.Bitcoin,
   testnet: NetworkNames.BitcoinTest,
+  litecoin: NetworkNames.Litecoin,
 };
 
 export interface BitcoinNetworkInfo {

@@ -3,22 +3,25 @@
     <router-link
       v-if="network"
       :to="{ name: 'assets', params: { id: !!selected ? selected : null } }"
+      exact-active-class="router-link-active"
     >
-      <Assets /><br />Assets
+      <Assets :is-active="route.name === 'assets'" /><br />Assets
     </router-link>
     <router-link
       :to="{
         name: 'activity',
         params: { id: !!selected ? selected : null },
       }"
+      exact-active-class="router-link-active"
     >
-      <Activity /><br />Activity
+      <Activity :is-active="route.name === 'activity'" /><br />Activity
     </router-link>
     <router-link
       v-if="(network as EvmNetwork).NFTHandler"
       :to="{ name: 'nfts', params: { id: !!selected ? selected : null } }"
+      exact-active-class="router-link-active"
     >
-      <NFTs /><br />NFTs
+      <NFTs :is-active="route.name === 'nfts'" /><br />NFTs
     </router-link>
     <router-link
       v-if="DappList[network.name]"
@@ -26,8 +29,9 @@
         name: 'dapps',
         params: { id: !!selected ? selected : null },
       }"
+      exact-active-class="router-link-active"
     >
-      <DApps /><br />DApps
+      <DApps :is-active="route.name === 'dapps'" /><br />DApps
     </router-link>
   </div>
 </template>
@@ -41,6 +45,7 @@ import { PropType } from 'vue';
 import DappList from '@/libs/dapp-list';
 import { BaseNetwork } from '@/types/base-network';
 import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
+import { useRoute } from 'vue-router';
 
 defineProps({
   selected: {
@@ -52,6 +57,8 @@ defineProps({
     default: () => ({}),
   },
 });
+
+const route = useRoute();
 </script>
 
 <style lang="less">
@@ -61,7 +68,6 @@ defineProps({
   position: absolute;
   width: 460px;
   height: 56px;
-  left: 340px;
   bottom: 0;
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(50px);
@@ -85,7 +91,7 @@ defineProps({
     text-align: center;
     letter-spacing: 0.5px;
     color: @primaryLabel;
-    opacity: 0.38;
+    opacity: 1;
     transition: opacity 300ms ease-in-out;
 
     svg {
@@ -93,12 +99,14 @@ defineProps({
     }
 
     &:hover {
-      opacity: 0.6;
+      opacity: 0.6 !important;
     }
   }
 
   .router-link-active {
-    opacity: 1 !important;
+    &:hover {
+      opacity: 1 !important;
+    }
   }
 }
 </style>

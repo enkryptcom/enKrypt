@@ -54,6 +54,7 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 - Canto
 - Celo
 - Degen
+- Derive
 - Dogecoin
 - Edgeware
 - Edgeware EVM
@@ -99,7 +100,8 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 - Shiden
 - Shiden EVM
 - Sepolia
-- Syscoin
+- Syscoin NEVM
+- Taraxa
 - Telos EVM
 - Unique
 - Vara Network
@@ -108,6 +110,17 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 - ZChains
 - zkSync
 - zkSync Goerli
+- 5ireChain
+- Story
+- Abstract
+- Berachain
+- Ink Onchain
+- Unichain
+- Gravity
+- Unit Zero
+- Unit Zero Testnet
+- Nibiru
+- Nibiru Testnet
 - Firo
 - More coming soon!
 

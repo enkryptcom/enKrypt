@@ -1,0 +1,62 @@
+{
+  "name": "@enkryptcom/signer-massa",
+  "version": "0.0.1",
+  "description": "Massa blockchain signer",
+  "type": "module",
+  "main": "src/index.ts",
+  "module": "src/index.ts",
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "lint": "prettier --write .",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=14.15.0"
+  },
+  "dependencies": {
+    "@enkryptcom/types": "workspace:^",
+    "@enkryptcom/utils": "workspace:^",
+    "@noble/ed25519": "^2.3.0",
+    "@noble/hashes": "^1.8.0",
+    "bip39": "^3.1.0",
+    "bs58check": "^4.0.0",
+    "tweetnacl": "^1.0.3",
+    "varint": "^6.0.0"
+  },
+  "devDependencies": {
+    "@polkadot/util-crypto": "^13.5.8",
+    "@types/hdkey": "^2.1.0",
+    "@types/node": "^22.19.1",
+    "@types/varint": "^6.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.47.0",
+    "@typescript-eslint/parser": "^8.47.0",
+    "eslint": "^9.39.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-module-resolver": "^1.5.0",
+    "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "8.47.0",
+    "vitest": "^4.0.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/enkryptcom/enKrypt/tree/main/packages/signers/massa"
+  },
+  "keywords": [],
+  "author": "ae.studio",
+  "license": "MIT"
+}

@@ -52,11 +52,10 @@
       />
 
       <assets-select-list
-        v-show="isOpenSelectToken"
+        v-model="isOpenSelectToken"
         :is-send="true"
         :assets="accountAssets"
         :is-loading="isLoadingAssets"
-        @close="toggleSelectToken"
         @update:select-asset="selectToken"
       />
 
@@ -141,6 +140,7 @@ import { GenericNameResolver, CoinType } from '@/libs/name-resolver';
 import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
 import { BNType } from '@/providers/common/types';
+import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
 
 const props = defineProps({
   network: {
@@ -497,7 +497,14 @@ const isDisabled = computed(() => {
   return isDisabled;
 });
 
+const recentlySentAddresses = new RecentlySentAddressesState();
+
 const sendAction = async () => {
+  await recentlySentAddresses.addRecentlySentAddress(
+    props.network,
+    addressTo.value,
+  );
+
   const sendAmount = toBase(amount.value!, selectedAsset.value.decimals!);
 
   const sendOptions: SendOptions | undefined = sendMax.value

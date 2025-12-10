@@ -1,12 +1,19 @@
 <template>
   <div class="nft-select-list-search">
     <search-icon />
-    <input type="text" placeholder="Search NFT" autocomplete="off" />
+    <input
+      v-model="model"
+      type="text"
+      placeholder="Search NFT"
+      autocomplete="off"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import SearchIcon from '@action/icons/common/search.vue';
+
+const model = defineModel<string>();
 </script>
 
 <style lang="less" scoped>

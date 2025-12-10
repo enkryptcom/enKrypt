@@ -151,7 +151,7 @@ import { u8aToHex } from '@polkadot/util';
 import ActivityState from '@/libs/activity-state';
 import Polkadot from '@/providers/polkadot/networks/polkadot';
 import { getAllNetworks } from '@/libs/utils/networks';
-import { trackNetworkSelected, trackSendEvents } from '@/libs/metrics';
+import { trackNetwork, trackSendEvents } from '@/libs/metrics';
 import { NetworkChangeEvents, SendEventType } from '@/libs/metrics/types';
 
 const windowPromise = WindowPromiseHandler(2);
@@ -194,7 +194,7 @@ onBeforeMount(async () => {
 
   if (targetNetwork) {
     network.value = targetNetwork;
-    trackNetworkSelected(NetworkChangeEvents.NetworkChangeAPI, {
+    trackNetwork(NetworkChangeEvents.NetworkChangeAPI, {
       provider: targetNetwork.provider,
       network: targetNetwork.name,
     });

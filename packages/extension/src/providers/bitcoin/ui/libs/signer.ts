@@ -13,7 +13,7 @@ import {
 import { magicHash, toCompact } from '../../libs/sign-message-utils';
 import HWwallet from '@enkryptcom/hw-wallets';
 import type BitcoinAPI from '@/providers/bitcoin/libs/api';
-import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet.ts';
+import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
 import * as bitcoin from 'bitcoinjs-lib';
 import { validator } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
 

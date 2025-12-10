@@ -69,7 +69,7 @@
               </h4>
               <p :class="item.isNegative ? 'make-me-red' : ''">
                 {{ item.isNegative ? '-' : '' }}
-                ${{ $filters.formatFiatValue(parseFloat(item.USDval)).value }}
+                {{ $filters.parseCurrency(parseFloat(item.USDval)) }}
               </p>
             </div>
           </div>
@@ -226,19 +226,15 @@ onBeforeMount(async () => {
         isPriorityFeesSet = true;
     });
     const priorityFee = await getPrioritizationFees(
-      new PublicKey(network.value.displayAddress(account.value.address)),
-      solConnection.value!.web3,
+      network.value as SolanaNetwork,
     );
-    if (!isPriorityFeesSet && priorityFee) {
+    if (!isPriorityFeesSet && !!priorityFee) {
       Tx.value.add(
         ComputeBudgetProgram.setComputeUnitPrice({
-          microLamports: priorityFee.high * 100,
+          microLamports: priorityFee.high,
         }),
       );
     }
-    Tx.value.recentBlockhash = (
-      await solConnection.value.web3.getLatestBlockhash()
-    ).blockhash;
   }
   const feeMessage =
     TxType.value === 'legacy'
@@ -282,9 +278,15 @@ const approve = async () => {
   });
   const latestBlockHash = (await solConnection.value!.web3.getLatestBlockhash())
     .blockhash;
-  if (TxType.value === 'legacy') {
+  if (
+    TxType.value === 'legacy' &&
+    !(Tx.value as LegacyTransaction).recentBlockhash
+  ) {
     (Tx.value as LegacyTransaction).recentBlockhash = latestBlockHash;
-  } else {
+  } else if (
+    TxType.value !== 'legacy' &&
+    !(Tx.value as VersionedTransaction).message.recentBlockhash
+  ) {
     (Tx.value as VersionedTransaction).message.recentBlockhash =
       latestBlockHash;
   }

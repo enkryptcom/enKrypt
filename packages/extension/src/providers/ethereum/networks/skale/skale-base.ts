@@ -7,15 +7,12 @@ import { AssetsType } from '@/types/provider';
 import MarketData from '@/libs/market-data';
 import { fromBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
-import {
-  formatFiatValue,
-  formatFloatingPointValue,
-} from '@/libs/utils/number-formatter';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
 import API from '@/providers/ethereum/libs/api';
 import Sparkline from '@/libs/sparkline';
 import { NATIVE_TOKEN_ADDRESS } from '../../libs/common';
 import { Erc20Token, Erc20TokenOptions } from '../../types/erc20-token';
-import icon from '../icons/skl-fuel.png';
+import icon from '../icons/skl-fuel.webp';
 
 const DEFAULT_DECIMALS = 18;
 
@@ -150,16 +147,15 @@ async function getPreconfiguredTokens(
       icon:
         nativeAssetMarketData[index]?.image ??
         new URL(`../icons/${asset.icon}`, import.meta.url).href ??
-        new URL('../icons/skl.png', import.meta.url).href,
+        new URL('../icons/skl.webp', import.meta.url).href,
       balance: balanceAsset,
       balancef: formatFloatingPointValue(fromBase(balanceAsset, assetDecimals))
         .value,
       balanceUSD: nativeAssetUsdBalance.toNumber(),
-      balanceUSDf: formatFiatValue(nativeAssetUsdBalance.toString()).value,
+      balanceUSDf: nativeAssetUsdBalance.toString(),
       value: nativeAssetMarketData[index]?.current_price?.toString() ?? '0',
-      valuef: formatFiatValue(
-        nativeAssetMarketData[index]?.current_price?.toString() ?? '0',
-      ).value,
+      valuef: nativeAssetMarketData[index]?.current_price?.toString() ?? '0',
+
       decimals: assetDecimals,
       sparkline: nativeAssetMarketData[index]
         ? new Sparkline(
@@ -228,7 +224,8 @@ export function createSkaleEvmNetwork(
     node: `wss://${
       params.isTestNetwork ? 'staging-v3' : 'mainnet'
     }.skalenodes.com/v1/ws/${params.chainName}`,
-    icon: new URL(`../icons/${params.icon ?? 'skl.png'}`, import.meta.url).href,
+    icon: new URL(`../icons/${params.icon ?? 'skl.webp'}`, import.meta.url)
+      .href,
     coingeckoID: 'skale',
     coingeckoPlatform: CoingeckoPlatform.SKALE,
     assetsInfoHandler: getAssetHandler(assets),

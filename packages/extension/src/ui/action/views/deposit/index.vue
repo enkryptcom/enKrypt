@@ -1,11 +1,11 @@
 <template>
-  <div class="deposit" :class="{ show: showDeposit }">
-    <div class="deposit__overlay" @click="$emit('toggle:deposit')" />
-    <div class="deposit__wrap" :class="{ show: showDeposit }">
-      <a class="deposit__close" @click="$emit('toggle:deposit')">
-        <close-icon />
-      </a>
-
+  <app-dialog
+    v-model="openDialog"
+    width="360px"
+    is-centered
+    @close:dialog="toggleDialog"
+  >
+    <div class="deposit">
       <img class="deposit__logo" :src="network.icon" />
 
       <h2>Your {{ network.name_long }} address</h2>
@@ -116,19 +116,19 @@
         </div>
       </div>
     </div>
-  </div>
+  </app-dialog>
 </template>
 
 <script setup lang="ts">
+import { PropType, ref, onMounted, computed, watch } from 'vue';
 import DomainState from '@/libs/domain-state';
 import { BaseNetwork, SubNetworkOptions } from '@/types/base-network';
 import { ProviderName } from '@/types/provider';
 import Notification from '@action/components/notification/index.vue';
-import CloseIcon from '@action/icons/common/close-icon.vue';
 import CopyIcon from '@action/icons/header/copy_icon.vue';
-import { EnkryptAccount } from '@enkryptcom/types';
 import QrcodeVue from 'qrcode.vue';
-import { computed, onMounted, PropType, ref, watch } from 'vue';
+import { EnkryptAccount } from '@enkryptcom/types';
+import AppDialog from '@action/components/app-dialog/index.vue';
 import { SparkAccount } from '../../types/account';
 
 const isCopied = ref(false);
@@ -159,7 +159,7 @@ const props = defineProps({
   },
 });
 
-const emits = defineEmits<{
+const emit = defineEmits<{
   (e: 'toggle:deposit'): void;
   (e: 'action:generate-new-spark'): void;
 }>();
@@ -178,7 +178,7 @@ const setActiveTab = (value: 'transparent' | 'spark') => {
 };
 
 const generateNewSparkAddress = () => {
-  emits('action:generate-new-spark');
+  emit('action:generate-new-spark');
   toggleGeneratedNotification();
 };
 
@@ -213,23 +213,27 @@ const depositCopy = computed(() => {
   else
     return `You can send ${props.network.currencyNameLong} to this address using ${props.network.name_long} network.`;
 });
+
+/** -------------------
+ * Open Close Dialog
+ -------------------*/
+const openDialog = ref(false);
+const toggleDialog = () => {
+  emit('toggle:deposit');
+};
+watch(
+  () => props.showDeposit,
+  () => {
+    openDialog.value = props.showDeposit;
+  },
+);
 </script>
 
 <style lang="less" scoped>
 @import '@action/styles/theme.less';
 
 .deposit {
-  width: 800px;
-  height: 600px;
-  left: -340px;
-  top: 0px;
-  position: fixed;
-  z-index: 105;
-  display: none;
-  box-sizing: border-box;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
+  padding: 20px;
 
   &.show {
     display: flex;
@@ -248,7 +252,6 @@ const depositCopy = computed(() => {
       border-radius: 8px;
       padding: 8px 12px;
       box-sizing: border-box;
-      display: block;
       background: @buttonBg;
       text-decoration: none;
       font-style: normal;
@@ -288,7 +291,6 @@ const depositCopy = computed(() => {
       padding: 4px 8px 4px 4px;
       box-sizing: border-box;
       height: 24px;
-      display: block;
       background: @buttonBg;
       border-radius: 6px;
       text-decoration: none;
@@ -367,21 +369,8 @@ const depositCopy = computed(() => {
     }
   }
 
-  &__close {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0;
-    transition: background 300ms ease-in-out;
-
-    &:hover {
-      background: @black007;
-    }
-  }
-
   &__logo {
+    object-fit: contain;
     display: block;
     height: 32px;
     width: 32px;

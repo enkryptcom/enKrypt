@@ -14,6 +14,7 @@ import {
   PathType,
   SignMessageRequest,
   SignTransactionRequest,
+  SignTypedMessageRequest,
 } from "./types";
 import { ledgerAppNames } from "./configs";
 
@@ -65,6 +66,13 @@ class HWwalletManager {
     return (
       this.providers[options.networkName] as HWWalletProvider
     ).signPersonalMessage(options);
+  }
+
+  async signTypedMessage(options: SignTypedMessageRequest): Promise<string> {
+    await this.#initialize(options.wallet, options.networkName);
+    return (
+      this.providers[options.networkName] as HWWalletProvider
+    ).signTypedMessage(options);
   }
 
   async signTransaction(options: SignTransactionRequest): Promise<string> {

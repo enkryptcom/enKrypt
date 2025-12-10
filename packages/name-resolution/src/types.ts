@@ -146,7 +146,8 @@ export abstract class BaseResolver {
 
   public abstract resolveAddress(
     name: string,
-    coint: CoinType
+    coint: CoinType,
+    paymentIdChain?: string,
   ): Promise<string | null>;
 
   public abstract resolveReverseName(address: string): Promise<string | null>;

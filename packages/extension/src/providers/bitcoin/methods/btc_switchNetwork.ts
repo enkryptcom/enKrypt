@@ -7,7 +7,7 @@ import BTCNetworks from '../networks';
 import DomainState from '@/libs/domain-state';
 import BitcoinProvider from '..';
 import { BitcoinNetworks } from '../types';
-import { trackNetworkSelected } from '@/libs/metrics';
+import { trackNetwork } from '@/libs/metrics';
 import { NetworkChangeEvents } from '@/libs/metrics/types';
 const method: MiddlewareFunction = function (
   this: BitcoinProvider,
@@ -29,7 +29,7 @@ const method: MiddlewareFunction = function (
     const allNetworks = Object.values(BTCNetworks);
     const validNetwork = allNetworks.find(net => net.name === internalName);
     if (validNetwork) {
-      trackNetworkSelected(NetworkChangeEvents.NetworkChangeAPI, {
+      trackNetwork(NetworkChangeEvents.NetworkChangeAPI, {
         provider: validNetwork.provider,
         network: validNetwork.name,
       });

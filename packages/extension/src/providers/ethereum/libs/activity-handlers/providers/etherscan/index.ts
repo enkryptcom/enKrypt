@@ -21,7 +21,7 @@ const getAddressActivity = async (
   return cacheFetch(
     {
       // Note: would like to add offset=50 (i.e. results per page) but it seems to cause polygon API to hang
-      url: `${endpoint}api?module=account&action=txlist&address=${address}&sort=desc`,
+      url: `${endpoint}module=account&action=txlist&address=${address}&sort=desc`,
       headers,
     },
     TTL,

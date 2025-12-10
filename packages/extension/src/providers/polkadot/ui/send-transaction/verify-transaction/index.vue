@@ -66,6 +66,7 @@
 
     <send-process
       v-if="isProcessing"
+      v-model="isProcessing"
       :is-done="isSendDone"
       :is-nft="false"
       :to-address="txData.toAddress"
@@ -106,10 +107,19 @@ import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import { BaseNetwork } from '@/types/base-network';
 import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
+import RateState from '@/libs/rate-state';
+import { useRateStore } from '@action/store/rate-store';
+
+/** -------------------
+ * Rate
+ -------------------*/
+const rateStore = useRateStore();
+const { toggleRatePopup } = rateStore;
 
 const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
 const KeyRing = new PublicKeyRing();
+const rateState = new RateState();
 const route = useRoute();
 const router = useRouter();
 const selectedNetwork: string = route.query.id as string;
@@ -206,11 +216,13 @@ const sendAction = async () => {
         if (getCurrentContext() === 'popup') {
           setTimeout(() => {
             isProcessing.value = false;
+            callToggleRatePopup();
             router.go(-2);
           }, 2500);
         } else {
           setTimeout(() => {
             isProcessing.value = false;
+            callToggleRatePopup();
             window.close();
           }, 1500);
         }
@@ -237,6 +249,16 @@ const sendAction = async () => {
       error: errorMsg.value,
     });
   }
+};
+
+const callToggleRatePopup = () => {
+  /**
+   * will only show the user if they haven't rated it
+   * and never been shown before
+   */
+  rateState.showPopup(true).then(show => {
+    if (show) toggleRatePopup(true);
+  });
 };
 
 const isHasScroll = () => {

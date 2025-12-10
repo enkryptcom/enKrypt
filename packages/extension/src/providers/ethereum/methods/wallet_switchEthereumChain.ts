@@ -9,7 +9,7 @@ import DomainState from '@/libs/domain-state';
 import { getAllNetworks } from '@/libs/utils/networks';
 import { EvmNetwork } from '../types/evm-network';
 import NetworksState from '@/libs/networks-state';
-import { trackNetworkSelected } from '@/libs/metrics';
+import { trackNetwork } from '@/libs/metrics';
 import { NetworkChangeEvents } from '@/libs/metrics/types';
 
 const method: MiddlewareFunction = function (
@@ -33,7 +33,7 @@ const method: MiddlewareFunction = function (
         net => (net as EvmNetwork).chainID === payload.params![0].chainId,
       ) as EvmNetwork | undefined;
       if (validNetwork) {
-        trackNetworkSelected(NetworkChangeEvents.NetworkChangeAPI, {
+        trackNetwork(NetworkChangeEvents.NetworkChangeAPI, {
           provider: validNetwork.provider,
           network: validNetwork.name,
         });

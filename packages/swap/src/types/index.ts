@@ -25,7 +25,7 @@ export enum SupportedNetworkName {
   Gnosis = NetworkNames.Gnosis,
   Avalanche = NetworkNames.Avalanche,
   Fantom = NetworkNames.Fantom,
-  Klaytn = NetworkNames.Klaytn,
+  Kaia = NetworkNames.Kaia,
   Aurora = NetworkNames.Aurora,
   Zksync = NetworkNames.ZkSync,
   Base = NetworkNames.Base,
@@ -123,11 +123,25 @@ export interface SwapOptions {
 // eslint-disable-next-line no-shadow
 export enum ProviderName {
   oneInch = "oneInch",
+  oneInchFusion = "oneInchFusion",
   paraswap = "paraswap",
   zerox = "zerox",
   changelly = "changelly",
   rango = "rango",
   jupiter = "jupiter",
+  okx = "okx",
+}
+
+// eslint-disable-next-line no-shadow
+export enum ProviderNameProper {
+  oneInch = "1inch",
+  oneInchFusion = "1inch Fusion",
+  paraswap = "ParaSwap",
+  zerox = "0x",
+  changelly = "Changelly",
+  rango = "Rango",
+  jupiter = "Jupiter",
+  okx = "Okx",
 }
 
 // eslint-disable-next-line no-shadow
@@ -151,6 +165,11 @@ export enum TransactionType {
   evm = "evm",
   generic = "generic",
   solana = "solana",
+}
+
+export enum SwapType {
+  regular = "regular",
+  rfq = "rfq",
 }
 
 export interface EVMTransaction {
@@ -229,6 +248,11 @@ export type StatusOptionTransaction = {
   sentAt: number;
 };
 
+export interface RFQOptions {
+  [key: string]: any;
+  signatures?: string[];
+}
+
 export interface StatusOptions {
   [key: string]: any;
   transactions: StatusOptionTransaction[];
@@ -239,10 +263,17 @@ export interface StatusOptionsResponse {
   provider: ProviderName;
 }
 
+export interface RFQOptionsResponse {
+  options: RFQOptions;
+  provider: ProviderName;
+}
+
 export interface ProviderSwapResponse {
   transactions: SwapTransaction[];
   toTokenAmount: BN;
   fromTokenAmount: BN;
+  type: SwapType;
+  typedMessages?: string[];
   /**
    * Additional native currency that has to be paid for the transaction
    * For example Changelly bridging fees, Solana rent fees
@@ -253,6 +284,7 @@ export interface ProviderSwapResponse {
   /** Percentage fee 0-1 (100 * basis points) */
   fee: number;
   getStatusObject: (options: StatusOptions) => Promise<StatusOptionsResponse>;
+  getRFQObject?: () => Promise<RFQOptionsResponse>;
 }
 
 export type ProviderFromTokenResponse = Record<string, TokenType>;
@@ -296,4 +328,8 @@ export abstract class ProviderClass {
   ): Promise<ProviderSwapResponse | null>;
 
   abstract getStatus(options: StatusOptions): Promise<TransactionStatus>;
+}
+
+export abstract class ProviderWithRFQ extends ProviderClass {
+  abstract submitRFQOrder(options: RFQOptions): Promise<string>;
 }

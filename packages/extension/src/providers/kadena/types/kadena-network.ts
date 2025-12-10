@@ -13,10 +13,7 @@ import createIcon from '@/providers/ethereum/libs/blockies';
 import MarketData from '@/libs/market-data';
 import { CoinGeckoTokenMarket } from '@/libs/market-data/types';
 import Sparkline from '@/libs/sparkline';
-import {
-  formatFloatingPointValue,
-  formatFiatValue,
-} from '@/libs/utils/number-formatter';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
 import { fromBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
 import { KDABaseToken, KDAToken } from './kda-token';
@@ -115,13 +112,12 @@ export class KadenaNetwork extends BaseNetwork {
       balance: balance,
       balancef: formatFloatingPointValue(userBalance).value,
       balanceUSD: usdBalance.toNumber(),
-      balanceUSDf: formatFiatValue(usdBalance.toString()).value,
+      balanceUSDf: usdBalance.toString(),
       icon: this.icon,
       name: this.name_long,
       symbol: this.currencyName,
       value: marketData[0]?.current_price?.toString() ?? '0',
-      valuef: formatFiatValue(marketData[0]?.current_price?.toString() ?? '0')
-        .value,
+      valuef: marketData[0]?.current_price?.toString() ?? '0',
       contract: '',
       decimals: this.decimals,
       sparkline: marketData.length

@@ -8,10 +8,7 @@ import { polkadotEncodeAddress, fromBase } from '@enkryptcom/utils';
 import createIcon from '../libs/blockies';
 import MarketData from '@/libs/market-data';
 import BigNumber from 'bignumber.js';
-import {
-  formatFiatValue,
-  formatFloatingPointValue,
-} from '@/libs/utils/number-formatter';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
 import Sparkline from '@/libs/sparkline';
 import { SubstrateNativeToken } from './substrate-native-token';
 import { Activity } from '@/types/activity';
@@ -160,7 +157,7 @@ export class SubstrateNetwork extends BaseNetwork {
         balance: balances[idx].toString(),
         balancef: formatFloatingPointValue(userBalance).value,
         balanceUSD: usdBalance.toNumber(),
-        balanceUSDf: formatFiatValue(usdBalance.toString()).value,
+        balanceUSDf: usdBalance.toString(),
         decimals: st.decimals,
         icon: st.icon,
         name: st.name,

@@ -20,7 +20,7 @@ import {
   LOCAL_STORAGE_KEYS,
   LOCAL_STORAGE_PREFIXES,
   LocalStorageHelper,
-} from '@action/db/localStorage.ts';
+} from '@action/db/localStorage';
 
 bitcoin.initEccLib(ecc);
 

@@ -1,6 +1,10 @@
 <template>
-  <div class="add-account-form__container">
-    <div class="add-account-form__overlay" @click="$emit('window:close')" />
+  <app-dialog
+    v-model="model"
+    width="344px"
+    is-centered
+    @close:dialog="closeWindow"
+  >
     <div class="add-account-form">
       <h3>Add new {{ network.name_long }} account</h3>
 
@@ -30,7 +34,7 @@
         <div class="add-account-form__buttons-cancel">
           <base-button
             title="Cancel"
-            :click="() => $emit('window:close')"
+            :click="closeWindow"
             :no-background="true"
           />
         </div>
@@ -43,17 +47,21 @@
         </div>
       </div>
     </div>
-  </div>
+  </app-dialog>
 </template>
 
 <script setup lang="ts">
-import Keyring from '@/libs/keyring/public-keyring';
+import { PropType, ref, watch } from 'vue';
+import BaseButton from '@action/components/base-button/index.vue';
+import { NodeType } from '@/types/provider';
 import { sendToBackgroundFromAction } from '@/libs/messenger/extension';
 import { InternalMethods } from '@/types/messenger';
-import { NodeType } from '@/types/provider';
-import BaseButton from '@action/components/base-button/index.vue';
 import { EnkryptAccount, KeyRecordAdd, WalletType } from '@enkryptcom/types';
-import { onMounted, PropType, ref, watch } from 'vue';
+import Keyring from '@/libs/keyring/public-keyring';
+import BackupState from '@/libs/backup-state';
+import AppDialog from '@action/components/app-dialog/index.vue';
+
+const model = defineModel<boolean>();
 
 const isFocus = ref(false);
 const accountName = ref('');
@@ -63,10 +71,12 @@ const addAccountInput = ref(null);
 
 defineExpose({ addAccountInput });
 const emit = defineEmits<{
-  (e: 'window:close'): void;
   (e: 'update:init'): void;
 }>();
 
+const closeWindow = () => {
+  model.value = false;
+};
 const props = defineProps({
   network: {
     type: Object as PropType<NodeType>,
@@ -92,12 +102,20 @@ const setNewAccountInfo = async () => {
     }
   });
 };
-onMounted(() => {
-  setNewAccountInfo();
-  if (addAccountInput.value) {
-    (addAccountInput.value as HTMLInputElement).focus();
-  }
-});
+
+watch(
+  () => model.value,
+  async () => {
+    if (model.value) {
+      accountName.value = '';
+      setNewAccountInfo();
+      if (addAccountInput.value) {
+        (addAccountInput.value as HTMLInputElement).focus();
+      }
+    }
+  },
+);
+
 watch(accountName, async () => {
   isDisabled.value = false;
   if (accountName.value.length < 3) return (isDisabled.value = true);
@@ -120,8 +138,12 @@ const addAccount = async () => {
       params: [keyReq],
     }),
   }).then(() => {
+    const backupState = new BackupState();
+    backupState.backup(false).catch(() => {
+      console.error('Failed to backup');
+    });
     emit('update:init');
-    emit('window:close');
+    closeWindow();
   });
 };
 </script>
@@ -129,41 +151,8 @@ const addAccount = async () => {
 <style lang="less" scoped>
 @import '@action/styles/theme.less';
 .add-account-form {
-  background: @white;
-  box-shadow:
-    0px 3px 6px rgba(0, 0, 0, 0.039),
-    0px 7px 24px rgba(0, 0, 0, 0.19);
-  border-radius: 12px;
   padding: 16px;
-  box-sizing: border-box;
-  width: 344px;
   height: auto;
-  z-index: 107;
-  position: relative;
-
-  &__container {
-    width: 800px;
-    height: 600px;
-    left: -340px;
-    top: 0px;
-    position: fixed;
-    z-index: 105;
-    display: flex;
-    box-sizing: border-box;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
-  }
-
-  &__overlay {
-    background: rgba(0, 0, 0, 0.32);
-    width: 100%;
-    height: 100%;
-    left: 0px;
-    top: 0px;
-    position: absolute;
-    z-index: 106;
-  }
 
   h3 {
     font-style: normal;
@@ -172,6 +161,7 @@ const addAccount = async () => {
     line-height: 32px;
     color: @primaryLabel;
     margin: 0 0 16px 0;
+    max-width: 280px;
   }
   p {
     font-style: normal;
@@ -216,7 +206,7 @@ const addAccount = async () => {
   }
   &__buttons {
     display: flex;
-    justify-content: space-between;
+    justify-content: justify-space-between;
     align-items: center;
     flex-direction: row;
     width: 100%;

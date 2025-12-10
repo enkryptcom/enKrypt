@@ -13,6 +13,8 @@ import Polkadot from '@/providers/polkadot/networks/polkadot';
 import Bitcoin from '@/providers/bitcoin/networks/bitcoin';
 import Kadena from '@/providers/kadena/networks/kadena';
 import Solana from '@/providers/solana/networks/solana';
+import MassaNetworks from '@/providers/massa/networks';
+import Massa from '@/providers/massa/networks/mainnet';
 
 const providerNetworks: Record<ProviderName, Record<string, BaseNetwork>> = {
   [ProviderName.ethereum]: EthereumNetworks,
@@ -20,21 +22,28 @@ const providerNetworks: Record<ProviderName, Record<string, BaseNetwork>> = {
   [ProviderName.bitcoin]: BitcoinNetworks,
   [ProviderName.kadena]: KadenaNetworks,
   [ProviderName.solana]: SolanaNetworks,
+  [ProviderName.massa]: MassaNetworks,
   [ProviderName.enkrypt]: {},
 };
-const getAllNetworks = async (): Promise<BaseNetwork[]> => {
+const getAllNetworks = async (
+  includeCustom: boolean = true,
+): Promise<BaseNetwork[]> => {
   const customNetworksState = new CustomNetworksState();
 
   const customNetworks = (
     await customNetworksState.getAllCustomEVMNetworks()
   ).map(options => new CustomEvmNetwork(options));
-
-  return (Object.values(EthereumNetworks) as BaseNetwork[])
+  const allNetworks = (Object.values(EthereumNetworks) as BaseNetwork[])
     .concat(Object.values(PolkadotNetworks) as BaseNetwork[])
     .concat(Object.values(BitcoinNetworks) as BaseNetwork[])
     .concat(Object.values(KadenaNetworks) as BaseNetwork[])
     .concat(Object.values(SolanaNetworks) as BaseNetwork[])
-    .concat(customNetworks);
+    .concat(Object.values(MassaNetworks) as BaseNetwork[]);
+
+  if (!includeCustom) {
+    return allNetworks;
+  }
+  return allNetworks.concat(customNetworks);
 };
 const getNetworkByName = async (
   name: string,
@@ -63,22 +72,26 @@ const DEFAULT_SUBSTRATE_NETWORK_NAME = NetworkNames.Polkadot;
 const DEFAULT_BTC_NETWORK_NAME = NetworkNames.Bitcoin;
 const DEFAULT_KADENA_NETWORK_NAME = NetworkNames.Kadena;
 const DEFAULT_SOLANA_NETWORK_NAME = NetworkNames.Solana;
+const DEFAULT_MASSA_NETWORK_NAME = NetworkNames.Massa;
 
 const DEFAULT_EVM_NETWORK = Ethereum;
 const DEFAULT_SUBSTRATE_NETWORK = Polkadot;
 const DEFAULT_BTC_NETWORK = Bitcoin;
 const DEFAULT_KADENA_NETWORK = Kadena;
 const DEFAULT_SOLANA_NETWORK = Solana;
+const DEFAULT_MASSA_NETWORK = Massa;
 
 const POPULAR_NAMES = [
   NetworkNames.Bitcoin,
   NetworkNames.Ethereum,
+  NetworkNames.Solana,
+  NetworkNames.Massa,
   NetworkNames.Matic,
   NetworkNames.Polkadot,
   NetworkNames.Binance,
   NetworkNames.Rootstock,
   NetworkNames.Optimism,
-  NetworkNames.Kadena,
+  NetworkNames.Arbitrum,
 ];
 export {
   getAllNetworks,
@@ -95,4 +108,6 @@ export {
   DEFAULT_KADENA_NETWORK_NAME,
   DEFAULT_SOLANA_NETWORK,
   DEFAULT_SOLANA_NETWORK_NAME,
+  DEFAULT_MASSA_NETWORK,
+  DEFAULT_MASSA_NETWORK_NAME,
 };

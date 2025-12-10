@@ -1,4 +1,4 @@
-import icon from './icons/astr.png';
+import icon from './icons/astr.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import { EtherscanActivity } from '../libs/activity-handlers';
@@ -15,7 +15,7 @@ const astrOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: 'ASTR',
   currencyNameLong: 'Astar',
-  node: 'wss://astar.public.blastapi.io/',
+  node: 'wss://astar.api.onfinality.io/public-ws',
   icon,
   coingeckoID: 'astar',
   coingeckoPlatform: CoingeckoPlatform.Astar,

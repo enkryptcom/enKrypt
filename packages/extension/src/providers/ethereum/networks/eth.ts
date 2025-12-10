@@ -1,8 +1,8 @@
-import icon from './icons/eth.svg';
+import icon from './icons/eth.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
-import mewNFTHandler from '@/libs/nft-handlers/mew';
+import NFTHandler from '@/libs/nft-handlers/goldrush';
 import { EtherscanActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
@@ -20,7 +20,7 @@ const ethOptions: EvmNetworkOptions = {
   icon,
   coingeckoID: 'ethereum',
   coingeckoPlatform: CoingeckoPlatform.Ethereum,
-  NFTHandler: mewNFTHandler,
+  NFTHandler,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };

@@ -6,7 +6,7 @@ const skaleOptions: SkaleParams = {
   name_long: 'Titan Community Hub | SKALE',
   chainName: 'parallel-stormy-spica',
   chainID: '0x507aaa2a',
-  icon: 'skaleTitan.png',
+  icon: 'skaleTitan.webp',
 };
 
 export default createSkaleEvmNetwork(skaleOptions);

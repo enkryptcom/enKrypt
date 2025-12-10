@@ -1,23 +1,31 @@
 <template>
-  <div class="network-activity-total">
-    <div v-if="cryptoAmount == '~'" class="network-activity-total__total">
-      <balance-loader class="network-activity-total__loader-one" />
-      <balance-loader class="network-activity-total__loader-two" />
+  <div class="network-activity-total-wrapper">
+    <div
+      v-if="cryptoAmount == '~' && !assumedError"
+      class="network-activity__total"
+    >
+      <balance-loader class="network-activity__loader-one" />
+      <balance-loader class="network-activity__loader-two" />
     </div>
-    <div v-else class="network-activity-total__total">
+    <div v-else-if="assumedError" class="network-activity__total-error">
+      <h3>
+        <span>Loading balance error. Please try again later</span>
+      </h3>
+    </div>
+    <div v-else class="network-activity__total">
       <h3>
         {{ cryptoAmount }} <span>{{ symbol }}</span>
       </h3>
       <p>
         <span v-if="subnetwork !== ''">Chain {{ subnetwork }} &middot;</span>
-        {{ fiatAmount }}
+        {{ $filters.parseCurrency(fiatAmount) }}
       </p>
     </div>
     <button
       :disabled="isAnonymizeBtnDisabled"
       v-if="network.name === NetworkNames.Firo && sparkAccount"
-      class="network-activity-total__anonymize"
-      :class="{ 'network-activity-total__anonymize-error': !!errorMsg }"
+      class="btn__anonymize"
+      :class="{ 'btn__anonymize-error': !!errorMsg }"
       @click="anonymizeFunds()"
     >
       Anonymize funds
@@ -34,18 +42,18 @@ import { createTempTx } from '@/libs/spark-handler/createTempTx';
 import { getFee } from '@/libs/spark-handler/getFee';
 import { getMintTxData } from '@/libs/spark-handler/getMintTxData';
 import { getTotalMintedAmount } from '@/libs/spark-handler/getTotalMintedAmount';
-import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
+import { wasmInstance } from '@/libs/utils/wasm-loader';
 import FiroAPI from '@/providers/bitcoin/libs/api-firo';
 import { validator } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
 import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
-import { AccountsHeaderData, SparkAccount } from '@action/types/account.ts';
-import { NetworkNames } from '@enkryptcom/types/dist';
+import { onBeforeMount, ref, PropType, watchEffect, computed } from 'vue';
+import { AccountsHeaderData, SparkAccount } from '@action/types/account';
+import { NetworkNames } from '@enkryptcom/types';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
-import { computed, PropType, ref } from 'vue';
 
 const props = defineProps({
   isSyncing: {
@@ -82,6 +90,27 @@ const props = defineProps({
     type: Object as PropType<AccountsHeaderData>,
     default: () => ({}),
   },
+});
+
+let timer: NodeJS.Timeout | null = null;
+const assumedError = ref(false);
+
+watchEffect(() => {
+  if (timer) {
+    clearTimeout(timer);
+  }
+  // set the timer on initial change to blank
+  if (props.cryptoAmount == '~') {
+    timer = setTimeout(() => {
+      assumedError.value = true;
+    }, 30000);
+  }
+});
+
+onBeforeMount(() => {
+  if (timer) {
+    clearTimeout(timer);
+  }
 });
 
 const wallet = new PublicFiroWallet();
@@ -169,10 +198,6 @@ const anonymizeFunds = async () => {
   for (let index = 0; index < spendableUtxos.length; index++) {
     const utxo = spendableUtxos[index];
     const keyPair = addressKeyPairs[utxo.address];
-
-    console.log(
-      `🔹 Signing input ${index} with key ${keyPair.publicKey.toString('hex')}`,
-    );
 
     const Signer = {
       sign: (hash: Uint8Array) => {
@@ -267,38 +292,49 @@ const anonymizeFunds = async () => {
 <style lang="less">
 @import '@action/styles/theme.less';
 
-.network-activity-total {
+.network-activity-total-wrapper {
   display: flex;
   align-items: flex-start;
+}
 
-  &__anonymize-error {
-    border: 1px solid @error !important;
-    color: @error;
+btn__anonymize-error {
+  border: 1px solid @error !important;
+  color: @error;
+}
+
+btn__anonymize {
+  padding: 8px 16px;
+  outline: none;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid @darkBg;
+  margin-top: 4px;
+  background: @buttonBg;
+  transition: all 300ms ease-in-out;
+
+  &:hover {
+    background: @darkBg;
+    border: 1px solid @orange01;
   }
 
-  &__anonymize {
-    padding: 8px 16px;
-    outline: none;
-    cursor: pointer;
-    border-radius: 8px;
-    border: 1px solid @darkBg;
-    margin-top: 4px;
-    background: @buttonBg;
-    transition: all 300ms ease-in-out;
+  &:disabled {
+    cursor: not-allowed;
+    color: @black07;
+    background: @gray01;
+    border: 1px solid @gray01;
+  }
+}
 
-    &:hover {
-      background: @darkBg;
-      border: 1px solid @orange01;
-    }
+.network-activity {
+  &__total-error {
+    padding: 0 20px 12px 20px;
 
-    &:disabled {
-      cursor: not-allowed;
-      color: @black07;
-      background: @gray01;
-      border: 1px solid @gray01;
+    h3 {
+      span {
+        color: @error;
+      }
     }
   }
-
   &__total {
     padding: 0 20px 12px 20px;
 

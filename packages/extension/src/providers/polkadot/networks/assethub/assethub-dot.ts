@@ -9,7 +9,7 @@ import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import assetHandler from '@/providers/polkadot/libs/asset-handler';
 import assets from './assets-dot';
 import { toBase } from '@enkryptcom/utils';
-import icon from '../icons/assethub.png';
+import icon from '../icons/assethub.webp';
 
 const assetHubOptions: SubstrateNetworkOptions = {
   name: NetworkNames.AssetHubDOT,
@@ -23,7 +23,7 @@ const assetHubOptions: SubstrateNetworkOptions = {
   icon,
   decimals: 10,
   prefix: 0,
-  node: 'wss://statemint-rpc.dwellir.com/',
+  node: 'wss://dot-rpc.stakeworld.io/assethub',
   coingeckoID: 'polkadot',
   genesisHash:
     '0x68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f',

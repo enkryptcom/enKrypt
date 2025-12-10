@@ -7,9 +7,13 @@ import {
   GenericEvents,
   NFTEventType,
   NetworkChangeEvents,
+  NetworkType,
   SendEventType,
   SettingEventType,
   SwapEventType,
+  UpdatesEventType,
+  UpdatesOpenLocation,
+  SolanaStakingBannerEvents,
 } from './types';
 
 const metrics = new Metrics();
@@ -18,9 +22,24 @@ const trackGenericEvents = (event: GenericEvents) => {
   metrics.track('generic', { event });
 };
 
-const trackNetworkSelected = (
+const trackNetwork = (
   event: NetworkChangeEvents,
-  options: { provider: ProviderName; network: NetworkNames },
+  options: {
+    provider?: ProviderName;
+    network?: NetworkNames;
+    networkTab?: string;
+    networkType?: NetworkType;
+    isPinned?: boolean;
+    sortOption?: string;
+    customRpcUrl?: string;
+    customNetworkName?: string;
+    customNetworkNameLong?: string;
+    customNetworkCurrency?: string;
+    customNetworkCurrencyLong?: string;
+    customChainId?: string;
+    customBlockExplorerUrlTx?: string;
+    customBlockExplorerUrlAddr?: string;
+  },
 ) => {
   metrics.track('network', { event, ...options });
 };
@@ -75,6 +94,16 @@ const trackDAppsEvents = (
   metrics.track('dapps', { event, ...options });
 };
 
+const trackUpdatesEvents = (
+  event: UpdatesEventType,
+  options: {
+    network: NetworkNames;
+    location?: UpdatesOpenLocation;
+    duration?: number;
+  },
+): void => {
+  metrics.track('updatesClick', { event, ...options });
+};
 const optOutofMetrics = (optOut: boolean) => {
   if (!__IS_FIREFOX__) {
     metrics.setOptOut(false);
@@ -86,8 +115,12 @@ const optOutofMetrics = (optOut: boolean) => {
   metrics.setOptOut(optOut);
 };
 
+const trackSolanaStakingBanner = (event: SolanaStakingBannerEvents) => {
+  metrics.track('solStakingBanner', { event });
+};
+
 export {
-  trackNetworkSelected,
+  trackNetwork,
   trackSwapEvents,
   trackBuyEvents,
   trackSendEvents,
@@ -95,4 +128,6 @@ export {
   trackDAppsEvents,
   optOutofMetrics,
   trackGenericEvents,
+  trackUpdatesEvents,
+  trackSolanaStakingBanner,
 };

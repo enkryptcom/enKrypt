@@ -2,7 +2,6 @@ import { ethers, Contract, utils, constants } from "ethers";
 import { BaseResolver, CoinType } from "../types";
 import { getTLD } from "../utils";
 
-
 const ROOTSTOCK_RPC_NODE = "https://public-node.rsk.co";
 
 // REF: https://developers.rsk.co/rif/rns/architecture/registry/
@@ -36,64 +35,63 @@ class RNSResolver implements BaseResolver {
   public async init(): Promise<void> {
     this.RNSProvider = new ethers.providers.JsonRpcProvider(ROOTSTOCK_RPC_NODE);
     this.rnsRegistryContract = new Contract(
-        RNS_REGISTRY_ADDRESS,
-        RNS_REGISTRY_ABI,
-        this.RNSProvider
-      );
+      RNS_REGISTRY_ADDRESS,
+      RNS_REGISTRY_ABI,
+      this.RNSProvider,
+    );
   }
 
   public async resolveReverseName(address: string): Promise<string | null> {
     const reverseRecordHash = utils.namehash(
-        `${stripHexPrefix(address)}.addr.reverse`
-      );
+      `${stripHexPrefix(address)}.addr.reverse`,
+    );
 
-      const resolverAddress = await this.rnsRegistryContract.resolver(
-        reverseRecordHash
-      );
+    const resolverAddress =
+      await this.rnsRegistryContract.resolver(reverseRecordHash);
 
-      if (resolverAddress === constants.AddressZero) {
-        return null;
-      }
+    if (resolverAddress === constants.AddressZero) {
+      return null;
+    }
 
-      const nameResolverContract = new Contract(
-        resolverAddress,
-        RNS_NAME_RESOLVER_ABI,
-        this.RNSProvider
-      );
+    const nameResolverContract = new Contract(
+      resolverAddress,
+      RNS_NAME_RESOLVER_ABI,
+      this.RNSProvider,
+    );
 
-      const name = await nameResolverContract.name(reverseRecordHash);
+    const name = await nameResolverContract.name(reverseRecordHash);
 
-      if (name === undefined) {
-        return null;
-      }
+    if (name === undefined) {
+      return null;
+    }
 
-      return name;
+    return name;
   }
 
   public async resolveAddress(
     name: string,
-    _coin: CoinType = "RSK"
+    _coin: CoinType = "RSK",
   ): Promise<string | null> {
-    const nameHash = utils.namehash(name)
-    const resolverAddress = await this.rnsRegistryContract.resolver(nameHash)
+    const nameHash = utils.namehash(name);
+    const resolverAddress = await this.rnsRegistryContract.resolver(nameHash);
 
     if (resolverAddress === constants.AddressZero) {
-      return null
+      return null;
     }
 
     const addrResolverContract = new Contract(
-        resolverAddress,
-        RNS_ADDR_RESOLVER_ABI,
-        this.RNSProvider
-      )
+      resolverAddress,
+      RNS_ADDR_RESOLVER_ABI,
+      this.RNSProvider,
+    );
 
-    const address = await addrResolverContract.addr(nameHash)
+    const address = await addrResolverContract.addr(nameHash);
 
-      if (address === undefined || address === null) {
-        return null
-      }
+    if (address === undefined || address === null) {
+      return null;
+    }
 
-     return address.toLowerCase();
+    return address.toLowerCase();
   }
 
   public isSupportedName(name: string): boolean {

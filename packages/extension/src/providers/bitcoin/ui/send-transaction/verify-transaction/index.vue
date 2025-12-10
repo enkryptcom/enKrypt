@@ -61,6 +61,7 @@
 
     <send-process
       v-if="isProcessing"
+      v-model="isProcessing"
       :is-nft="isNft"
       :to-address="txData.toAddress"
       :network="network"
@@ -94,13 +95,22 @@ import ActivityState from '@/libs/activity-state';
 import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
+import BitcoinAPI from '@/providers/bitcoin/libs/api';
 import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
-import FiroAPI from '@/providers/bitcoin/libs/api-firo.ts';
+import RateState from '@/libs/rate-state';
+import { useRateStore } from '@action/store/rate-store';
+
+/** -------------------
+ * Rate
+ -------------------*/
+const rateStore = useRateStore();
+const { toggleRatePopup } = rateStore;
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
 const router = useRouter();
+const rateState = new RateState();
 const selectedNetwork: string = route.query.id as string;
 const txData: VerifyTransactionParams = JSON.parse(
   Buffer.from(route.query.txData as string, 'base64').toString('utf8'),
@@ -155,7 +165,7 @@ const sendAction = async () => {
     transactionHash: '',
   };
   const activityState = new ActivityState();
-  const api = (await network.value.api()) as unknown as FiroAPI;
+  const api = (await network.value.api()) as BitcoinAPI;
 
   try {
     let signedTx;
@@ -195,11 +205,13 @@ const sendAction = async () => {
         if (getCurrentContext() === 'popup') {
           setTimeout(() => {
             isProcessing.value = false;
+            callToggleRate();
             router.go(-2);
           }, 4500);
         } else {
           setTimeout(() => {
             isProcessing.value = false;
+            callToggleRate();
             window.close();
           }, 1500);
         }
@@ -221,6 +233,16 @@ const sendAction = async () => {
     console.error('error', error);
     errorMsg.value = JSON.stringify(error);
   }
+};
+
+const callToggleRate = () => {
+  /**
+   * will only show the user if they haven't rated it
+   * and never been shown before
+   */
+  rateState.showPopup(true).then(show => {
+    if (show) toggleRatePopup(true);
+  });
 };
 const isHasScroll = () => {
   if (verifyScrollRef.value) {
