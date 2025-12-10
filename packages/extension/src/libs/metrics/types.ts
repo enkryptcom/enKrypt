@@ -13,9 +13,23 @@ export enum GenericEvents {
   login_error = 'login_error',
 }
 
+export enum NetworkType {
+  Regular = 'regular',
+  Custom = 'custom',
+  Testnet = 'testnet',
+}
+
 export enum NetworkChangeEvents {
   NetworkChangePopup = 'network_change_popup',
   NetworkChangeAPI = 'network_change_api',
+  NetworkTabsClicked = 'network_tabs_clicked',
+  NetworkPinnedStatusChanged = 'network_pinned_status_changed',
+  NetworkActiveChanged = 'network_active_changed',
+  NetworkSortOptionChanged = 'network_sort_option_changed',
+  NetworkAddCustomClicked = 'network_add_custom_clicked',
+  NetworkCustomNetworkAdded = 'network_custom_network_added',
+  NetworkDeleteCustomNetwork = 'network_delete_custom_network',
+  NetworkCustomBackButton = 'network_custom_back_button',
 }
 
 export enum BuyEventType {
@@ -46,4 +60,19 @@ export enum DAppsEventType {
 
 export enum SettingEventType {
   OptOut = 'opt_out',
+}
+
+export enum UpdatesEventType {
+  UpdatesOpen = 'updates_open',
+  UpdatesClosed = 'updates_closed',
+}
+
+export enum UpdatesOpenLocation {
+  settings = 'settings',
+  logo = 'logo',
+}
+
+export enum SolanaStakingBannerEvents {
+  SolanaWalletClicked = 'sol_staking_banner.solana_wallet.clicked',
+  NetworkListClicked = 'sol_staking_banner.network_list.clicked',
 }

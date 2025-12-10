@@ -1,10 +1,9 @@
-import icon from './icons/mode.png';
+import icon from './icons/mode.webp';
 import { NetworkNames, CoingeckoPlatform } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import { EtherscanActivity } from '../libs/activity-handlers';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
-import shNFTHandler from '@/libs/nft-handlers/simplehash';
 
 const modeOptions: EvmNetworkOptions = {
   name: NetworkNames.Mode,
@@ -20,7 +19,6 @@ const modeOptions: EvmNetworkOptions = {
   icon,
   coingeckoPlatform: CoingeckoPlatform.Mode,
   coingeckoID: 'ethereum',
-  NFTHandler: shNFTHandler,
   assetsInfoHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };

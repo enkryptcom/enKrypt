@@ -24,6 +24,7 @@ class PublicKeyRing {
         signerType: SignerType.secp256k1,
         walletType: WalletType.mnemonic,
         isHardware: false,
+        isTestWallet: true,
       };
       allKeys['0xb1ea5a3e5ea7fa1834d48058ecda26d8c59e8251'] = {
         address: '0xb1ea5a3e5ea7fa1834d48058ecda26d8c59e8251', //optimism nfts
@@ -34,6 +35,7 @@ class PublicKeyRing {
         signerType: SignerType.secp256k1,
         walletType: WalletType.mnemonic,
         isHardware: false,
+        isTestWallet: true,
       };
       allKeys['0xe5dc07bdcdb8c98850050c7f67de7e164b1ea391'] = {
         address: '0xe5dc07bdcdb8c98850050c7f67de7e164b1ea391',
@@ -44,6 +46,7 @@ class PublicKeyRing {
         signerType: SignerType.secp256k1,
         walletType: WalletType.ledger,
         isHardware: true,
+        isTestWallet: true,
       };
       allKeys['5E56EZk6jmpq1q3Har3Ms99D9TLN9ra2inFh7Q1Hj6GpUx6D'] = {
         address: '5E56EZk6jmpq1q3Har3Ms99D9TLN9ra2inFh7Q1Hj6GpUx6D',
@@ -54,6 +57,7 @@ class PublicKeyRing {
         signerType: SignerType.sr25519,
         walletType: WalletType.ledger,
         isHardware: true,
+        isTestWallet: true,
       };
       allKeys['5E56EZk6jmpq1q3Har3Ms99D9TLN9ra2inFh7Q1Hj6GpUx6D'] = {
         address: '5CFnoCsP3pDK2thhSqYPwKELJFLQ1hBodqzSUypexyh7eHkB',
@@ -64,6 +68,7 @@ class PublicKeyRing {
         signerType: SignerType.sr25519,
         walletType: WalletType.mnemonic,
         isHardware: false,
+        isTestWallet: true,
       };
       allKeys[
         'bc1puzz9tmxawd7zdd7klfgtywrgpma3u22fz5ecxhucd4j8tygqe5ms2vdd9y'
@@ -77,16 +82,7 @@ class PublicKeyRing {
         signerType: SignerType.secp256k1btc,
         walletType: WalletType.mnemonic,
         isHardware: false,
-      };
-      allKeys['TMSnbcpSw9JhteaJqioT2sz2sW1Qhqyf2Q'] = {
-        address: 'TMSnbcpSw9JhteaJqioT2sz2sW1Qhqyf2Q',
-        basePath: "m/44'/1'/0'/0",
-        name: 'fake firo account #1',
-        pathIndex: 0,
-        publicKey: '0x0',
-        signerType: SignerType.secp256k1btc,
-        walletType: WalletType.mnemonic,
-        isHardware: false,
+        isTestWallet: true,
       };
       allKeys['77hREDDaAiimedtD9bR1JDMgYLW3AA5yPvD91pvrueRp'] = {
         address: '77hREDDaAiimedtD9bR1JDMgYLW3AA5yPvD91pvrueRp',
@@ -97,6 +93,7 @@ class PublicKeyRing {
         signerType: SignerType.ed25519sol,
         walletType: WalletType.mnemonic,
         isHardware: false,
+        isTestWallet: true,
       };
       allKeys['tQvduDby4rvC6VU4rSirhVWuRYxbJz3rvUrVMkUWsZP'] = {
         address: 'tQvduDby4rvC6VU4rSirhVWuRYxbJz3rvUrVMkUWsZP',
@@ -107,6 +104,7 @@ class PublicKeyRing {
         signerType: SignerType.ed25519sol,
         walletType: WalletType.mnemonic,
         isHardware: false,
+        isTestWallet: true,
       };
     }
     return allKeys;

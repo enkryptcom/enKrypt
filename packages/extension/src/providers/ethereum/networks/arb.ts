@@ -1,10 +1,10 @@
-import icon from './icons/arbitrum.svg';
+import icon from './icons/arbitrum.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import { EtherscanActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
-import shNFTHandler from '@/libs/nft-handlers/simplehash';
+import NFTHandler from '@/libs/nft-handlers/goldrush';
 
 const arbOptions: EvmNetworkOptions = {
   name: NetworkNames.Arbitrum,
@@ -21,7 +21,7 @@ const arbOptions: EvmNetworkOptions = {
   coingeckoID: 'ethereum',
   coingeckoPlatform: CoingeckoPlatform.Arbitrum,
   assetsInfoHandler,
-  NFTHandler: shNFTHandler,
+  NFTHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

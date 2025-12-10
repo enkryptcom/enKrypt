@@ -53,11 +53,10 @@
       />
 
       <assets-select-list
-        v-show="isOpenSelectToken"
+        v-model="isOpenSelectToken"
         :is-send="true"
         :assets="accountAssets"
         :is-loading="isLoadingAssets"
-        @close="toggleSelectToken"
         @update:select-asset="selectToken"
       />
 
@@ -69,11 +68,11 @@
       />
 
       <nft-select-list
-        v-show="isOpenSelectNft"
+        v-if="!isSendToken"
+        v-model="isOpenSelectNft"
         :address="addressFrom"
         :network="network"
-        :selected-nft="paramNFTData"
-        @close="toggleSelectNft"
+        :selected-nft="tokenParamData"
         @select-nft="selectNFT"
       />
 
@@ -139,7 +138,6 @@ import { fromBase, toBase, isValidDecimals } from '@enkryptcom/utils';
 import { VerifyTransactionParams, SendTransactionDataType } from '../types';
 import {
   formatFloatingPointValue,
-  formatFiatValue,
   isNumericPositive,
 } from '@/libs/utils/number-formatter';
 import { routes as RouterNames } from '@/ui/action/router';
@@ -173,7 +171,8 @@ import {
 import getPriorityFees from '../libs/get-priority-fees';
 import bs58 from 'bs58';
 import SolanaAPI from '@/providers/solana/libs/api';
-import { ComputedRefSymbol } from '@vue/reactivity';
+import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
+import { parseCurrency } from '@/ui/action/utils/filters';
 
 const props = defineProps({
   network: {
@@ -203,7 +202,7 @@ const solConnection = ref<SolanaAPI>();
 const nameResolver = new GenericNameResolver();
 const addressInputTo = ref();
 const selected: string = route.params.id as string;
-const paramNFTData: NFTItem = JSON.parse(
+const tokenParamData: NFTItem = JSON.parse(
   route.params.tokenData ? (route.params.tokenData as string) : '{}',
 ) as NFTItem;
 const isSendToken = ref<boolean>(JSON.parse(route.params.isToken as string));
@@ -219,6 +218,13 @@ const hasValidDecimals = computed((): boolean => {
 const hasPositiveSendAmount = computed(() => {
   return isNumericPositive(sendAmount.value);
 });
+
+const hasLessThanFees = computed(() => {
+  return BigNumber(gasCostValues.value[selectedFee.value].nativeValue).gt(
+    fromBase(nativeBalance.value, props.network.decimals),
+  );
+});
+
 const hasEnoughBalance = computed((): boolean => {
   if (!hasValidDecimals.value) {
     return false;
@@ -226,6 +232,8 @@ const hasEnoughBalance = computed((): boolean => {
   if (!hasPositiveSendAmount.value) {
     return false;
   }
+  if (hasLessThanFees.value) return false;
+
   return toBN(selectedAsset.value.balance ?? '0').gte(
     toBN(toBase(sendAmount.value ?? '0', selectedAsset.value.decimals!)),
   );
@@ -359,6 +367,8 @@ const balanceAfterInUsd = computed(() => {
 });
 
 const errorMsg = computed(() => {
+  if (hasLessThanFees.value) return `Not enough funds for fees.`;
+
   if (!hasValidDecimals.value) {
     return `Too many decimals.`;
   }
@@ -373,9 +383,9 @@ const errorMsg = computed(() => {
   ) {
     return `Not enough funds. You are
       ~${formatFloatingPointValue(nativeBalanceAfterTransactionInHumanUnits.value).value}
-      ${props.network.currencyName} ($ ${
-        formatFiatValue(balanceAfterInUsd.value).value
-      }) short.`;
+      ${props.network.currencyName} (${parseCurrency(
+        balanceAfterInUsd.value,
+      )}) short.`;
   }
 
   if (
@@ -397,7 +407,7 @@ const errorMsg = computed(() => {
   }
 
   if (new BigNumber(sendAmount.value).gt(assetMaxValue.value)) {
-    return `Amount exceeds maximum value.`;
+    return `Not enough balance.`;
   }
 
   return '';
@@ -436,7 +446,18 @@ const fetchAssets = () => {
   isLoadingAssets.value = true;
   return props.network.getAllTokens(addressFrom.value).then(allAssets => {
     accountAssets.value = allAssets as SOLToken[];
-    selectedAsset.value = allAssets[0] as SOLToken;
+    const hasParamData =
+      isSendToken.value && tokenParamData && tokenParamData.contract;
+    if (hasParamData) {
+      const selectedToken = accountAssets.value.find(
+        asset => asset.contract === tokenParamData.contract,
+      );
+      if (selectedToken) {
+        selectedAsset.value = selectedToken as SOLToken;
+      }
+    } else {
+      selectedAsset.value = allAssets[0] as SOLToken;
+    }
     isLoadingAssets.value = false;
   });
 };
@@ -486,17 +507,16 @@ const updateTransactionFees = async () => {
   const to = TxInfo.value.to
     ? new PublicKey(getAddress(TxInfo.value.to))
     : from;
-  const priorityFee = (
-    await getPriorityFees(
-      new PublicKey(getAddress(TxInfo.value.from)),
-      solConnection.value!.web3,
-    )
-  ).high;
-  const transaction = new SolTransaction().add(
-    ComputeBudgetProgram.setComputeUnitPrice({
-      microLamports: priorityFee * 100,
-    }),
-  );
+  const priorityFee = (await getPriorityFees(props.network)).high;
+  const transaction = new SolTransaction();
+  if (priorityFee !== 0) {
+    transaction.add(
+      ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: priorityFee,
+      }),
+    );
+  }
+
   if (isSendToken.value && TxInfo.value.contract === NATIVE_TOKEN_ADDRESS) {
     const toBalance = await solConnection.value!.web3.getBalance(to);
     const rentExempt =
@@ -525,11 +545,24 @@ const updateTransactionFees = async () => {
     (!isSendToken.value && selectedNft.value.type === NFTType.SolanaToken)
   ) {
     const contract = new PublicKey(TxInfo.value.contract);
-    const associatedTokenTo = getAssociatedTokenAddressSync(contract, to);
-    const associatedTokenFrom = getAssociatedTokenAddressSync(contract, from);
+    const programId = await solConnection.value!.web3.getAccountInfo(contract);
+    const associatedTokenTo = getAssociatedTokenAddressSync(
+      contract,
+      to,
+      undefined,
+      programId!.owner,
+    );
+    const associatedTokenFrom = getAssociatedTokenAddressSync(
+      contract,
+      from,
+      undefined,
+      programId!.owner,
+    );
     const validATA = await getAccount(
       solConnection.value!.web3,
       associatedTokenTo,
+      undefined,
+      programId!.owner,
     )
       .then(() => true)
       .catch(() => false);
@@ -540,6 +573,8 @@ const updateTransactionFees = async () => {
           associatedTokenTo,
           from,
           toBN(TxInfo.value.value).toNumber(),
+          [],
+          programId!.owner,
         ),
       );
     } else {
@@ -549,6 +584,7 @@ const updateTransactionFees = async () => {
           associatedTokenTo,
           to,
           contract,
+          programId!.owner,
         ),
       );
       transaction.add(
@@ -557,6 +593,8 @@ const updateTransactionFees = async () => {
           associatedTokenTo,
           from,
           toBN(TxInfo.value.value).toNumber(),
+          [],
+          programId!.owner,
         ),
       );
       storageFee.value =
@@ -666,7 +704,11 @@ const inputAddressFrom = (text: string) => {
 const inputAddressTo = async (text: string) => {
   const debounceResolve = debounce(() => {
     nameResolver
-      .resolveName(text, [props.network.name as CoinType, 'ETH'])
+      .resolveName(
+        text,
+        [props.network.name as CoinType, 'ETH'],
+        props.network.provider as string,
+      )
       .then(resolved => {
         if (resolved) {
           addressTo.value = resolved;
@@ -718,7 +760,14 @@ const inputAmount = (inputAmount: string) => {
   }
 };
 
+const recentlySentAddresses = new RecentlySentAddressesState();
+
 const sendAction = async () => {
+  await recentlySentAddresses.addRecentlySentAddress(
+    props.network,
+    addressTo.value,
+  );
+
   const keyring = new PublicKeyRing();
   const fromAccountInfo = await keyring.getAccount(
     addressFrom.value.toLowerCase(),

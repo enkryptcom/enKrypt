@@ -47,10 +47,10 @@
 </template>
 
 <script setup lang="ts">
-import scrollSettings from '@/libs/utils/scroll-settings';
-import { BaseNetwork } from '@/types/base-network';
+import NetworkActivityTotal from './components/network-activity-total.vue';
+import NetworkActivityAction from './components/network-activity-action.vue';
+import NetworkActivityTransaction from './components/network-activity-transaction.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
-import accountInfoComposable from '@action/composables/account-info';
 import {
   computed,
   onMounted,
@@ -62,32 +62,34 @@ import {
   watch,
 } from 'vue';
 import { AccountsHeaderData } from '../../types/account';
-import NetworkActivityAction from './components/network-activity-action.vue';
-import NetworkActivityTotal from './components/network-activity-total.vue';
-import NetworkActivityTransaction from './components/network-activity-transaction.vue';
+import accountInfoComposable from '@action/composables/account-info';
+import { BaseNetwork } from '@/types/base-network';
+import scrollSettings from '@/libs/utils/scroll-settings';
 
-import ActivityState from '@/libs/activity-state';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
-import EvmAPI from '@/providers/ethereum/libs/api';
 import {
   Activity,
   ActivityStatus,
   ActivityType,
   BTCRawInfo,
   EthereumRawInfo,
-  KadenaRawInfo,
-  SOLRawInfo,
   SubscanExtrinsicInfo,
   SwapRawInfo,
+  KadenaRawInfo,
+  SOLRawInfo,
+  MassaRawInfo,
 } from '@/types/activity';
+import NetworkActivityLoading from './components/network-activity-loading.vue';
 import { ProviderName } from '@/types/provider';
+import ActivityState from '@/libs/activity-state';
 import Swap, {
   SupportedNetworkName,
   TransactionStatus,
   WalletIdentifier,
 } from '@enkryptcom/swap';
+import EvmAPI from '@/providers/ethereum/libs/api';
 import type Web3Eth from 'web3-eth';
-import NetworkActivityLoading from './components/network-activity-loading.vue';
+import { OperationStatus } from '@massalabs/massa-web3';
 
 const props = defineProps({
   isSyncing: {
@@ -175,88 +177,99 @@ const updateSparkState = (network: BaseNetwork) => {
   emits('update:spark-state-changed', network);
 };
 
+let isActivityUpdating = false;
+
+const updateActivitySync = (activity: Activity) => {
+  isActivityUpdating = true;
+  return activityState
+    .updateActivity(activity, {
+      address: activityAddress.value,
+      network: props.network.name,
+    })
+    .finally(() => {
+      isActivityUpdating = false;
+    });
+};
+
 const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {
   if (props.network.provider === ProviderName.ethereum) {
     if (!info) return;
+    if (isActivityUpdating) return;
     const evmInfo = info as EthereumRawInfo;
     activity.status = evmInfo.status
       ? ActivityStatus.success
       : ActivityStatus.failed;
     activity.rawInfo = evmInfo;
-    activityState
-      .updateActivity(activity, {
-        address: activityAddress.value,
-        network: props.network.name,
-      })
-      .then(() => updateVisibleActivity(activity));
+    updateActivitySync(activity).then(() => updateVisibleActivity(activity));
   } else if (props.network.provider === ProviderName.polkadot) {
     if (!info) return;
     const subInfo = info as SubscanExtrinsicInfo;
     if (!subInfo.pending) {
+      if (isActivityUpdating) return;
       activity.status = subInfo.success
         ? ActivityStatus.success
         : ActivityStatus.failed;
       activity.rawInfo = subInfo;
-      activityState
-        .updateActivity(activity, {
-          address: activityAddress.value,
-          network: props.network.name,
-        })
-        .then(() => updateVisibleActivity(activity));
+      updateActivitySync(activity).then(() => updateVisibleActivity(activity));
     }
   } else if (props.network.provider === ProviderName.bitcoin) {
     if (!info) return;
     const btcInfo = info as BTCRawInfo;
+    if (isActivityUpdating) return;
     activity.status = ActivityStatus.success;
     activity.rawInfo = btcInfo;
-    activityState
-      .updateActivity(activity, {
-        address: activityAddress.value,
-        network: props.network.name,
-      })
-      .then(() => updateVisibleActivity(activity));
+    updateActivitySync(activity).then(() => updateVisibleActivity(activity));
   } else if (props.network.provider === ProviderName.kadena) {
     if (!info) return;
     const kadenaInfo = info as KadenaRawInfo;
+    if (isActivityUpdating) return;
     activity.status =
       kadenaInfo.result.status == 'success'
         ? ActivityStatus.success
         : ActivityStatus.failed;
     activity.rawInfo = kadenaInfo as KadenaRawInfo;
-
-    activityState
-      .updateActivity(activity, {
-        address: activityAddress.value,
-        network: props.network.name,
-      })
-      .then(() => updateVisibleActivity(activity));
+    updateActivitySync(activity).then(() => updateVisibleActivity(activity));
   } else if (props.network.provider === ProviderName.solana) {
     if (info) {
-      console.log('[[ ??? doing something ??? ]]', info);
       const solInfo = info as SOLRawInfo;
+      if (isActivityUpdating) return;
       activity.status = info.status
         ? ActivityStatus.success
         : ActivityStatus.failed;
       activity.rawInfo = solInfo;
-      activityState
-        .updateActivity(activity, {
-          address: activityAddress.value,
-          network: props.network.name,
-        })
-        .then(() => updateVisibleActivity(activity));
+      updateActivitySync(activity).then(() => updateVisibleActivity(activity));
     } else if (Date.now() > activity.timestamp + 3 * 60_000) {
       // Either our node is behind or the transaction was dropped
       // Consider the transaction expired
+      if (isActivityUpdating) return;
       activity.status = ActivityStatus.dropped;
-      activityState
-        .updateActivity(activity, {
-          address: activityAddress.value,
-          network: props.network.name,
-        })
-        .then(() => updateVisibleActivity(activity));
+      updateActivitySync(activity).then(() => updateVisibleActivity(activity));
     } else {
       return; /* Give the transaction more time to be mined */
     }
+  } else if (props.network.provider === ProviderName.massa) {
+    if (!info) return;
+    const massaInfo = info as MassaRawInfo;
+    if (isActivityUpdating || massaInfo === OperationStatus.PendingInclusion)
+      return;
+
+    let status = ActivityStatus.failed;
+    // if the transaction is not found, and it's been less than 1 minute, wait for it to be processed
+    if (
+      massaInfo === OperationStatus.NotFound &&
+      Date.now() < activity.timestamp + 60_000
+    ) {
+      return;
+    } else if (
+      massaInfo === OperationStatus.Success ||
+      massaInfo === OperationStatus.SpeculativeSuccess
+    ) {
+      status = ActivityStatus.success;
+    }
+
+    activity.status = status;
+    activity.rawInfo = massaInfo;
+    updateActivitySync(activity).then(() => updateVisibleActivity(activity));
   }
 
   // If we're this far in then the transaction has reached a terminal status

@@ -1,66 +1,68 @@
 <template>
-  <a class="network-assets__token" @click="toggleDetail()">
-    <div
-      class="network-assets__token-info"
-      :class="{ max: token.priceChangePercentage == 0 }"
-    >
-      <img :src="token.icon" />
-      <div class="network-assets__token-info-name">
-        <h4 v-if="token.name.length <= 16">{{ token.name }}</h4>
-        <tooltip v-else :text="token.name"
-          ><h4>{{ `${token.name.slice(0, 12)}...` }}</h4></tooltip
-        >
-        <p>
-          {{ token.balancef }}
-          <span v-if="token.symbol.length <= 6">
-            {{ token.symbol.toLowerCase() }}
-          </span>
-          <tooltip
-            v-else
-            :style="{ fontSize: '12px !important' }"
-            :text="token.symbol"
+  <div>
+    <a class="network-assets__token" @click="toggleDetail()">
+      <div
+        class="network-assets__token-info"
+        :class="{ max: token.priceChangePercentage == 0 }"
+      >
+        <img :src="token.icon" width="32px" height="32px" />
+        <div class="network-assets__token-info-name">
+          <h4 v-if="token.name.length <= 16">{{ token.name }}</h4>
+          <tooltip v-else :text="token.name"
+            ><h4>{{ `${token.name.slice(0, 12)}...` }}</h4></tooltip
           >
-            <span>{{ `${token.symbol.toLowerCase().slice(0, 7)}` }}</span>
-          </tooltip>
-        </p>
+          <p>
+            {{ token.balancef }}
+            <span v-if="token.symbol.length <= 6">
+              {{ token.symbol.toLowerCase() }}
+            </span>
+            <tooltip
+              v-else
+              :style="{ fontSize: '12px !important' }"
+              :text="token.symbol"
+            >
+              <span>{{ `${token.symbol.toLowerCase().slice(0, 7)}` }}</span>
+            </tooltip>
+          </p>
+        </div>
       </div>
-    </div>
 
-    <div
-      v-if="token.priceChangePercentage !== 0"
-      class="network-assets__token-sparkline"
-      :class="{
-        down: token.priceChangePercentage < 0,
-        up: token.priceChangePercentage >= 0,
-      }"
-    >
-      <p>
-        <sparkline-up v-if="token.priceChangePercentage >= 0" /><sparkline-down
-          v-if="token.priceChangePercentage < 0"
-        />{{ token.priceChangePercentage.toFixed(2) }}%
-      </p>
-      <v-chart class="chart" :option="option" />
-    </div>
+      <div
+        v-if="token.priceChangePercentage !== 0"
+        class="network-assets__token-sparkline"
+        :class="{
+          down: token.priceChangePercentage < 0,
+          up: token.priceChangePercentage >= 0,
+        }"
+      >
+        <p>
+          <sparkline-up
+            v-if="token.priceChangePercentage >= 0"
+          /><sparkline-down v-if="token.priceChangePercentage < 0" />{{
+            token.priceChangePercentage.toFixed(2)
+          }}%
+        </p>
+        <v-chart class="chart" :option="option" />
+      </div>
+      <div class="network-assets__token-price">
+        <h4>{{ $filters.parseCurrency(token.balanceUSD) }}</h4>
+        <p>@{{ $filters.parseCurrency(token.value) }}</p>
+      </div>
+    </a>
 
-    <div class="network-assets__token-price">
-      <h4>${{ token.balanceUSDf }}</h4>
-      <p>@{{ token.valuef }}</p>
-    </div>
-  </a>
-
-  <asset-detail-view
-    v-if="isDetail"
-    :token="token"
-    :network="network"
-    :is-custom-token="isCustomToken"
-    :remove-token="removeToken"
-    @close:popup="toggleDetail"
-  />
+    <asset-detail-view
+      v-model="isDetail"
+      :token="token"
+      :is-custom-token="isCustomToken"
+      :remove-token="removeToken"
+      @open:buy-action="openBuySell"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { PropType, ref, computed, onMounted } from 'vue';
-import { CustomErc20Token } from '@/libs/tokens-state/types.ts';
+import { CustomErc20Token } from '@/libs/tokens-state/types';
 import { BaseNetwork } from '@/types/base-network';
 import SparklineUp from '@action/icons/asset/sparkline-up.vue';
 import SparklineDown from '@action/icons/asset/sparkline-down.vue';
@@ -89,8 +91,8 @@ const props = defineProps({
 use([SVGRenderer, LineChart, TooltipComponent, GridComponent]);
 
 const option = ref({
-  width: 32,
-  height: 32,
+  width: 48,
+  height: 20,
   color: [props.token.priceChangePercentage >= 0 ? '#80FFA5' : '#e01f43'],
   grid: { show: false, left: 0, top: 0 },
   xAxis: [
@@ -159,7 +161,12 @@ const isCustomToken = computed(() => {
 
 const emit = defineEmits<{
   (e: 'update:tokens'): void;
+  (e: 'open:buy-action', token: AssetsType): void;
 }>();
+
+const openBuySell = () => {
+  emit('open:buy-action', props.token);
+};
 
 const removeToken = () => {
   if (props.token.contract) {
@@ -180,8 +187,8 @@ const toggleDetail = () => {
 <style lang="less">
 @import '@action/styles/theme.less';
 .chart {
-  height: 32px;
-  width: 32px;
+  height: 20px;
+  width: 48px;
 }
 .down {
   color: @error;
@@ -192,7 +199,7 @@ const toggleDetail = () => {
 .network-assets {
   &__token {
     height: 72px;
-    padding: 0 20px;
+    padding: 0 4px;
     position: relative;
     box-sizing: border-box;
     display: flex;
@@ -202,7 +209,7 @@ const toggleDetail = () => {
     border-radius: 10px;
     transition: background 300ms ease-in-out;
     text-decoration: none;
-    margin: 0 12px;
+    margin: 0 16px;
     cursor: pointer;
 
     &:hover {
@@ -214,7 +221,7 @@ const toggleDetail = () => {
       justify-content: flex-start;
       align-items: center;
       flex-direction: row;
-      width: 190px;
+      width: 196px;
       overflow: hidden;
 
       &.max {
@@ -223,10 +230,12 @@ const toggleDetail = () => {
       }
 
       img {
-        max-width: 32px;
+        width: 32px;
+        height: 32px;
         margin-right: 16px;
         border-radius: 100%;
         box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
+        object-fit: contain;
       }
 
       &-name {
@@ -280,8 +289,8 @@ const toggleDetail = () => {
     &-sparkline {
       text-align: center;
       img {
-        max-height: 32px;
-        max-width: 32px;
+        max-height: 20px;
+        max-width: 48px;
       }
       p {
         display: flex;
@@ -304,7 +313,7 @@ const toggleDetail = () => {
 
     &-price {
       text-align: right;
-      width: 160px;
+      width: 162px;
 
       h4 {
         font-style: normal;

@@ -31,6 +31,7 @@ enum OtherErrors {
 
 enum KeyringErrors {
   MnemonicExists = "Mnemonic already exists",
+  ExtrawordExists = "Extraword already exists",
   NotInitialized = "Key ring not initialized",
   NoPassword = "No password set",
   AddressExists = "Address already exists",
@@ -49,6 +50,7 @@ enum SignerType {
   secp256k1btc = "secp256k1-btc", // bitcoin
   ed25519kda = "ed25519-kda", // kadena
   ed25519sol = "ed25519-sol", // solana
+  ed25519mas = "ed25519-mas", // massa
 }
 
 interface KeyRecordAdd {
@@ -71,6 +73,7 @@ interface HWwalletOptions {
 
 interface EnkryptAccount extends KeyRecord {
   isHardware: boolean;
+  isTestWallet?: boolean;
   HWOptions?: HWwalletOptions;
 }
 
@@ -90,6 +93,11 @@ interface KeyPairAdd extends KeyPair {
   signerType: SignerType;
 }
 
+interface MnemonicWithExtraWord {
+  mnemonic: string;
+  extraWord?: string;
+}
+
 interface SignerInterface {
   sign: (
     msgHash: string,
@@ -103,7 +111,7 @@ interface SignerInterface {
     options?: unknown,
   ) => Promise<boolean>;
   generate: (
-    mnemonic: string,
+    mnemonic: MnemonicWithExtraWord,
     path: string,
     options?: unknown,
   ) => Promise<KeyPair>;
@@ -194,4 +202,5 @@ export {
   EnkryptAccount,
   HWWalletAdd,
   KeyPairAdd,
+  MnemonicWithExtraWord,
 };

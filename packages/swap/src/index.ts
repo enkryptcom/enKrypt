@@ -2,8 +2,9 @@ import { merge } from "lodash";
 import EventEmitter from "eventemitter3";
 import type Web3Eth from "web3-eth";
 import type { Connection as Web3Solana } from "@solana/web3.js";
-import { TOKEN_LISTS, TOP_TOKEN_INFO_LIST } from "./configs";
+import { TOKEN_LISTS, TOP_TOKEN_INFO_LIST, PROVIDER_INFO } from "./configs";
 import OneInch from "./providers/oneInch";
+import OneInchFusion from "./providers/oneInchFusion";
 import Paraswap from "./providers/paraswap";
 import Changelly from "./providers/changelly";
 import ZeroX from "./providers/zerox";
@@ -35,6 +36,8 @@ import type {
   StatusOptionsResponse,
   StatusOptions,
   ProviderClass,
+  RFQOptionsResponse,
+  ProviderWithRFQ,
 } from "./types";
 import {
   SupportedNetworkName,
@@ -47,6 +50,7 @@ import {
 import { sortByRank, sortNativeToFront } from "./utils/common";
 import SwapToken from "./swapToken";
 import { Jupiter } from "./providers/jupiter";
+import { OKX } from "./providers/okx";
 
 class Swap extends EventEmitter {
   network: SupportedNetworkName;
@@ -119,12 +123,14 @@ class Swap extends EventEmitter {
           new Jupiter(this.api as Web3Solana, this.network),
           new Rango(this.api as Web3Solana, this.network),
           new Changelly(this.api, this.network),
+          new OKX(this.api as Web3Solana, this.network),
         ];
         break;
       default:
         // EVM
         this.providers = [
           new OneInch(this.api as Web3Eth, this.network),
+          new OneInchFusion(this.api as Web3Eth, this.network),
           new Paraswap(this.api as Web3Eth, this.network),
           new Changelly(this.api, this.network),
           new ZeroX(this.api as Web3Eth, this.network),
@@ -238,6 +244,11 @@ class Swap extends EventEmitter {
     return provider.getStatus(options.options);
   }
 
+  submitRFQOrder(options: RFQOptionsResponse): Promise<string> {
+    const provider = this.providers.find((p) => p.name === options.provider);
+    return (provider as ProviderWithRFQ).submitRFQOrder(options.options);
+  }
+
   static networkNameToInfo(networkName: SupportedNetworkName): NetworkInfo {
     return NetworkDetails[networkName];
   }
@@ -265,6 +276,8 @@ export {
   TransactionStatus,
   StatusOptionsResponse,
   StatusOptions,
+  ToTokenType,
+  PROVIDER_INFO,
 };
 
 export default Swap;

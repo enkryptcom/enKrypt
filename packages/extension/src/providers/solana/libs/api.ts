@@ -66,39 +66,48 @@ class API implements ProviderAPIInterface {
   }
 
   getTokenInfo = async (contractAddress: string): Promise<SPLTokenInfo> => {
-    interface TokenDetails {
-      address: string;
-      decimals: number;
-      name: string;
-      symbol: string;
-      logoURI: string;
-      extensions?: { coingeckoId: string };
-    }
-    const allTokensResponse = await cacheFetch(
+    const tokenResponse: {
+      result?: {
+        token_info: {
+          symbol: string;
+          decimals: number;
+        };
+        content: {
+          files: { uri: string }[];
+          metadata: {
+            name: string;
+            symbol: string;
+          };
+        };
+      };
+    } = await cacheFetch(
       {
-        url: 'https://raw.githubusercontent.com/solflare-wallet/token-list/refs/heads/master/solana-tokenlist.json',
-        postProcess: (data: any) => {
-          const allTokens = data.tokens as TokenDetails[];
-          const tObj: Record<string, TokenDetails> = {};
-          allTokens.forEach(t => {
-            tObj[t.address] = t;
-          });
-          return tObj;
+        url: this.node,
+        post: {
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'getAsset',
+          params: {
+            id: contractAddress,
+          },
         },
       },
       6 * 60 * 60 * 1000,
     );
-    const allTokens = allTokensResponse as Record<string, TokenDetails>;
     let decimals = 9;
-    if (allTokens[contractAddress]) {
+    if (tokenResponse.result) {
       return {
-        name: allTokens[contractAddress].name,
-        symbol: allTokens[contractAddress].symbol,
-        decimals: allTokens[contractAddress].decimals,
-        icon: allTokens[contractAddress].logoURI,
-        cgId: allTokens[contractAddress].extensions?.coingeckoId
-          ? allTokens[contractAddress].extensions?.coingeckoId
-          : undefined,
+        name: tokenResponse.result.content.metadata.name
+          ? tokenResponse.result.content.metadata.name
+          : tokenResponse.result.content.metadata.symbol,
+        symbol: tokenResponse.result.content.metadata.symbol,
+        decimals: tokenResponse.result.token_info.decimals,
+        icon:
+          tokenResponse.result.content.files &&
+          tokenResponse.result.content.files.length > 0 &&
+          tokenResponse.result.content.files[0].uri
+            ? `https://img.mewapi.io/?image=${tokenResponse.result.content.files[0].uri}`
+            : undefined,
       };
     } else {
       await this.web3
@@ -115,7 +124,6 @@ class API implements ProviderAPIInterface {
       symbol: 'UNKNWN',
       decimals,
       icon: undefined,
-      cgId: undefined,
     };
   };
 }

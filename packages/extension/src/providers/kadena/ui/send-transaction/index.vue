@@ -54,11 +54,10 @@
       />
 
       <assets-select-list
-        v-show="isOpenSelectToken"
+        v-model="isOpenSelectToken"
         :is-send="true"
         :assets="accountAssets"
         :is-loading="isLoadingAssets"
-        @close="toggleSelectToken"
         @update:select-asset="selectToken"
       />
 
@@ -127,6 +126,9 @@ import getUiPath from '@/libs/utils/get-ui-path';
 import { ProviderName } from '@/types/provider';
 import Browser from 'webextension-polyfill';
 import { ICommandResult } from '@kadena/client';
+import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
+import { trackSendEvents } from '@/libs/metrics';
+import { SendEventType } from '@/libs/metrics/types';
 
 const props = defineProps({
   network: {
@@ -179,6 +181,7 @@ const isAddress = computed(() => {
 });
 
 onMounted(() => {
+  trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
   isLoadingAssets.value = true;
   fetchTokens();
 });
@@ -291,7 +294,9 @@ const validateFields = async () => {
       if (transactionResult.result.status !== 'success') {
         fieldsValidation.value.amount = false;
         errorMsg.value =
-          (transactionResult.result as any).error.message ||
+          ((transactionResult.result as any).error.message as string)
+            .replace(/"/g, '')
+            .replace((transactionResult as any).reqKey, '') ||
           'An error occurred';
         return;
       }
@@ -322,7 +327,7 @@ const validateFields = async () => {
 
       if (rawAmount.add(rawFee).gt(rawBalance)) {
         fieldsValidation.value.amount = false;
-        errorMsg.value = 'Insufficient funds';
+        errorMsg.value = 'Not enough balance.';
         return;
       }
 
@@ -381,6 +386,9 @@ const fetchTokens = async () => {
 };
 
 const close = () => {
+  trackSendEvents(SendEventType.SendDecline, {
+    network: props.network.name,
+  });
   router.go(-1);
 };
 
@@ -466,7 +474,14 @@ const isDisabled = computed(() => {
   );
 });
 
+const recentlySentAddresses = new RecentlySentAddressesState();
+
 const sendAction = async () => {
+  await recentlySentAddresses.addRecentlySentAddress(
+    props.network,
+    addressTo.value,
+  );
+
   const keyring = new PublicKeyRing();
   const fromAccount = await keyring.getAccount(addressFrom.value);
   const networkApi = (await props.network.api()) as KadenaAPI;

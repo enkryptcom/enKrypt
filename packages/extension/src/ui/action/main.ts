@@ -1,9 +1,10 @@
 import { firoElectrum } from '@/providers/bitcoin/libs/electrum-client/electrum-client';
 import { createApp } from 'vue';
-import Vue3Lottie from 'vue3-lottie';
 import App from './App.vue';
 import router from './router';
 import * as filters from './utils/filters';
+import Vue3Lottie from 'vue3-lottie';
+import { createPinia } from 'pinia';
 
 global.WeakMap = WeakMap;
 
@@ -12,13 +13,14 @@ if (import.meta.env.DEV) {
 }
 
 const app = createApp(App);
+const pinia = createPinia();
 
 app.onUnmount(() => {
   firoElectrum.disconnect();
 });
 
 firoElectrum.connectMain().then(() => {
-  app.use(router).use(Vue3Lottie, { name: 'vue3lottie' });
+  app.use(router).use(Vue3Lottie, { name: 'vue3lottie' }).use(pinia);
 
   app.config.globalProperties.$filters = filters;
   app.mount('#app');

@@ -4,6 +4,7 @@ export const DB_DATA_KEYS = {
   sets: 'sets',
   myCoins: 'myCoins',
   usedCoinsTags: 'usedCoinsTags',
+  sparkBalance: 'sparkBalance',
 } as const;
 
 export class IndexedDBHelper {
@@ -14,6 +15,19 @@ export class IndexedDBHelper {
 
   constructor() {
     this.initDB();
+  }
+
+  waitInit(): Promise<number> {
+    return new Promise(resolve => {
+      const checkDB = () => {
+        if (this.db) {
+          resolve(1);
+        } else {
+          setTimeout(checkDB, 100);
+        }
+      };
+      checkDB();
+    });
   }
 
   private initDB(): void {

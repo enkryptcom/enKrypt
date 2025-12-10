@@ -1,12 +1,15 @@
 <template>
   <div>
     <settings-inner-header v-bind="$attrs" :is-general="true" />
-    <!-- <base-select
-      :select="selecCurrency"
+    <settings-select
+      :select="selectCurrency"
       title="Currency"
-      :value="currency"
+      :value="currentSelectedCurrency"
       :list="currencyList"
-    ></base-select> -->
+    ></settings-select>
+    <div class="settings__label">
+      <p>Select your preferred currency</p>
+    </div>
 
     <settings-switch
       title="Turn off Ethereum for 1 hour"
@@ -49,7 +52,13 @@
         information is collected.
       </p>
     </div>
-
+    <settings-button title="Settings backup" @click="$emit('open:backups')" />
+    <div class="settings__label">
+      <p>
+        Save your current list of accounts across all networks, so you don't
+        need to re-generate them.
+      </p>
+    </div>
     <!-- <base-select
       :select="selecTimer"
       title="Auto-lock timer"
@@ -66,17 +75,27 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue';
-// import BaseSelect from "@action/components/base-select/index.vue";
+// import BaseSelect from '@action/components/base-select/index.vue';
+import SettingsSelect from '@action/views/settings/components/settings-select.vue';
+import SettingsButton from '@action/views/settings/components/settings-button.vue';
 import SettingsSwitch from '@action/views/settings/components/settings-switch.vue';
 import SettingsState from '@/libs/settings-state';
 import { SettingsType } from '@/libs/settings-state/types';
 import { optOutofMetrics } from '@/libs/metrics';
+import { useCurrencyStore } from '../../store';
+import { storeToRefs } from 'pinia';
 
 const settingsState = new SettingsState();
 const isEthereumDisabled = ref(false);
 const isPolkadotjsDisabled = ref(false);
 const isUnisatEnabled = ref(true);
 const isMetricsEnabled = ref(true);
+
+const store = useCurrencyStore();
+const { setSelectedCurrency } = store;
+const { currentSelectedCurrency, currencyList } = storeToRefs(store);
+defineEmits<{ (e: 'open:backups'): void }>();
+
 onMounted(async () => {
   const allSettings: SettingsType = await settingsState.getAllSettings();
   isEthereumDisabled.value = allSettings.evm.inject.disabled;
@@ -86,12 +105,12 @@ onMounted(async () => {
 });
 const toggleEthereumDisable = async (isChecked: boolean) => {
   const evmSettings = await settingsState.getEVMSettings();
-  evmSettings.inject = {
-    disabled: isChecked,
-    timestamp: new Date().getTime(),
-  };
+  evmSettings.inject = { disabled: isChecked, timestamp: new Date().getTime() };
   await settingsState.setEVMSettings(evmSettings);
   isEthereumDisabled.value = isChecked;
+};
+const selectCurrency = async (currency: string) => {
+  setSelectedCurrency(currency);
 };
 const togglePjsDisable = async (isChecked: boolean) => {
   const subSettings = await settingsState.getSubstrateSettings();

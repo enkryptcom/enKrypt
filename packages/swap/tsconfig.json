@@ -15,7 +15,7 @@
     "esModuleInterop": true,
     "declaration": true
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts"],
+  "include": ["src/**/*.png", "src/**/*.ts", "tests/**/*.ts"],
   "exclude": [
     "node_modules/**/*",
     "_warmup/**/*",

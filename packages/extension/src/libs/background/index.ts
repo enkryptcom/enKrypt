@@ -15,19 +15,20 @@ import { v4 as randomUUID } from 'uuid';
 import Browser from 'webextension-polyfill';
 import { getCustomError } from '../error';
 import KeyRingBase from '../keyring/keyring';
-import SettingsState from '../settings-state';
 import { getProviderNetworkByName } from '../utils/networks';
-import { handlePersistentEvents } from './external';
 import {
-  changeNetwork,
   ethereumDecrypt,
   getEthereumPubKey,
-  lock,
-  newAccount,
-  sendToTab,
   sign,
   unlock,
+  changeNetwork,
+  sendToTab,
+  newAccount,
+  lock,
 } from './internal';
+import { handlePersistentEvents } from './external';
+import SettingsState from '../settings-state';
+import { isGeoRestricted } from '../utils/screening';
 import { ExternalMessageOptions, ProviderType, TabProviderType } from './types';
 
 class BackgroundHandler {
@@ -38,6 +39,7 @@ class BackgroundHandler {
   #persistentEvents: PersistentEvents;
   #domainState: DomainState;
   #settingsState: SettingsState;
+  #geoRestricted: boolean | undefined;
 
   constructor() {
     this.#keyring = new KeyRingBase();
@@ -51,8 +53,13 @@ class BackgroundHandler {
       [ProviderName.bitcoin]: {},
       [ProviderName.kadena]: {},
       [ProviderName.solana]: {},
+      [ProviderName.massa]: {},
     };
     this.#providers = Providers;
+    this.#geoRestricted = undefined;
+    isGeoRestricted().then(restricted => {
+      this.#geoRestricted = restricted;
+    });
   }
   async init(): Promise<void> {
     await handlePersistentEvents.bind(this)();
@@ -85,6 +92,9 @@ class BackgroundHandler {
         method === InternalMethods.newWindowUnload
       ) {
         this.#persistentEvents.deleteEvents(_tabid);
+        isGeoRestricted().then(restricted => {
+          this.#geoRestricted = restricted;
+        });
         return {
           result: JSON.stringify(true),
         };
@@ -97,6 +107,15 @@ class BackgroundHandler {
       }
       return {
         error: JSON.stringify(getCustomError('Enkrypt: not implemented')),
+      };
+    }
+    if (this.#geoRestricted !== undefined && this.#geoRestricted) {
+      return {
+        error: JSON.stringify(
+          getCustomError(
+            'Enkrypt: Geo restricted https://www.myetherwallet.com/blocked',
+          ),
+        ),
       };
     }
     const tabInfo = TabInfo(await Browser.tabs.get(_tabid));

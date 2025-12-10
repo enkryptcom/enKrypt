@@ -15,6 +15,7 @@ import {
   StatusOptionsResponse,
   SupportedNetworkName,
   SwapQuote,
+  SwapType,
   TokenType,
   TransactionStatus,
   TransactionType,
@@ -198,7 +199,7 @@ class ParaSwap extends ProviderClass {
       .then((res) => res.json())
       .then(async (response: ParaswapResponseType) => {
         if (response.error) {
-          console.error(response.error);
+          console.error("Error in swap response from ParaSwap", response.error);
           return Promise.resolve(null);
         }
         const transactions: EVMTransaction[] = [];
@@ -245,7 +246,7 @@ class ParaSwap extends ProviderClass {
         };
       })
       .catch((e) => {
-        console.error(e);
+        console.error("Error generating swap from ParaSwap", e);
         return Promise.resolve(null);
       });
   }
@@ -283,6 +284,20 @@ class ParaSwap extends ProviderClass {
       .then((j) => j.json())
       .then(async (jsonRes) => {
         if (!jsonRes) return null;
+        // Note: sometimes `jsonRes.priceRoute` is undefined and "error" is set instead
+        if (!jsonRes.priceRoute) {
+          if (jsonRes.error) {
+            // Sometimes ParaSwap returns this error: "No routes found with enough liquidity"
+            console.error(`ParaSwap error getting prices: ${jsonRes.error}`);
+            return null;
+          } else {
+            // Didn't have the expected "priceRoute" property
+            console.error(
+              `ParaSwap error getting prices, no "priceRoute" property on response: ${JSON.stringify(jsonRes)}`,
+            );
+            return null;
+          }
+        }
         const res: ParaswpQuoteResponse = jsonRes.priceRoute;
         const transactions: EVMTransaction[] = [];
         if (options.fromToken.address !== NATIVE_TOKEN_ADDRESS) {
@@ -320,7 +335,7 @@ class ParaSwap extends ProviderClass {
         return response;
       })
       .catch((e) => {
-        console.error(e);
+        console.error("Error getting quote from ParaSwap", e);
         return Promise.resolve(null);
       });
   }
@@ -333,6 +348,7 @@ class ParaSwap extends ProviderClass {
       const response: ProviderSwapResponse = {
         fromTokenAmount: res.fromTokenAmount,
         provider: this.name,
+        type: SwapType.regular,
         toTokenAmount: res.toTokenAmount,
         additionalNativeFees: toBN(0),
         transactions: res.transactions,

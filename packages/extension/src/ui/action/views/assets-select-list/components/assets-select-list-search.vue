@@ -2,6 +2,7 @@
   <div class="assets-select-list-search">
     <search-icon />
     <input
+      v-model="model"
       ref="searchInput"
       type="text"
       placeholder="Search tokens by name, ticker, or address"
@@ -15,15 +16,12 @@
 import SearchIcon from '@action/icons/common/search.vue';
 import { ref } from 'vue';
 
-const emit = defineEmits<{
-  (e: 'update:tokenSearchInput', searchQuery: string): void;
-}>();
-
+const model = defineModel<string>();
 const searchInput = ref<HTMLInputElement>();
 
 const searchUpdate = () => {
   if (searchInput.value) {
-    emit('update:tokenSearchInput', searchInput.value.value);
+    model.value = searchInput.value.value;
   }
 };
 </script>

@@ -6,7 +6,7 @@ import {
   SubstrateNetworkOptions,
 } from '../types/substrate-network';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
-import icon from './icons/kusama.svg';
+import icon from './icons/kusama.webp';
 
 const ksmOptions: SubstrateNetworkOptions = {
   name: NetworkNames.Kusama,

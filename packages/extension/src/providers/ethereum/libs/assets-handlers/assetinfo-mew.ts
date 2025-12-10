@@ -9,10 +9,7 @@ import MarketData from '@/libs/market-data';
 import { fromBase } from '@enkryptcom/utils';
 import { toBN } from 'web3-utils';
 import BigNumber from 'bignumber.js';
-import {
-  formatFiatValue,
-  formatFloatingPointValue,
-} from '@/libs/utils/number-formatter';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
 import API from '@/providers/ethereum/libs/api';
 import Sparkline from '@/libs/sparkline';
 import { BaseNetwork } from '@/types/base-network';
@@ -20,6 +17,7 @@ import { EvmNetwork } from '../../types/evm-network';
 import { getKnownNetworkTokens } from './token-lists';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { NATIVE_TOKEN_ADDRESS } from '../common';
+import getBlockscoutBalances from './blockscout';
 import getTomoBalances from './tomochain';
 import getSolBalances from './solanachain';
 import { CoinGeckoTokenMarket } from '@/libs/market-data/types';
@@ -44,10 +42,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'astar',
     cgPlatform: CoingeckoPlatform.Astar,
   },
-  [NetworkNames.Okc]: {
-    tbName: 'okt',
-    cgPlatform: CoingeckoPlatform.Okc,
-  },
   [NetworkNames.Optimism]: {
     tbName: 'op',
     cgPlatform: CoingeckoPlatform.Optimism,
@@ -64,13 +58,9 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'sdn',
     cgPlatform: CoingeckoPlatform.Shiden,
   },
-  [NetworkNames.Canto]: {
-    tbName: 'canto',
-    cgPlatform: CoingeckoPlatform.Canto,
-  },
   [NetworkNames.Rootstock]: {
-    tbName: 'rsk',
     cgPlatform: CoingeckoPlatform.Rootstock,
+    bsEndpoint: true,
   },
   [NetworkNames.Arbitrum]: {
     tbName: 'arb',
@@ -92,9 +82,9 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'ftm',
     cgPlatform: CoingeckoPlatform.Fantom,
   },
-  [NetworkNames.Klaytn]: {
+  [NetworkNames.Kaia]: {
     tbName: 'klay',
-    cgPlatform: CoingeckoPlatform.Klaytn,
+    cgPlatform: CoingeckoPlatform.Kaia,
   },
   [NetworkNames.Aurora]: {
     tbName: 'aurora',
@@ -120,9 +110,21 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'shib',
     cgPlatform: CoingeckoPlatform.Shibarium,
   },
+  [NetworkNames.Base]: {
+    tbName: 'base',
+    cgPlatform: CoingeckoPlatform.Base,
+  },
+  [NetworkNames.SyscoinNEVM]: {
+    cgPlatform: CoingeckoPlatform.Syscoin,
+    bsEndpoint: true,
+  },
   [NetworkNames.Rollux]: {
-    tbName: 'rollux',
     cgPlatform: CoingeckoPlatform.Rollux,
+    bsEndpoint: true,
+  },
+  [NetworkNames.Sonic]: {
+    tbName: 'sonic',
+    cgPlatform: CoingeckoPlatform.Sonic,
   },
   [NetworkNames.Telos]: {
     tbName: 'tlos',
@@ -133,20 +135,13 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     cgPlatform: CoingeckoPlatform.Blast,
   },
   [NetworkNames.Sanko]: {
-    tbName: 'sanko',
+    tbName: '',
     cgPlatform: CoingeckoPlatform.Sanko,
+    bsEndpoint: true,
   },
   [NetworkNames.Degen]: {
     tbName: 'degen',
     cgPlatform: CoingeckoPlatform.Degen,
-  },
-  [NetworkNames.XLayer]: {
-    tbName: 'xlayer',
-    cgPlatform: CoingeckoPlatform.XLayer,
-  },
-  [NetworkNames.ProofOfPlayApex]: {
-    tbName: 'apex',
-    cgPlatform: undefined,
   },
   [NetworkNames.Godwoken]: {
     tbName: 'ckb',
@@ -172,6 +167,10 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'scrl',
     cgPlatform: CoingeckoPlatform.Scroll,
   },
+  [NetworkNames.ImmutableZkevm]: {
+    tbName: 'itze',
+    cgPlatform: CoingeckoPlatform.ImmutableZkevm,
+  },
   [NetworkNames.Rari]: {
     tbName: 'rari',
     cgPlatform: undefined,
@@ -179,6 +178,38 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Solana]: {
     tbName: '',
     cgPlatform: CoingeckoPlatform.Solana,
+  },
+  [NetworkNames.Gravity]: {
+    tbName: 'gravity',
+    cgPlatform: CoingeckoPlatform.Gravity,
+  },
+  [NetworkNames.Abstract]: {
+    tbName: 'abs',
+    cgPlatform: CoingeckoPlatform.Abstract,
+  },
+  [NetworkNames.Story]: {
+    tbName: 'story',
+    cgPlatform: CoingeckoPlatform.Story,
+  },
+  [NetworkNames.Ink]: {
+    tbName: 'ink',
+    cgPlatform: CoingeckoPlatform.Ink,
+  },
+  [NetworkNames.Bera]: {
+    tbName: 'bera',
+    cgPlatform: CoingeckoPlatform.Berachain,
+  },
+  [NetworkNames.Unichain]: {
+    tbName: 'uni',
+    cgPlatform: CoingeckoPlatform.Unichain,
+  },
+  [NetworkNames.Conflux]: {
+    tbName: 'cfx',
+    cgPlatform: CoingeckoPlatform.Conflux,
+  },
+  [NetworkNames.CoreDAO]: {
+    tbName: 'core',
+    cgPlatform: CoingeckoPlatform.CoreDAO,
   },
 };
 
@@ -191,6 +222,8 @@ const getTokens = (
     return getTomoBalances(chain, address);
   } else if (chain === NetworkNames.Solana) {
     return getSolBalances(network, address);
+  } else if (supportedNetworks[chain].bsEndpoint) {
+    return getBlockscoutBalances(chain, address);
   }
   let url = '';
   if (chain === NetworkNames.Ethereum || chain === NetworkNames.Binance)
@@ -199,7 +232,7 @@ const getTokens = (
     url = `${API_ENPOINT2}${supportedNetworks[chain].tbName}/${address}?platform=enkrypt&type=internal`;
   return fetch(url)
     .then(res => res.json())
-    .then(json => {
+    .then((json: any) => {
       if (json.error)
         return Promise.reject(
           `TOKENBALANCE-MEW: ${JSON.stringify(json.error)}`,
@@ -231,7 +264,6 @@ export default (
       (obj, cur) => ({ ...obj, [cur.contract]: cur }),
       {},
     );
-
     const marketData = new MarketData();
 
     const marketInfo = supportedNetworks[networkName].cgPlatform
@@ -295,12 +327,12 @@ export default (
           balance: toBN(balances[address].balance).toString(),
           balancef: formatFloatingPointValue(userBalance).value,
           balanceUSD: usdBalance.toNumber(),
-          balanceUSDf: formatFiatValue(usdBalance.toString()).value,
+          balanceUSDf: usdBalance.toString(),
           icon: market.image,
           name: market.name,
           symbol: market.symbol,
           value: currentPrice.toString(),
-          valuef: formatFiatValue(currentPrice.toString()).value,
+          valuef: currentPrice.toString(),
           contract: address,
           decimals: tokenInfo[address].decimals,
           sparkline: new Sparkline(market.sparkline_in_24h.price, 25)
@@ -335,12 +367,15 @@ export default (
             balance: toBN(balances[unknownTokens[idx]].balance).toString(),
             balancef: formatFloatingPointValue(userBalance).value,
             balanceUSD: 0,
-            balanceUSDf: formatFiatValue('0').value,
-            icon: tokenInfo[unknownTokens[idx]]?.logoURI || network.icon,
+            balanceUSDf: '0',
+            icon:
+              tokenInfo[unknownTokens[idx]]?.logoURI ||
+              tInfo.icon ||
+              network.icon,
             name: tInfo.name,
             symbol: tInfo.symbol,
             value: '0',
-            valuef: formatFiatValue('0').value,
+            valuef: '0',
             contract: unknownTokens[idx],
             decimals: tInfo.decimals,
             sparkline: '',
@@ -350,7 +385,6 @@ export default (
         });
       });
     }
-
     return assets;
   });
 };

@@ -2,17 +2,34 @@ import KeyRing from '@/libs/keyring/keyring';
 import EthereumNetworks from '@/providers/ethereum/networks';
 import PolkadotNetworks from '@/providers/polkadot/networks';
 import BitcoinNetworks from '@/providers/bitcoin/networks';
-import KadenaNetworks from '@/providers/kadena/networks';
 import SolanaNetworks from '@/providers/solana/networks';
+import KadenaNetworks from '@/providers/kadena/networks';
+import MassaNetworks from '@/providers/massa/networks';
 import { NetworkNames, WalletType } from '@enkryptcom/types';
 import { getAccountsByNetworkName } from '@/libs/utils/accounts';
+import BackupState from '../backup-state';
 export const initAccounts = async (keyring: KeyRing) => {
-  const secp256k1Firo = await getAccountsByNetworkName(NetworkNames.Firo);
-  const secp256k1btc = await getAccountsByNetworkName(NetworkNames.Bitcoin);
-  const secp256k1 = await getAccountsByNetworkName(NetworkNames.Ethereum);
-  const sr25519 = await getAccountsByNetworkName(NetworkNames.Polkadot);
-  const ed25519kda = await getAccountsByNetworkName(NetworkNames.Kadena);
-  const ed25519sol = await getAccountsByNetworkName(NetworkNames.Solana);
+  const secp256k1btc = (
+    await getAccountsByNetworkName(NetworkNames.Bitcoin)
+  ).filter(acc => !acc.isTestWallet);
+  const secp256k1 = (
+    await getAccountsByNetworkName(NetworkNames.Ethereum)
+  ).filter(acc => !acc.isTestWallet);
+  const sr25519 = (
+    await getAccountsByNetworkName(NetworkNames.Polkadot)
+  ).filter(acc => !acc.isTestWallet);
+  const ed25519kda = (
+    await getAccountsByNetworkName(NetworkNames.Kadena)
+  ).filter(acc => !acc.isTestWallet);
+  const ed25519sol = (
+    await getAccountsByNetworkName(NetworkNames.Solana)
+  ).filter(acc => !acc.isTestWallet);
+  const ed25519massa = (
+    await getAccountsByNetworkName(NetworkNames.Massa)
+  ).filter(acc => !acc.isTestWallet);
+  const secp256k1Firo = (
+    await getAccountsByNetworkName(NetworkNames.Firo)
+  ).filter(acc => !acc.isTestWallet);
   if (secp256k1Firo.length == 0)
     await keyring.saveNewAccount({
       basePath: BitcoinNetworks.firo.basePath,
@@ -55,11 +72,44 @@ export const initAccounts = async (keyring: KeyRing) => {
       signerType: SolanaNetworks.solana.signer[0],
       walletType: WalletType.mnemonic,
     });
+  if (ed25519massa.length == 0)
+    await keyring.saveNewAccount({
+      basePath: MassaNetworks.Massa.basePath,
+      name: 'Massa Account 1',
+      signerType: MassaNetworks.Massa.signer[0],
+      walletType: WalletType.mnemonic,
+    });
 };
-export const onboardInitializeWallets = async (
-  mnemonic: string,
-  password: string,
-): Promise<void> => {
+export const onboardInitializeWallets = async (options: {
+  mnemonic: string;
+  password: string;
+  extraWord?: string;
+}): Promise<{ backupsFound: boolean }> => {
   const kr = new KeyRing();
-  await kr.init(mnemonic, password);
+  const backupsState = new BackupState();
+  const { mnemonic, password, extraWord } = options;
+  await kr.init({ mnemonic, password, extraWord });
+  try {
+    await kr.unlock(password);
+    const mainAccount = await kr.getNewAccount({
+      basePath: EthereumNetworks.ethereum.basePath,
+      signerType: EthereumNetworks.ethereum.signer[0],
+    });
+    const sigHash = backupsState.getListBackupMsgHash(mainAccount.publicKey);
+    const signature = await kr.sign(sigHash as `0x${string}`, {
+      basePath: EthereumNetworks.ethereum.basePath,
+      signerType: EthereumNetworks.ethereum.signer[0],
+      pathIndex: 0,
+      walletType: WalletType.mnemonic,
+    });
+    const backups = await backupsState.listBackups({
+      pubkey: mainAccount.publicKey,
+      signature,
+    });
+    kr.lock();
+    return { backupsFound: backups.length > 0 };
+  } catch (e) {
+    console.error(e);
+    return { backupsFound: false };
+  }
 };

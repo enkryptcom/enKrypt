@@ -13,6 +13,7 @@
       />
       <settings-general
         v-if="isGeneral"
+        @open:backups="backupsAction"
         @window:close="close"
         @window:back="startAction"
       />
@@ -38,6 +39,12 @@
         @window:close="close"
         @window:back="startAction"
       />
+      <settings-backups
+        v-if="isBackups"
+        v-bind="$attrs"
+        @window:close="close"
+        @window:back="generalAction"
+      />
     </div>
   </div>
 </template>
@@ -50,6 +57,8 @@ import SettingsSupport from './views/settings-support/index.vue';
 import SettingsAbout from './views/settings-about/index.vue';
 import SettingsRecovery from './views/settings-recovery/index.vue';
 import ResetWallet from '@action/views/reset-wallet/index.vue';
+import SettingsBackups from './views/settings-backups/index.vue';
+import { MnemonicWithExtraWord } from '@enkryptcom/types';
 
 const isStart = ref(true);
 const isGeneral = ref(false);
@@ -57,7 +66,8 @@ const isAbout = ref(false);
 const isSupport = ref(false);
 const isPhrase = ref(false);
 const isReset = ref(false);
-const mnemonic = ref('');
+const isBackups = ref(false);
+const mnemonic = ref<MnemonicWithExtraWord>({ mnemonic: '', extraWord: '' });
 
 const emit = defineEmits<{
   (e: 'close:popup'): void;
@@ -72,9 +82,10 @@ const setAllToFalse = () => {
   isSupport.value = false;
   isPhrase.value = false;
   isReset.value = false;
-  mnemonic.value = '';
+  isBackups.value = false;
+  mnemonic.value = { mnemonic: '', extraWord: '' };
 };
-const recoveryPhraseAction = (phrase: string) => {
+const recoveryPhraseAction = (phrase: MnemonicWithExtraWord) => {
   setAllToFalse();
   isPhrase.value = true;
   mnemonic.value = phrase;
@@ -102,6 +113,11 @@ const aboutAction = () => {
 const startAction = () => {
   setAllToFalse();
   isStart.value = true;
+};
+
+const backupsAction = () => {
+  setAllToFalse();
+  isBackups.value = true;
 };
 </script>
 

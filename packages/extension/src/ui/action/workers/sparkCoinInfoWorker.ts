@@ -73,7 +73,6 @@ async function fetchAllCoinInfos(
             incomingViewKeyObj,
             wasmModule: Module,
           }).then(async res => {
-            console.log(`Checking coin: `, res);
             finalResult.push({
               coin: res,
               setId: index + 1,
@@ -113,12 +112,6 @@ async function fetchAllCoinInfos(
       setHash: coinData.setHash,
       isUsed: false,
     }));
-
-    console.log(
-      JSON.stringify(
-        myCoins.map(el => ({ ...el, value: el.value.toString() })),
-      ),
-    );
 
     const savedMyCoins = (await db.readData<any[]>(DB_DATA_KEYS.myCoins)) || [];
     const updatedMyCoinsSet = differenceSets(

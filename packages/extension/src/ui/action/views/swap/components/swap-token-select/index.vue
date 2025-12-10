@@ -4,7 +4,9 @@
       <img :src="token.logoURI" alt="" @error="imageLoadError" />
     </div>
     <div class="swap-token-select__info">
-      <h5>{{ token.name }}</h5>
+      <h5>
+        {{ $filters.truncate(token.name, 25) }}
+      </h5>
       <p>
         {{
           tokenBalance

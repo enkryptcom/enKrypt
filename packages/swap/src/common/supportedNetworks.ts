@@ -137,14 +137,14 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     signerType: [SignerType.secp256k1],
     type: NetworkType.EVM,
   },
-  [SupportedNetworkName.Klaytn]: {
-    id: SupportedNetworkName.Klaytn,
-    cgId: "klay-token",
+  [SupportedNetworkName.Kaia]: {
+    id: SupportedNetworkName.Kaia,
+    cgId: "kaia",
     decimals: 18,
     logoURI:
       "https://tokens.1inch.io/0xe4f05a66ec68b54a58b17c22107b02e0232cc817.png",
-    name: "Klaytn",
-    symbol: "KLAY",
+    name: "Kaia",
+    symbol: "KAIA",
     rank: 10,
     signerType: [SignerType.secp256k1],
     type: NetworkType.EVM,

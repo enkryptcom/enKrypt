@@ -13,6 +13,14 @@ export class BaseFiroWallet {
     this.#wallet = new FiroWallet(browserStorage);
   }
 
+  getSparkAddressAsync() {
+    return this.#wallet.getSparkAddressAsync();
+  }
+
+  skipAddress() {
+    return this.#wallet.skipAddress();
+  }
+
   getTransactionsAddresses() {
     return this.#wallet.getTransactionsAddresses();
   }
@@ -25,6 +33,10 @@ export class BaseFiroWallet {
     this.#wallet.setSecret(mnemonic);
   }
 
+  async getAddressKeyPairMapping(numAddresses: string[]) {
+    return this.#wallet.getAddressKeyPairMapping(numAddresses);
+  }
+
   async getSpendableUtxos(numAddresses: string[]) {
     return this.#wallet.getSpendableUtxos(numAddresses);
   }
@@ -33,24 +45,16 @@ export class BaseFiroWallet {
     return this.#wallet.getUsedSparkCoinsTags(startPoint);
   }
 
-  async getUsedCoinsTagsTxHashes() {
-    return this.#wallet.getUsedCoinsTagsTxHashes();
+  async getUsedCoinsTagsTxHashes(startNumber: number) {
+    return this.#wallet.getUsedCoinsTagsTxHashes(startNumber);
   }
 
   async getOnlySpendableUtxos() {
     return this.#wallet.getOnlySpendableUtxos();
   }
 
-  async fetchAllAnonymitySets() {
-    return this.#wallet.fetchAllAnonymitySets();
-  }
-
   async getAllSparkAnonymitySetMeta() {
     return this.#wallet.getAllSparkAnonymitySetMeta();
-  }
-
-  async getSparkMintMetadata(coinHashes: string[]) {
-    return this.#wallet.getSparkMintMetadata(coinHashes);
   }
 
   getSecret() {

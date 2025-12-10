@@ -37,6 +37,30 @@ import GithubIcon from '@action/icons/social/github-icon.vue';
 import InstagramIcon from '@action/icons/social/instagram-icon.vue';
 import RedditIcon from '@action/icons/social/reddit-icon.vue';
 import TwitterIcon from '@action/icons/social/twitter-icon.vue';
+import { useRestoreStore } from '../restore-wallet/store';
+import { useOnboardStore } from './store';
+import { onMounted } from 'vue';
+
+const onboardStore = useOnboardStore();
+const restoreStore = useRestoreStore();
+
+// Overwrite the string with random data before setting empty
+const secureClear = (value: string) => {
+  const array = new Uint8Array(value.length);
+  crypto.getRandomValues(array);
+  const random = String.fromCharCode(...array);
+  value = random;
+  value = '';
+  return value;
+};
+
+onMounted(() => {
+  onboardStore.setPassword(secureClear(onboardStore.password));
+  onboardStore.setMnemonic(secureClear(onboardStore.mnemonic));
+  restoreStore.setMnemonic(secureClear(onboardStore.mnemonic));
+  restoreStore.setPassword(secureClear(onboardStore.password));
+  restoreStore.setExtraWord(secureClear(restoreStore.extraWord));
+});
 
 const finishAction = () => {
   window.close();

@@ -60,11 +60,10 @@
         </custom-scrollbar>
 
         <transaction-fee-view
-          :fees="gasCostValues"
-          :show-fees="isOpenSelectFee"
+          v-model="isOpenSelectFee"
+          :fees="gasCostValues as GasFeeType"
           :selected="selectedFee"
           :is-header="true"
-          @close-popup="toggleSelectFee"
           @gas-type-changed="selectFee"
         />
       </div>
@@ -83,7 +82,8 @@
       </div>
     </div>
     <swap-initiated
-      v-if="isInitiated"
+      v-if="isInitiated && network"
+      v-model="isInitiated"
       :is-loading="isTXSendLoading"
       :from-token="swapData.fromToken"
       :to-token="swapData.toToken"
@@ -92,6 +92,8 @@
       :is-hardware="account ? account.isHardware : false"
       :is-error="isTXSendError"
       :error-message="TXSendErrorMessage"
+      :network="network"
+      :waiting-to-be-mined="waitingToBeMined"
       @update:close="close"
       @update:try-again="sendAction"
     />
@@ -134,15 +136,16 @@ import BigNumber from 'bignumber.js';
 import { defaultGasCostVals } from '@/providers/common/libs/default-vals';
 import { SwapBestOfferWarnings } from '../../types';
 import { NATIVE_TOKEN_ADDRESS } from '@/providers/ethereum/libs/common';
-import { EnkryptAccount } from '@enkryptcom/types';
+import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import { getNetworkByName } from '@/libs/utils/networks';
-import {
+import Swap, {
   getNetworkInfoByName,
   NetworkType,
   ProviderSwapResponse,
   SupportedNetworkName,
   SwapToken,
 } from '@enkryptcom/swap';
+import { TypedMessageSigner as EvmTypedMessageSigner } from '@/providers/ethereum/ui/libs/signer';
 import PublicKeyRing from '@/libs/keyring/public-keyring';
 import { SwapData, ProviderResponseWithStatus } from '../../types';
 import { getSwapTransactions } from '../../libs/swap-txs';
@@ -156,10 +159,21 @@ import { trackSwapEvents } from '@/libs/metrics';
 import { SwapEventType } from '@/libs/metrics/types';
 import { getSolanaTransactionFees } from '../../libs/solana-gasvals';
 import { SolanaNetwork } from '@/providers/solana/types/sol-network';
+import RateState from '@/libs/rate-state';
+import { useRateStore } from '@action/store/rate-store';
+import { SwapType, WalletIdentifier } from '@enkryptcom/swap/src/types';
+import waitForReceipt from '../../libs/evm-waitreceipt';
+
+/** -------------------
+ * Rate
+ -------------------*/
+const rateStore = useRateStore();
+const { toggleRatePopup } = rateStore;
 
 const router = useRouter();
 const route = useRoute();
 
+const rateState = new RateState();
 const isInitiated = ref(false);
 const bestOfferScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const scrollProgress = ref(0);
@@ -199,6 +213,8 @@ const isTXSendLoading = ref<boolean>(false);
 const isTXSendError = ref(false);
 const TXSendErrorMessage = ref('');
 const isLooking = ref(true);
+const waitingToBeMined = ref(false);
+const swap = ref<Swap>();
 
 const setWarning = async () => {
   if (balance.value.ltn(0)) return;
@@ -299,8 +315,26 @@ onMounted(async () => {
   network.value = (await getNetworkByName(selectedNetwork))!;
   account.value = await KeyRing.getAccount(swapData.fromAddress);
   isWindowPopup.value = account.value.isHardware;
+  swap.value = new Swap({
+    api: {} as any,
+    network: network.value!.name as any,
+    walletIdentifier: WalletIdentifier.enkrypt,
+    evmOptions: {
+      infiniteApproval: true,
+    },
+  });
+  swapData.trades.forEach((trade, index) => {
+    console.log(`Trade ${index + 1}:`, {
+      provider: trade.provider,
+      fromAmount: trade.fromTokenAmount.toString(),
+      toAmount: trade.toTokenAmount.toString(),
+      additionalFees: trade.additionalNativeFees.toString(),
+    });
+  });
+
   let tempBestTrade = pickedTrade.value;
   let tempFinalToFiat = 0;
+
   for (const trade of swapData.trades) {
     const toTokenFiat = new SwapToken(swapData.toToken).getRawToFiat(
       trade.toTokenAmount,
@@ -316,12 +350,15 @@ onMounted(async () => {
     }
     const gasCostFiat = parseFloat(gasTier.fiatValue);
     const finalToFiat = toTokenFiat - gasCostFiat;
+
     if (finalToFiat > tempFinalToFiat) {
       tempBestTrade = trade;
       tempFinalToFiat = finalToFiat;
     }
   }
+
   pickedTrade.value = tempBestTrade;
+
   await setTransactionFees();
   isLooking.value = false;
   trackSwapEvents(SwapEventType.SwapVerify, {
@@ -353,8 +390,10 @@ const close = () => {
     swapProvider: pickedTrade.value.provider,
   });
   if (!isWindowPopup.value) {
+    callToggleRatePopup();
     router.go(-2);
   } else {
+    callToggleRatePopup();
     window.close();
   }
 };
@@ -367,7 +406,7 @@ const isDisabled = computed(() => {
     (warning.value !== SwapBestOfferWarnings.NONE &&
       warning.value !== SwapBestOfferWarnings.BAD_PRICE) ||
     !gasTier ||
-    gasTier.nativeValue === '0'
+    (gasTier.nativeValue === '0' && pickedTrade.value.transactions.length)
   ) {
     return true;
   }
@@ -391,7 +430,43 @@ const sendAction = async () => {
       swap: pickedTrade.value,
       toToken: swapData.toToken,
     })
-      .then(txs => {
+      .then(async txs => {
+        const typedMessageSigs: string[] = [];
+        if (
+          networkInfo.type === NetworkType.EVM &&
+          pickedTrade.value.type === SwapType.rfq &&
+          pickedTrade.value.typedMessages
+        ) {
+          for (const typedMessage of pickedTrade.value.typedMessages) {
+            const sig = await EvmTypedMessageSigner({
+              account: account.value!,
+              network: network.value!,
+              typedData: JSON.parse(typedMessage),
+              version: 'V4',
+            });
+            if (sig.error) return Promise.reject(sig.error);
+            typedMessageSigs.push(JSON.parse(sig.result!));
+          }
+          try {
+            waitingToBeMined.value = true;
+            await waitForReceipt(
+              txs.map(tx => tx.hash),
+              network.value!,
+              30,
+            );
+            await swap.value!.submitRFQOrder({
+              options: {
+                ...pickedTrade.value.rfqOptions!.options,
+                signatures: typedMessageSigs,
+              },
+              provider: pickedTrade.value.rfqOptions!.provider,
+            });
+          } catch (e: any) {
+            throw new Error(e);
+          } finally {
+            waitingToBeMined.value = false;
+          }
+        }
         pickedTrade.value.status!.options.transactions = txs;
         const swapRaw: SwapRawInfo = {
           fromToken: swapData.fromToken,
@@ -417,7 +492,7 @@ const sendAction = async () => {
           timestamp: new Date().getTime(),
           type: ActivityType.swap,
           value: pickedTrade.value.toTokenAmount.toString(),
-          transactionHash: `${txs[0].hash}-swap`,
+          transactionHash: `${pickedTrade.value.type === SwapType.regular ? txs[0].hash : pickedTrade.value.rfqOptions!.options.orderHash}-swap`,
           rawInfo: JSON.parse(JSON.stringify(swapRaw)),
         };
         const activityState = new ActivityState();
@@ -435,7 +510,18 @@ const sendAction = async () => {
       .catch(err => {
         console.error(err);
         isTXSendError.value = true;
-        TXSendErrorMessage.value = err.error ? err.error.message : err.message;
+        const error = err.error ? err.error.message : err.message;
+        if (network.value!.name !== NetworkNames.Solana) {
+          TXSendErrorMessage.value = err.error
+            ? err.error.message
+            : err.message;
+        } else {
+          TXSendErrorMessage.value = error
+            .toLowerCase()
+            .includes('simulation failed')
+            ? 'Network may be busy. Please try again at a later time.'
+            : error;
+        }
         trackSwapEvents(SwapEventType.swapFailed, {
           network: network.value!.name,
           fromToken: swapData.fromToken.name,
@@ -448,6 +534,16 @@ const sendAction = async () => {
   } else {
     console.error('No trade yet');
   }
+};
+
+const callToggleRatePopup = () => {
+  /**
+   * will only show the user if they haven't rated it
+   * and never been shown before
+   */
+  rateState.showPopup(true).then(show => {
+    if (show) toggleRatePopup(true);
+  });
 };
 
 const handleScroll = (e: any) => {

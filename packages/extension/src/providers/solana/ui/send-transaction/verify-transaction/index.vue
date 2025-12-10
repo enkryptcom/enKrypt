@@ -67,6 +67,7 @@
 
     <send-process
       v-if="isProcessing"
+      v-model="isProcessing"
       :is-nft="isNft"
       :to-address="txData.toAddress"
       :network="network"
@@ -114,8 +115,17 @@ import { getSimulationComputeUnits } from '@solana-developers/helpers';
 import SolanaAPI from '@/providers/solana/libs/api';
 import bs58 from 'bs58';
 import { TransactionSigner } from '../../libs/signer';
+import RateState from '@/libs/rate-state';
+import { useRateStore } from '@action/store/rate-store';
+
+/** -------------------
+ * Rate
+ -------------------*/
+const rateStore = useRateStore();
+const { toggleRatePopup } = rateStore;
 
 const KeyRing = new PublicKeyRing();
+const rateState = new RateState();
 const route = useRoute();
 const router = useRouter();
 const selectedNetwork: string = route.query.id as string;
@@ -226,14 +236,23 @@ const sendAction = async () => {
           },
         );
         isSendDone.value = true;
+        /**
+         * will only show the user if they haven't rated it
+         * and never been shown before
+         */
+        rateState.showPopup(true).then(show => {
+          if (show) toggleRatePopup(true);
+        });
         if (getCurrentContext() === 'popup') {
           setTimeout(() => {
             isProcessing.value = false;
+            callToggleRatePopup();
             router.go(-2);
           }, 4500);
         } else {
           setTimeout(() => {
             isProcessing.value = false;
+            callToggleRatePopup();
             window.close();
           }, 1500);
         }
@@ -274,6 +293,17 @@ const sendAction = async () => {
       console.error('ERROR', errror);
     });
 };
+
+const callToggleRatePopup = () => {
+  /**
+   * will only show the user if they haven't rated it
+   * and never been shown before
+   */
+  rateState.showPopup(true).then(show => {
+    if (show) toggleRatePopup(true);
+  });
+};
+
 const isHasScroll = () => {
   if (verifyScrollRef.value) {
     return verifyScrollRef.value.$el.classList.contains('ps--active-y');

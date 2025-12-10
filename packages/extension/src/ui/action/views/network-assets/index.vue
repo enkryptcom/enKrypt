@@ -18,14 +18,26 @@
             @update:spark-state="updateSparkState"
           />
 
+          <!-- Banners -->
+          <network-assets-solana-staking-banner
+            v-if="isSolanaStakingBanner && selectedNetworkName == 'SOLANA'"
+            @close="closeSolanaStakingBanner"
+          />
+
           <network-activity-action v-bind="$attrs" />
+          <network-assets-header v-if="!isLoading && assets.length > 0" />
+          <network-assets-error
+            v-if="isFetchError"
+            :update-assets="updateAssets"
+          />
           <network-assets-item
             v-for="(item, index) in assets"
             :key="index"
             :token="item"
             :network="network"
             @update:tokens="updateAssets"
-          ></network-assets-item>
+            v-bind="$attrs"
+          />
           <div
             v-show="network.customTokens && assets.length !== 0"
             class="network-assets__add-token"
@@ -41,7 +53,7 @@
         </div>
       </custom-scrollbar>
 
-      <network-assets-loading v-if="isLoading"></network-assets-loading>
+      <network-assets-loading v-if="isLoading" />
 
       <deposit
         v-if="!!props.accountInfo.selectedAccount"
@@ -49,38 +61,44 @@
         :spark-account="props.accountInfo.sparkAccount"
         :show-deposit="showDeposit"
         :network="network"
-        :toggle="toggleDeposit"
+        @toggle:deposit="toggleDeposit"
       />
     </div>
-
-    <custom-evm-token
-      v-if="showAddCustomTokens"
-      :address="props.accountInfo.selectedAccount?.address!"
-      :network="props.network as EvmNetwork"
-      @update:token-added="addCustomAsset"
-      @update:close="toggleShowAddCustomTokens"
-    ></custom-evm-token>
+    <!-- prettier-ignore -->
+    <custom-evm-token v-if="showAddCustomTokens && isEvmNetwork" :address="props.accountInfo.selectedAccount?.address!"
+      :network="(props.network as EvmNetwork)" @update:token-added="addCustomAsset"
+      @update:close="toggleShowAddCustomTokens"></custom-evm-token>
+    <!-- prettier-ignore -->
+    <custom-massa-token v-if="showAddCustomTokens && isMassaNetwork" :address="props.accountInfo.selectedAccount?.address!"
+      :network="props.network" @update:token-added="addCustomAsset"
+      @update:close="toggleShowAddCustomTokens"></custom-massa-token>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useRoute } from 'vue-router';
+import NetworkActivityTotal from '../network-activity/components/network-activity-total.vue';
+import NetworkActivityAction from '../network-activity/components/network-activity-action.vue';
+import NetworkAssetsItem from './components/network-assets-item.vue';
+import NetworkAssetsHeader from './components/network-assets-header.vue';
+import NetworkAssetsLoading from './components/network-assets-loading.vue';
+import NetworkAssetsError from './components/network-assets-error.vue';
+import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
+import { computed, onMounted, type PropType, ref, toRef, watch } from 'vue';
 import scrollSettings from '@/libs/utils/scroll-settings';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 import { BaseNetwork } from '@/types/base-network';
 import type { AssetsType } from '@/types/provider';
 import BaseButton from '@action/components/base-button/index.vue';
-import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import accountInfoComposable from '@action/composables/account-info';
 import Deposit from '@action/views/deposit/index.vue';
-import { computed, onMounted, type PropType, ref, toRef, watch } from 'vue';
-import { useRoute } from 'vue-router';
 import type { AccountsHeaderData } from '../../types/account';
-import NetworkActivityAction from '../network-activity/components/network-activity-action.vue';
-import NetworkActivityTotal from '../network-activity/components/network-activity-total.vue';
 import CustomEvmToken from './components/custom-evm-token.vue';
-import NetworkAssetsItem from './components/network-assets-item.vue';
-import NetworkAssetsLoading from './components/network-assets-loading.vue';
+import CustomMassaToken from './components/custom-massa-token.vue';
+import { ProviderName } from '@/types/provider';
+import NetworkAssetsSolanaStakingBanner from './components/network-assets-solana-staking-banner.vue';
+import BannersState from '@/libs/banners-state';
 
 const showDeposit = ref(false);
 
@@ -105,6 +123,7 @@ const props = defineProps({
 });
 const assets = ref<AssetsType[]>([]);
 const isLoading = ref(false);
+const isFetchError = ref(false);
 
 const emits = defineEmits<{
   (e: 'update:spark-state-changed', network: BaseNetwork): void;
@@ -117,16 +136,26 @@ const { cryptoAmount, fiatAmount } = accountInfoComposable(
 const selected: string = route.params.id as string;
 
 const updateAssets = () => {
+  isFetchError.value = false;
   isLoading.value = true;
   assets.value = [];
   const currentNetwork = selectedNetworkName.value;
-  props.network
-    .getAllTokenInfo(props.accountInfo.selectedAccount?.address || '')
-    .then(_assets => {
-      if (selectedNetworkName.value !== currentNetwork) return;
-      assets.value = _assets;
-      isLoading.value = false;
-    });
+  if (props.accountInfo.selectedAccount?.address) {
+    props.network
+      .getAllTokenInfo(props.accountInfo.selectedAccount?.address || '')
+      .then(_assets => {
+        if (selectedNetworkName.value !== currentNetwork) return;
+        assets.value = _assets;
+        isLoading.value = false;
+      })
+      .catch(e => {
+        console.error(e);
+        if (selectedNetworkName.value !== currentNetwork) return;
+        isFetchError.value = true;
+        isLoading.value = false;
+        assets.value = [];
+      });
+  }
 };
 const updateSparkState = (network: BaseNetwork) => {
   updateAssets();
@@ -139,9 +168,23 @@ const selectedNetworkName = computed(() => props.network.name);
 const selectedSubnetwork = computed(() => props.subnetwork);
 const showAddCustomTokens = ref(false);
 
+const isSolanaStakingBanner = ref(false);
+const bannersState = new BannersState();
+
+// Network type checks
+const isEvmNetwork = computed(
+  () => props.network.provider === ProviderName.ethereum,
+);
+const isMassaNetwork = computed(
+  () => props.network.provider === ProviderName.massa,
+);
+
 watch([selectedAddress, selectedNetworkName, selectedSubnetwork], updateAssets);
-onMounted(() => {
+onMounted(async () => {
   updateAssets();
+  if (await bannersState.showNetworkAssetsSolanaStakingBanner()) {
+    isSolanaStakingBanner.value = true;
+  }
 });
 
 const toggleDeposit = () => {
@@ -169,6 +212,11 @@ const addCustomAsset = (asset: AssetsType) => {
     // refetches assets to update the custom token
     updateAssets();
   }
+};
+
+const closeSolanaStakingBanner = () => {
+  isSolanaStakingBanner.value = false;
+  bannersState.hideNetworkAssetsSolanaStakingBanner();
 };
 </script>
 

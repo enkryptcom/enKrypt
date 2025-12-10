@@ -1,16 +1,21 @@
 import { BN, EVMTransaction } from "../../types";
 
-export interface ZeroXResponseType {
-  code?: number;
-  reason?: string;
-  buyTokenAddress: string;
-  sellTokenAddress: string;
-  buyAmount: string;
-  sellAmount: string;
+export interface ZeroXResponseTransactionType {
   to: string;
   data: string;
+  gas: string;
+  gasPrice: string;
   value: string;
 }
+
+export interface ZeroXResponseType {
+  name?: string;
+  message?: string;
+  buyAmount: string;
+  sellAmount: string;
+  transaction: ZeroXResponseTransactionType;
+}
+
 export interface ZeroXSwapResponse {
   transactions: EVMTransaction[];
   toTokenAmount: BN;

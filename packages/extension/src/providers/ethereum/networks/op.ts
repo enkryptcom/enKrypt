@@ -1,10 +1,10 @@
-import icon from './icons/op.svg';
+import icon from './icons/op.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import { EtherscanActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
-import shNFTHandler from '@/libs/nft-handlers/simplehash';
+import NFTHandler from '@/libs/nft-handlers/goldrush';
 
 const opOptions: EvmNetworkOptions = {
   name: NetworkNames.Optimism,
@@ -21,7 +21,7 @@ const opOptions: EvmNetworkOptions = {
   coingeckoID: 'ethereum',
   coingeckoPlatform: CoingeckoPlatform.Optimism,
   assetsInfoHandler,
-  NFTHandler: shNFTHandler,
+  NFTHandler,
   activityHandler: wrapActivityHandler(EtherscanActivity),
 };
 

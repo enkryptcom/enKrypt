@@ -2,23 +2,16 @@
   <div class="onboard__container">
     <logo class="onboard__logo" />
     <div class="onboard__wrap" :class="wrapClassObject()">
-      <a
-        v-if="isShowBackButton()"
-        class="onboard__back"
-        @click="$router.go(-1)"
-      >
+      <a v-if="isShowBackButton()" class="onboard__back" @click="router.go(-1)">
         <arrow-back />
       </a>
       <router-view />
     </div>
 
-    <div
-      v-if="
-        $route.name == 'create-wallet-wallet-ready' ||
-        $route.name == 'restore-wallet-wallet-ready'
-      "
-      class="onboard__info"
-    >
+    <div v-if="
+      route.name == 'create-wallet-wallet-ready' ||
+      route.name == 'restore-wallet-wallet-ready'
+    " class="onboard__info">
       <h4>Pin the Enkrypt extension</h4>
       <p>Click on <extension-icon /> in your browser</p>
       <p>
@@ -35,10 +28,25 @@ import ArrowBack from '@action/icons/common/arrow-back.vue';
 import ExtensionIcon from '@action/icons/tip/extension-icon.vue';
 import OnlineIcon from '@action/icons/tip/online-icon.vue';
 import PinIcon from '@action/icons/tip/pin-icon.vue';
-import { useRoute } from 'vue-router';
+import { onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { isGeoRestricted } from '@/libs/utils/screening';
 
 const route = useRoute();
+const router = useRouter();
 
+onMounted(async () => {
+  isGeoRestricted().then(restricted => {
+    if (restricted) {
+      window.open(
+        'https://help.myetherwallet.com/en/articles/12897302-geographic-restrictions-for-mew',
+        '_blank',
+        'noopener',
+      );
+      window.close();
+    }
+  });
+});
 const isShowBackButton = () => {
   return (
     route.name &&
@@ -46,6 +54,7 @@ const isShowBackButton = () => {
     route.name != 'user-analytics' &&
     route.name != 'create-wallet-wallet-ready' &&
     route.name != 'restore-wallet-wallet-ready' &&
+    route.name != 'restore-wallet-backup-detected' &&
     !(route.name as string).includes('hardware-wallet')
   );
 };
@@ -54,7 +63,8 @@ const wrapClassObject = () => {
   return {
     'onboard__wrap--ready':
       route.name == 'create-wallet-wallet-ready' ||
-      route.name == 'restore-wallet-wallet-ready',
+      route.name == 'restore-wallet-wallet-ready' ||
+      route.name == 'restore-wallet-backup-detected',
     'onboard__wrap--auto-height': route.path.match(/hardware-wallet/),
   };
 };
@@ -62,8 +72,7 @@ const wrapClassObject = () => {
 
 <style lang="less">
 @import '@action/styles/theme.less';
-@import (css)
-  url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
+@import (css) url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
 
 body {
   width: 100vw;
@@ -72,6 +81,7 @@ body {
   overflow: hidden;
   font-size: 0;
   font-family: 'Roboto', sans-serif;
+  overflow-y: auto;
 }
 
 .onboard {
@@ -104,11 +114,12 @@ body {
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    min-height: 700px;
   }
 
   &__wrap {
     width: 460px;
-    height: 600px;
+    height: 650px;
     background: @white;
     box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
     border-radius: 12px;

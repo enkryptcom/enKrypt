@@ -11,6 +11,9 @@ const supportedNetworks = [NetworkNames.Bitcoin];
 interface OridnalType {
   inscriptionId: string;
   output: string;
+  preview: string;
+  inscriptionNumber: string;
+  location: string;
 }
 export const getAllOrdinals = (
   address: string,

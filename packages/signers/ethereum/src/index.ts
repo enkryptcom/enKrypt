@@ -7,16 +7,29 @@ import {
   privateToAddress,
 } from "@ethereumjs/util";
 import { mnemonicToSeed } from "bip39";
-import { Errors, SignerInterface, KeyPair } from "@enkryptcom/types";
-import { hexToBuffer, bufferToHex } from "@enkryptcom/utils";
+import {
+  Errors,
+  SignerInterface,
+  KeyPair,
+  MnemonicWithExtraWord,
+} from "@enkryptcom/types";
+import {
+  hexToBuffer,
+  bufferToHex,
+  encryptedDataStringToJson,
+  naclDecodeHex,
+  naclDecrypt,
+} from "@enkryptcom/utils";
 import HDkey from "hdkey";
 import { box as naclBox } from "tweetnacl";
 import { encodeBase64 } from "tweetnacl-util";
-import { encryptedDataStringToJson, naclDecodeHex, naclDecrypt } from "./utils";
 
 export class EthereumSigner implements SignerInterface {
-  async generate(mnemonic: string, derivationPath = ""): Promise<KeyPair> {
-    const seed = await mnemonicToSeed(mnemonic);
+  async generate(
+    mnemonic: MnemonicWithExtraWord,
+    derivationPath = "",
+  ): Promise<KeyPair> {
+    const seed = await mnemonicToSeed(mnemonic.mnemonic, mnemonic.extraWord);
     const hdkey = HDkey.fromMasterSeed(seed);
     const key = hdkey.derive(derivationPath);
     return {

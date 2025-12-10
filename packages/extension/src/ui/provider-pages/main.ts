@@ -4,6 +4,7 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import routes from './routes';
 import * as filters from '@action/utils/filters';
 import Vue3Lottie from 'vue3-lottie';
+import { createPinia } from 'pinia';
 
 global.WeakMap = WeakMap;
 
@@ -16,9 +17,10 @@ const router = createRouter({
   routes,
 });
 
+const pinia = createPinia();
 const app = createApp(App);
 
-app.use(router).use(Vue3Lottie, { name: 'vue3lottie' });
+app.use(router).use(pinia).use(Vue3Lottie, { name: 'vue3lottie' });
 
 app.config.globalProperties.$filters = filters;
 

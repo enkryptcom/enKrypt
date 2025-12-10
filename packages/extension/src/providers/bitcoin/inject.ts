@@ -136,8 +136,9 @@ const injectDocument = (
       JSON.stringify({ method: InternalMethods.getSettings, params: [] }),
     )
     .then((settings: SettingsType) => {
-      if (settings.btc.injectUnisat) document['unisat'] = provider;
+      if (settings.btc.injectUnisat)
+        (document as EnkryptWindow)['unisat'] = provider;
     });
-  document['enkrypt']['providers'][options.name] = provider;
+  (document as EnkryptWindow)['enkrypt']['providers'][options.name] = provider;
 };
 export default injectDocument;

@@ -1,6 +1,6 @@
 <template>
   <div class="settings__inner-header">
-    <a class="settings__back" @click="$emit('window:back')">
+    <a class="settings__back" @click="$emit('window:back')" v-if="hasBack">
       <arrow-back />
     </a>
     <h2 v-show="isGeneral">General</h2>
@@ -8,6 +8,7 @@
     <h2 v-show="isSupport">Support</h2>
     <h2 v-show="isPhrase">Recovery phrase</h2>
     <h2 v-show="isReset">Reset wallet?</h2>
+    <h2 v-show="isBackups">Settings backup</h2>
 
     <a class="settings__close" @click="$emit('window:close')">
       <close-icon />
@@ -23,6 +24,10 @@ defineEmits<{
   (e: 'window:back'): void;
 }>();
 defineProps({
+  hasBack: {
+    type: Boolean,
+    default: true,
+  },
   isGeneral: {
     type: Boolean,
     default: false,
@@ -40,6 +45,10 @@ defineProps({
     default: false,
   },
   isReset: {
+    type: Boolean,
+    default: false,
+  },
+  isBackups: {
     type: Boolean,
     default: false,
   },

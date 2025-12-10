@@ -64,6 +64,7 @@
 
     <send-process
       v-if="isProcessing"
+      v-model="isProcessing"
       :is-done="isSendDone"
       :is-nft="false"
       :to-address="txData.toAddress"
@@ -101,12 +102,23 @@ import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
 import { KDAToken } from '@/providers/kadena/types/kda-token';
 import KadenaAPI from '@/providers/kadena/libs/api';
 import { KadenaNetwork } from '@/providers/kadena/types/kadena-network';
+import { trackSendEvents } from '@/libs/metrics';
+import { SendEventType } from '@/libs/metrics/types';
+import RateState from '@/libs/rate-state';
+import { useRateStore } from '@action/store/rate-store';
+
+/** -------------------
+ * Rate
+ -------------------*/
+const rateStore = useRateStore();
+const { toggleRatePopup } = rateStore;
 
 const isSendDone = ref(false);
 const account = ref<EnkryptAccount>();
 const chainId = ref<string>();
 const kdaToken = ref<KDAToken>();
 const KeyRing = new PublicKeyRing();
+const rateState = new RateState();
 const route = useRoute();
 const router = useRouter();
 const selectedNetwork: string = route.query.id as string;
@@ -134,6 +146,7 @@ onBeforeMount(async () => {
     symbol: 'loading',
     decimals: network.value.decimals,
   });
+  trackSendEvents(SendEventType.SendVerify, { network: network.value.name });
 });
 const close = () => {
   if (getCurrentContext() === 'popup') {
@@ -145,22 +158,22 @@ const close = () => {
 
 const sendAction = async () => {
   isProcessing.value = true;
-
+  trackSendEvents(SendEventType.SendApprove, {
+    network: network.value.name,
+  });
   try {
     const transaction = await kdaToken.value!.buildTransaction!(
       txData.toAddress,
       account.value!,
       txData.TransactionData.value,
       network.value as KadenaNetwork,
-      chainId.value!,
     );
 
     const networkApi = (await network.value.api()) as KadenaAPI;
-    const transactionDescriptor = await networkApi.sendTransaction(
-      transaction,
-      chainId.value!,
-    );
-
+    const transactionDescriptor = await networkApi.sendTransaction(transaction);
+    trackSendEvents(SendEventType.SendComplete, {
+      network: network.value.name,
+    });
     const txActivity: Activity = {
       from: network.value.displayAddress(txData.fromAddress),
       to: network.value.displayAddress(txData.toAddress),
@@ -193,21 +206,37 @@ const sendAction = async () => {
     if (getCurrentContext() === 'popup') {
       setTimeout(() => {
         isProcessing.value = false;
+        callToggleRatePopup();
         router.push({ name: 'activity', params: { id: network.value.name } });
       }, 2500);
     } else {
       setTimeout(() => {
         isProcessing.value = false;
+        callToggleRatePopup();
         window.close();
       }, 1500);
     }
   } catch (error: any) {
     isProcessing.value = false;
-    console.error('error', error);
     errorMsg.value = `Error: ${
       error.message || 'Could not send the transaction'
     }`;
+    trackSendEvents(SendEventType.SendFailed, {
+      network: network.value.name,
+      error: errorMsg.value,
+    });
+    console.error('error', error);
   }
+};
+
+const callToggleRatePopup = () => {
+  /**
+   * will only show the user if they haven't rated it
+   * and never been shown before
+   */
+  rateState.showPopup(true).then(show => {
+    if (show) toggleRatePopup(true);
+  });
 };
 
 const isHasScroll = () => {

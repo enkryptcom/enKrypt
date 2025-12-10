@@ -7,7 +7,7 @@
       <img :src="network.identicon(network.displayAddress(account.address))" />
 
       <div class="send-address-item__name">
-        <h4>{{ account.name }}</h4>
+        <h4 v-if="account.name != null">{{ account.name }}</h4>
         <p>
           {{
             $filters.replaceWithEllipsis(
@@ -28,17 +28,21 @@
 import { PropType } from 'vue';
 import { BaseNetwork } from '@/types/base-network';
 import DoneIcon from '@action/icons/common/done_icon.vue';
-import { EnkryptAccount } from '@enkryptcom/types';
+
 const emit = defineEmits<{
   (e: 'selected:account', address: string): void;
 }>();
+
 defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
   account: {
-    type: Object as PropType<EnkryptAccount>,
+    type: Object as PropType<{
+      name?: string;
+      address: string;
+    }>,
     default: () => {
       return {};
     },

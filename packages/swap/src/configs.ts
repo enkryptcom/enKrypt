@@ -1,11 +1,62 @@
 import { NetworkNames } from "@enkryptcom/types";
 import { numberToHex } from "web3-utils";
-import { ProviderName, SupportedNetworkName, WalletIdentifier } from "./types";
+import {
+  ProviderName,
+  ProviderNameProper,
+  SupportedNetworkName,
+  WalletIdentifier,
+} from "./types";
+
+import oneInchIcon from "./common/icons/1inch-logo.png";
+import paraswapIcon from "./common/icons/paraswap-logo.png";
+import zeroxIcon from "./common/icons/0x-logo.png";
+import changellyIcon from "./common/icons/changelly-logo.png";
+import jupiterIcon from "./common/icons/jupiter-logo.png";
+import okxIcon from "./common/icons/okx-logo.png";
+import rangoIcon from "./common/icons/rango-logo.png";
 
 export type SwapFeeConfig = {
   referrer: string;
   /** Percentage fee (0 to 1) */
   fee: number;
+};
+
+const PROVIDER_INFO: Record<
+  ProviderName,
+  { name: ProviderNameProper; icon: any }
+> = {
+  [ProviderName.oneInch]: {
+    name: ProviderNameProper.oneInch,
+    icon: oneInchIcon,
+  },
+  [ProviderName.oneInchFusion]: {
+    name: ProviderNameProper.oneInchFusion,
+    icon: oneInchIcon,
+  },
+  [ProviderName.paraswap]: {
+    name: ProviderNameProper.paraswap,
+    icon: paraswapIcon,
+  },
+  [ProviderName.zerox]: {
+    name: ProviderNameProper.zerox,
+    icon: zeroxIcon,
+  },
+  [ProviderName.rango]: {
+    name: ProviderNameProper.rango,
+    icon: rangoIcon,
+  },
+  [ProviderName.jupiter]: {
+    name: ProviderNameProper.jupiter,
+    icon: jupiterIcon,
+  },
+  [ProviderName.okx]: {
+    name: ProviderNameProper.okx,
+    icon: okxIcon,
+  },
+  [ProviderName.changelly]: {
+    name: ProviderNameProper.changelly,
+    icon: changellyIcon,
+  },
 };
 
 const FEE_CONFIGS: Partial<
@@ -19,6 +70,16 @@ const FEE_CONFIGS: Partial<
     [WalletIdentifier.mew]: {
       referrer: "0x87A265C93D2A92C6EEEC002283bEaEbb4564Fd20",
       fee: 0.025,
+    },
+  },
+  [ProviderName.oneInchFusion]: {
+    [WalletIdentifier.enkrypt]: {
+      referrer: "0x551d9d8eb02e1c713009da8f7c194870d651054a",
+      fee: 88,
+    },
+    [WalletIdentifier.mew]: {
+      referrer: "0x87A265C93D2A92C6EEEC002283bEaEbb4564Fd20",
+      fee: 250,
     },
   },
   [ProviderName.paraswap]: {
@@ -57,11 +118,21 @@ const FEE_CONFIGS: Partial<
   // each kind of asset you want to receive fees for
   [ProviderName.jupiter]: {
     [WalletIdentifier.enkrypt]: {
-      referrer: "D5qKNm99Fbh7FAVEQp5vTgRkw7NfdtSREW2rhNPFqq5x",
+      referrer: "HXWkRK9a4H1EuBiqP4sVfFsEpd2NasoQPScoXL1NgSE2",
       fee: 0.01,
     },
     [WalletIdentifier.mew]: {
-      referrer: "AUX4AgB6rwsXudMJ3U3rPFCUajhxKbwdG149i5xeVyFq",
+      referrer: "CmrkoXWiTW37ZqUZcfJtxiKhy9eRMBQHq1nm8HpmRXH4",
+      fee: 0.03,
+    },
+  },
+  [ProviderName.okx]: {
+    [WalletIdentifier.enkrypt]: {
+      referrer: "AGVteri2nwBsY8w95PuJCoFWxd6ZLwMQKVftaKJu4knV",
+      fee: 0.01,
+    },
+    [WalletIdentifier.mew]: {
+      referrer: "8GkSjqJUCzfLw96wKWMvTcLcbZsX7n69ZEQ3FE3KbPEq",
       fee: 0.03,
     },
   },
@@ -81,7 +152,7 @@ const TOKEN_LISTS: {
   [NetworkNames.Fantom]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Fantom}.json`,
   [NetworkNames.Moonbeam]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Moonbeam}.json`,
   [NetworkNames.Gnosis]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Gnosis}.json`,
-  [NetworkNames.Klaytn]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Klaytn}.json`,
+  [NetworkNames.Kaia]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Kaia}.json`,
   [NetworkNames.ZkSync]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Zksync}.json`,
   [NetworkNames.Base]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Base}.json`,
   [NetworkNames.MaticZK]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.MaticZK}.json`,
@@ -111,6 +182,7 @@ const GAS_LIMITS = {
   approval: numberToHex(300000),
   transferToken: numberToHex(300000),
   swap: numberToHex(1000000),
+  Wrap: numberToHex(70000),
 };
 const NATIVE_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 
@@ -125,4 +197,5 @@ export {
   CHANGELLY_LIST,
   TOP_TOKEN_INFO_LIST,
   DEFAULT_SLIPPAGE,
+  PROVIDER_INFO,
 };

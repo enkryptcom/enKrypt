@@ -1,4 +1,4 @@
-import icon from './icons/moonbeam.svg';
+import icon from './icons/moonbeam.webp';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EtherscanActivity } from '../libs/activity-handlers';

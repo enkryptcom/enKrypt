@@ -1,15 +1,9 @@
-import cacheFetch from '@/libs/cache-fetch';
 import { BTCRawInfo } from '@/types/activity';
 import { ProviderAPIInterface } from '@/types/provider';
-import {
-  BitcoinNetworkInfo,
-  FiroTxType,
-  FiroUnspentType,
-  HaskoinUnspentType,
-} from '../types';
+import { BitcoinNetworkInfo, FiroTxType } from '../types';
 import { getAddress as getBitcoinAddress } from '../types/bitcoin-network';
-import { Utxo } from '../types/utxo';
 import { PublicFiroWallet } from './firo-wallet/public-firo-wallet';
+import { UnspentTxOutputModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
 
 class API implements ProviderAPIInterface {
   node: string;
@@ -102,43 +96,7 @@ class API implements ProviderAPIInterface {
     return { txid };
   }
 
-  async FiroToHaskoinUTXOs(
-    FiroUTXOs: FiroUnspentType[],
-    address: string,
-  ): Promise<HaskoinUnspentType[]> {
-    const ret: HaskoinUnspentType[] = [];
-    for (const utx of FiroUTXOs) {
-      try {
-        const rawTxRes = (await cacheFetch({
-          url: `${this.node}/insight-api-zcoin/rawtx/${utx.txid}`,
-        })) as { rawtx: string };
-        const res = (await cacheFetch({
-          url: `${this.node}/insight-api-zcoin/tx/${utx.txid}`,
-        })) as FiroTxType;
-
-        ret.push({
-          address,
-          block: {
-            height: res.blockheight,
-            position: 0,
-          },
-          index: utx.vout,
-          pkscript: 'res.vout[utx.vout].scriptPubKey.hex',
-          txid: utx.txid,
-          value: Number(utx.satoshis),
-          raw: rawTxRes.rawtx,
-        });
-      } catch (error) {
-        console.log(123, error);
-      }
-    }
-    ret.sort((a, b) => {
-      return a.value - b.value;
-    });
-    return ret;
-  }
-
-  async getUTXOs(pubkey: string): Promise<Utxo[]> {
+  async getUTXOs(pubkey: string): Promise<UnspentTxOutputModel[]> {
     const spendableUtxos = await this.#wallet.getOnlySpendableUtxos();
 
     if ((spendableUtxos as any).message || !spendableUtxos.length) return [];

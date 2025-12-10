@@ -71,11 +71,12 @@ class API implements ProviderAPIInterface {
         symbol,
         decimals: parseInt(decimals),
       };
-    } catch (e) {
+    } catch {
       return {
         name: 'Unknown',
         symbol: 'UNKNWN',
         decimals: 18,
+        icon: undefined,
       };
     }
   };

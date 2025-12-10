@@ -13,7 +13,7 @@
 
     <div class="send-input-amount__fiat">
       <switch-arrow-icon />
-      <span>${{ $filters.formatFiatValue(fiatEquivalent).value }}</span>
+      <span>{{ $filters.parseCurrency(fiatEquivalent) }}</span>
     </div>
 
     <a
@@ -144,9 +144,14 @@ const changeFocus = () => {
     justify-content: flex-start;
     align-items: center;
     flex-direction: row;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 
     svg {
       margin-right: 4px;
+      flex-shrink: 0;
     }
 
     span {
@@ -157,6 +162,9 @@ const changeFocus = () => {
       text-align: center;
       letter-spacing: 0.25px;
       color: @tertiaryLabel;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 

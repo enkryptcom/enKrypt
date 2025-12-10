@@ -1,9 +1,7 @@
-import icon from './icons/xlayer.png';
+import icon from './icons/xlayer.webp';
 import { NetworkNames, CoingeckoPlatform } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
-import { EtherscanActivity } from '../libs/activity-handlers';
-import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
 
 const xlayerOptions: EvmNetworkOptions = {
   name: NetworkNames.XLayer,
@@ -16,12 +14,11 @@ const xlayerOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: 'OKB',
   currencyNameLong: 'OKB',
-  node: 'wss://ws.xlayer.tech',
+  node: 'https://xlayerrpc.okx.com',
   icon,
   coingeckoID: 'okb',
   coingeckoPlatform: CoingeckoPlatform.XLayer,
-  assetsInfoHandler,
-  activityHandler: wrapActivityHandler(EtherscanActivity),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
 const xlayer = new EvmNetwork(xlayerOptions);

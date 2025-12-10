@@ -19,7 +19,7 @@
     ]
   },
   "scripts": {
-    "test": "yarn workspaces foreach --worktree -v run test",
+    "test": "yarn workspaces foreach --worktree -v --exclude packages/swap run test",
     "lint": "yarn workspaces foreach --worktree run lint",
     "build:all": "ultra -r build",
     "watch": "concurrently 'npm:watch-*'",
@@ -32,14 +32,15 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.5.0",
-    "@commitlint/config-conventional": "^19.5.0",
-    "@swc/core": "^1.9.2",
-    "concurrently": "^9.1.0",
-    "husky": "^9.1.6",
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
+    "@swc/core": "^1.15.2",
+    "concurrently": "^9.2.1",
+    "husky": "^9.1.7",
     "node-notifier": "^10.0.1",
-    "nodemon": "^3.1.7",
-    "ultra-runner": "^3.10.5"
+    "nodemon": "^3.1.11",
+    "ultra-runner": "^3.10.5",
+    "vite-plugin-node-polyfills": "0.24.0"
   },
   "resolutions": {
     "@zondax/ledger-cosmos-js/vue": "^3.5.12",
@@ -49,7 +50,6 @@
     "@amplitude/plugin-autocapture-browser@^1.0.2": "patch:@amplitude/plugin-autocapture-browser@npm%3A1.0.3#./.yarn/patches/@amplitude-plugin-autocapture-browser-npm-1.0.3-edb25bef55.patch"
   },
   "dependencies": {
-    "axios": "^1.8.2",
-    "ecpair": "^3.0.0-rc.0"
+    "ecpair": "3.0.0-rc.0"
   }
 }

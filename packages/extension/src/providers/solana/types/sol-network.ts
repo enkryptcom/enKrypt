@@ -6,10 +6,7 @@ import { ProviderName } from '@/types/provider';
 import { CoingeckoPlatform, NetworkNames, SignerType } from '@enkryptcom/types';
 import createIcon from '../libs/blockies';
 import { Activity } from '@/types/activity';
-import {
-  formatFiatValue,
-  formatFloatingPointValue,
-} from '@/libs/utils/number-formatter';
+import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
 import MarketData from '@/libs/market-data';
 import BigNumber from 'bignumber.js';
 import { CoinGeckoTokenMarket } from '@/libs/market-data/types';
@@ -125,14 +122,12 @@ export class SolanaNetwork extends BaseNetwork {
         balance: balance,
         balancef: formatFloatingPointValue(userBalance).value,
         balanceUSD: usdBalance.toNumber(),
-        balanceUSDf: formatFiatValue(usdBalance.toString()).value,
+        balanceUSDf: usdBalance.toString(),
         icon: this.icon,
         name: this.name_long,
         symbol: this.currencyName,
         value: marketData.length ? currentPrice.toString() : '0',
-        valuef: formatFiatValue(
-          marketData.length ? currentPrice.toString() : '0',
-        ).value,
+        valuef: marketData.length ? currentPrice.toString() : '0',
         contract: '',
         decimals: this.decimals,
         sparkline: marketData.length

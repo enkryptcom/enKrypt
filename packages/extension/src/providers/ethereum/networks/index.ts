@@ -10,11 +10,10 @@ import okcNode from './okc';
 import shidenEvmNode from './sdn';
 import astarEvmNode from './astr';
 import optimismNode from './op';
-import cantoNode from './canto';
 import rootstockNode from './rsk';
 import rootstockTestnetNode from './rsk-testnet';
 import edgeEvmNode from './edg';
-import zkGoerliNode from './zkgoerli';
+import zkSepoliaNode from './zksepolia';
 import vicNode from './vic';
 import zkSyncNode from './zksync';
 import arbNode from './arb';
@@ -24,27 +23,23 @@ import ontEVMNode from './ontevm';
 import gnoNode from './gno';
 import avaxNode from './avax';
 import ftmNode from './ftm';
-import klayNode from './klay';
+import kaiaNode from './kaia';
 import auroraNode from './aurora';
 import puppyNode from './puppy';
+import deriveNode from './derive';
 import sepoliaNode from './sepolia';
 import baseNode from './base';
 import celoNode from './celo';
 import shibNode from './shib';
-import artheraNode from './aa';
-import formTestnet from './form-testnet';
-import artheraTestNode from './aat';
-import syscoinTestNode from './tsys';
-import syscoinNode from './sys';
-import rolluxTestNode from './trlx';
-import rolluxNode from './rlx';
-import cagaAnkara from './cagaAnkara';
+import syscoinNEVMTestNode from './syscoin/nevm-testnet';
+import syscoinNEVMNode from './syscoin/nevm';
+import rolluxTestNode from './syscoin/rollux-testnet';
+import rolluxNode from './syscoin/rollux';
+import sonicNode from './sonic';
 import telosNode from './tlos';
 import blastNode from './blast';
 import sankoNode from './dmt';
 import degenNode from './degen';
-import hamNode from './ham';
-import zcdNode from './zcd';
 import immutableZkevmNode from './immutable-zkevm';
 import rariNode from './rari';
 import formaNode from './forma';
@@ -55,12 +50,30 @@ import mantaPacificNode from './manta-pacific';
 import modeNode from './mode';
 import opbnbNode from './op-bnb';
 import palmNode from './palm';
-import proofOfPlayApexNode from './pop-apex';
 import scrollNode from './scroll';
-import cotiDevnetNode from './coti-devnet';
-import holeskyNode from './holesky';
+import cotiTestnetNode from './coti-testnet';
+import hoodiNode from './hoodi';
 import bitrockNode from './bitrock';
 import fraxtalNode from './fraxtal';
+import _5ireNode from './5ire';
+import beraNode from './bera';
+import storyNode from './story';
+import gravityNode from './gravity';
+import unichainNode from './unichain';
+import abstractNode from './abstract';
+import inkNode from './inkonchain';
+import taraxa from './taraxa';
+import coti from './coti';
+import cytonicTestnetNode from './cytonic-testnet';
+import unitZero from './unitzero';
+import unitZeroTestnet from './unitzero-testnet';
+import conflux from './conflux';
+import hemi from './hemi';
+import coredao from './coredao';
+import appLayerTestnet from './applayer-testnet';
+import nibiru from './nibiru';
+import nibiruTestnet from './nibiru-testnet';
+// import tac from './tac'; waiting for RPC fix
 
 export default {
   sepolia: sepoliaNode,
@@ -76,11 +89,10 @@ export default {
   shidenEvm: shidenEvmNode,
   astarEvm: astarEvmNode,
   op: optimismNode,
-  canto: cantoNode,
   rootstock: rootstockNode,
   rootstockTestnet: rootstockTestnetNode,
   edgeEvm: edgeEvmNode,
-  zkGoerli: zkGoerliNode,
+  zkSepolia: zkSepoliaNode,
   vic: vicNode,
   zkSync: zkSyncNode,
   skaleEuropa: skale.europaNode,
@@ -90,35 +102,28 @@ export default {
   skaleCryptoColosseum: skale.cryptoColosseumNode,
   skaleExorde: skale.exordeNode,
   skaleNebula: skale.nebulaNode,
-  skaleRazor: skale.razorNode,
   skaleTitan: skale.titanNode,
-  skaleChaos: skale.chaosNode,
   ontEVM: ontEVMNode,
   arbitrum: arbNode,
   arbitrumNova: arbNovaNode,
   gnosis: gnoNode,
   avax: avaxNode,
   fantom: ftmNode,
-  klaytn: klayNode,
+  kaia: kaiaNode,
   aurora: auroraNode,
   puppy: puppyNode,
   base: baseNode,
   celo: celoNode,
   shib: shibNode,
-  arthera: artheraNode,
-  formTestnet: formTestnet,
-  artheraTest: artheraTestNode,
-  syscoinTest: syscoinTestNode,
-  syscoin: syscoinNode,
+  syscoinNEVMTest: syscoinNEVMTestNode,
+  syscoinNEVM: syscoinNEVMNode,
   rolluxTest: rolluxTestNode,
   rollux: rolluxNode,
-  cagaAnkara: cagaAnkara,
+  sonic: sonicNode,
   telos: telosNode,
   blast: blastNode,
   sanko: sankoNode,
   degen: degenNode,
-  ham: hamNode,
-  zcd: zcdNode,
   immutableZkevm: immutableZkevmNode,
   rari: rariNode,
   forma: formaNode,
@@ -129,10 +134,29 @@ export default {
   mode: modeNode,
   opbnb: opbnbNode,
   palm: palmNode,
-  popApex: proofOfPlayApexNode,
   scroll: scrollNode,
-  cotiDevnet: cotiDevnetNode,
-  holesky: holeskyNode,
+  cotiTestnetNode: cotiTestnetNode,
+  hoodi: hoodiNode,
   bitrock: bitrockNode,
   frax: fraxtalNode,
+  taraxa: taraxa,
+  '5ire': _5ireNode,
+  bera: beraNode,
+  story: storyNode,
+  gravity: gravityNode,
+  unichain: unichainNode,
+  abstract: abstractNode,
+  ink: inkNode,
+  coti: coti,
+  cytonicTestnet: cytonicTestnetNode,
+  derive: deriveNode,
+  unitZero: unitZero,
+  unitZeroTestnet: unitZeroTestnet,
+  conflux: conflux,
+  hemi: hemi,
+  coredao: coredao,
+  nibiru: nibiru,
+  nibiruTestnet: nibiruTestnet,
+  appLayerTestnet: appLayerTestnet,
+  // tac: tac, waiting for RPC fix
 };

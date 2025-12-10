@@ -5,6 +5,7 @@ import {
   HWWalletAdd,
   KeyPairAdd,
   KeyRecordAdd,
+  MnemonicWithExtraWord,
   SignerType,
   SignOptions,
   WalletType,
@@ -16,8 +17,15 @@ export class KeyRingBase {
     const browserStorage = new BrowserStorage(InternalStorageNamespace.keyring);
     this.#keyring = new KeyRing(browserStorage);
   }
-  init(mnemonic: string, password: string): Promise<void> {
-    return this.#keyring.init(password, { mnemonic });
+  init(options: {
+    mnemonic: string;
+    password: string;
+    extraWord?: string;
+  }): Promise<void> {
+    return this.#keyring.init(options.password, {
+      mnemonic: options.mnemonic,
+      extraWord: options.extraWord,
+    });
   }
   async reset(): Promise<void> {
     const resetPromises = Object.values(InternalStorageNamespace).map(name =>
@@ -83,7 +91,7 @@ export class KeyRingBase {
   lock(): void {
     return this.#keyring.lock();
   }
-  getMnemonic(password: string): Promise<string> {
+  getMnemonic(password: string): Promise<MnemonicWithExtraWord> {
     return this.#keyring.getMnemonic(password);
   }
   isInitialized(): Promise<boolean> {

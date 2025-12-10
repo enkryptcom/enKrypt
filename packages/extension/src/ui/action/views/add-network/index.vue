@@ -6,7 +6,6 @@
         v-if="isNetworkList"
         :close="closePopup"
         :to-custom="toCustomNetwork"
-        @update:active-networks="setActiveNetworks"
       />
       <add-custom-network v-else :close="closePopup" :back="toNetworkList" />
     </div>
@@ -18,26 +17,26 @@ import { ref } from 'vue';
 import AddNetworkList from './views/add-network-list.vue';
 import AddCustomNetwork from './views/add-custom-network.vue';
 
-const isNetworkList = ref(true);
+import { trackNetwork } from '@/libs/metrics';
+import { NetworkChangeEvents } from '@/libs/metrics/types';
 
+const isNetworkList = ref(true);
 const emit = defineEmits<{
   (e: 'close:popup'): void;
-  (e: 'update:activeNetworks'): void;
 }>();
 
-const setActiveNetworks = () => {
-  emit('update:activeNetworks');
-};
-
 const closePopup = () => {
+  isNetworkList.value = true;
   emit('close:popup');
 };
 
 const toCustomNetwork = () => {
   isNetworkList.value = false;
+  trackNetwork(NetworkChangeEvents.NetworkAddCustomClicked, {});
 };
 
 const toNetworkList = () => {
+  trackNetwork(NetworkChangeEvents.NetworkCustomBackButton, {});
   isNetworkList.value = true;
 };
 </script>

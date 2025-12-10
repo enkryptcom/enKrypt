@@ -77,7 +77,7 @@ export default {
     this.__uninit();
   },
   methods: {
-    scrollHandle: function (evt) {
+    scrollHandle: function (evt: Event) {
       this.$emit(evt.type, evt);
     },
     update: function () {

@@ -3,6 +3,7 @@ import type { InjectedProvider as BitcoinProvider } from '@/providers/bitcoin/ty
 import type { InjectedProvider as KadenaProvider } from '@/providers/kadena/types';
 import type { InjectedProvider as PolkadotProvider } from '@/providers/polkadot/types';
 import type { InjectedProvider as SolanaProvider } from '@/providers/solana/types';
+import type { InjectedProvider as EthereumProvider } from '../providers/ethereum/types';
 import {
   MiddlewareFunction,
   NetworkNames,
@@ -12,18 +13,18 @@ import {
 } from '@enkryptcom/types';
 import EventEmitter from 'eventemitter3';
 import { RouteRecordRaw } from 'vue-router';
-import type { InjectedProvider as EthereumProvider } from '../providers/ethereum/types';
+import { RoutesType } from './ui';
+import { NFTCollection } from './nft';
+import { BaseNetwork } from './base-network';
+import { BaseToken } from './base-token';
 import {
   BTCRawInfo,
   EthereumRawInfo,
   KadenaRawInfo,
   SOLRawInfo,
+  MassaRawInfo,
   SubscanExtrinsicInfo,
 } from './activity';
-import { BaseNetwork } from './base-network';
-import { BaseToken } from './base-token';
-import { NFTCollection } from './nft';
-import { RoutesType } from './ui';
 
 export enum ProviderName {
   enkrypt = 'enkrypt',
@@ -32,6 +33,7 @@ export enum ProviderName {
   polkadot = 'polkadot',
   kadena = 'kadena',
   solana = 'solana',
+  massa = 'massa',
 }
 export enum InternalStorageNamespace {
   keyring = 'KeyRing',
@@ -51,6 +53,11 @@ export enum InternalStorageNamespace {
   tokensState = 'TokensState',
   customNetworksState = 'CustomNetworksState',
   rateState = 'RateState',
+  recentlySentAddresses = 'RecentlySentAddresses',
+  updatesState = 'UpdatesState',
+  backupState = 'BackupState',
+  menuState = 'MenuState',
+  bannersState = 'BannersState',
   firoWallet = 'FiroWallet',
 }
 export enum EnkryptProviderEventMethods {
@@ -64,6 +71,7 @@ export enum ProviderType {
   bitcoin,
   kadena,
   solana,
+  massa,
 }
 
 export type SendMessageHandler = (
@@ -140,6 +148,7 @@ export abstract class ProviderAPIInterface {
     | BTCRawInfo
     | KadenaRawInfo
     | SOLRawInfo
+    | MassaRawInfo
     | null
   >;
 }

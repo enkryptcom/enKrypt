@@ -27,14 +27,17 @@ defineProps({
 
 <style lang="less">
 @import '@action/styles/theme.less';
+
 .lock-screen-password-input {
   padding: 0 0 39px 0;
   width: 100%;
   position: relative;
   box-sizing: border-box;
+
   &__input {
     margin: 0;
   }
+
   &__error {
     font-style: normal;
     font-weight: 400;

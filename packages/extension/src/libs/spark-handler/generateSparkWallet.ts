@@ -12,10 +12,9 @@ export const getSpendKeyObj = async (wasm: WasmModule) => {
   try {
     const keyring = new PublicKeyRing();
 
-    const { pk, nextIndex } = await keyring.getPrivateKey(seed);
+    const { pk } = await keyring.getPrivateKey(seed);
 
     const keyData = Buffer.from(pk, 'hex');
-    const index = nextIndex;
 
     keyDataPtr = wasm._malloc(keyData.length);
     wasm.HEAPU8.set(keyData, keyDataPtr);
@@ -24,7 +23,7 @@ export const getSpendKeyObj = async (wasm: WasmModule) => {
       'js_createSpendKeyData',
       'number',
       ['number', 'number'],
-      [keyDataPtr, index],
+      [keyDataPtr, 1],
     );
 
     if (spendKeyDataObj === 0) {
@@ -77,12 +76,14 @@ export const getIncomingViewKey = async (
     );
 
     return { incomingViewKeyObj, fullViewKeyObj };
-  } catch (error) {
+  } catch {
     return { incomingViewKeyObj: 0, fullViewKeyObj: 0 };
   }
 };
 
-export async function getSparkState(): Promise<SparkAccount | undefined> {
+export async function getSparkState(
+  diversifier = 1,
+): Promise<Omit<SparkAccount, 'sparkBalance'> | undefined> {
   const wasm = await wasmInstance.getInstance();
 
   if (!wasm) {
@@ -90,7 +91,6 @@ export async function getSparkState(): Promise<SparkAccount | undefined> {
     return;
   }
 
-  const diversifier = 1n;
   const is_test_network = 0;
 
   const spendKeyObj = await getSpendKeyObj(wasm);
@@ -117,7 +117,7 @@ export async function getSparkState(): Promise<SparkAccount | undefined> {
     'js_getAddress',
     'number',
     ['number', 'number'],
-    [incomingViewKeyObj, diversifier],
+    [incomingViewKeyObj, BigInt(diversifier)],
   );
 
   if (addressObj === 0) {
@@ -142,8 +142,5 @@ export async function getSparkState(): Promise<SparkAccount | undefined> {
 
   return {
     defaultAddress: address_enc_main,
-    sparkBalance: {
-      availableBalance: '0',
-    },
   };
 }
