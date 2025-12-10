@@ -33,6 +33,10 @@ export class BaseFiroWallet {
     this.#wallet.setSecret(mnemonic);
   }
 
+  async getAddressKeyPairMapping(numAddresses: string[]) {
+    return this.#wallet.getAddressKeyPairMapping(numAddresses);
+  }
+
   async getSpendableUtxos(numAddresses: string[]) {
     return this.#wallet.getSpendableUtxos(numAddresses);
   }

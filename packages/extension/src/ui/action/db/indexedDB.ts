@@ -18,7 +18,7 @@ export class IndexedDBHelper {
   }
 
   waitInit(): Promise<number> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const checkDB = () => {
         if (this.db) {
           resolve(1);

@@ -50,6 +50,7 @@ const getTxInfo = (
       hash: u.txid,
       index: u.index,
       raw: u.raw,
+      address: u.address,
       witnessUtxo: {
         script: u.pkscript,
         value: u.value,
@@ -61,6 +62,7 @@ const getTxInfo = (
       hash: ordinalUTXO.txid,
       index: ordinalUTXO.index,
       raw: ordinalUTXO.raw,
+      address: ordinalUTXO.address,
       witnessUtxo: {
         script: ordinalUTXO.pkscript,
         value: ordinalUTXO.value,

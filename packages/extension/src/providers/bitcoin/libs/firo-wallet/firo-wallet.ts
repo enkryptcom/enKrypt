@@ -6,7 +6,7 @@ import type { BIP32Interface } from 'bip32';
 import * as bip32 from 'bip32';
 import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
-import ECPairFactory from 'ecpair';
+import ECPairFactory, { ECPairInterface } from 'ecpair';
 import { PaymentType } from '../../types/bitcoin-network';
 import {
   AnonymitySetMetaModel,
@@ -16,7 +16,11 @@ import {
 import { firoElectrum } from '../electrum-client/electrum-client';
 import configs from './configs';
 import { getSparkState } from '@/libs/spark-handler/generateSparkWallet';
-import { LOCAL_STORAGE_KEYS, LOCAL_STORAGE_PREFIXES, LocalStorageHelper } from '@action/db/localStorage.ts';
+import {
+  LOCAL_STORAGE_KEYS,
+  LOCAL_STORAGE_PREFIXES,
+  LocalStorageHelper,
+} from '@action/db/localStorage.ts';
 
 bitcoin.initEccLib(ecc);
 
@@ -92,8 +96,11 @@ export class FiroWallet {
     return bip39.mnemonicToSeedSync(secret);
   }
 
-  async getSpendableUtxos(numAddresses: string[]) {
-    const iterationsLimit = Math.floor(numAddresses.length / 2);
+  async getAddressKeyPairMapping(
+    addresses: string[],
+  ): Promise<Record<string, ECPairInterface>> {
+    const iterationsLimit = Math.floor(addresses.length / 2);
+    const addressKeyPairs: Record<string, ECPairInterface> = {};
 
     const { secret } = await this.#storage.get(
       configs.STORAGE_KEYS.FIRO_WALLET_SECRET,
@@ -102,18 +109,11 @@ export class FiroWallet {
     const seed = bip39.mnemonicToSeedSync(secret!);
     const root = bip32.fromSeed(seed, this.network);
 
-    const allUtxos = [];
-    const addressKeyPairs: Record<string, any> = {};
-
-    console.log(
-      `🔍 Checking up to ${numAddresses.length} derived addresses...`,
-    );
-
     let dd = 0;
     let idx = 0;
 
-    for (let index = 0; index < numAddresses.length; index++) {
-      const address = numAddresses[index];
+    for (let index = 0; index < addresses.length; index++) {
+      const address = addresses[index];
 
       let dPath = ``;
 
@@ -142,9 +142,21 @@ export class FiroWallet {
 
       console.log(`🔹 Checking Address ${index}: ${address}`);
       addressKeyPairs[address!] = keyPair;
+    }
+    return addressKeyPairs;
+  }
 
+  async getSpendableUtxos(numAddresses: string[]) {
+    const addressKeyPairMapping =
+      await this.getAddressKeyPairMapping(numAddresses);
+    const allUtxos = [];
+
+    for (let index = 0; index < numAddresses.length; index++) {
+      const address = numAddresses[index];
+      const keyPair = addressKeyPairMapping[address];
       try {
-        const data = await firoElectrum.getUnspentTransactionsByAddress(address);
+        const data =
+          await firoElectrum.getUnspentTransactionsByAddress(address);
 
         if (data.length > 0) {
           // Filter for confirmed UTXOs
@@ -160,7 +172,7 @@ export class FiroWallet {
       }
     }
     console.log(`🔹 Total Spendable UTXOs: ${allUtxos.length}`);
-    return { spendableUtxos: allUtxos, addressKeyPairs };
+    return { spendableUtxos: allUtxos, addressKeyPairs: addressKeyPairMapping };
   }
 
   async getOnlySpendableUtxos() {

@@ -23,6 +23,10 @@ export class PublicFiroWallet {
     return this.#wallet.getPublicBalance();
   }
 
+  async getAddressKeyPairMapping(numAddresses: string[]) {
+    return this.#wallet.getAddressKeyPairMapping(numAddresses);
+  }
+
   async getSpendableUtxos(numAddresses: string[]) {
     return this.#wallet.getSpendableUtxos(numAddresses);
   }

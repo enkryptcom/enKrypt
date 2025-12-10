@@ -78,16 +78,6 @@ class PublicKeyRing {
         walletType: WalletType.mnemonic,
         isHardware: false,
       };
-      allKeys['TMSnbcpSw9JhteaJqioT2sz2sW1Qhqyf2Q'] = {
-        address: 'TMSnbcpSw9JhteaJqioT2sz2sW1Qhqyf2Q',
-        basePath: "m/44'/1'/0'/0",
-        name: 'fake firo account #1',
-        pathIndex: 0,
-        publicKey: '0x0',
-        signerType: SignerType.secp256k1btc,
-        walletType: WalletType.mnemonic,
-        isHardware: false,
-      };
       allKeys['77hREDDaAiimedtD9bR1JDMgYLW3AA5yPvD91pvrueRp'] = {
         address: '77hREDDaAiimedtD9bR1JDMgYLW3AA5yPvD91pvrueRp',
         basePath: "m/44'/501'/0'/1",

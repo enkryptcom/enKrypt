@@ -1,4 +1,3 @@
-
 export const LOCAL_STORAGE_PREFIXES = {
   wallet: 'wallet',
 } as const;
@@ -32,7 +31,7 @@ export class LocalStorageHelper {
       return item ? (JSON.parse(item) as T) : undefined;
     } catch (e) {
       console.error(`LocalStorage get error for key "${key}"`, e);
-      return undefined
+      return undefined;
     }
   }
 

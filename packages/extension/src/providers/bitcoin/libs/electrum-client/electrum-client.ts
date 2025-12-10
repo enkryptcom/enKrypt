@@ -271,8 +271,7 @@ export default class FiroElectrum {
   }
 
   private addressToScriptPubKey(address: string): string {
-    const output = bitcoin.address.toOutputScript(address, networkInfo);
-    return Buffer.from(output).toString('hex');
+    return bitcoin.address.toOutputScript(address, networkInfo).toString('hex');
   }
 
   async getUnspentTransactionsByAddress(
