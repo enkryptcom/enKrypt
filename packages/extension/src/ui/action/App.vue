@@ -460,33 +460,35 @@ const onSelectedSubnetworkChange = async (id: string) => {
 
 const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
   accountHeaderData.value.selectedAccount = newAccount;
-  checkAddress(newAccount);
-  const accountStates = {
-    [ProviderName.ethereum]: EVMAccountState,
-    [ProviderName.bitcoin]: BTCAccountState,
-    [ProviderName.solana]: SolAccountState,
-  };
-  if (Object.keys(accountStates).includes(currentNetwork.value.provider)) {
-    const AccountState = new accountStates[
-      currentNetwork.value.provider as keyof typeof accountStates
-    ]();
-    const domain = await domainState.getCurrentDomain();
-    AccountState.addApprovedAddress(newAccount.address, domain);
+  await checkAddress(newAccount);
+  if (!isAddressRestricted.value.isRestricted) {
+    const accountStates = {
+      [ProviderName.ethereum]: EVMAccountState,
+      [ProviderName.bitcoin]: BTCAccountState,
+      [ProviderName.solana]: SolAccountState,
+    };
+    if (Object.keys(accountStates).includes(currentNetwork.value.provider)) {
+      const AccountState = new accountStates[
+        currentNetwork.value.provider as keyof typeof accountStates
+      ]();
+      const domain = await domainState.getCurrentDomain();
+      AccountState.addApprovedAddress(newAccount.address, domain);
+    }
+    await domainState.setSelectedAddress(newAccount.address);
+    await sendToBackgroundFromAction({
+      message: JSON.stringify({
+        method: InternalMethods.sendToTab,
+        params: [
+          {
+            method: MessageMethod.changeAddress,
+            params: [currentNetwork.value.displayAddress(newAccount.address)],
+          },
+        ],
+      }),
+      provider: currentNetwork.value.provider,
+      tabId: await domainState.getCurrentTabId(),
+    });
   }
-  await domainState.setSelectedAddress(newAccount.address);
-  await sendToBackgroundFromAction({
-    message: JSON.stringify({
-      method: InternalMethods.sendToTab,
-      params: [
-        {
-          method: MessageMethod.changeAddress,
-          params: [currentNetwork.value.displayAddress(newAccount.address)],
-        },
-      ],
-    }),
-    provider: currentNetwork.value.provider,
-    tabId: await domainState.getCurrentTabId(),
-  });
 };
 const showNetworkMenu = computed(() => {
   const selected = route.params.id as string;
