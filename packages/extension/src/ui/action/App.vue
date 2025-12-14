@@ -14,10 +14,6 @@
         <swap-looking-animation />
       </div>
       <div v-show="!isLoading">
-        <span>
-          <logo-min class="app__menu-logo" />
-          <button @click="newTab">[ ]</button>
-        </span>
         <app-menu
           :active-network="currentNetwork"
           @update:network="setNetwork"

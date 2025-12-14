@@ -297,12 +297,12 @@ const anonymizeFunds = async () => {
   align-items: flex-start;
 }
 
-btn__anonymize-error {
+.btn__anonymize-error {
   border: 1px solid @error !important;
   color: @error;
 }
 
-btn__anonymize {
+.btn__anonymize {
   padding: 8px 16px;
   outline: none;
   cursor: pointer;
