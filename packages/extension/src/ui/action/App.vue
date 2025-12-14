@@ -16,7 +16,6 @@
       <div v-show="!isLoading">
         <span>
           <logo-min class="app__menu-logo" />
-          <button @click="newTab">[ ]</button>
         </span>
         <app-menu
           :active-network="currentNetwork"
@@ -594,10 +593,6 @@ const lockAction = async () => {
     tabId: await domainState.getCurrentTabId(),
   });
   router.push({ name: 'lock-screen' });
-};
-
-const newTab = () => {
-  Browser.tabs.create({ url: Browser.runtime.getURL('action.html') });
 };
 </script>
 

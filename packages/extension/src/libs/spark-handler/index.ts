@@ -1,17 +1,17 @@
-import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
+import { wasmInstance } from '@/libs/utils/wasm-loader';
 import {
   getIncomingViewKey,
   getSpendKeyObj,
-} from '@/libs/spark-handler/generateSparkWallet.ts';
-import { getSparkCoinInfo } from '@/libs/spark-handler/getSparkCoinInfo.ts';
-import { IndexedDBHelper } from '@action/db/indexedDB.ts';
-import { OwnedCoinData } from '@action/workers/sparkCoinInfoWorker.ts';
-import { isSparkAddress } from '@/providers/bitcoin/libs/utils.ts';
+} from '@/libs/spark-handler/generateSparkWallet';
+import { getSparkCoinInfo } from '@/libs/spark-handler/getSparkCoinInfo';
+import { IndexedDBHelper } from '@action/db/indexedDB';
+import { OwnedCoinData } from '@action/workers/sparkCoinInfoWorker';
+import { isSparkAddress } from '@/providers/bitcoin/libs/utils';
 import {
   base64ToHex,
   getSerializedCoin,
-} from '@/libs/spark-handler/getSerializedCoin.ts';
-import { base64ToReversedHex } from '@/libs/spark-handler/utils.ts';
+} from '@/libs/spark-handler/getSerializedCoin';
+import { base64ToReversedHex } from '@/libs/spark-handler/utils';
 
 export async function sendFromSparkAddress(
   to: string,
@@ -31,7 +31,6 @@ export async function sendFromSparkAddress(
   const ownedCoins = ((await db.readData('myCoins')) || []) as OwnedCoinData[];
 
   const uniqCoins = ownedCoins.filter(ownedCoin => {
-    console.log(ownedCoin);
     return ownedCoin.setId === 7; // TODO: rm after fix duplicate coin fetch
   });
 
@@ -109,7 +108,6 @@ export async function sendFromSparkAddress(
       keepMemory: true,
     })
       .then(data => {
-        console.log('%cdata', 'color: yellow; font-size: 24px;', data);
         if (!data.isUsed) {
           spendCoinList.push({
             coin: ownedCoin.coin,
@@ -118,7 +116,6 @@ export async function sendFromSparkAddress(
             deserializedCoinObj: data.deserializedCoinObj,
           });
         } else {
-          console.log('Coin is used, skipping:', data);
         }
       })
       .catch(err => {
@@ -130,7 +127,6 @@ export async function sendFromSparkAddress(
   await Promise.allSettled(coinMetaPromiseList);
 
   spendCoinList.forEach(spendCoin => {
-    console.log(spendCoin.metadata, spendCoin.setId);
     Module.ccall(
       'js_setCSparkMintMetaId', // C++ function name
       null, // Return type
@@ -168,8 +164,6 @@ export async function sendFromSparkAddress(
     },
     {} as Record<number, typeof spendCoinList>,
   );
-
-  console.log('groupedBySet', groupedBySet);
 
   const deserializedCoinList: Record<string, number[]> = {};
   // TODO: move to separate function
@@ -210,8 +204,6 @@ export async function sendFromSparkAddress(
     });
   }
 
-  console.log('deserializedCoinList =:=:=:=', deserializedCoinList);
-
   const setHashList = await db.getSetHashes();
 
   for (const setId in groupedBySet) {
@@ -219,7 +211,6 @@ export async function sendFromSparkAddress(
       setHashList[+setId - 1],
       'base64',
     );
-    console.log('coverSetRepresentation :=>', coverSetRepresentation);
     const coverSetRepresentationPointer = Module._malloc(
       coverSetRepresentation.length,
     );
@@ -232,7 +223,6 @@ export async function sendFromSparkAddress(
       [coverSetRepresentationPointer, coverSetRepresentation.length],
     );
 
-    console.log(groupedBySet, setId);
     deserializedCoinList[setId].forEach(deserializedCoin => {
       Module.ccall(
         'js_addCoinToCoverSetData',

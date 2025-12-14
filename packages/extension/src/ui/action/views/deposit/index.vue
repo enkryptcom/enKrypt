@@ -13,22 +13,112 @@
         {{ depositCopy }}
       </p>
 
-      <div v-show="!!sparkAccount" class="deposit__tabs">
-        <button
-          :class="activeTab === 'spark' && 'deposit__tabs-active'"
-          @click="setActiveTab('spark')"
-        >
-          Spark address
-        </button>
-        <button
-          :class="activeTab === 'transparent' && 'deposit__tabs-active'"
-          @click="setActiveTab('transparent')"
-        >
-          Transparent address
-        </button>
+      <div v-if="network.name === NetworkNames.Firo">
+        <div v-show="!!sparkAccount" class="deposit__tabs">
+          <button
+            :class="activeTab === 'spark' && 'deposit__tabs-active'"
+            @click="setActiveTab('spark')"
+          >
+            Spark address
+          </button>
+          <button
+            :class="activeTab === 'transparent' && 'deposit__tabs-active'"
+            @click="setActiveTab('transparent')"
+          >
+            Transparent address
+          </button>
+        </div>
+
+        <div v-if="activeTab === 'transparent'">
+          <div class="deposit__code">
+            <qrcode-vue
+              :value="
+                $props.network?.provider == ProviderName.kadena
+                  ? network.displayAddress(account.address)
+                  : network.provider +
+                    ':' +
+                    network.displayAddress(account.address)
+              "
+              :size="150"
+              level="H"
+            />
+          </div>
+
+          <div class="deposit__account">
+            <img
+              :src="network.identicon(network.displayAddress(account.address))"
+            />
+
+            <div class="deposit__account-info">
+              <h4>{{ account.name }}</h4>
+              <p>{{ network.displayAddress(account.address) }}</p>
+            </div>
+
+            <a
+              class="deposit__account-copy"
+              @click="copy(network.displayAddress(account.address))"
+            >
+              <CopyIcon /><span>copy</span>
+            </a>
+
+            <notification
+              v-if="isCopied"
+              :hide="toggleNotification"
+              text="Address copied"
+              class="deposit__notification"
+            />
+          </div>
+        </div>
+
+        <div v-if="activeTab === 'spark' && !!sparkAccount">
+          <div class="deposit__code">
+            <qrcode-vue
+              :value="network.provider + ':' + sparkAccount?.defaultAddress"
+              :size="150"
+              level="H"
+            />
+          </div>
+
+          <div class="deposit__generate">
+            <button
+              class="deposit__generate-new-spark-address"
+              @click="generateNewSparkAddress()"
+            >
+              Generate new address
+            </button>
+          </div>
+
+          <div class="deposit__account">
+            <div class="deposit__account-info">
+              <p class="deposit__account-text">
+                {{ sparkAccount?.defaultAddress }}
+              </p>
+            </div>
+
+            <a
+              class="deposit__account-copy"
+              @click="copy(sparkAccount?.defaultAddress ?? '')"
+            >
+              <CopyIcon /><span>copy</span>
+            </a>
+
+            <notification
+              v-if="isCopied"
+              :hide="toggleNotification"
+              text="Address copied"
+              class="deposit__notification"
+            />
+            <notification
+              v-if="isGenerated"
+              :hide="toggleGeneratedNotification"
+              text="New Spark address generated"
+              class="deposit__notification"
+            />
+          </div>
+        </div>
       </div>
 
-      <div v-if="activeTab === 'transparent'">
+      <div v-else>
         <div class="deposit__code">
           <qrcode-vue
             :value="
@@ -68,66 +158,19 @@
           />
         </div>
       </div>
-
-      <div v-if="activeTab === 'spark' && !!sparkAccount">
-        <div class="deposit__code">
-          <qrcode-vue
-            :value="network.provider + ':' + sparkAccount?.defaultAddress"
-            :size="150"
-            level="H"
-          />
-        </div>
-
-        <div class="deposit__generate">
-          <button
-            class="deposit__generate-new-spark-address"
-            @click="generateNewSparkAddress()"
-          >
-            Generate new address
-          </button>
-        </div>
-
-        <div class="deposit__account">
-          <div class="deposit__account-info">
-            <p class="deposit__account-text">
-              {{ sparkAccount?.defaultAddress }}
-            </p>
-          </div>
-
-          <a
-            class="deposit__account-copy"
-            @click="copy(sparkAccount?.defaultAddress ?? '')"
-          >
-            <CopyIcon /><span>copy</span>
-          </a>
-
-          <notification
-            v-if="isCopied"
-            :hide="toggleNotification"
-            text="Address copied"
-            class="deposit__notification"
-          />
-          <notification
-            v-if="isGenerated"
-            :hide="toggleGeneratedNotification"
-            text="New Spark address generated"
-            class="deposit__notification"
-          />
-        </div>
-      </div>
     </div>
   </app-dialog>
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, onMounted, computed, watch } from 'vue';
+import { computed, onMounted, PropType, ref, watch } from 'vue';
 import DomainState from '@/libs/domain-state';
 import { BaseNetwork, SubNetworkOptions } from '@/types/base-network';
 import { ProviderName } from '@/types/provider';
 import Notification from '@action/components/notification/index.vue';
 import CopyIcon from '@action/icons/header/copy_icon.vue';
 import QrcodeVue from 'qrcode.vue';
-import { EnkryptAccount } from '@enkryptcom/types';
+import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import AppDialog from '@action/components/app-dialog/index.vue';
 import { SparkAccount } from '../../types/account';
 

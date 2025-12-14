@@ -67,7 +67,6 @@ export const getSparkCoinInfo = async ({
     if (!metadataObj) {
       throw new Error('FAILED_TO_GET_METADATA');
     }
-    console.log('Coin Metadata:', metadataObj);
 
     const coinFromMetaObj = wasmModule.ccall(
       'js_getCoinFromMeta',
@@ -78,7 +77,6 @@ export const getSparkCoinInfo = async ({
     if (!coinFromMetaObj) {
       throw new Error('Failed to get coin from metadata.');
     }
-    console.log('Coin from Metadata:', coinFromMetaObj);
 
     inputDataObj = wasmModule.ccall(
       'js_getInputData',
@@ -89,7 +87,6 @@ export const getSparkCoinInfo = async ({
     if (!inputDataObj) {
       throw new Error('Failed to get input data.');
     }
-    console.log('Input Data:', inputDataObj);
 
     const inputTagHex = wasmModule.ccall(
       'js_getInputCoinDataTag_base64',
@@ -107,7 +104,6 @@ export const getSparkCoinInfo = async ({
     if (!inputDataWithMetaObj) {
       throw new Error('Failed to get input data with metadata.');
     }
-    console.log('Input Data with Metadata:', inputDataWithMetaObj);
 
     identifiedCoinObj = wasmModule.ccall(
       'js_identifyCoin',
@@ -118,16 +114,14 @@ export const getSparkCoinInfo = async ({
     if (!identifiedCoinObj) {
       throw new Error('Failed to identify coin.');
     }
-    console.log('Identified Coin:', identifiedCoinObj);
 
     // Example usage of `js_getIdentifiedCoinDiversifier`
-    const diversifier = wasmModule.ccall(
-      'js_getIdentifiedCoinDiversifier',
-      'number',
-      ['number'],
-      [identifiedCoinObj],
-    );
-    console.log('Identified Coin Diversifier:', diversifier);
+    // const diversifier = wasmModule.ccall(
+    //   'js_getIdentifiedCoinDiversifier',
+    //   'number',
+    //   ['number'],
+    //   [identifiedCoinObj],
+    // );
 
     const value = wasmModule.ccall(
       'js_getIdentifiedCoinValue',
@@ -135,7 +129,6 @@ export const getSparkCoinInfo = async ({
       ['number'],
       [identifiedCoinObj],
     );
-    console.log('Identified Coin Value:', value);
 
     // Example usage of `js_getIdentifiedCoinMemo`
     // const memo = wasmModule.UTF8ToString(
@@ -172,7 +165,6 @@ export const getSparkCoinInfo = async ({
       ['number'],
       [metadataObj],
     );
-    console.log('Spark Mint Meta Is Used:', metaIsUsed !== 0);
 
     // Example usage of `js_getCSparkMintMetaMemo`
     // const metaMemo = wasmModule.UTF8ToString(
