@@ -1,7 +1,7 @@
 import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB';
 import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
 import type { AnonymitySetMetaModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
-import { differenceSets } from '@action/utils/set-utils.ts';
+import { differenceSets } from '@action/utils/set-utils';
 
 export type StoredAnonymitySet = {
   coins: string[][];
@@ -42,7 +42,6 @@ const getLocalSets = async (): Promise<StoredAnonymitySet[]> => {
     if (Array.isArray(data)) {
       return data;
     } else {
-      console.warn('updateCoinSet:getLocalSets', 'Invalid data format', data);
       return [];
     }
   } catch (error) {

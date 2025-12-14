@@ -22,7 +22,7 @@ export const getMintTxData = async ({
   memo = '',
 }: IArgs) => {
   if (!wasmModule) {
-    console.log('Wasm not loaded');
+    console.error('Wasm not loaded');
     return;
   }
 
@@ -100,8 +100,6 @@ export const getMintTxData = async ({
       subtractFeeFlag,
     });
   }
-
-  console.log({ recipientsOutput });
 
   wasmModule._free(outputsPointerArray);
   wasmModule._free(serialContextPointer);

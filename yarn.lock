@@ -1763,7 +1763,7 @@ __metadata:
     concurrently: "npm:^9.2.1"
     cross-env: "npm:^10.1.0"
     echarts: "npm:^6.0.0"
-    ecpair: "npm:^3.0.0-rc.0"
+    ecpair: "npm:^3.0.0"
     electrum-client-browser: "npm:1.2.5"
     eslint: "npm:^9.39.1"
     eslint-plugin-vue: "npm:^10.5.1"
@@ -18035,7 +18035,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ecpair@npm:3.0.0-rc.0, ecpair@npm:^3.0.0-rc.0":
+"ecpair@npm:3.0.0-rc.0":
   version: 3.0.0-rc.0
   resolution: "ecpair@npm:3.0.0-rc.0"
   dependencies:
@@ -18054,6 +18054,17 @@ __metadata:
     typeforce: "npm:^1.18.0"
     wif: "npm:^2.0.6"
   checksum: 10/06a9dfe50ac4528e6f61ce709218baf3261b28ce2ae05273c590a1e9646481699e36df97ca1dbe5c0ffc91753da543b8778f4341db24dc6c74e9046fcb975b3e
+  languageName: node
+  linkType: hard
+
+"ecpair@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "ecpair@npm:3.0.0"
+  dependencies:
+    uint8array-tools: "npm:^0.0.8"
+    valibot: "npm:^0.37.0"
+    wif: "npm:^5.0.0"
+  checksum: 10/4deca80b35f96f974e0983d5aab169fe0ef4abe51ce0f6efbfe9e83afdb3278c87855d39134443eeec8847dc1b117e91552a57879779ec7d0e20c811146f86f1
   languageName: node
   linkType: hard
 

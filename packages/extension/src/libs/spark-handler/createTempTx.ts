@@ -63,10 +63,6 @@ export const createTempTx = ({
     const utxo = spendableUtxos[index];
     const keyPair = addressKeyPairs[utxo.address];
 
-    console.log(
-      `🔹 Signing input ${index} with key ${keyPair.publicKey.toString('hex')}`,
-    );
-
     const Signer = {
       sign: (hash: Uint8Array) => {
         return Buffer.from(keyPair.sign(hash));
@@ -75,7 +71,6 @@ export const createTempTx = ({
     } as unknown as bitcoin.Signer;
 
     tx.signInput(index, Signer);
-    console.log(`🔹 Siged input ${index}`);
   }
   tx.validateSignaturesOfAllInputs(validator);
   tx.finalizeAllInputs();

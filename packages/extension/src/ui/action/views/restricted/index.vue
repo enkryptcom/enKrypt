@@ -10,10 +10,17 @@
     </p>
     <p>
       If this address has been incorrectly flagged, you can contact us at
-      <a class="blocked-page__support" href="mailto:support@myetherwallet.com">support@myetherwallet.com</a>.
+      <a class="blocked-page__support" href="mailto:support@myetherwallet.com"
+        >support@myetherwallet.com</a
+      >.
     </p>
-    <a class="blocked-page__more-info" target="_blank" rel="noopener noreferrer"
-      href="https://help.myetherwallet.com/en/articles/12897302-geographic-restrictions-for-mew">More info</a>
+    <a
+      class="blocked-page__more-info"
+      target="_blank"
+      rel="noopener noreferrer"
+      href="https://help.myetherwallet.com/en/articles/12897302-geographic-restrictions-for-mew"
+      >More info</a
+    >
     <div v-if="isInitialized">
       <div class="blocked-page__divider-top"></div>
       <div class="blocked-page__content">
@@ -32,17 +39,31 @@
       <div @click="supportAction">Contact support</div>
     </div>
 
-    <modal-sign v-if="isOpenSign" :is-unlock="true" v-bind="$attrs" @window:close="closeUnlock"
-      @toggle:forgot="openForgot" @action:recovery-phrase="displayMnemonic" />
+    <modal-sign
+      v-if="isOpenSign"
+      :is-unlock="true"
+      v-bind="$attrs"
+      @window:close="closeUnlock"
+      @toggle:forgot="openForgot"
+      @action:recovery-phrase="displayMnemonic"
+    />
 
-    <modal-forgot v-if="isOpenForgot" :is-forgot="isOpenForgot" @toggle:forgot="closeForgot" />
+    <modal-forgot
+      v-if="isOpenForgot"
+      :is-forgot="isOpenForgot"
+      @toggle:forgot="closeForgot"
+    />
   </div>
 
   <div class="settings__container" v-if="showMnemonic">
     <div class="settings__overlay" @click="closeMnemonic()" />
     <div class="settings__wrap">
-      <settings-recovery :has-back="false" :mnemonic="mnemonic" @window:back="closeMnemonic"
-        @window:close="closeMnemonic" />
+      <settings-recovery
+        :has-back="false"
+        :mnemonic="mnemonic"
+        @window:back="closeMnemonic"
+        @window:close="closeMnemonic"
+      />
     </div>
   </div>
 </template>
