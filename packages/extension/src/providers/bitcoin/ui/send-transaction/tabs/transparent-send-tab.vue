@@ -20,35 +20,35 @@
       @close="toggleSelectContactFrom"
     />
 
-      <send-spark-address-input
-        v-if="network.name === 'Firo'"
-        ref="addressInputTo"
-        class="no-margin"
-        title="To address"
-        :value="addressTo"
-        :network="network as BitcoinNetwork"
-        @update:input-address="inputAddressTo"
-        @toggle:show-contacts="toggleSelectContactTo"
-      />
-      <send-address-input
-        v-if="network.name !== 'Firo'"
-        ref="addressInputTo"
-        title="To address"
-        :value="addressTo"
-        :network="network as BitcoinNetwork"
-        @update:input-address="inputAddressTo"
-        @toggle:show-contacts="toggleSelectContactTo"
-      />
+    <send-spark-address-input
+      v-if="network.name === 'Firo'"
+      ref="addressInputTo"
+      class="no-margin"
+      title="To address"
+      :value="addressTo"
+      :network="network as BitcoinNetwork"
+      @update:input-address="inputAddressTo"
+      @toggle:show-contacts="toggleSelectContactTo"
+    />
+    <send-address-input
+      v-if="network.name !== 'Firo'"
+      ref="addressInputTo"
+      title="To address"
+      :value="addressTo"
+      :network="network as BitcoinNetwork"
+      @update:input-address="inputAddressTo"
+      @toggle:show-contacts="toggleSelectContactTo"
+    />
 
-      <send-contacts-list
-        :show-accounts="isOpenSelectContactTo"
-        :account-info="accountInfo"
-        :address="addressTo"
-        :network="network"
-        @selected:account="selectAccountTo"
-        @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
-        @close="toggleSelectContactTo"
-      />
+    <send-contacts-list
+      :show-accounts="isOpenSelectContactTo"
+      :account-info="accountInfo"
+      :address="addressTo"
+      :network="network"
+      @selected:account="selectAccountTo"
+      @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
+      @close="toggleSelectContactTo"
+    />
 
     <send-token-select v-if="isSendToken" :token="selectedAsset" />
 
@@ -91,23 +91,21 @@
 
     <send-alert
       v-show="
-          nativeBalanceAfterTransaction.isNeg() ||
-          (Number(sendAmount) < (props.network as BitcoinNetwork).dust &&
-            Number(sendAmount) > 0)
-        "
+        nativeBalanceAfterTransaction.isNeg() ||
+        (Number(sendAmount) < (props.network as BitcoinNetwork).dust &&
+          Number(sendAmount) > 0)
+      "
       :native-symbol="network.name"
       :price="selectedAsset.price || '0'"
       :is-balance-zero="UTXOBalance.isZero()"
       :native-value="
-          fromBase(
-            nativeBalanceAfterTransaction.abs().toString(),
-            network.decimals,
-          )
-        "
+        fromBase(
+          nativeBalanceAfterTransaction.abs().toString(),
+          network.decimals,
+        )
+      "
       :decimals="network.decimals"
-      :below-dust="
-          Number(sendAmount) < (props.network as BitcoinNetwork).dust
-        "
+      :below-dust="Number(sendAmount) < (props.network as BitcoinNetwork).dust"
       :dust="(props.network as BitcoinNetwork).dust.toString()"
       :not-enough="nativeBalanceAfterTransaction.isNeg()"
     />
@@ -120,10 +118,10 @@
         <base-button
           :title="sendButtonTitle"
           :click="
-          !isAddress(addressTo, network.networkInfo)
-            ? sendSparkAction
-            : sendAction
-        "
+            !isAddress(addressTo, network.networkInfo)
+              ? sendSparkAction
+              : sendAction
+          "
           :disabled="!isInputsValid"
         />
       </div>

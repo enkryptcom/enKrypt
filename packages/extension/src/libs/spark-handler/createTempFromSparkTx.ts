@@ -1,6 +1,6 @@
 import * as bitcoin from 'bitcoinjs-lib';
-import { LOCK_TIME, SPARK_TX_TYPE } from '@/libs/spark-handler/constants.ts';
-import { isSparkAddress } from '@/providers/bitcoin/libs/utils.ts';
+import { LOCK_TIME, SPARK_TX_TYPE } from '@/libs/spark-handler/constants';
+import { isSparkAddress } from '@/providers/bitcoin/libs/utils';
 
 interface CreateTempFromSparkTxArgs {
   network: bitcoin.networks.Network;
@@ -27,15 +27,6 @@ export const createTempFromSparkTx = async ({
     sequence: 4294967295,
     finalScriptSig: Buffer.from('d3', 'hex'),
   });
-
-  console.log(
-    'tempTx.data.globalMap',
-    tempTx.data.globalMap,
-    'tempTx.data.inputs',
-    tempTx.data.inputs,
-    'tempTx',
-    tempTx,
-  );
 
   const tempTxBuffer = tempTx.extractTransaction(true).toBuffer();
   const extendedTempTxBuffer = Buffer.concat([

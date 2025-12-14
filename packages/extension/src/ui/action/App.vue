@@ -308,44 +308,6 @@ const fetchAndSetRates = async () => {
   );
 };
 
-const testIntersect = async () => {
-  console.log(db);
-
-  const usedCoinsTagsLength = (await db.getLengthOf('usedCoinsTags')) || 0;
-  const updatedCoinsTags = await wallet
-    .getUsedSparkCoinsTags(
-      usedCoinsTagsLength ? usedCoinsTagsLength - 1 : usedCoinsTagsLength,
-    )
-    .catch(err => {
-      console.error('Error fetching used coins tags:', err);
-      return { tags: [], txHashes: [] };
-    })
-    .finally(() => {
-      console.log(
-        '%c Fetched used coins tags',
-        'color: #00FF00; font-weight: bold; font-size: 24px;',
-      );
-    });
-
-  // const updatedCoinsTagsTxHashes = await wallet.getUsedCoinsTagsTxHashes(0);
-  // console.log('usedCoinsTags ->>>>>>><<<<<<<<<--', updatedCoinsTagsTxHashes);
-  console.log('usedCoinsTags ->>>>>>><<<<<<<<<--', updatedCoinsTags);
-
-  // await db.appendData('usedCoinsTags', updatedCoinsTags.tags);
-
-  const usedCoinsTags = await db.readData<string[]>('usedCoinsTags');
-
-  const coinsTagsSet = new Set(usedCoinsTags.tags);
-  const myCoins = await db.readData<{ tag: string }[]>('myCoins');
-  const myCoinsTagsSet = new Set((myCoins ?? []).map(coin => coin.tag));
-
-  const usedMyCoinsTagsSet = intersectSets(coinsTagsSet, myCoinsTagsSet);
-
-  usedMyCoinsTagsSet.forEach(tag => {
-    db.markCoinsAsUsed(tag);
-  });
-  console.log(usedMyCoinsTagsSet);
-};
 onMounted(async () => {
   geoRestricted.value = await isGeoRestricted();
   const isInitialized = await kr.isInitialized();
@@ -628,10 +590,6 @@ const lockAction = async () => {
     tabId: await domainState.getCurrentTabId(),
   });
   router.push({ name: 'lock-screen' });
-};
-
-const newTab = () => {
-  Browser.tabs.create({ url: Browser.runtime.getURL('action.html') });
 };
 </script>
 
