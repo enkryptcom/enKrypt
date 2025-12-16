@@ -365,18 +365,16 @@ const generateNewSparkAddress = async () => {
 
 const getSparkAccountState = async (network: BaseNetwork) => {
   if (network.name === NetworkNames.Firo) {
-    if (accountHeaderData.value.selectedAccount) {
-      const defaultAddress = await wallet.getSparkAddressAsync();
-      await db.waitInit();
-      const availableBalance = await db.readData<string>(
-        DB_DATA_KEYS.sparkBalance,
-      );
-      if (defaultAddress) {
-        accountHeaderData.value.sparkAccount = {
-          defaultAddress,
-          sparkBalance: { availableBalance },
-        };
-      }
+    const defaultAddress = await wallet.getSparkAddressAsync();
+    await db.waitInit();
+    const availableBalance = await db.readData<string>(
+      DB_DATA_KEYS.sparkBalance,
+    );
+    if (defaultAddress) {
+      accountHeaderData.value.sparkAccount = {
+        defaultAddress,
+        sparkBalance: { availableBalance },
+      };
     }
   }
 };
@@ -405,19 +403,17 @@ const setNetwork = async (network: BaseNetwork) => {
   const sparkAccount = {} as SparkAccount;
 
   if (network.name === NetworkNames.Firo) {
-    if (accountHeaderData.value.selectedAccount) {
-      const defaultAddress = await wallet.getSparkAddressAsync();
+    const defaultAddress = await wallet.getSparkAddressAsync();
 
-      await db.waitInit();
-      const availableBalance = await db.readData<string>(
-        DB_DATA_KEYS.sparkBalance,
-      );
+    await db.waitInit();
+    const availableBalance = await db.readData<string>(
+      DB_DATA_KEYS.sparkBalance,
+    );
 
-      if (defaultAddress) {
-        sparkAccount['defaultAddress'] = defaultAddress;
-      }
-      sparkAccount['sparkBalance'] = { availableBalance };
+    if (defaultAddress) {
+      sparkAccount['defaultAddress'] = defaultAddress;
     }
+    sparkAccount['sparkBalance'] = { availableBalance };
   }
 
   accountHeaderData.value = {
@@ -429,9 +425,6 @@ const setNetwork = async (network: BaseNetwork) => {
   };
 
   currentNetwork.value = network;
-
-  checkAddresses(activeAccounts);
-
   router.push({ name: 'assets', params: { id: network.name } });
   const tabId = await domainState.getCurrentTabId();
   const curSavedNetwork = await domainState.getSelectedNetWork();
@@ -518,16 +511,7 @@ const setNetwork = async (network: BaseNetwork) => {
 
 const foundRestrictedAddress = ref(false);
 
-const checkAddresses = async (
-  activeAccounts: AccountsHeaderData['activeAccounts'],
-) => {
-  const promises: Promise<boolean>[] = activeAccounts.map(ac =>
-    isWalletRestricted(currentNetwork.value.displayAddress(ac.address)),
-  );
-  await Promise.all(promises).then(results => {
-    if (results.includes(true)) foundRestrictedAddress.value = true;
-  });
-};
+console.log(accountHeaderData);
 
 const onSelectedSubnetworkChange = async (id: string) => {
   await domainState.setSelectedSubNetwork(id);

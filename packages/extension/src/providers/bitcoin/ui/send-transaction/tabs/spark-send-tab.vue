@@ -31,6 +31,7 @@
         (Number(sendAmount) < (props.network as BitcoinNetwork).dust &&
           Number(sendAmount) > 0)
       "
+      :is-balance-zero="Number(amount) === 0"
       :native-symbol="network.name"
       :price="availableAsset.price || '0'"
       :native-value="

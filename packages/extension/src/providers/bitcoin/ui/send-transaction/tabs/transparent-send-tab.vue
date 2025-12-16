@@ -53,14 +53,15 @@
     <send-token-select v-if="isSendToken" :token="selectedAsset" />
 
     <send-nft-select
-      v-if="!isSendToken && !isSendSpark"
+      v-if="!isSendToken"
       :item="selectedNft"
       :is-sending-disabled="false"
       @toggle-select="toggleSelectNft"
     />
 
     <nft-select-list
-      v-show="isOpenSelectNft"
+      v-if="!isSendToken"
+      v-model="isOpenSelectNft"
       :address="addressFrom"
       :network="network"
       :selected-nft="paramNFTData"
