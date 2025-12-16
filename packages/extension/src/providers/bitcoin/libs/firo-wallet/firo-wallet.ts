@@ -152,7 +152,7 @@ export class FiroWallet {
     const allUtxos = [];
 
     for (let index = 0; index < numAddresses.length; index++) {
-      const address = numAddresses[index];
+      const address = numAddresses[index] as string;
       const keyPair = addressKeyPairMapping[address];
       try {
         const data =
