@@ -7,7 +7,6 @@ import moonbeamNode from './glmr';
 import moonriverNode from './movr';
 import karuraEvmNode from './karura';
 import okcNode from './okc';
-import shidenEvmNode from './sdn';
 import astarEvmNode from './astr';
 import optimismNode from './op';
 import rootstockNode from './rsk';
@@ -85,7 +84,6 @@ export default {
   moonriver: moonriverNode,
   karuraEvm: karuraEvmNode,
   okc: okcNode,
-  shidenEvm: shidenEvmNode,
   astarEvm: astarEvmNode,
   op: optimismNode,
   rootstock: rootstockNode,
