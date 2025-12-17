@@ -56,10 +56,6 @@ import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 
 const props = defineProps({
-  isSyncing: {
-    type: Boolean,
-    default: false,
-  },
   cryptoAmount: {
     type: String,
     default: '0',

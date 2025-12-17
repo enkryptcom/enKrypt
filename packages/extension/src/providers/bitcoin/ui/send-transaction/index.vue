@@ -70,7 +70,6 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-console.log(props.network);
 
 const route = useRoute();
 const router = useRouter();

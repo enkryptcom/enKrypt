@@ -124,7 +124,6 @@ import Browser from 'webextension-polyfill';
 import AccountsHeader from './components/accounts-header/index.vue';
 import AppMenu from './components/app-menu/index.vue';
 import NetworkMenu from './components/network-menu/index.vue';
-import LogoMin from './icons/common/logo-min.vue';
 import Restricted from './views/restricted/index.vue';
 import { AccountsHeaderData, SparkAccount } from './types/account';
 import AddNetwork from './views/add-network/index.vue';
@@ -145,7 +144,7 @@ import BackupState from '@/libs/backup-state';
 import { useMenuStore } from './store/menu-store';
 import { useCurrencyStore, type Currency } from './views/settings/store';
 import { useRateStore } from './store/rate-store';
-import { isGeoRestricted, isWalletRestricted } from '@/libs/utils/screening';
+import { isGeoRestricted } from '@/libs/utils/screening';
 
 const wallet = new PublicFiroWallet();
 const db = new IndexedDBHelper();
@@ -510,8 +509,6 @@ const setNetwork = async (network: BaseNetwork) => {
 };
 
 const foundRestrictedAddress = ref(false);
-
-console.log(accountHeaderData);
 
 const onSelectedSubnetworkChange = async (id: string) => {
   await domainState.setSelectedSubNetwork(id);

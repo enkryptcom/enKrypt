@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js';
 import { BaseNetwork } from '@/types/base-network';
 import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB';
 import { intersectSets } from '@action/utils/set-utils';
-import { MyCoinModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum.ts';
+import { MyCoinModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
 
 export const useSynchronizeSparkState = (
   networkRef: Ref<BaseNetwork>,
@@ -21,10 +21,6 @@ export const useSynchronizeSparkState = (
   const tagFetchDone = ref(false);
 
   const markCoinsAsUsed = async () => {
-    console.log(
-      '%c markCoinsAsUsed: start',
-      'color: #00FFFF; font-weight: bold; font-size: 24px;',
-    );
     const usedCoinsTags = await db.readData<{ tags: string[] }>(
       DB_DATA_KEYS.usedCoinsTags,
     );
@@ -73,12 +69,6 @@ export const useSynchronizeSparkState = (
     worker.postMessage('');
 
     worker.onmessage = ({ data }) => {
-      console.log(
-        '%c[synchronizeWorker] Worker onmessage data:',
-        'color: green',
-        data,
-      );
-
       coinFetchDone.value = true;
     };
   };
@@ -92,14 +82,12 @@ export const useSynchronizeSparkState = (
 
       startCoinSetSync({
         onComplete: () => {
-          console.log('%cCoin set sync completed', 'color: red', networkName);
           synchronizeWorker();
         },
       });
 
       startTagSetSync({
         onComplete: () => {
-          console.log('%cTag set sync completed', 'color: red');
           tagFetchDone.value = true;
         },
       });
@@ -116,12 +104,6 @@ export const useSynchronizeSparkState = (
   watch(
     () => [coinFetchDone.value, tagFetchDone.value],
     ([updatedCoinFetchDone, updatedTagFetchDone]) => {
-      console.log(
-        '%c watch: coinFetchDone or tagFetchDone updated',
-        'color: #00FF00; font-weight: bold; font-size: 24px;',
-        updatedCoinFetchDone,
-        updatedTagFetchDone,
-      );
       if (updatedCoinFetchDone && updatedTagFetchDone) {
         void markCoinsAsUsed();
       }

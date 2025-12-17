@@ -140,7 +140,6 @@ export class FiroWallet {
         );
       }
 
-      console.log(`🔹 Checking Address ${index}: ${address}`);
       addressKeyPairs[address!] = keyPair;
     }
     return addressKeyPairs;
