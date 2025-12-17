@@ -23,8 +23,6 @@ const NetworkEndpoints: Record<string, string> = {
     'https://haunting-devoted-deneb.explorer.mainnet.skalenodes.com/api?',
   [NetworkNames.SkaleEuropa]:
     'https://elated-tan-skat.explorer.mainnet.skalenodes.com/api?',
-  [NetworkNames.SkaleExorde]:
-    'https://light-vast-diphda.explorer.mainnet.skalenodes.com/api?',
   [NetworkNames.SkaleNebula]:
     'https://green-giddy-denebola.explorer.mainnet.skalenodes.com/api?',
   [NetworkNames.SkaleTitan]:
