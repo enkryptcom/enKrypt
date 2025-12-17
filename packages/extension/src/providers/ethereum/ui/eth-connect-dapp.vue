@@ -44,7 +44,7 @@
         <info-icon-gray />
         <p>
           Your wallet address is restricted! if you believe this is an error
-          please contact us contact us at
+          please contact us at
           <a href="mailto:support@myetherwallet.com"
             >support@myetherwallet.com</a
           >.
