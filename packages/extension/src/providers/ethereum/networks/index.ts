@@ -53,7 +53,6 @@ import palmNode from './palm';
 import scrollNode from './scroll';
 import cotiTestnetNode from './coti-testnet';
 import hoodiNode from './hoodi';
-import bitrockNode from './bitrock';
 import fraxtalNode from './fraxtal';
 import _5ireNode from './5ire';
 import beraNode from './bera';
@@ -137,7 +136,6 @@ export default {
   scroll: scrollNode,
   cotiTestnetNode: cotiTestnetNode,
   hoodi: hoodiNode,
-  bitrock: bitrockNode,
   frax: fraxtalNode,
   taraxa: taraxa,
   '5ire': _5ireNode,
