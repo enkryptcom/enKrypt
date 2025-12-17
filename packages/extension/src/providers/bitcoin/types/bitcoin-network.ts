@@ -54,7 +54,9 @@ export interface BitcoinNetworkOptions {
 }
 
 export const getAddress = (pubkey: string, network: BitcoinNetworkInfo) => {
-  if (pubkey.length < 64) return pubkey;
+  if (pubkey.length >= 144 || pubkey.length < 64) {
+    return pubkey;
+  }
   const { address } = payments[network.paymentType]({
     network,
     pubkey: hexToBuffer(pubkey),

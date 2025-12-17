@@ -6,7 +6,6 @@
     >
       <div class="network-activity">
         <network-activity-total
-          :isSyncing="props.isSyncing"
           :crypto-amount="cryptoAmount"
           :fiat-amount="fiatAmount"
           :symbol="props.network.currencyName"
@@ -14,19 +13,15 @@
           v-bind="$attrs"
           :network="props.network as BitcoinNetwork"
           :spark-account="props.accountInfo.sparkAccount"
-          @update:spark-state="updateSparkState"
         />
 
-        <network-activity-action
-          v-bind="$attrs"
-          :network="props.network.name"
-        />
-        <div v-if="activities.length" style="width: 100%">
+        <network-activity-action v-bind="$attrs" />
+        <div v-if="activities.length">
           <network-activity-transaction
             v-for="(item, index) in activities"
             :key="index + `${forceUpdateVal}`"
             :activity="item"
-            :network="network"
+            :network="props.network"
           />
         </div>
         <!-- <div class="network-activity__header">July</div>
@@ -65,7 +60,6 @@ import { AccountsHeaderData } from '../../types/account';
 import accountInfoComposable from '@action/composables/account-info';
 import { BaseNetwork } from '@/types/base-network';
 import scrollSettings from '@/libs/utils/scroll-settings';
-
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import {
   Activity,
@@ -105,10 +99,6 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-
-const emits = defineEmits<{
-  (e: 'update:spark-state-changed', network: BaseNetwork): void;
-}>();
 
 const { cryptoAmount, fiatAmount } = accountInfoComposable(
   toRef(props, 'network'),
@@ -164,17 +154,6 @@ const checkActivity = (activity: Activity): void => {
 
   // Register the interval timer so we can destroy it on component teardown
   activityCheckTimers.push(timer);
-};
-
-const updateAssets = () => {
-  props.network.getAllTokenInfo(
-    props.accountInfo.selectedAccount?.address || '',
-  );
-};
-
-const updateSparkState = (network: BaseNetwork) => {
-  updateAssets();
-  emits('update:spark-state-changed', network);
 };
 
 let isActivityUpdating = false;

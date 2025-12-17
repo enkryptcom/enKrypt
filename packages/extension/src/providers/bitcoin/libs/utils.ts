@@ -5,7 +5,7 @@ import { fromBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
 import { BitcoinNetwork } from '../types/bitcoin-network';
 import { BTCTxInfo } from '../ui/types';
-import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
+import { wasmInstance } from '@/libs/utils/wasm-loader';
 
 export const isSparkAddress = async (
   address = '',

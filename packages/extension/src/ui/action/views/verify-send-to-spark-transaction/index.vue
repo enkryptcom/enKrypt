@@ -59,6 +59,7 @@
 
     <send-process
       v-if="isProcessing"
+      v-model="isProcessing"
       :to-address="txData.toAddress"
       :network="network"
       :token="txData.toToken"
@@ -91,7 +92,6 @@ import VerifyTransactionAmount from '@/providers/common/ui/verify-transaction/ve
 import VerifyTransactionFee from '@/providers/common/ui/verify-transaction/verify-transaction-fee.vue';
 import VerifyTransactionNetwork from '@/providers/common/ui/verify-transaction/verify-transaction-network.vue';
 import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
-import { BaseNetwork } from '@/types/base-network';
 import BaseButton from '@action/components/base-button/index.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import CloseIcon from '@action/icons/common/close-icon.vue';
@@ -101,13 +101,9 @@ import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import { ComponentPublicInstance, onBeforeMount, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { wasmInstance } from '@/libs/utils/wasm-loader.ts';
+import { wasmInstance } from '@/libs/utils/wasm-loader';
 
 const wallet = new PublicFiroWallet();
-
-const emits = defineEmits<{
-  (e: 'update:spark-state-changed', network: BaseNetwork): void;
-}>();
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -215,9 +211,7 @@ const sendAction = async () => {
 
     if (changeAmount.gt(0)) {
       const firstUtxoAddress = spendableUtxos[0].address;
-      console.log(
-        `🔹 Sending Change (${feeBn.toNumber() / 1e8} FIRO) to ${firstUtxoAddress}`,
-      );
+
       psbt.addOutput({
         address: firstUtxoAddress!,
         value: changeAmount.toNumber(),
@@ -227,10 +221,6 @@ const sendAction = async () => {
     for (let index = 0; index < spendableUtxos.length; index++) {
       const utxo = spendableUtxos[index];
       const keyPair = addressKeyPairs[utxo.address];
-
-      console.log(
-        `🔹 Signing input ${index} with key ${keyPair.publicKey.toString('hex')}`,
-      );
 
       const Signer = {
         sign: (hash: Uint8Array) => {
