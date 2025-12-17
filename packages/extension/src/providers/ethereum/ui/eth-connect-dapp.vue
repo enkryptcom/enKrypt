@@ -33,11 +33,21 @@
         />
       </div>
 
-      <div class="provider-connect-dapp__info">
+      <div v-if="!isRestricted" class="provider-connect-dapp__info">
         <info-icon-gray />
         <p>
           This will reveal your public address, wallet balance and activity to
           {{ Options.domain }}
+        </p>
+      </div>
+      <div v-if="isRestricted" class="provider-connect-dapp__info">
+        <info-icon-gray />
+        <p>
+          Your wallet address is restricted! if you believe this is an error
+          please contact us at
+          <a href="mailto:support@myetherwallet.com"
+            >support@myetherwallet.com</a
+          >.
         </p>
       </div>
 
@@ -55,7 +65,7 @@
     </template>
 
     <template #button-right>
-      <base-button title="Connect" :click="connect" />
+      <base-button :disabled="isRestricted" title="Connect" :click="connect" />
     </template>
   </common-popup>
 </template>
@@ -80,11 +90,13 @@ import { fromBase } from '@enkryptcom/utils';
 import { getError } from '@/libs/error';
 import { ErrorCodes } from '../types';
 import AccountState from '../libs/accounts-state';
+import { isWalletRestricted } from '@/libs/utils/screening';
 
 const windowPromise = WindowPromiseHandler(1);
 const network = ref<EvmNetwork>(DEFAULT_EVM_NETWORK);
 const identicon = ref<string>('');
 const displayAddress = ref<string>('');
+const isRestricted = ref(false);
 const accountHeaderData = ref<AccountsHeaderData>({
   activeAccounts: [],
   inactiveAccounts: [],
@@ -119,6 +131,9 @@ onBeforeMount(async () => {
     activeBalances: accounts.map(() => '~'),
     inactiveAccounts: [],
   };
+  isWalletRestricted(displayAddress.value).then(res => {
+    isRestricted.value = res;
+  });
   try {
     const api = await network.value.api();
     const activeBalancePromises = accountHeaderData.value.activeAccounts.map(
@@ -162,6 +177,9 @@ const toggleAccounts = () => {
 const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
   accountHeaderData.value.selectedAccount = newAccount;
   displayAddress.value = network.value.displayAddress(newAccount.address);
+  isWalletRestricted(displayAddress.value).then(res => {
+    isRestricted.value = res;
+  });
   identicon.value = network.value.identicon(newAccount.address);
 };
 </script>
