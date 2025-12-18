@@ -2,9 +2,14 @@
   <div>
     <div
       :class="['app', 'restricted-container', 'expanded']"
-      v-if="foundRestrictedAddress || geoRestricted"
+      v-if="isAddressRestricted.isRestricted || geoRestricted"
     >
-      <restricted :isInitialized="isWalletInitialized" />
+      <restricted
+        :isInitialized="isWalletInitialized"
+        :is-address-restricted="isAddressRestricted.isRestricted"
+        :restricted-address="isAddressRestricted.address"
+        @restricted:switch-account="switchToUnrestrictedAddress"
+      />
     </div>
     <div :class="[{ locked: isLocked }, 'app']" v-else>
       <div
@@ -178,6 +183,10 @@ const isSyncing = ref(false);
 const latestVersion = ref('');
 const geoRestricted = ref(false);
 const isWalletInitialized = ref(false);
+const isAddressRestricted = ref<{ isRestricted: boolean; address: string }>({
+  isRestricted: false,
+  address: '',
+});
 
 useSynchronizeSparkState(currentNetwork, sparkBalance => {
   if (sparkBalance && accountHeaderData.value.sparkAccount) {
@@ -242,16 +251,6 @@ const toggleDepositWindow = () => {
 const openBuyPage = () => {
   const buyLink = (() => {
     switch (currentNetwork.value.name) {
-      case NetworkNames.KadenaTestnet:
-        return (currentNetwork.value as KadenaNetwork).options.buyLink;
-      case NetworkNames.SyscoinNEVM:
-      case NetworkNames.Rollux:
-        return `${(currentNetwork.value as EvmNetwork).options.buyLink}&address=${currentNetwork.value.displayAddress(
-          accountHeaderData.value.selectedAccount!.address,
-        )}`;
-      case NetworkNames.SyscoinNEVMTest:
-      case NetworkNames.RolluxTest:
-        return (currentNetwork.value as EvmNetwork).options.buyLink;
       case NetworkNames.Massa:
         return 'https://www.massa.net/get-mas';
       default:
@@ -424,6 +423,7 @@ const setNetwork = async (network: BaseNetwork) => {
   };
 
   currentNetwork.value = network;
+  checkAddress(selectedAccount);
   router.push({ name: 'assets', params: { id: network.name } });
   const tabId = await domainState.getCurrentTabId();
   const curSavedNetwork = await domainState.getSelectedNetWork();
@@ -508,7 +508,21 @@ const setNetwork = async (network: BaseNetwork) => {
   }
 };
 
-const foundRestrictedAddress = ref(false);
+const checkAddress = async (activeAccount: EnkryptAccount) => {
+  isAddressRestricted.value = {
+    isRestricted: false,
+    address: '',
+  };
+  const isRestricted = await isWalletRestricted(
+    currentNetwork.value.displayAddress(activeAccount.address),
+  );
+  if (isRestricted) {
+    isAddressRestricted.value = {
+      isRestricted,
+      address: currentNetwork.value.displayAddress(activeAccount.address),
+    };
+  }
+};
 
 const onSelectedSubnetworkChange = async (id: string) => {
   await domainState.setSelectedSubNetwork(id);
@@ -518,32 +532,35 @@ const onSelectedSubnetworkChange = async (id: string) => {
 
 const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
   accountHeaderData.value.selectedAccount = newAccount;
-  const accountStates = {
-    [ProviderName.ethereum]: EVMAccountState,
-    [ProviderName.bitcoin]: BTCAccountState,
-    [ProviderName.solana]: SolAccountState,
-  };
-  if (Object.keys(accountStates).includes(currentNetwork.value.provider)) {
-    const AccountState = new accountStates[
-      currentNetwork.value.provider as keyof typeof accountStates
-    ]();
-    const domain = await domainState.getCurrentDomain();
-    AccountState.addApprovedAddress(newAccount.address, domain);
+  await checkAddress(newAccount);
+  if (!isAddressRestricted.value.isRestricted) {
+    const accountStates = {
+      [ProviderName.ethereum]: EVMAccountState,
+      [ProviderName.bitcoin]: BTCAccountState,
+      [ProviderName.solana]: SolAccountState,
+    };
+    if (Object.keys(accountStates).includes(currentNetwork.value.provider)) {
+      const AccountState = new accountStates[
+        currentNetwork.value.provider as keyof typeof accountStates
+      ]();
+      const domain = await domainState.getCurrentDomain();
+      AccountState.addApprovedAddress(newAccount.address, domain);
+    }
+    await domainState.setSelectedAddress(newAccount.address);
+    await sendToBackgroundFromAction({
+      message: JSON.stringify({
+        method: InternalMethods.sendToTab,
+        params: [
+          {
+            method: MessageMethod.changeAddress,
+            params: [currentNetwork.value.displayAddress(newAccount.address)],
+          },
+        ],
+      }),
+      provider: currentNetwork.value.provider,
+      tabId: await domainState.getCurrentTabId(),
+    });
   }
-  await domainState.setSelectedAddress(newAccount.address);
-  await sendToBackgroundFromAction({
-    message: JSON.stringify({
-      method: InternalMethods.sendToTab,
-      params: [
-        {
-          method: MessageMethod.changeAddress,
-          params: [currentNetwork.value.displayAddress(newAccount.address)],
-        },
-      ],
-    }),
-    provider: currentNetwork.value.provider,
-    tabId: await domainState.getCurrentTabId(),
-  });
 };
 const showNetworkMenu = computed(() => {
   const selected = route.params.id as string;
@@ -555,6 +572,15 @@ const showNetworkMenu = computed(() => {
       route.name == 'dapps')
   );
 });
+
+const switchToUnrestrictedAddress = () => {
+  const newAccount = accountHeaderData.value.activeAccounts.find(
+    aa =>
+      currentNetwork.value.displayAddress(aa.address) !==
+      isAddressRestricted.value.address,
+  );
+  if (newAccount) onSelectedAddressChanged(newAccount);
+};
 
 const isLocked = computed(() => {
   return route.name == 'lock-screen';

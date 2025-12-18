@@ -175,6 +175,7 @@ import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
 import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
 import { parseCurrency } from '@/ui/action/utils/filters';
+import { isWalletRestricted } from '@/libs/utils/screening';
 
 const props = defineProps({
   network: {
@@ -211,6 +212,7 @@ const accountAssets = ref<Erc20Token[]>([]);
 const selectedAsset = ref<Erc20Token | Partial<Erc20Token>>(loadingAsset);
 const amount = ref<string>('');
 const isEstimateValid = ref(true);
+const isRestricted = ref(false);
 const hasValidDecimals = computed(() => {
   return isValidDecimals(sendAmount.value, selectedAsset.value.decimals!);
 });
@@ -436,6 +438,10 @@ const balanceAfterInUsd = computed(() => {
 });
 
 const errorMsg = computed(() => {
+  if (isRestricted.value) {
+    return `Restricted Address`;
+  }
+
   if (!hasValidDecimals.value) {
     return `Too many decimals.`;
   }
@@ -576,6 +582,7 @@ const sendButtonTitle = computed(() => {
 });
 
 const isValidSend = computed<boolean>(() => {
+  if (isRestricted.value) return false;
   if (!isInputsValid.value) return false;
   if (nativeBalanceAfterTransactionInBaseUnits.value.isNeg()) return false;
   if (!isEstimateValid.value) return false;
@@ -709,6 +716,7 @@ const selectAccountFrom = (account: string) => {
   addressFrom.value = account;
   isOpenSelectContactFrom.value = false;
   fetchAssets();
+  isWalletRestricted(account).then(res => (isRestricted.value = res));
 };
 
 const selectAccountTo = (account: string) => {

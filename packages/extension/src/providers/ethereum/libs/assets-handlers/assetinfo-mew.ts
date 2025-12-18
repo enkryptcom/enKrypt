@@ -54,10 +54,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'mobm',
     cgPlatform: CoingeckoPlatform.Moonbeam,
   },
-  [NetworkNames.ShidenEVM]: {
-    tbName: 'sdn',
-    cgPlatform: CoingeckoPlatform.Shiden,
-  },
   [NetworkNames.Rootstock]: {
     cgPlatform: CoingeckoPlatform.Rootstock,
     bsEndpoint: true,

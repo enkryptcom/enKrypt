@@ -34,7 +34,6 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Sanko]: `https://tokens.coingecko.com/${CoingeckoPlatform.Sanko}/all.json`,
   [NetworkNames.Scroll]: `https://tokens.coingecko.com/${CoingeckoPlatform.Scroll}/all.json`,
   [NetworkNames.Shibarium]: `https://tokens.coingecko.com/${CoingeckoPlatform.Shibarium}/all.json`,
-  [NetworkNames.ShidenEVM]: `https://tokens.coingecko.com/${CoingeckoPlatform.Shiden}/all.json`,
   [NetworkNames.Solana]: `https://tokens.coingecko.com/${CoingeckoPlatform.Solana}/all.json`,
   [NetworkNames.SyscoinNEVM]: `https://tokens.coingecko.com/${CoingeckoPlatform.Syscoin}/all.json`,
   [NetworkNames.Telos]: `https://tokens.coingecko.com/${CoingeckoPlatform.Telos}/all.json`,

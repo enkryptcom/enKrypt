@@ -2,14 +2,18 @@
   <div class="blocked-page">
     <logo-big class="blocked-page__logo" />
     <h3>Access restricted</h3>
-    <p>
-      Your wallet address or IP has been flagged as originating from a
-      restricted jurisdiction. Under our platform policies, access to our
-      platform is therefore restricted. Please refer to our geographic policies
-      page for more details.
+    <p v-if="!isAddressRestricted">
+      Your IP has been flagged as originating from a restricted jurisdiction.
+      Under our platform policies, access to our platform is therefore
+      restricted. Please refer to our geographic policies page for more details.
+    </p>
+    <p v-if="isAddressRestricted">
+      Your wallet address [{{ restrictedAddress }}] is associated with suspect
+      activities. Under our platform policies, access to our platform is
+      therefore restricted.
     </p>
     <p>
-      If this address has been incorrectly flagged, you can contact us at
+      If you believe this has been incorrectly flagged, you can contact us at
       <a class="blocked-page__support" href="mailto:support@myetherwallet.com"
         >support@myetherwallet.com</a
       >.
@@ -23,7 +27,17 @@
     >
     <div v-if="isInitialized">
       <div class="blocked-page__divider-top"></div>
-      <div class="blocked-page__content">
+      <div v-if="isAddressRestricted" class="blocked-page__content">
+        <div
+          class="blocked-page__content__header"
+          @click="emit('restricted:switchAccount')"
+        >
+          <h4>Switch Address</h4>
+          <arrow-next />
+        </div>
+        <p class="blocked-page__content__body">Switch to a different address</p>
+      </div>
+      <div v-if="!isAddressRestricted" class="blocked-page__content">
         <div class="blocked-page__content__header" @click="openUnlock">
           <h4>View My Secret Recovery Phrase</h4>
           <arrow-next />
@@ -83,7 +97,23 @@ defineProps({
       return false;
     },
   },
+  isAddressRestricted: {
+    type: Boolean,
+    default: () => {
+      return false;
+    },
+  },
+  restrictedAddress: {
+    type: String,
+    default: () => {
+      return '';
+    },
+  },
 });
+
+const emit = defineEmits<{
+  (e: 'restricted:switchAccount'): void;
+}>();
 
 const supportAction = () => {
   window.open('mailto:support@myetherwallet.com', '_blank', 'noopener');
