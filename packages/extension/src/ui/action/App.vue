@@ -1,48 +1,95 @@
 <template>
   <div>
-    <div :class="['app', 'restricted-container', 'expanded']" v-if="foundRestrictedAddress || geoRestricted">
-      <swap-looking-animation />
-      <div v-if="popupClosed" class="app__loading__text">
-        <h2>Close this window</h2>
-        <p>Continue to onboard on the background page</p>
-      </div>
-      <restricted :isInitialized="isWalletInitialized" />
+    <div
+      :class="['app', 'restricted-container', 'expanded']"
+      v-if="isAddressRestricted.isRestricted || geoRestricted"
+    >
+      <restricted
+        :isInitialized="isWalletInitialized"
+        :is-address-restricted="isAddressRestricted.isRestricted"
+        :restricted-address="isAddressRestricted.address"
+        @restricted:switch-account="switchToUnrestrictedAddress"
+      />
     </div>
     <div :class="[{ locked: isLocked }, 'app']" v-else>
-      <div v-if="isLoading" :class="['app__loading', isExpanded ? 'expanded' : 'collapsed']">
+      <div
+        v-if="isLoading"
+        :class="['app__loading', isExpanded ? 'expanded' : 'collapsed']"
+      >
         <swap-looking-animation />
       </div>
       <div v-show="!isLoading">
-        <app-menu :active-network="currentNetwork" @update:network="setNetwork"
-          @show:updates-dialog="setShowUpdatesDialog(true)" @show:settings-dialog="settingsShow = true"
-          @show:other-networks-dialog="addNetworkShow = true" @action:lock-enkrypt="lockAction" />
+        <app-menu
+          :active-network="currentNetwork"
+          @update:network="setNetwork"
+          @show:updates-dialog="setShowUpdatesDialog(true)"
+          @show:settings-dialog="settingsShow = true"
+          @show:other-networks-dialog="addNetworkShow = true"
+          @action:lock-enkrypt="lockAction"
+        />
       </div>
 
-      <div v-show="!isLoading" :class="[
-        isExpanded ? 'app__content-expand' : 'app__content-collapse',
-        'app__content',
-      ]">
-        <accounts-header v-show="showNetworkMenu" :account-info="accountHeaderData" :network="currentNetwork"
-          :show-deposit="showDepositWindow" @update:init="init" @address-changed="onSelectedAddressChanged"
-          @select:subnetwork="onSelectedSubnetworkChange" @toggle:deposit="toggleDepositWindow" />
+      <div
+        v-show="!isLoading"
+        :class="[
+          isExpanded ? 'app__content-expand' : 'app__content-collapse',
+          'app__content',
+        ]"
+      >
+        <accounts-header
+          v-show="showNetworkMenu"
+          :account-info="accountHeaderData"
+          :network="currentNetwork"
+          :show-deposit="showDepositWindow"
+          @update:init="init"
+          @address-changed="onSelectedAddressChanged"
+          @select:subnetwork="onSelectedSubnetworkChange"
+          @toggle:deposit="toggleDepositWindow"
+        />
         <router-view v-slot="{ Component }" name="view">
           <transition :name="transitionName" mode="out-in">
-            <component :is="Component" :key="route.fullPath" :network="currentNetwork" :subnetwork="currentSubNetwork"
-              :account-info="accountHeaderData" @update:init="init" @toggle:deposit="toggleDepositWindow"
-              @open:buy-action="openBuyPage" />
+            <component
+              :is="Component"
+              :key="route.fullPath"
+              :network="currentNetwork"
+              :subnetwork="currentSubNetwork"
+              :account-info="accountHeaderData"
+              @update:init="init"
+              @toggle:deposit="toggleDepositWindow"
+              @open:buy-action="openBuyPage"
+            />
           </transition>
         </router-view>
 
-        <network-menu v-show="showNetworkMenu" :selected="route.params.id as string" :network="currentNetwork" />
+        <network-menu
+          v-show="showNetworkMenu"
+          :selected="route.params.id as string"
+          :network="currentNetwork"
+        />
       </div>
 
-      <add-network v-if="addNetworkShow" @close:popup="addNetworkShow = !addNetworkShow" />
-      <settings v-if="settingsShow" @close:popup="settingsShow = !settingsShow" @action:lock="lockAction" />
+      <add-network
+        v-if="addNetworkShow"
+        @close:popup="addNetworkShow = !addNetworkShow"
+      />
+      <settings
+        v-if="settingsShow"
+        @close:popup="settingsShow = !settingsShow"
+        @action:lock="lockAction"
+      />
       <modal-rate v-model="isRatePopupOpen" />
-      <modal-new-version v-if="updateShow" :current-version="currentVersion" :latest-version="latestVersion"
-        @close:popup="updateShow = !updateShow" />
-      <modal-updates v-if="updatesIsLoaded && showUpdatesDialog" :current-version="currentVersion"
-        :current-network="currentNetwork.name" @close:popup="setShowUpdatesDialog(false)" />
+      <modal-new-version
+        v-if="updateShow"
+        :current-version="currentVersion"
+        :latest-version="latestVersion"
+        @close:popup="updateShow = !updateShow"
+      />
+      <modal-updates
+        v-if="updatesIsLoaded && showUpdatesDialog"
+        :current-version="currentVersion"
+        :current-network="currentNetwork.name"
+        @close:popup="setShowUpdatesDialog(false)"
+      />
     </div>
   </div>
 </template>
@@ -80,7 +127,6 @@ import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
 import ModalUpdates from './views/updates/index.vue';
 import Restricted from './views/restricted/index.vue';
-import { KadenaNetwork } from '@/providers/kadena/types/kadena-network';
 import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
 import RateState from '@/libs/rate-state';
 import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
@@ -124,6 +170,10 @@ const latestVersion = ref('');
 const popupClosed = ref(false);
 const geoRestricted = ref(false);
 const isWalletInitialized = ref(false);
+const isAddressRestricted = ref<{ isRestricted: boolean; address: string }>({
+  isRestricted: false,
+  address: '',
+});
 
 /** -------------------
  * Rate
@@ -172,23 +222,14 @@ const toggleDepositWindow = () => {
 const openBuyPage = () => {
   const buyLink = (() => {
     switch (currentNetwork.value.name) {
-      case NetworkNames.KadenaTestnet:
-        return (currentNetwork.value as KadenaNetwork).options.buyLink;
-      case NetworkNames.SyscoinNEVM:
-      case NetworkNames.Rollux:
-        return `${(currentNetwork.value as EvmNetwork).options.buyLink}&address=${currentNetwork.value.displayAddress(
-          accountHeaderData.value.selectedAccount!.address,
-        )}`;
-      case NetworkNames.SyscoinNEVMTest:
-      case NetworkNames.RolluxTest:
-        return (currentNetwork.value as EvmNetwork).options.buyLink;
       case NetworkNames.Massa:
         return 'https://www.massa.net/get-mas';
       default:
         return `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
           accountHeaderData.value.selectedAccount!.address,
-        )}&network=${currentNetwork.value.name}&crypto=${currentNetwork.value.currencyName
-          }&platform=enkrypt`;
+        )}&network=${currentNetwork.value.name}&crypto=${
+          currentNetwork.value.currencyName
+        }&platform=enkrypt`;
     }
   })();
   Browser.tabs.create({ url: buyLink });
@@ -317,9 +358,7 @@ const setNetwork = async (network: BaseNetwork) => {
   };
 
   currentNetwork.value = network;
-
-  checkAddresses(activeAccounts);
-
+  checkAddress(selectedAccount);
   router.push({ name: 'assets', params: { id: network.name } });
   const tabId = await domainState.getCurrentTabId();
   const curSavedNetwork = await domainState.getSelectedNetWork();
@@ -404,17 +443,20 @@ const setNetwork = async (network: BaseNetwork) => {
   }
 };
 
-const foundRestrictedAddress = ref(false);
-
-const checkAddresses = async (
-  activeAccounts: AccountsHeaderData['activeAccounts'],
-) => {
-  const promises: Promise<boolean>[] = activeAccounts.map(ac =>
-    isWalletRestricted(currentNetwork.value.displayAddress(ac.address)),
+const checkAddress = async (activeAccount: EnkryptAccount) => {
+  isAddressRestricted.value = {
+    isRestricted: false,
+    address: '',
+  };
+  const isRestricted = await isWalletRestricted(
+    currentNetwork.value.displayAddress(activeAccount.address),
   );
-  await Promise.all(promises).then(results => {
-    if (results.includes(true)) foundRestrictedAddress.value = true;
-  });
+  if (isRestricted) {
+    isAddressRestricted.value = {
+      isRestricted,
+      address: currentNetwork.value.displayAddress(activeAccount.address),
+    };
+  }
 };
 
 const onSelectedSubnetworkChange = async (id: string) => {
@@ -425,32 +467,35 @@ const onSelectedSubnetworkChange = async (id: string) => {
 
 const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
   accountHeaderData.value.selectedAccount = newAccount;
-  const accountStates = {
-    [ProviderName.ethereum]: EVMAccountState,
-    [ProviderName.bitcoin]: BTCAccountState,
-    [ProviderName.solana]: SolAccountState,
-  };
-  if (Object.keys(accountStates).includes(currentNetwork.value.provider)) {
-    const AccountState = new accountStates[
-      currentNetwork.value.provider as keyof typeof accountStates
-    ]();
-    const domain = await domainState.getCurrentDomain();
-    AccountState.addApprovedAddress(newAccount.address, domain);
+  await checkAddress(newAccount);
+  if (!isAddressRestricted.value.isRestricted) {
+    const accountStates = {
+      [ProviderName.ethereum]: EVMAccountState,
+      [ProviderName.bitcoin]: BTCAccountState,
+      [ProviderName.solana]: SolAccountState,
+    };
+    if (Object.keys(accountStates).includes(currentNetwork.value.provider)) {
+      const AccountState = new accountStates[
+        currentNetwork.value.provider as keyof typeof accountStates
+      ]();
+      const domain = await domainState.getCurrentDomain();
+      AccountState.addApprovedAddress(newAccount.address, domain);
+    }
+    await domainState.setSelectedAddress(newAccount.address);
+    await sendToBackgroundFromAction({
+      message: JSON.stringify({
+        method: InternalMethods.sendToTab,
+        params: [
+          {
+            method: MessageMethod.changeAddress,
+            params: [currentNetwork.value.displayAddress(newAccount.address)],
+          },
+        ],
+      }),
+      provider: currentNetwork.value.provider,
+      tabId: await domainState.getCurrentTabId(),
+    });
   }
-  await domainState.setSelectedAddress(newAccount.address);
-  await sendToBackgroundFromAction({
-    message: JSON.stringify({
-      method: InternalMethods.sendToTab,
-      params: [
-        {
-          method: MessageMethod.changeAddress,
-          params: [currentNetwork.value.displayAddress(newAccount.address)],
-        },
-      ],
-    }),
-    provider: currentNetwork.value.provider,
-    tabId: await domainState.getCurrentTabId(),
-  });
 };
 const showNetworkMenu = computed(() => {
   const selected = route.params.id as string;
@@ -462,6 +507,15 @@ const showNetworkMenu = computed(() => {
       route.name == 'dapps')
   );
 });
+
+const switchToUnrestrictedAddress = () => {
+  const newAccount = accountHeaderData.value.activeAccounts.find(
+    aa =>
+      currentNetwork.value.displayAddress(aa.address) !==
+      isAddressRestricted.value.address,
+  );
+  if (newAccount) onSelectedAddressChanged(newAccount);
+};
 
 const isLocked = computed(() => {
   return route.name == 'lock-screen';
@@ -483,7 +537,8 @@ const lockAction = async () => {
 
 <style lang="less">
 @import './styles/theme.less';
-@import (css) url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
+@import (css)
+  url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
 
 body {
   margin: 0;
@@ -527,9 +582,12 @@ body {
     align-items: center;
     justify-content: center;
     position: relative;
-    background: radial-gradient(100% 50% at 100% 50%,
+    background: radial-gradient(
+        100% 50% at 100% 50%,
         rgba(250, 250, 250, 0.92) 0%,
-        rgba(250, 250, 250, 0.98) 100%) @primary;
+        rgba(250, 250, 250, 0.98) 100%
+      )
+      @primary;
 
     svg {
       width: 132px;

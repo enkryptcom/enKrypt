@@ -8,7 +8,6 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Moonriver]: 'https://api.etherscan.io/v2/api?chainid=1285&',
   [NetworkNames.KaruraEVM]: 'https://blockscout.karura.network/api?',
   [NetworkNames.AstarEVM]: 'https://blockscout.com/astar/api?',
-  [NetworkNames.ShidenEVM]: 'https://blockscout.com/shiden/api?',
   [NetworkNames.Optimism]: 'https://api.etherscan.io/v2/api?chainid=10&',
   [NetworkNames.EdgeEVM]: 'https://edgscan.live/api?',
   [NetworkNames.Rootstock]: 'https://blockscout.com/rsk/mainnet/api?',
@@ -24,8 +23,6 @@ const NetworkEndpoints: Record<string, string> = {
     'https://haunting-devoted-deneb.explorer.mainnet.skalenodes.com/api?',
   [NetworkNames.SkaleEuropa]:
     'https://elated-tan-skat.explorer.mainnet.skalenodes.com/api?',
-  [NetworkNames.SkaleExorde]:
-    'https://light-vast-diphda.explorer.mainnet.skalenodes.com/api?',
   [NetworkNames.SkaleNebula]:
     'https://green-giddy-denebola.explorer.mainnet.skalenodes.com/api?',
   [NetworkNames.SkaleTitan]:
