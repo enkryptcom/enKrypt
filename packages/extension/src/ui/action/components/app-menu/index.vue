@@ -53,9 +53,10 @@
           <button class="app__menu-dropdown-link" @click="settingsAction">
             <settings-icon /> <span>Settings</span>
           </button>
-          <button class="app__menu-dropdown-link" @click="newTab">
-            <external-icon /> <span>Full Screen</span>
-          </button>
+          <!--          TODO: shov button if __IS_DEV__ -->
+          <!--          <button class="app__menu-dropdown-link" @click="newTab">-->
+          <!--            <external-icon /> <span>Full Screen</span>-->
+          <!--          </button>-->
           <div v-if="updatesIsLoaded" class="app__menu-dropdown-divider"></div>
           <button
             v-if="updatesIsLoaded"
