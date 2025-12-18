@@ -15,7 +15,6 @@ const supportedPaths = {
   [NetworkNames.Optimism]: DEFAULT_PATHS,
   [NetworkNames.Sepolia]: [bip44Paths.ethereumTestnetLedger, ...DEFAULT_PATHS],
   [NetworkNames.Okc]: DEFAULT_PATHS,
-  [NetworkNames.ShidenEVM]: DEFAULT_PATHS,
   [NetworkNames.AstarEVM]: DEFAULT_PATHS,
   [NetworkNames.ZkSync]: DEFAULT_PATHS,
   [NetworkNames.Arbitrum]: DEFAULT_PATHS,
