@@ -24,13 +24,21 @@ export async function sendFromSparkAddress(
   to: string,
   amount: string,
 ): Promise<string | undefined> {
+  let spendKeyObj = 0;
+  let fullViewKeyObj = 0;
+  let incomingViewKeyObj = 0;
+  let addressObj = 0;
+  let recipientsVector = 0;
+  let privateRecipientsVector = 0;
   const diversifier = 1n;
   const db = new IndexedDBHelper();
   const Module = await wasmInstance.getInstance();
-  const spendKeyObj = await getSpendKeyObj(Module);
+
+  spendKeyObj = await getSpendKeyObj(Module);
   const isSparkTransaction = await isSparkAddress(to);
 
-  const ownedCoins = ((await db.readData('myCoins')) || []) as OwnedCoinData[];
+  const ownedCoins = ((await db.readData('myCoins')) ||
+    []) as OwnedCoinData[];
 
   const usedCoinsTags = await db.readData<{ tags: string[] }>(
     DB_DATA_KEYS.usedCoinsTags,
@@ -50,12 +58,15 @@ export async function sendFromSparkAddress(
     deserializedCoinObj: number;
   }[] = [];
 
-  const { incomingViewKeyObj, fullViewKeyObj } = await getIncomingViewKey(
+  const keyObjects = await getIncomingViewKey(
     Module,
     spendKeyObj,
   );
 
-  const addressObj = Module.ccall(
+  incomingViewKeyObj = keyObjects.incomingViewKeyObj
+  fullViewKeyObj = keyObjects.fullViewKeyObj
+
+  addressObj = Module.ccall(
     'js_getAddress',
     'number',
     ['number', 'number'],
@@ -63,7 +74,7 @@ export async function sendFromSparkAddress(
   );
 
   // Create recipients vector for spend transaction
-  const recipientsVector = Module.ccall(
+  recipientsVector = Module.ccall(
     'js_createRecipientsVectorForCreateSparkSpendTransaction',
     'number',
     ['number'],
@@ -79,7 +90,7 @@ export async function sendFromSparkAddress(
     );
   }
 
-  const privateRecipientsVector = Module.ccall(
+  privateRecipientsVector = Module.ccall(
     'js_createPrivateRecipientsVectorForCreateSparkSpendTransaction',
     'number',
     ['number'],
@@ -212,10 +223,11 @@ export async function sendFromSparkAddress(
         deserializedCoinList[set] = [];
       }
       deserializedCoinList[set].push(deserializedCoinObj);
+      // free temporarily allocated WASM memory
+      Module._free(serializedCoinPointer);
+      Module._free(serialContextPointer);
     });
   }
-
-  console.debug('deserializedCoinList =:=:=:=', deserializedCoinList);
 
   const setHashList = await db.getSetHashes();
 
@@ -236,6 +248,9 @@ export async function sendFromSparkAddress(
       ['number', 'number'],
       [coverSetRepresentationPointer, coverSetRepresentation.length],
     );
+
+    // free temporary buffer after creating coverSetData
+    Module._free(coverSetRepresentationPointer);
 
     console.debug(groupedBySet, setId);
     deserializedCoinList[setId].forEach(deserializedCoin => {
@@ -291,15 +306,6 @@ export async function sendFromSparkAddress(
     finalScriptSig: Buffer.from('d3', 'hex'),
   });
 
-  console.log(
-    'tempTx.data.globalMap',
-    tempTx.data.globalMap,
-    'tempTx.data.inputs',
-    tempTx.data.inputs,
-    'tempTx',
-    tempTx,
-  );
-
   const tempTxBuffer = tempTx.extractTransaction(true).toBuffer();
   const extendedTempTxBuffer = Buffer.concat([
     tempTxBuffer,
@@ -313,7 +319,7 @@ export async function sendFromSparkAddress(
   if (!isSparkTransaction) {
     tempTx.addOutput({
       address: to,
-      value: parseFloat(amount),
+      value: new BigNumber(amount).multipliedBy(10 ** 8).toNumber(),
     });
   }
 
@@ -388,6 +394,9 @@ export async function sendFromSparkAddress(
     // Make a copy (optional, because the above is just a view into WASM memory)
     const spendDataCopy = new Uint8Array(serializedSpendBytes);
 
+    // free WASM-side serialized spend buffer if it's safe to free here
+    Module._free(serializedSpend);
+
     // If you need hex
     const hex = Array.from(spendDataCopy)
       .map(b => b.toString(16).padStart(2, '0'))
@@ -428,6 +437,8 @@ export async function sendFromSparkAddress(
       );
 
       scripts.push(script);
+
+      Module._free(scriptPtr);
     }
 
     // Get spent coins information
@@ -480,16 +491,17 @@ export async function sendFromSparkAddress(
       console.log(
         `spend coins meta @nd value ${spentCoinValue}, ${spentCoinMeta}  ${spentCoinMetaDeserialized.toString()}`,
       );
+
+      Module._free(spentCoinMeta);
     }
 
-    // TODO: check if this is needed
     // Get transaction fee
-    const fee = Module.ccall(
-      'js_getCreateSparkSpendTxResultFee',
-      'number',
-      ['number'],
-      [result],
-    );
+    // const fee = Module.ccall(
+    //   'js_getCreateSparkSpendTxResultFee',
+    //   'number',
+    //   ['number'],
+    //   [result],
+    // );
 
     const psbt = new bitcoin.Psbt({ network: network.networkInfo });
 
@@ -519,6 +531,30 @@ export async function sendFromSparkAddress(
     const finalTx = txHex + 'fd' + sizeHex + hex;
 
     console.log('Final TX to broadcast:', finalTx);
+
+    if (spendKeyObj && spendKeyObj !== 0) {
+      Module.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
+    }
+    if (fullViewKeyObj && fullViewKeyObj !== 0) {
+      Module.ccall('js_freeFullViewKey', null, ['number'], [fullViewKeyObj]);
+    }
+    if (incomingViewKeyObj && incomingViewKeyObj !== 0) {
+      Module.ccall(
+        'js_freeIncomingViewKey',
+        null,
+        ['number'],
+        [incomingViewKeyObj],
+      );
+    }
+    if (addressObj && addressObj !== 0) {
+      Module.ccall('js_freeAddress', null, ['number'], [addressObj]);
+    }
+    if (recipientsVector) {
+      Module._free(recipientsVector);
+    }
+    if (privateRecipientsVector) {
+      Module._free(privateRecipientsVector);
+    }
 
     return finalTx;
   }

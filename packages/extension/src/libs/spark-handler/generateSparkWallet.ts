@@ -44,9 +44,14 @@ export const getSpendKeyObj = async (wasm: WasmModule) => {
     return spendKeyObj;
   } catch (e) {
     console.log(e);
-    wasm.ccall('js_freeSpendKeyData', null, ['number'], [spendKeyDataObj]);
-    wasm._free(keyDataPtr);
     return 0;
+  } finally {
+    if (spendKeyDataObj && spendKeyDataObj !== 0) {
+      wasm.ccall('js_freeSpendKeyData', null, ['number'], [spendKeyDataObj]);
+    }
+    if (keyDataPtr && keyDataPtr !== 0) {
+      wasm._free(keyDataPtr);
+    }
   }
 };
 
@@ -75,14 +80,30 @@ export const getIncomingViewKey = async (
       [fullViewKeyObj],
     );
 
+    if (incomingViewKeyObj === 0) {
+      throw new Error('Failed to create IncomingViewKey');
+    }
+
     return { incomingViewKeyObj, fullViewKeyObj };
   } catch {
+    if (fullViewKeyObj && fullViewKeyObj !== 0) {
+      wasm.ccall('js_freeFullViewKey', null, ['number'], [fullViewKeyObj]);
+    }
+    if (incomingViewKeyObj && incomingViewKeyObj !== 0) {
+      wasm.ccall(
+        'js_freeIncomingViewKey',
+        null,
+        ['number'],
+        [incomingViewKeyObj],
+      );
+    }
     return { incomingViewKeyObj: 0, fullViewKeyObj: 0 };
   }
 };
 
 export async function getSparkState(
   diversifier = 1,
+  isTestNetwork = false,
 ): Promise<Omit<SparkAccount, 'sparkBalance'> | undefined> {
   const wasm = await wasmInstance.getInstance();
 
@@ -91,7 +112,7 @@ export async function getSparkState(
     return;
   }
 
-  const is_test_network = 0;
+  const is_test_network = isTestNetwork ? 1 : 0;
 
   const spendKeyObj = await getSpendKeyObj(wasm);
 
@@ -140,10 +161,10 @@ export async function getSparkState(
     [addressObj, is_test_network],
   );
 
-  wasm._free(addressObj);
-  wasm._free(spendKeyObj);
-  wasm._free(fullViewKeyObj);
-  wasm._free(incomingViewKeyObj);
+  wasm.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
+  wasm.ccall('js_freeFullViewKey', null, ['number'], [fullViewKeyObj]);
+  wasm.ccall('js_freeIncomingViewKey', null, ['number'], [incomingViewKeyObj]);
+  wasm.ccall('_js_freeAddress', null, ['number'], [addressObj]);
 
   return {
     defaultAddress: address_enc_main,
