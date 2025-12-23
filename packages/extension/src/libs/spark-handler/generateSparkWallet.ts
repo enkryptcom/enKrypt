@@ -140,6 +140,11 @@ export async function getSparkState(
     [addressObj, is_test_network],
   );
 
+  wasm._free(addressObj);
+  wasm._free(spendKeyObj);
+  wasm._free(fullViewKeyObj);
+  wasm._free(incomingViewKeyObj);
+
   return {
     defaultAddress: address_enc_main,
   };
