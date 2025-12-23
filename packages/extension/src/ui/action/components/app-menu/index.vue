@@ -53,6 +53,10 @@
           <button class="app__menu-dropdown-link" @click="settingsAction">
             <settings-icon /> <span>Settings</span>
           </button>
+          <!--          TODO: shov button if __IS_DEV__ -->
+          <!--          <button class="app__menu-dropdown-link" @click="newTab">-->
+          <!--            <external-icon /> <span>Full Screen</span>-->
+          <!--          </button>-->
           <div v-if="updatesIsLoaded" class="app__menu-dropdown-divider"></div>
           <button
             v-if="updatesIsLoaded"
@@ -217,6 +221,8 @@ import SearchIcon from '@action/icons/common/search.vue';
 import { useMenuStore } from '@action/store/menu-store';
 import SolanaStakingBanner from './components/solana-staking-banner.vue';
 import BannersState from '@/libs/banners-state';
+import ExternalIcon from '@action/icons/header/external-icon.vue';
+import Browser from 'webextension-polyfill';
 
 const appMenuRef = ref(null);
 
@@ -501,6 +507,10 @@ const toggle = ref(null);
 const settingsAction = () => {
   closeMoreMenu();
   emit('show:settings-dialog');
+};
+
+const newTab = () => {
+  Browser.tabs.create({ url: Browser.runtime.getURL('action.html') });
 };
 
 const otherNetworksAction = () => {

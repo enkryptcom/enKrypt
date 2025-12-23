@@ -9,7 +9,10 @@
           :crypto-amount="cryptoAmount"
           :fiat-amount="fiatAmount"
           :symbol="props.network.currencyName"
+          :account-info="props.accountInfo"
           v-bind="$attrs"
+          :network="props.network as BitcoinNetwork"
+          :spark-account="props.accountInfo.sparkAccount"
         />
 
         <network-activity-action v-bind="$attrs" />
@@ -18,7 +21,7 @@
             v-for="(item, index) in activities"
             :key="index + `${forceUpdateVal}`"
             :activity="item"
-            :network="network"
+            :network="props.network"
           />
         </div>
         <!-- <div class="network-activity__header">July</div>
@@ -57,7 +60,7 @@ import { AccountsHeaderData } from '../../types/account';
 import accountInfoComposable from '@action/composables/account-info';
 import { BaseNetwork } from '@/types/base-network';
 import scrollSettings from '@/libs/utils/scroll-settings';
-
+import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import {
   Activity,
   ActivityStatus,
@@ -83,6 +86,10 @@ import type Web3Eth from 'web3-eth';
 import { OperationStatus } from '@massalabs/massa-web3';
 
 const props = defineProps({
+  isSyncing: {
+    type: Boolean,
+    default: false,
+  },
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
@@ -348,6 +355,7 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
+  flex-direction: column;
 
   &__scroll-area {
     position: relative;

@@ -1,5 +1,13 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import bitcoinNetworks from '../networks';
+
+vi.mock('@/libs/spark-handler/generateSparkWallet', () => ({
+  getSparkState: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('@/providers/bitcoin/libs/firo-wallet/firo-wallet', () => ({
+  FiroWallet: vi.fn(),
+}));
 
 const pubkey =
   '0x021aa21d5f77b1be591d0a0a847cb7412a344f4e768b93d55b3eeab3b7e8a4a252';

@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@amplitude/analytics-browser": "^2.32.0",
+    "@bitcoinerlab/secp256k1": "^1.2.0",
     "@enkryptcom/extension-bridge": "workspace:^",
     "@enkryptcom/hw-wallets": "workspace:^",
     "@enkryptcom/keyring": "workspace:^",
@@ -65,6 +66,8 @@
     "bs58": "^6.0.0",
     "concurrently": "^9.2.1",
     "echarts": "^6.0.0",
+    "ecpair": "^3.0.0",
+    "electrum-client-browser": "1.2.5",
     "ethereum-cryptography": "^2.2.1",
     "ethereumjs-abi": "^0.6.8",
     "eventemitter3": "^5.0.1",
