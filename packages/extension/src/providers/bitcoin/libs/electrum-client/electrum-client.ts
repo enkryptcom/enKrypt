@@ -9,7 +9,7 @@ import {
 
 import * as bitcoin from 'bitcoinjs-lib';
 import BigNumber from 'bignumber.js';
-import { SATOSHI } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet.ts';
+import { SATOSHI } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
 
 const networkInfo = {
   messagePrefix: '\x18Zcoin Signed Message:\n',
@@ -43,7 +43,7 @@ const hardcodedPeers: Peer[] = [
  * @returns {Promise<{tcp, host}|*>}
  */
 function getRandomHardcodedPeer(): Peer {
-  const index = Math.ceil(hardcodedPeers.length * Math.random()) - 1;
+  const index = Math.floor(hardcodedPeers.length * Math.random());
   return hardcodedPeers[index];
 }
 
@@ -256,6 +256,7 @@ export default class FiroElectrum {
     txids = [...new Set(txids)]; // deduplicate just for any case
 
     const chunks = splitIntoChunks(txids, batchsize);
+    let offset = 0;
     for (const chunk of chunks) {
       const res = await Promise.all(
         chunk.map(el =>
@@ -263,8 +264,9 @@ export default class FiroElectrum {
         ),
       );
       res.forEach((el: string, index: number) => {
-        ret[txids[index]] = el;
+        ret[chunk[index]] = el;
       });
+      offset += chunk.length;
     }
 
     return ret;

@@ -35,15 +35,5 @@ export const createTempFromSparkTx = async ({
   ]);
 
   const txHash = bitcoin.crypto.hash256(extendedTempTxBuffer);
-  const txHashSig = txHash.reverse().toString('hex');
-
-  // TODO: check not spark case
-  if (!isSparkTransaction) {
-    tempTx.addOutput({
-      address: to,
-      value: parseFloat(amount),
-    });
-  }
-
-  return txHashSig;
+  return txHash.reverse().toString('hex');
 };

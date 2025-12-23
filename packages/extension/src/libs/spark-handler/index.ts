@@ -16,14 +16,13 @@ import {
   base64ToReversedHex,
   numberToReversedHex,
 } from '@/libs/spark-handler/utils';
-import { LOCK_TIME, SPARK_TX_TYPE } from '@/libs/spark-handler/constants.ts';
+import { LOCK_TIME, SPARK_TX_TYPE } from '@/libs/spark-handler/constants';
 import { intersectSets } from '@action/utils/set-utils';
 
 export async function sendFromSparkAddress(
   network: bitcoin.Network,
   to: string,
   amount: string,
-  subtractFee = false,
 ): Promise<string | undefined> {
   const diversifier = 1n;
   const db = new IndexedDBHelper();
@@ -194,7 +193,7 @@ export async function sendFromSparkAddress(
         coin[2] as string,
       ) as unknown as ArrayLike<number>;
 
-      const serialContextPointer = Module._malloc(serializedCoin.length);
+      const serialContextPointer = Module._malloc(serialContext.length);
       Module.HEAPU8.set(serialContext, serialContextPointer);
 
       const deserializedCoinObj = Module.ccall(
@@ -306,8 +305,6 @@ export async function sendFromSparkAddress(
     tempTxBuffer,
     Buffer.from([0x00]),
   ]);
-
-  console.log('buffer for temp', extendedTempTxBuffer.toHex());
 
   const txHash = bitcoin.crypto.hash256(extendedTempTxBuffer);
   const txHashSig = txHash.reverse().toString('hex');
@@ -524,7 +521,5 @@ export async function sendFromSparkAddress(
     console.log('Final TX to broadcast:', finalTx);
 
     return finalTx;
-
-    // TODO: free memory
   }
 }
