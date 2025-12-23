@@ -18,6 +18,7 @@ import {
 } from '@/libs/spark-handler/utils';
 import { LOCK_TIME, SPARK_TX_TYPE } from '@/libs/spark-handler/constants';
 import { intersectSets } from '@action/utils/set-utils';
+import BigNumber from 'bignumber.js';
 
 export async function sendFromSparkAddress(
   network: bitcoin.Network,
@@ -536,24 +537,39 @@ export async function sendFromSparkAddress(
     Module.ccall('js_freeAddress', null, ['number'], [addressObj]);
   }
   if (recipientsVector) {
-    Module._free(recipientsVector);
+    Module.ccall(
+      'js_freeSparkSpendRecipientsVector',
+      null,
+      ['number'],
+      [recipientsVector],
+    );
   }
   if (coinsList) {
-    Module._free(coinsList);
+    Module.ccall('js_freeSparkSpendCoinsList', null, ['number'], [coinsList]);
   }
   if (coverSetDataMap && coverSetDataMap !== 0) {
     Module.ccall(
       'js_freeCoverSetDataMapForCreateSparkSpendTransaction',
       null,
       ['number'],
-      [addressObj],
+      [coverSetDataMap],
     );
   }
   if (privateRecipientsVector) {
-    Module._free(privateRecipientsVector);
+    Module.ccall(
+      'js_freeSparkSpendPrivateRecipientsVector',
+      null,
+      ['number'],
+      [privateRecipientsVector],
+    );
   }
   if (idAndBlockHashesMap) {
-    Module._free(idAndBlockHashesMap);
+    Module.ccall(
+      'js_freeIdAndBlockHashesMap',
+      null,
+      ['number'],
+      [idAndBlockHashesMap],
+    );
   }
   if (deserializedCoinObj) {
     Module._free(deserializedCoinObj);
