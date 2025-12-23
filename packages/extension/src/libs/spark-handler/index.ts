@@ -30,6 +30,12 @@ export async function sendFromSparkAddress(
   let addressObj = 0;
   let recipientsVector = 0;
   let privateRecipientsVector = 0;
+  let coinsList = 0;
+  let coverSetDataMap = 0;
+  let idAndBlockHashesMap = 0;
+  let result = 0;
+  let deserializedCoinObj = 0;
+  let coverSetData = 0;
   const diversifier = 1n;
   const db = new IndexedDBHelper();
   const Module = await wasmInstance.getInstance();
@@ -110,7 +116,7 @@ export async function sendFromSparkAddress(
     ],
   );
 
-  const coinsList = Module.ccall(
+  coinsList = Module.ccall(
     'js_createCoinsListForCreateSparkSpendTransaction',
     'number',
     [],
@@ -167,7 +173,7 @@ export async function sendFromSparkAddress(
   } catch (error) {
     console.error('Error adding coins to list:', error);
   }
-  const coverSetDataMap = Module.ccall(
+  coverSetDataMap = Module.ccall(
     'js_createCoverSetDataMapForCreateSparkSpendTransaction',
     'number',
     [],
@@ -207,7 +213,7 @@ export async function sendFromSparkAddress(
       const serialContextPointer = Module._malloc(serialContext.length);
       Module.HEAPU8.set(serialContext, serialContextPointer);
 
-      const deserializedCoinObj = Module.ccall(
+      deserializedCoinObj = Module.ccall(
         'js_deserializeCoin',
         'number',
         ['number', 'number', 'number', 'number'],
@@ -223,9 +229,6 @@ export async function sendFromSparkAddress(
         deserializedCoinList[set] = [];
       }
       deserializedCoinList[set].push(deserializedCoinObj);
-      // free temporarily allocated WASM memory
-      Module._free(serializedCoinPointer);
-      Module._free(serialContextPointer);
     });
   }
 
@@ -242,15 +245,12 @@ export async function sendFromSparkAddress(
     );
     Module.HEAPU8.set(coverSetRepresentation, coverSetRepresentationPointer);
 
-    const coverSetData = Module.ccall(
+    coverSetData = Module.ccall(
       'js_createCoverSetData',
       'number',
       ['number', 'number'],
       [coverSetRepresentationPointer, coverSetRepresentation.length],
     );
-
-    // free temporary buffer after creating coverSetData
-    Module._free(coverSetRepresentationPointer);
 
     console.debug(groupedBySet, setId);
     deserializedCoinList[setId].forEach(deserializedCoin => {
@@ -272,7 +272,7 @@ export async function sendFromSparkAddress(
     );
   }
 
-  const idAndBlockHashesMap = Module.ccall(
+  idAndBlockHashesMap = Module.ccall(
     'js_createIdAndBlockHashesMapForCreateSparkSpendTransaction',
     'number',
     [],
@@ -333,7 +333,7 @@ export async function sendFromSparkAddress(
   const additionalTxSize = 0;
 
   // Create the spend transaction
-  const result = Module.ccall(
+  result = Module.ccall(
     'js_createSparkSpendTransaction',
     'number',
     [
@@ -364,198 +364,206 @@ export async function sendFromSparkAddress(
 
   console.log('final result is', result);
 
-  if (result) {
-    // Get transaction details
+  const serializedSpend = Module.ccall(
+    'js_getCreateSparkSpendTxResultSerializedSpend',
+    'number', // returns a pointer to the beginning of a byte array
+    ['number'],
+    [result],
+  );
 
-    const serializedSpend = Module.ccall(
-      'js_getCreateSparkSpendTxResultSerializedSpend',
+  console.log('serializedSpend ==> ==>', serializedSpend);
+
+  const serializedSpendSize = Module.ccall(
+    'js_getCreateSparkSpendTxResultSerializedSpendSize',
+    'number',
+    ['number'],
+    [result],
+  );
+
+  console.log(`Serialized spend size: `, serializedSpendSize);
+
+  const serializedSpendBytes = new Uint8Array(
+    Module.HEAPU8.buffer,
+    serializedSpend,
+    serializedSpendSize,
+  );
+
+  // Make a copy (optional, because the above is just a view into WASM memory)
+  const spendDataCopy = new Uint8Array(serializedSpendBytes);
+
+  // If you need hex
+  const hex = Array.from(spendDataCopy)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+
+  console.log('Serialized Spend (hex):', hex);
+
+  const outputScriptsSize = Module.ccall(
+    'js_getCreateSparkSpendTxResultOutputScriptsSize',
+    'number',
+    ['number'],
+    [result],
+  );
+  const scripts = [];
+
+  // Get each output script
+  for (let i = 0; i < outputScriptsSize; i++) {
+    const scriptPtr = Module.ccall(
+      'js_getCreateSparkSpendTxResultOutputScriptAt',
       'number', // returns a pointer to the beginning of a byte array
-      ['number'],
-      [result],
+      ['number', 'number'],
+      [result, i],
     );
 
-    console.log('serializedSpend ==> ==>', serializedSpend);
+    console.log(`Output script in for:`, scriptPtr);
+    const scriptSize = Module.ccall(
+      'js_getCreateSparkSpendTxResultOutputScriptSizeAt',
+      'number',
+      ['number', 'number'],
+      [result, i],
+    );
+    console.log(`Output script ${i} size: ${scriptSize}`);
 
-    const serializedSpendSize = Module.ccall(
-      'js_getCreateSparkSpendTxResultSerializedSpendSize',
+    const script = new Uint8Array(Module.HEAPU8.buffer, scriptPtr, scriptSize);
+
+    scripts.push(script);
+  }
+
+  // Get spent coins information
+  const spentCoinsSize = Module.ccall(
+    'js_getCreateSparkSpendTxResultSpentCoinsSize',
+    'number',
+    ['number'],
+    [result],
+  );
+
+  console.log(`Spent coins size: ${spentCoinsSize}`);
+
+  for (let i = 0; i < spentCoinsSize; i++) {
+    const spentCoinMeta = Module.ccall(
+      'js_getCreateSparkSpendTxResultSpentCoinAt',
+      'number',
+      ['number', 'number'],
+      [result, i],
+    );
+    const spentCoinValue = Module.ccall(
+      'js_getCSparkMintMetaValue',
       'number',
       ['number'],
-      [result],
+      [spentCoinMeta],
     );
 
-    console.log(`Serialized spend size: `, serializedSpendSize);
-
-    const serializedSpendBytes = new Uint8Array(
-      Module.HEAPU8.buffer,
-      serializedSpend,
-      serializedSpendSize,
-    );
-
-    // Make a copy (optional, because the above is just a view into WASM memory)
-    const spendDataCopy = new Uint8Array(serializedSpendBytes);
-
-    // free WASM-side serialized spend buffer if it's safe to free here
-    Module._free(serializedSpend);
-
-    // If you need hex
-    const hex = Array.from(spendDataCopy)
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-
-    console.log('Serialized Spend (hex):', hex);
-
-    const outputScriptsSize = Module.ccall(
-      'js_getCreateSparkSpendTxResultOutputScriptsSize',
-      'number',
-      ['number'],
-      [result],
-    );
-    const scripts = [];
-
-    // Get each output script
-    for (let i = 0; i < outputScriptsSize; i++) {
-      const scriptPtr = Module.ccall(
-        'js_getCreateSparkSpendTxResultOutputScriptAt',
-        'number', // returns a pointer to the beginning of a byte array
-        ['number', 'number'],
-        [result, i],
-      );
-
-      console.log(`Output script in for:`, scriptPtr);
-      const scriptSize = Module.ccall(
-        'js_getCreateSparkSpendTxResultOutputScriptSizeAt',
-        'number',
-        ['number', 'number'],
-        [result, i],
-      );
-      console.log(`Output script ${i} size: ${scriptSize}`);
-
-      const script = new Uint8Array(
-        Module.HEAPU8.buffer,
-        scriptPtr,
-        scriptSize,
-      );
-
-      scripts.push(script);
-
-      Module._free(scriptPtr);
-    }
-
-    // Get spent coins information
-    const spentCoinsSize = Module.ccall(
-      'js_getCreateSparkSpendTxResultSpentCoinsSize',
-      'number',
-      ['number'],
-      [result],
-    );
-
-    console.log(`Spent coins size: ${spentCoinsSize}`);
-
-    for (let i = 0; i < spentCoinsSize; i++) {
-      const spentCoinMeta = Module.ccall(
-        'js_getCreateSparkSpendTxResultSpentCoinAt',
-        'number',
-        ['number', 'number'],
-        [result, i],
-      );
-      const spentCoinValue = Module.ccall(
-        'js_getCSparkMintMetaValue',
-        'number',
-        ['number'],
-        [spentCoinMeta],
-      );
-
-      // const coinPtr = Module.ccall(
-      //   '_js_getCoinFromMeta',
-      //   'number',
-      //   ['number', 'number'],
-      //   [spentCoinMeta, incomingViewKeyObj],
-      // );
-      //
-      // const hash = Module.ccall(
-      //   '_js_getCoinHash',
-      //   'number',
-      //   ['number'],
-      //   [coinPtr],
-      // );
-      //
-      // console.log(
-      //   `coin hash  =>>>>>>======>>>>><<<<<======<<<<<<<======: ${hash}`,
-      // );
-      const spentCoinMetaDeserialized = new Uint8Array(
-        Module.HEAPU8.buffer,
-        spentCoinMeta,
-        spentCoinMeta.length,
-      );
-
-      console.log(
-        `spend coins meta @nd value ${spentCoinValue}, ${spentCoinMeta}  ${spentCoinMetaDeserialized.toString()}`,
-      );
-
-      Module._free(spentCoinMeta);
-    }
-
-    // Get transaction fee
-    // const fee = Module.ccall(
-    //   'js_getCreateSparkSpendTxResultFee',
+    // const coinPtr = Module.ccall(
+    //   '_js_getCoinFromMeta',
+    //   'number',
+    //   ['number', 'number'],
+    //   [spentCoinMeta, incomingViewKeyObj],
+    // );
+    //
+    // const hash = Module.ccall(
+    //   '_js_getCoinHash',
     //   'number',
     //   ['number'],
-    //   [result],
+    //   [coinPtr],
     // );
+    //
+    // console.log(
+    //   `coin hash  =>>>>>>======>>>>><<<<<======<<<<<<<======: ${hash}`,
+    // );
+    const spentCoinMetaDeserialized = new Uint8Array(
+      Module.HEAPU8.buffer,
+      spentCoinMeta,
+      spentCoinMeta.length,
+    );
 
-    const psbt = new bitcoin.Psbt({ network: network.networkInfo });
-
-    // const api = (await network.api()) as unknown as FiroAPI;
-
-    psbt.addInput({
-      hash: '0000000000000000000000000000000000000000000000000000000000000000',
-      index: 4294967295,
-      sequence: 4294967295,
-      finalScriptSig: Buffer.from('d3', 'hex'),
-    });
-
-    psbt.setLocktime(LOCK_TIME);
-
-    psbt.setVersion(3 | (SPARK_TX_TYPE << 16));
-    scripts.forEach(script => {
-      console.log('script is ==>', script);
-      psbt.addOutput({
-        script: Buffer.from(script),
-        value: 0,
-      });
-    });
-
-    const rawTx = psbt.extractTransaction();
-    const txHex = rawTx.toHex();
-    const sizeHex = numberToReversedHex(serializedSpendSize);
-    const finalTx = txHex + 'fd' + sizeHex + hex;
-
-    console.log('Final TX to broadcast:', finalTx);
-
-    if (spendKeyObj && spendKeyObj !== 0) {
-      Module.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
-    }
-    if (fullViewKeyObj && fullViewKeyObj !== 0) {
-      Module.ccall('js_freeFullViewKey', null, ['number'], [fullViewKeyObj]);
-    }
-    if (incomingViewKeyObj && incomingViewKeyObj !== 0) {
-      Module.ccall(
-        'js_freeIncomingViewKey',
-        null,
-        ['number'],
-        [incomingViewKeyObj],
-      );
-    }
-    if (addressObj && addressObj !== 0) {
-      Module.ccall('js_freeAddress', null, ['number'], [addressObj]);
-    }
-    if (recipientsVector) {
-      Module._free(recipientsVector);
-    }
-    if (privateRecipientsVector) {
-      Module._free(privateRecipientsVector);
-    }
-
-    return finalTx;
+    console.log(
+      `spend coins meta @nd value ${spentCoinValue}, ${spentCoinMeta}  ${spentCoinMetaDeserialized.toString()}`,
+    );
   }
+
+  // Get transaction fee
+  // const fee = Module.ccall(
+  //   'js_getCreateSparkSpendTxResultFee',
+  //   'number',
+  //   ['number'],
+  //   [result],
+  // );
+
+  const psbt = new bitcoin.Psbt({ network: network.networkInfo });
+
+  // const api = (await network.api()) as unknown as FiroAPI;
+
+  psbt.addInput({
+    hash: '0000000000000000000000000000000000000000000000000000000000000000',
+    index: 4294967295,
+    sequence: 4294967295,
+    finalScriptSig: Buffer.from('d3', 'hex'),
+  });
+
+  psbt.setLocktime(LOCK_TIME);
+
+  psbt.setVersion(3 | (SPARK_TX_TYPE << 16));
+  scripts.forEach(script => {
+    console.log('script is ==>', script);
+    psbt.addOutput({
+      script: Buffer.from(script),
+      value: 0,
+    });
+  });
+
+  const rawTx = psbt.extractTransaction();
+  const txHex = rawTx.toHex();
+  const sizeHex = numberToReversedHex(serializedSpendSize);
+  const finalTx = txHex + 'fd' + sizeHex + hex;
+
+  console.log('Final TX to broadcast:', finalTx);
+
+  if (spendKeyObj && spendKeyObj !== 0) {
+    Module.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
+  }
+  if (fullViewKeyObj && fullViewKeyObj !== 0) {
+    Module.ccall('js_freeFullViewKey', null, ['number'], [fullViewKeyObj]);
+  }
+  if (incomingViewKeyObj && incomingViewKeyObj !== 0) {
+    Module.ccall(
+      'js_freeIncomingViewKey',
+      null,
+      ['number'],
+      [incomingViewKeyObj],
+    );
+  }
+  if (addressObj && addressObj !== 0) {
+    Module.ccall('js_freeAddress', null, ['number'], [addressObj]);
+  }
+  if (recipientsVector) {
+    Module._free(recipientsVector);
+  }
+  if (coinsList) {
+    Module._free(coinsList);
+  }
+  if (coverSetDataMap && coverSetDataMap !== 0) {
+    Module.ccall(
+      'js_freeCoverSetDataMapForCreateSparkSpendTransaction',
+      null,
+      ['number'],
+      [addressObj],
+    );
+  }
+  if (privateRecipientsVector) {
+    Module._free(privateRecipientsVector);
+  }
+  if (idAndBlockHashesMap) {
+    Module._free(idAndBlockHashesMap);
+  }
+  if (deserializedCoinObj) {
+    Module._free(deserializedCoinObj);
+  }
+  if (result && result !== 0) {
+    Module.ccall('js_freeCreateSparkSpendTxResult', null, ['number'], [result]);
+  }
+  if (coverSetData && coverSetData !== 0) {
+    Module.ccall('js_freeCoverSetData', null, ['number'], [coverSetData]);
+  }
+
+  return finalTx;
 }
