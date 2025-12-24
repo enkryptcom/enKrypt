@@ -1,6 +1,14 @@
 <template>
   <div class="container">
-    <div v-if="!!selected" class="send-transaction">
+    <!-- Loading State -->
+    <div v-if="isLoadingAssets" class="send-transaction__loading">
+      <div class="send-transaction__loading-content">
+        <div class="send-transaction__loading-spinner"></div>
+        <p class="send-transaction__loading-text">Loading...</p>
+      </div>
+    </div>
+
+    <div v-if="!!selected && !isLoadingAssets" class="send-transaction">
       <send-header
         :is-send-token="isSendToken"
         :is-nft-available="!!network.NFTHandler"
@@ -909,6 +917,45 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
     &-send {
       flex: 1.3;
       min-width: 0;
+    }
+  }
+
+  &__loading {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    &-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    &-spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(98, 126, 234, 0.15);
+      border-top-color: #627eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    &-text {
+      font-size: 15px;
+      font-weight: 500;
+      color: @secondaryLabel;
+      margin: 0;
+      letter-spacing: 0.1px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
     }
   }
 }
