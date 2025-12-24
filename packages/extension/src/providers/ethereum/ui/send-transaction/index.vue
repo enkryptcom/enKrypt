@@ -864,11 +864,23 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
 .container {
   width: 100%;
   height: 600px;
-  background: linear-gradient(180deg, #f8fafc 0%, @white 100%);
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 50%, @white 100%);
   margin: 0;
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: linear-gradient(135deg, rgba(98, 126, 234, 0.06) 0%, rgba(138, 100, 220, 0.04) 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
 }
 
 .send-transaction {
@@ -881,6 +893,19 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
   padding-bottom: 88px;
   overflow-y: auto;
   overflow-x: hidden;
+  z-index: 1;
+  animation: fadeInUp 300ms ease-out;
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
   &::-webkit-scrollbar {
     width: 4px;
@@ -906,17 +931,57 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
     flex-direction: row;
     width: 100%;
     box-sizing: border-box;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, @white 20%);
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.9) 30%,
+      @white 50%
+    );
     gap: 12px;
+    z-index: 10;
 
     &-cancel {
       flex: 1;
       min-width: 0;
+
+      :deep(.base-button) {
+        border: 1.5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 200ms ease-in-out;
+
+        &:hover {
+          border-color: rgba(0, 0, 0, 0.2);
+          background: rgba(0, 0, 0, 0.02);
+        }
+      }
     }
 
     &-send {
       flex: 1.3;
       min-width: 0;
+
+      :deep(.base-button) {
+        background: linear-gradient(135deg, #627eea 0%, #8a64dc 100%);
+        border-radius: 12px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(98, 126, 234, 0.3);
+        transition: all 200ms ease-in-out;
+
+        &:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(98, 126, 234, 0.4);
+        }
+
+        &:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
+        &:disabled {
+          background: #e2e8f0;
+          box-shadow: none;
+        }
+      }
     }
   }
 
@@ -956,6 +1021,31 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
       to {
         transform: rotate(360deg);
       }
+    }
+  }
+
+  // Staggered animation for child elements
+  & > *:nth-child(1) { animation-delay: 0ms; }
+  & > *:nth-child(2) { animation-delay: 30ms; }
+  & > *:nth-child(3) { animation-delay: 60ms; }
+  & > *:nth-child(4) { animation-delay: 90ms; }
+  & > *:nth-child(5) { animation-delay: 120ms; }
+  & > *:nth-child(6) { animation-delay: 150ms; }
+  & > *:nth-child(7) { animation-delay: 180ms; }
+  & > *:nth-child(8) { animation-delay: 210ms; }
+
+  & > * {
+    animation: elementFadeIn 250ms ease-out backwards;
+  }
+
+  @keyframes elementFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 }
