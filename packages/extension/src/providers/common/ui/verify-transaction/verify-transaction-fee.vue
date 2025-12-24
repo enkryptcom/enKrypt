@@ -25,39 +25,46 @@ defineProps({
 });
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
 
 .verify-transaction-fee {
   width: 100%;
-  padding: 10px 16px;
+  padding: 12px 16px;
   box-sizing: border-box;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.01);
 
   &__fiat {
     font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0.25px;
-    color: @secondaryLabel;
-    margin: 0 8px 0 0;
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 18px;
+    letter-spacing: 0.1px;
+    color: @primaryLabel;
+    margin: 0;
   }
 
   &__crypto {
     font-style: normal;
     font-weight: 400;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0.25px;
-    color: @tertiaryLabel;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.2px;
+    color: @secondaryLabel;
     margin: 0;
+    padding: 2px 8px;
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 6px;
 
     span {
       font-variant: small-caps;
+      font-weight: 500;
     }
   }
 }

@@ -283,11 +283,27 @@ const isHasScroll = () => {
 .container {
   width: 100%;
   height: 600px;
-  background-color: @white;
-  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 50%, @white 100%);
   margin: 0;
   box-sizing: border-box;
   position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 180px;
+    background: linear-gradient(
+      135deg,
+      rgba(98, 126, 234, 0.06) 0%,
+      rgba(138, 100, 220, 0.04) 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
 
   &.popup {
     box-shadow: none;
@@ -300,10 +316,23 @@ const isHasScroll = () => {
   height: 100%;
   box-sizing: border-box;
   position: relative;
+  z-index: 1;
+  animation: fadeInUp 300ms ease-out;
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
   &__header {
     position: relative;
-    padding: 24px 72px 12px 32px;
+    padding: 20px 72px 8px 24px;
 
     &.popup {
       padding: 24px 0 12px 0;
@@ -312,33 +341,46 @@ const isHasScroll = () => {
     h3 {
       font-style: normal;
       font-weight: 700;
-      font-size: 24px;
-      line-height: 32px;
+      font-size: 22px;
+      line-height: 28px;
       color: @primaryLabel;
       margin: 0;
+      background: linear-gradient(135deg, #627eea 0%, #8a64dc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
   }
 
   &__close {
     position: absolute;
-    top: 20px;
-    right: 24px;
-    border-radius: 8px;
+    top: 14px;
+    right: 16px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: background 300ms ease-in-out;
+    transition: all 200ms ease-in-out;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:hover {
-      background: @black007;
+      background: rgba(0, 0, 0, 0.06);
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.95);
     }
   }
 
   &__description {
     font-style: normal;
     font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
+    font-size: 14px;
+    line-height: 20px;
     color: @secondaryLabel;
-    padding: 4px 141px 13px 32px;
+    padding: 4px 24px 16px 24px;
     margin: 0;
 
     &.popup {
@@ -347,10 +389,25 @@ const isHasScroll = () => {
   }
 
   &__info {
-    border: 1px solid @gray02;
+    background: @white;
+    border: 1.5px solid rgba(0, 0, 0, 0.06);
     box-sizing: border-box;
-    border-radius: 10px;
-    margin: 0 32px 0 32px;
+    border-radius: 16px;
+    margin: 0 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    animation: infoFadeIn 400ms ease-out 100ms backwards;
+
+    @keyframes infoFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
     &.popup {
       margin: 0;
@@ -362,13 +419,21 @@ const isHasScroll = () => {
     position: absolute;
     left: 0;
     bottom: 0;
-    padding: 10px 32px 14px 32px;
+    padding: 16px 24px 24px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-direction: row;
     width: 100%;
     box-sizing: border-box;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.9) 30%,
+      @white 50%
+    );
+    gap: 12px;
+    z-index: 10;
 
     &.popup {
       padding: 24px 0;
@@ -384,11 +449,47 @@ const isHasScroll = () => {
     }
 
     &-cancel {
-      width: 170px;
+      flex: 1;
+      min-width: 0;
+
+      :deep(.base-button) {
+        border: 1.5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 200ms ease-in-out;
+
+        &:hover:not(:disabled) {
+          border-color: rgba(0, 0, 0, 0.2);
+          background: rgba(0, 0, 0, 0.02);
+        }
+      }
     }
 
     &-send {
-      width: 218px;
+      flex: 1.4;
+      min-width: 0;
+
+      :deep(.base-button) {
+        background: linear-gradient(135deg, #627eea 0%, #8a64dc 100%);
+        border-radius: 12px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(98, 126, 234, 0.3);
+        transition: all 200ms ease-in-out;
+
+        &:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(98, 126, 234, 0.4);
+        }
+
+        &:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
+        &:disabled {
+          background: #e2e8f0;
+          box-shadow: none;
+        }
+      }
     }
   }
 
