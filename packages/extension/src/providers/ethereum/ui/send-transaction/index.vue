@@ -472,7 +472,12 @@ const errorMsg = computed(() => {
     return `Invalid decimals for ${selectedAsset.value.symbol}.`;
   }
 
-  if (!isSendToken.value && !selectedNft.value.id) {
+  if (
+    !isSendToken.value &&
+    !selectedNft.value.id &&
+    selectedNft.value.name !== 'No NFTs found' &&
+    selectedNft.value.name !== 'Loading'
+  ) {
     return `Invalid NFT selected.`;
   }
 
@@ -851,11 +856,11 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
 .container {
   width: 100%;
   height: 600px;
-  background-color: @white;
-  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
+  background: linear-gradient(180deg, #f8fafc 0%, @white 100%);
   margin: 0;
   box-sizing: border-box;
   position: relative;
+  overflow: hidden;
 }
 
 .send-transaction {
@@ -863,25 +868,47 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
   height: 100%;
   box-sizing: border-box;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 88px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+  }
 
   &__buttons {
     position: absolute;
     left: 0;
     bottom: 0;
-    padding: 0 32px 32px 32px;
+    padding: 16px 24px 24px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-direction: row;
     width: 100%;
     box-sizing: border-box;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, @white 20%);
+    gap: 12px;
 
     &-cancel {
-      width: 170px;
+      flex: 1;
+      min-width: 0;
     }
 
     &-send {
-      width: 218px;
+      flex: 1.3;
+      min-width: 0;
     }
   }
 }

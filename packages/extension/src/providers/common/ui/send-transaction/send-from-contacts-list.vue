@@ -53,7 +53,7 @@ const close = () => {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
 
 .send-from-contacts-list {
@@ -76,20 +76,21 @@ const close = () => {
     left: 0;
     top: 0;
     z-index: 102;
+    background: rgba(0, 0, 0, 0.1);
   }
 
   &__wrap {
     position: absolute;
-    width: 396px;
+    width: calc(100% - 48px);
     height: auto;
     max-height: 530px;
-    left: 32px;
-    top: 146px;
-    background: #ffffff;
+    left: 24px;
+    top: 140px;
+    background: @white;
     box-shadow:
-      0px 3px 6px rgba(0, 0, 0, 0.039),
-      0px 7px 24px rgba(0, 0, 0, 0.19);
-    border-radius: 12px;
+      0px 8px 24px rgba(0, 0, 0, 0.12),
+      0px 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
     z-index: 103;
     overflow: hidden;
     padding: 8px;
@@ -97,12 +98,15 @@ const close = () => {
     opacity: 0;
     visibility: hidden;
     transition:
-      opacity 0.3s,
-      visibility 0s ease-in-out 0.3s;
+      opacity 200ms ease-out,
+      transform 200ms ease-out,
+      visibility 0s ease-in-out 200ms;
+    transform: translateY(-8px);
 
     &.show {
       opacity: 1;
       visibility: visible;
+      transform: translateY(0);
       transition-delay: 0s;
     }
   }
@@ -116,13 +120,13 @@ const close = () => {
 
   h3 {
     font-style: normal;
-    font-weight: 500;
-    font-size: 12px;
-    line-height: 16px;
-    letter-spacing: 2px;
+    font-weight: 600;
+    font-size: 11px;
+    line-height: 14px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
     color: @secondaryLabel;
-    margin: 24px 0 0 0;
+    margin: 20px 0 8px 8px;
   }
 
   &__buttons {
@@ -133,7 +137,7 @@ const close = () => {
       font-weight: 500;
       font-size: 12px;
       line-height: 32px;
-      letter-spacing: 0.8px;
+      letter-spacing: 0.5px;
 
       &:first-child {
         width: 144px;

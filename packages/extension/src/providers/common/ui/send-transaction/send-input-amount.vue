@@ -89,79 +89,98 @@ const changeFocus = () => {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
 
 .send-input-amount {
-  height: 100px;
-  background: #ffffff;
-  margin: 0 32px 8px 32px;
+  height: 96px;
+  background: linear-gradient(
+    135deg,
+    rgba(98, 126, 234, 0.04) 0%,
+    rgba(138, 100, 220, 0.02) 100%
+  );
+  margin: 4px 24px 8px 24px;
   box-sizing: border-box;
-  border: 1px solid @gray02;
-  box-sizing: border-box;
-  border-radius: 10px;
-  width: calc(~'100% - 64px');
-  padding: 16px;
+  border: 1.5px solid rgba(98, 126, 234, 0.15);
+  border-radius: 16px;
+  width: calc(~'100% - 48px');
+  padding: 16px 20px;
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
-  flex-direction: row;
+  flex-direction: column;
   position: relative;
+  transition: all 200ms ease-in-out;
+  box-shadow: 0 2px 8px rgba(98, 126, 234, 0.06);
+
+  &:hover {
+    border-color: rgba(98, 126, 234, 0.25);
+  }
 
   &.focus {
-    border: 1px solid @primary;
+    border: 2px solid @primary;
+    box-shadow: 0 0 0 3px rgba(98, 126, 234, 0.12);
+    padding: 15px 19px;
   }
 
   input {
-    width: 290px;
-    height: 40px;
+    width: 100%;
+    height: 42px;
     font-style: normal;
-    font-weight: 400;
-    font-size: 34px;
-    line-height: 40px;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 42px;
     text-align: left;
-    letter-spacing: 0.25px;
+    letter-spacing: -0.3px;
     color: @primaryLabel;
     border: 0 none;
     outline: none;
     padding: 0;
+    padding-right: 70px;
     caret-color: @primary;
+    background: transparent;
+    text-overflow: ellipsis;
+    overflow: hidden;
+
+    &::placeholder {
+      color: @tertiaryLabel;
+      opacity: 0.5;
+    }
   }
+
   input[type='number']::-webkit-outer-spin-button,
   input[type='number']::-webkit-inner-spin-button {
     -webkit-appearance: none;
+    appearance: none;
     margin: 0;
   }
+
   input[type='number'] {
     -moz-appearance: textfield;
+    appearance: textfield;
   }
 
   &__fiat {
-    position: absolute;
-    left: 16px;
-    bottom: 16px;
     display: flex;
     justify-content: flex-start;
     align-items: center;
     flex-direction: row;
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    margin-top: 4px;
+    gap: 6px;
 
     svg {
-      margin-right: 4px;
       flex-shrink: 0;
+      opacity: 0.5;
     }
 
     span {
       font-style: normal;
-      font-weight: 400;
+      font-weight: 500;
       font-size: 14px;
       line-height: 20px;
-      text-align: center;
-      letter-spacing: 0.25px;
-      color: @tertiaryLabel;
+      letter-spacing: 0.1px;
+      color: @secondaryLabel;
+      max-width: 200px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -170,27 +189,36 @@ const changeFocus = () => {
 
   &__max {
     position: absolute;
-    width: 43px;
-    height: 24px;
+    height: 32px;
+    padding: 0 14px;
     right: 16px;
-    top: 50%;
-    margin-top: -12px;
-    background: @buttonBg;
-    border-radius: 6px;
+    top: 20px;
+    background: linear-gradient(135deg, #627eea 0%, #8a64dc 100%);
+    border-radius: 10px;
     font-style: normal;
-    font-weight: 500;
-    font-size: 11px;
-    line-height: 24px;
-    letter-spacing: 1.5px;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 32px;
+    letter-spacing: 0.8px;
     text-transform: uppercase;
-    color: @primaryLabel;
+    color: @white;
     text-align: center;
     text-decoration: none;
     cursor: pointer;
     display: block;
+    transition: all 200ms ease-in-out;
+    box-shadow: 0 2px 6px rgba(98, 126, 234, 0.3);
+    z-index: 10;
+    pointer-events: auto;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(98, 126, 234, 0.4);
+    }
 
     &:active {
-      opacity: 0.7;
+      transform: translateY(0);
+      box-shadow: 0 1px 4px rgba(98, 126, 234, 0.3);
     }
   }
 }

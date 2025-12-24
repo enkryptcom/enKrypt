@@ -15,34 +15,56 @@ interface IProps {
 defineProps<IProps>();
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
 
 .send-alert {
-  margin: 0 32px 8px 32px;
-  background: @error01;
-  border-radius: 10px;
-  padding: 12px 16px 12px 57px;
+  margin: 4px 24px 8px 24px;
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.08) 0%,
+    rgba(220, 38, 38, 0.05) 100%
+  );
+  border: 1.5px solid rgba(239, 68, 68, 0.2);
+  border-radius: 12px;
+  padding: 12px 16px 12px 48px;
   position: relative;
   box-sizing: border-box;
+  animation: alertSlideIn 200ms ease-out;
+
+  @keyframes alertSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
   svg {
     position: absolute;
-    left: 16px;
+    left: 14px;
     top: 50%;
     margin-top: -12px;
+    color: @error;
   }
 
   p {
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0.25px;
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 18px;
+    letter-spacing: 0.15px;
     color: @error;
     margin: 0;
 
     a {
       color: @error;
+      font-weight: 600;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 2px;
 
       &:hover {
         text-decoration: none;

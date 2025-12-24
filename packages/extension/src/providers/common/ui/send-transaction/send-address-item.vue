@@ -54,7 +54,7 @@ defineProps({
 });
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
 
 .send-address-item {
@@ -63,19 +63,21 @@ defineProps({
   align-items: center;
   flex-direction: row;
   width: 100%;
-  height: 56px;
+  height: 52px;
   cursor: pointer;
   text-decoration: none;
-  transition: background 300ms ease-in-out;
-  border-radius: 10px;
+  transition: all 200ms ease-in-out;
+  border-radius: 12px;
+  padding: 0 4px;
+  box-sizing: border-box;
 
   &:hover {
-    background: @black007;
+    background: rgba(98, 126, 234, 0.08);
   }
 
   &__number {
     font-style: normal;
-    font-weight: 400;
+    font-weight: 500;
     font-size: 12px;
     line-height: 16px;
     letter-spacing: 0.5px;
@@ -88,28 +90,33 @@ defineProps({
     justify-content: flex-start;
     align-items: center;
     flex-direction: row;
-    height: 56px;
+    height: 52px;
+    flex: 1;
+    min-width: 0;
 
     img {
       width: 32px;
       height: 32px;
-      margin-right: 16px;
-      margin-left: 8px;
-      border-radius: 100%;
+      margin-right: 12px;
+      margin-left: 4px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
   }
 
   &__name {
+    flex: 1;
+    min-width: 0;
+
     h4 {
       font-style: normal;
-      font-weight: 400;
+      font-weight: 600;
       font-size: 14px;
-      line-height: 20px;
-      letter-spacing: 0.25px;
+      line-height: 18px;
+      letter-spacing: 0.1px;
       color: @primaryLabel;
-      margin: 0;
+      margin: 0 0 2px 0;
       white-space: nowrap;
-      width: 270px;
       text-overflow: ellipsis;
       overflow: hidden;
     }
@@ -117,11 +124,12 @@ defineProps({
     p {
       font-style: normal;
       font-weight: 400;
-      font-size: 14px;
-      line-height: 20px;
-      letter-spacing: 0.25px;
+      font-size: 13px;
+      line-height: 18px;
+      letter-spacing: 0.2px;
       color: @secondaryLabel;
       margin: 0 !important;
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
 
       span {
         font-variant: small-caps;
@@ -143,7 +151,8 @@ defineProps({
   }
 
   &__checked {
-    margin-right: 12px;
+    margin-right: 8px;
+    color: @primary;
   }
 }
 </style>
