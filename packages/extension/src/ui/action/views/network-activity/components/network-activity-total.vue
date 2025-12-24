@@ -67,58 +67,88 @@ onBeforeMount(() => {
 });
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
 .network-activity {
   &__total-error {
-    padding: 0 20px 12px 20px;
+    padding: 0 24px 12px 24px;
+    animation: fadeIn 0.3s ease-out;
 
     h3 {
+      margin: 0;
+      font-size: 14px;
+      line-height: 20px;
+
       span {
         color: @error;
+        font-weight: 500;
       }
     }
   }
+
   &__total {
-    padding: 0 20px 12px 20px;
+    padding: 0 24px 12px 24px;
+    animation: fadeIn 0.3s ease-out;
 
     h3 {
       font-style: normal;
       font-weight: 700;
-      font-size: 24px;
-      line-height: 32px;
-      color: @primaryLabel;
+      font-size: 28px;
+      line-height: 36px;
+      background: linear-gradient(135deg, #627eea 0%, #8a64dc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin: 0;
 
       span {
-        font-variant: small-caps;
+        font-size: 18px;
+        font-weight: 600;
+        background: linear-gradient(
+          135deg,
+          rgba(98, 126, 234, 0.7) 0%,
+          rgba(138, 100, 220, 0.7) 100%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
       }
     }
 
     p {
       font-style: normal;
-      font-weight: 400;
-      font-size: 16px;
-      line-height: 24px;
+      font-weight: 500;
+      font-size: 15px;
+      line-height: 22px;
       color: @secondaryLabel;
-      margin: 0;
+      margin: 4px 0 0 0;
     }
   }
 
   &__loader-one {
-    width: 100px;
-    height: 18px;
-    margin-bottom: 13px;
-    margin-top: 6px;
+    width: 120px;
+    height: 20px;
+    margin-bottom: 12px;
+    margin-top: 4px;
     display: block !important;
+    border-radius: 6px;
   }
 
   &__loader-two {
-    width: 70px;
-    height: 13px;
+    width: 80px;
+    height: 14px;
     display: block !important;
     margin-bottom: 6px;
+    border-radius: 4px;
   }
 }
 </style>
