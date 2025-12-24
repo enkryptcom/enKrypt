@@ -877,7 +877,11 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
     left: 0;
     right: 0;
     height: 200px;
-    background: linear-gradient(135deg, rgba(98, 126, 234, 0.06) 0%, rgba(138, 100, 220, 0.04) 100%);
+    background: linear-gradient(
+      135deg,
+      rgba(98, 126, 234, 0.06) 0%,
+      rgba(138, 100, 220, 0.04) 100%
+    );
     pointer-events: none;
     z-index: 0;
   }
@@ -1025,14 +1029,30 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
   }
 
   // Staggered animation for child elements
-  & > *:nth-child(1) { animation-delay: 0ms; }
-  & > *:nth-child(2) { animation-delay: 30ms; }
-  & > *:nth-child(3) { animation-delay: 60ms; }
-  & > *:nth-child(4) { animation-delay: 90ms; }
-  & > *:nth-child(5) { animation-delay: 120ms; }
-  & > *:nth-child(6) { animation-delay: 150ms; }
-  & > *:nth-child(7) { animation-delay: 180ms; }
-  & > *:nth-child(8) { animation-delay: 210ms; }
+  & > *:nth-child(1) {
+    animation-delay: 0ms;
+  }
+  & > *:nth-child(2) {
+    animation-delay: 30ms;
+  }
+  & > *:nth-child(3) {
+    animation-delay: 60ms;
+  }
+  & > *:nth-child(4) {
+    animation-delay: 90ms;
+  }
+  & > *:nth-child(5) {
+    animation-delay: 120ms;
+  }
+  & > *:nth-child(6) {
+    animation-delay: 150ms;
+  }
+  & > *:nth-child(7) {
+    animation-delay: 180ms;
+  }
+  & > *:nth-child(8) {
+    animation-delay: 210ms;
+  }
 
   & > * {
     animation: elementFadeIn 250ms ease-out backwards;
