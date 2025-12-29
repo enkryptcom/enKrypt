@@ -8,6 +8,9 @@
         <network-activity-total
           :crypto-amount="cryptoAmount"
           :fiat-amount="fiatAmount"
+          :token-price="tokenPrice"
+          :price-change-percentage="priceChangePercentage"
+          :sparkline="sparkline"
           :symbol="props.network.currencyName"
           v-bind="$attrs"
         />
@@ -93,10 +96,13 @@ const props = defineProps({
   },
 });
 
-const { cryptoAmount, fiatAmount } = accountInfoComposable(
-  toRef(props, 'network'),
-  toRef(props, 'accountInfo'),
-);
+const {
+  cryptoAmount,
+  fiatAmount,
+  tokenPrice,
+  priceChangePercentage,
+  sparkline,
+} = accountInfoComposable(toRef(props, 'network'), toRef(props, 'accountInfo'));
 
 const forceUpdateVal = ref(0);
 const isNoActivity = ref(false);
