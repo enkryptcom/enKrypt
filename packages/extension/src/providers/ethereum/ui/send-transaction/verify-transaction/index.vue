@@ -283,7 +283,6 @@ const isHasScroll = () => {
 .container {
   width: 100%;
   height: 600px;
-  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 50%, @white 100%);
   margin: 0;
   box-sizing: border-box;
   position: relative;
@@ -296,11 +295,6 @@ const isHasScroll = () => {
     left: 0;
     right: 0;
     height: 180px;
-    background: linear-gradient(
-      135deg,
-      rgba(98, 126, 234, 0.06) 0%,
-      rgba(138, 100, 220, 0.04) 100%
-    );
     pointer-events: none;
     z-index: 0;
   }
@@ -345,7 +339,6 @@ const isHasScroll = () => {
       line-height: 28px;
       color: @primaryLabel;
       margin: 0;
-      background: linear-gradient(135deg, #627eea 0%, #8a64dc 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -426,12 +419,6 @@ const isHasScroll = () => {
     flex-direction: row;
     width: 100%;
     box-sizing: border-box;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.9) 30%,
-      @white 50%
-    );
     gap: 12px;
     z-index: 10;
 
@@ -470,7 +457,6 @@ const isHasScroll = () => {
       min-width: 0;
 
       :deep(.base-button) {
-        background: linear-gradient(135deg, #627eea 0%, #8a64dc 100%);
         border-radius: 12px;
         font-weight: 600;
         box-shadow: 0 4px 12px rgba(98, 126, 234, 0.3);

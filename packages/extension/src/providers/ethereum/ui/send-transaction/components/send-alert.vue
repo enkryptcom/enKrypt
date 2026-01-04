@@ -20,11 +20,6 @@ defineProps<IProps>();
 
 .send-alert {
   margin: 4px 24px 8px 24px;
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.08) 0%,
-    rgba(220, 38, 38, 0.05) 100%
-  );
   border: 1.5px solid rgba(239, 68, 68, 0.2);
   border-radius: 12px;
   padding: 12px 16px 12px 48px;

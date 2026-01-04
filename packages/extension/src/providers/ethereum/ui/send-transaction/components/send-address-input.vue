@@ -119,7 +119,6 @@ const changeFocus = (val: FocusEvent) => {
   }
 
   &__avatar {
-    background: linear-gradient(135deg, #f0f4ff 0%, #e8ecf5 100%);
     box-shadow: inset 0px 0px 2px rgba(0, 0, 0, 0.08);
     width: 36px;
     height: 36px;

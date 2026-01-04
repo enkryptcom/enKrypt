@@ -76,7 +76,6 @@ const balance = computed(() =>
   }
 
   &__image {
-    background: linear-gradient(135deg, #f0f4ff 0%, #e8ecf5 100%);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
     width: 36px;
     height: 36px;

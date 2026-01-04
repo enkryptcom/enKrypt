@@ -94,11 +94,6 @@ const changeFocus = () => {
 
 .send-input-amount {
   height: 96px;
-  background: linear-gradient(
-    135deg,
-    rgba(98, 126, 234, 0.04) 0%,
-    rgba(138, 100, 220, 0.02) 100%
-  );
   margin: 4px 24px 8px 24px;
   box-sizing: border-box;
   border: 1.5px solid rgba(98, 126, 234, 0.15);
