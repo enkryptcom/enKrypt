@@ -65,7 +65,7 @@ defineProps({
   background: @white;
   margin: 4px 24px 8px 24px;
   box-sizing: border-box;
-  border: 1.5px solid rgba(0, 0, 0, 0.08);
+  border: 1.5px solid rgba(98, 126, 234, 0.15);
   border-radius: 14px;
   width: calc(~'100% - 48px');
   padding: 12px 16px;
@@ -77,12 +77,12 @@ defineProps({
   cursor: pointer;
   text-decoration: none;
   transition: all 200ms ease-in-out;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2px 8px rgba(98, 126, 234, 0.06);
 
   &:hover {
-    border-color: rgba(0, 0, 0, 0.12);
-    background: rgba(0, 0, 0, 0.01);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    border-color: rgba(98, 126, 234, 0.25);
+    background: rgba(98, 126, 234, 0.02);
+    box-shadow: 0 2px 8px rgba(98, 126, 234, 0.08);
   }
 
   &.swap {
