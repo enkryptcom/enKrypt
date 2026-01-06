@@ -123,10 +123,9 @@ class Swap extends EventEmitter {
         const json = await res.json();
         if (json.isRWARestricted) {
           return fetch(RWA_FILTER_LIST).then(res => res.json())
-        } else {
-          return []
         }
       }
+      return []
     })
     this.tokenList.all = this.tokenList.all.filter(t => !this.rwaFilterList.includes(t.address))
     this.tokenList.top = this.tokenList.top.filter(t => !this.rwaFilterList.includes(t.address))
