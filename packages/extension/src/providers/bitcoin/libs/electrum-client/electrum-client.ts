@@ -10,6 +10,7 @@ import {
 import * as bitcoin from 'bitcoinjs-lib';
 import BigNumber from 'bignumber.js';
 import { SATOSHI } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
+import { getRandomItem } from '@/providers/bitcoin/libs/firo-wallet/utils';
 
 const networkInfo = {
   messagePrefix: '\x18Zcoin Signed Message:\n',
@@ -43,8 +44,11 @@ const hardcodedPeers: Peer[] = [
  * @returns {Promise<{tcp, host}|*>}
  */
 function getRandomHardcodedPeer(): Peer {
-  const index = Math.floor(hardcodedPeers.length * Math.random());
-  return hardcodedPeers[index];
+  const hardcodedPeer = getRandomItem(hardcodedPeers);
+  if (hardcodedPeer) {
+    return hardcodedPeer;
+  }
+  throw new Error('No hardcoded electrum peers available');
 }
 
 export default class FiroElectrum {
@@ -248,25 +252,29 @@ export default class FiroElectrum {
     batchsize: number = 45,
     verbose?: boolean,
   ): Promise<{ [txId: string]: string }> {
-    // this value is fine-tuned so althrough wallets in test suite will occasionally
-    // throw 'response too large (over 1,000,000 bytes', test suite will pass
     verbose = verbose !== false;
 
     const ret: { [txId: string]: string } = {};
-    txids = [...new Set(txids)]; // deduplicate just for any case
+    txids = [...new Set(txids)];
 
     const chunks = splitIntoChunks(txids, batchsize);
-    let offset = 0;
     for (const chunk of chunks) {
+      if (!this.mainClient) {
+        throw new Error('Electrum client is not connected');
+      }
+
       const res = await Promise.all(
         chunk.map(el =>
-          this.mainClient?.blockchain_transaction_get(el, verbose),
+          this.mainClient!.blockchain_transaction_get(el, verbose),
         ),
       );
-      res.forEach((el: string, index: number) => {
-        ret[chunk[index]] = el;
+
+      res.forEach((el: any, index: number) => {
+        const txid = chunk[index];
+        if (typeof txid === 'string' && typeof el === 'string') {
+          ret[txid] = el;
+        }
       });
-      offset += chunk.length;
     }
 
     return ret;

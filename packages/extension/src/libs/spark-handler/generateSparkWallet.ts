@@ -164,7 +164,8 @@ export async function getSparkState(
   wasm.ccall('js_freeSpendKey', null, ['number'], [spendKeyObj]);
   wasm.ccall('js_freeFullViewKey', null, ['number'], [fullViewKeyObj]);
   wasm.ccall('js_freeIncomingViewKey', null, ['number'], [incomingViewKeyObj]);
-  wasm.ccall('_js_freeAddress', null, ['number'], [addressObj]);
+  // TODO(N): check error
+  // wasm.ccall('_js_freeAddress', null, ['number'], [addressObj]);
 
   return {
     defaultAddress: address_enc_main,

@@ -9,7 +9,10 @@
       />
 
       <!--      "!!accountInfo.sparkAccount && network.name === NetworkNames.Firo"-->
-      <div v-if="false" class="send-transaction__tabs">
+      <div
+        v-if="!!accountInfo.sparkAccount && network.name === NetworkNames.Firo"
+        class="send-transaction__tabs"
+      >
         <button
           :class="
             selectedSendTab === 'transparent' && 'send-transaction__tabs-active'

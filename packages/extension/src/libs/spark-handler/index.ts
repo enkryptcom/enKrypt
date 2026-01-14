@@ -44,8 +44,7 @@ export async function sendFromSparkAddress(
   spendKeyObj = await getSpendKeyObj(Module);
   const isSparkTransaction = await isSparkAddress(to);
 
-  const ownedCoins = ((await db.readData('myCoins')) ||
-    []) as OwnedCoinData[];
+  const ownedCoins = ((await db.readData('myCoins')) || []) as OwnedCoinData[];
 
   const usedCoinsTags = await db.readData<{ tags: string[] }>(
     DB_DATA_KEYS.usedCoinsTags,
@@ -65,13 +64,10 @@ export async function sendFromSparkAddress(
     deserializedCoinObj: number;
   }[] = [];
 
-  const keyObjects = await getIncomingViewKey(
-    Module,
-    spendKeyObj,
-  );
+  const keyObjects = await getIncomingViewKey(Module, spendKeyObj);
 
-  incomingViewKeyObj = keyObjects.incomingViewKeyObj
-  fullViewKeyObj = keyObjects.fullViewKeyObj
+  incomingViewKeyObj = keyObjects.incomingViewKeyObj;
+  fullViewKeyObj = keyObjects.fullViewKeyObj;
 
   addressObj = Module.ccall(
     'js_getAddress',
@@ -186,7 +182,7 @@ export async function sendFromSparkAddress(
       if (!acc[coin.setId]) {
         acc[coin.setId] = [];
       }
-      acc[coin.setId].push(coin);
+      acc[coin.setId]?.push(coin);
       return acc;
     },
     {} as Record<number, typeof spendCoinList>,
@@ -195,11 +191,22 @@ export async function sendFromSparkAddress(
   console.debug('groupedBySet', groupedBySet);
 
   const deserializedCoinList: Record<string, number[]> = {};
-  // TODO: move to separate function
+  const setsDataMap: Record<
+    string,
+    Awaited<ReturnType<typeof db.getSetById>>
+  > = {};
+
+  for (const setId in groupedBySet) {
+    setsDataMap[setId] = await db.getSetById(Number(setId));
+  }
 
   for (const set in groupedBySet) {
-    const fullSet = await db.getSetById(Number(set));
-    fullSet?.coins.forEach(coin => {
+    const fullSet = setsDataMap[set];
+    if (!fullSet) {
+      console.error(`Set with ID ${set} not found in database`);
+      continue;
+    }
+    fullSet.coins.forEach(coin => {
       const serializedCoin = getSerializedCoin(
         coin[0] as string,
       ) as unknown as ArrayLike<number>;
@@ -233,13 +240,14 @@ export async function sendFromSparkAddress(
     });
   }
 
-  const setHashList = await db.getSetHashes();
-
   for (const setId in groupedBySet) {
-    const coverSetRepresentation = Buffer.from(
-      setHashList[+setId - 1],
-      'base64',
-    );
+    const fullSet = setsDataMap[setId];
+    if (!fullSet) {
+      console.error(`Set with ID ${setId} not found in database`);
+      continue;
+    }
+
+    const coverSetRepresentation = Buffer.from(fullSet.setHash, 'base64');
     console.debug('coverSetRepresentation :=>', coverSetRepresentation);
     const coverSetRepresentationPointer = Module._malloc(
       coverSetRepresentation.length,
@@ -280,10 +288,17 @@ export async function sendFromSparkAddress(
     [],
   );
 
-  const blockHashList = await db.getBlockHashes();
-  console.log('blockHashList =>>>', blockHashList);
   for (const setId in groupedBySet) {
-    console.log(BigInt(setId), base64ToHex(blockHashList[+setId - 1]));
+    const fullSet = setsDataMap[setId];
+    if (!fullSet) {
+      console.error(`Set with ID ${setId} not found in database`);
+      continue;
+    }
+
+    console.log(
+      base64ToHex(fullSet.blockHash),
+      `blockHash for setId: ${setId}`,
+    );
     Module.ccall(
       'js_addIdAndBlockHashForCreateSparkSpendTransaction',
       null,
@@ -291,7 +306,7 @@ export async function sendFromSparkAddress(
       [
         idAndBlockHashesMap,
         BigInt(setId),
-        base64ToReversedHex(blockHashList[+setId - 1]),
+        base64ToReversedHex(fullSet.blockHash),
       ],
     );
   }
