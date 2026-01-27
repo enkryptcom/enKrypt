@@ -27,7 +27,7 @@
     "watch-ts": "nodemon --exec 'yarn run build:all && node scripts/compile-done.js'",
     "upgrade": "yarn upgrade-interactive",
     "version:bump:patch": "yarn workspaces foreach --worktree -pv --exclude @enkryptcom/extension exec 'yarn version --immediate patch'",
-    "publish": "yarn workspaces foreach --worktree -pv --exclude @enkryptcom/extension exec 'yarn npm publish --access public --otp 312003'",
+    "publish": "yarn workspaces foreach --worktree -pv --exclude @enkryptcom/extension exec 'yarn npm publish --access public --otp 151351'",
     "version:apply": "yarn version apply --all",
     "prepare": "husky"
   },

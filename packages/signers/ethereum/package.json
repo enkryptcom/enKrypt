@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/signer-ethereum",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Ethereum blockchain signer",
   "type": "module",
   "main": "src/index.ts",
