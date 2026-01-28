@@ -1,6 +1,6 @@
 {
   "name": "@enkryptcom/swap",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "Swap library for enkrypt",
   "type": "module",
   "main": "src/index.ts",
