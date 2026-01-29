@@ -127,7 +127,7 @@ export default class FiroElectrum {
 
   async getUsedCoinsTagsTxHashes(
     startNumber: number,
-  ): Promise<{ tagsandtxids: string[] }> {
+  ): Promise<{ tagsandtxids: [string, string][] }> {
     return await this.mainClient!.request('spark.getusedcoinstagstxhashes', [
       startNumber.toString(),
     ]);

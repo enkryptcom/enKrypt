@@ -8,6 +8,19 @@ export const intersectSets = <T>(setA: Set<T>, setB: Set<T>) => {
   return result;
 };
 
+export const intersectTagsSets = (
+  setA: Set<[string, string]>,
+  setB: Set<string>,
+) => {
+  const result = new Set<[string, string]>();
+  for (const item of setA) {
+    if (setB.has(item[0])) {
+      result.add(item);
+    }
+  }
+  return result;
+};
+
 export const differenceSets = <T>(setA: Set<T>, setB: Set<T>) => {
   const result = new Set<T>();
   const setToIterate = setA.size > setB.size ? setA : setB;

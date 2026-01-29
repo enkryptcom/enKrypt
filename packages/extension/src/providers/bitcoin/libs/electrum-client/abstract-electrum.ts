@@ -80,4 +80,5 @@ export type MyCoinModel = {
   tag: string;
   value: bigint;
   isUsed: boolean;
+  transactionHash?: string;
 };

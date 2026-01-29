@@ -4,6 +4,7 @@ import { differenceSets } from '@action/utils/set-utils';
 
 type SetsUpdateResult = {
   tags: string[];
+  // txHashes: string[];
 };
 
 export type TagsSyncOptions = {
@@ -22,6 +23,7 @@ const syncTagsOnce = async (): Promise<SetsUpdateResult> => {
       DB_DATA_KEYS.usedCoinsTags,
     );
 
+    const txHashes = await wallet.getUsedCoinsTagsTxHashes(0);
     const updates = await wallet.getUsedSparkCoinsTags(
       !!localTags?.tags?.length ? localTags?.tags?.length : 0,
     );
@@ -34,7 +36,10 @@ const syncTagsOnce = async (): Promise<SetsUpdateResult> => {
     const mergedTags = Array.from(
       new Set([...(diffTags.values() ?? []), ...(updates?.tags ?? [])]),
     );
-    await db.saveData(DB_DATA_KEYS.usedCoinsTags, { tags: mergedTags });
+    await db.saveData(DB_DATA_KEYS.usedCoinsTags, {
+      tags: mergedTags,
+      txHashes: txHashes.tagsandtxids,
+    });
 
     // Prevent sending updates if there are no new tags
     if (mergedTags.length === localTags?.tags?.length) {

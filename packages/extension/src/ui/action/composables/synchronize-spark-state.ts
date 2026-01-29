@@ -7,6 +7,58 @@ import { BaseNetwork } from '@/types/base-network';
 import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB';
 import { intersectSets } from '@action/utils/set-utils';
 import { MyCoinModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
+import { base64ToReversedHex } from '@/libs/spark-handler/utils';
+
+export interface FiroExplorerTxResponse {
+  txid: string;
+  version: number;
+  locktime: number;
+  vin: Array<{
+    txid: string;
+    vout: number;
+    sequence: number;
+    n: number;
+    addr?: string;
+    addresses?: string[];
+    value?: number;
+    valueSat?: number;
+  }>;
+  vout: Array<{
+    value: string;
+    n: number;
+    scriptPubKey: {
+      hex: string;
+      asm: string;
+      addresses?: string[] | null;
+      type: string;
+    };
+    spentTxId?: string | null;
+    spentIndex?: number | null;
+    spentHeight?: number | null;
+  }>;
+  blockhash: string;
+  blockheight: number;
+  confirmations: number;
+  time: number;
+  blocktime: number;
+  valueOut: number;
+  size: number;
+  valueIn: number;
+  fees: number;
+  extraPayload?: boolean;
+}
+
+const fetchFiroTxByTxId = async (
+  baseUrl: string,
+  txId: string,
+): Promise<FiroExplorerTxResponse | null> => {
+  const url = `${baseUrl.replace(/\/$/, '')}/insight-api-zcoin/tx/${txId}`;
+  const res = await fetch(url);
+  if (!res.ok) return null;
+  const data = await res.json();
+  if (data?.message) return null;
+  return data as FiroExplorerTxResponse;
+};
 
 export const useSynchronizeSparkState = (
   networkRef: Ref<BaseNetwork>,
@@ -20,8 +72,10 @@ export const useSynchronizeSparkState = (
   const coinFetchDone = ref(false);
   const tagFetchDone = ref(false);
 
+  const sparkUnusedTxDetails = ref<FiroExplorerTxResponse[]>([]);
+
   const markCoinsAsUsed = async () => {
-    const usedCoinsTags = await db.readData<{ tags: string[] }>(
+    const usedCoinsTags = await db.readData<{ tags: [string, string] }>(
       DB_DATA_KEYS.usedCoinsTags,
     );
 
@@ -46,6 +100,41 @@ export const useSynchronizeSparkState = (
       .filter(el => !el.isUsed)
       .reduce((a: bigint, c) => a + c.value, 0n);
 
+    const mintIds = myCoinsIsUsedApplied
+      .filter(coin => !coin.isUsed)
+      .map(unusedCoin => unusedCoin.coin[1]);
+
+    const txIdsDecoded = mintIds
+      .map(base64 => {
+        try {
+          return base64ToReversedHex(base64);
+        } catch {
+          return '';
+        }
+      })
+      .filter(Boolean);
+
+    console.log('===>>>Unused Spark Coins TX IDs:', txIdsDecoded);
+
+    const node = networkRef.value?.node;
+    if (node && txIdsDecoded.length > 0) {
+      const results = await Promise.allSettled(
+        txIdsDecoded.map(txId => fetchFiroTxByTxId(node, txId)),
+      );
+      const details = results
+        .filter(
+          (r): r is PromiseFulfilledResult<FiroExplorerTxResponse | null> =>
+            r.status === 'fulfilled',
+        )
+        .map(r => r.value)
+        .filter((v): v is FiroExplorerTxResponse => v != null);
+      sparkUnusedTxDetails.value = details;
+    } else {
+      sparkUnusedTxDetails.value = [];
+    }
+
+    console.log('===>>>Spark Unused TX Details:', sparkUnusedTxDetails.value);
+
     const sparkBalance = new BigNumber(balance.toString()).toString();
 
     if (onBalanceCalculated) {
@@ -68,7 +157,7 @@ export const useSynchronizeSparkState = (
 
     worker.postMessage('');
 
-    worker.onmessage = ({ data }) => {
+    worker.onmessage = () => {
       coinFetchDone.value = true;
     };
   };
@@ -118,5 +207,6 @@ export const useSynchronizeSparkState = (
     synchronize,
     isPending,
     error,
+    sparkUnusedTxDetails,
   };
 };

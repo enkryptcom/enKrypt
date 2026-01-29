@@ -112,9 +112,15 @@ export class IndexedDBHelper {
 
   async markCoinsAsUsed(tag: string): Promise<void> {
     const myCoins = await this.readData<any[]>(DB_DATA_KEYS.myCoins);
+    const usedCoinsTags = await this.readData<{
+      tags: string[];
+      txHashes: [string, string][];
+    }>(DB_DATA_KEYS.usedCoinsTags);
+
+    const txHashesMap = new Map(usedCoinsTags?.txHashes || []);
     const updatedCoins = myCoins.map((coin: any) => {
       if (coin.tag === tag) {
-        return { ...coin, isUsed: true };
+        return { ...coin, isUsed: true, txHash: txHashesMap.get(tag) || null };
       }
       return coin;
     });

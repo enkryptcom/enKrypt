@@ -152,14 +152,6 @@ const sendAction = async () => {
     transactionHash: '',
   };
 
-  // const psbt = new bitcoin.Psbt({ network: network.value.networkInfo });
-
-  // const txHashSig = await createTempFromSparkTx({
-  //   network: network.value.networkInfo,
-  //   to: txData.toAddress,
-  //   amount: fromBase(txData.toToken.amount, txData.toToken.decimals).toString(),
-  // });
-
   const activityState = new ActivityState();
 
   const api = (await network.value.api()) as unknown as FiroAPI;
@@ -183,18 +175,18 @@ const sendAction = async () => {
         throw new Error('Transaction data is undefined');
       }
 
-      // activityState.addActivities(
-      //   [
-      //     {
-      //       ...txActivity,
-      //       ...{ transactionHash: txid },
-      //     },
-      //   ],
-      //   {
-      //     address: network.value.displayAddress(txData.fromAddress),
-      //     network: network.value.name,
-      //   },
-      // );
+      activityState.addActivities(
+        [
+          {
+            ...txActivity,
+            ...{ transactionHash: txData },
+          },
+        ],
+        {
+          address: network.value.displayAddress(txData),
+          network: network.value.name,
+        },
+      );
 
       isSendDone.value = true;
       if (getCurrentContext() === 'popup') {
@@ -218,86 +210,11 @@ const sendAction = async () => {
         error: error.message,
       });
       txActivity.status = ActivityStatus.failed;
-      // activityState.addActivities([txActivity], {
-      //   address: txData.fromAddress,
-      //   network: network.value.name,
-      // });
+      activityState.addActivities([txActivity], {
+        address: txData.fromAddress,
+        network: network.value.name,
+      });
     });
-
-  // psbt.addInput({
-  //   hash: '0000000000000000000000000000000000000000000000000000000000000000',
-  //   index: 4294967295,
-  //   sequence: 4294967295,
-  //   finalScriptSig: Buffer.from('d3', 'hex'),
-  // });
-  // psbt.setLocktime(LOCK_TIME);
-  // psbt.setVersion(3 | (SPARK_TX_TYPE << 16));
-  // scripts.forEach(script => {
-  //   psbt.addOutput({
-  //     script: Buffer.from(script),
-  //     value: 0,
-  //   });
-  // });
-
-  // const rawTx = psbt.extractTransaction();
-  // const txHex = rawTx.toHex();
-  // const sizeHex = numberToReversedHex(serializedSpendSize);
-  // const finalTx = txHex + 'fd' + sizeHex + hex;
-  //
-  // const activityState = new ActivityState();
-  //
-  // const api = (await network.value.api()) as unknown as FiroAPI;
-
-  // api
-  //   .broadcastTx(finalTx)
-  // .then(({ txid }) => {
-  //   trackSendEvents(SendEventType.SendComplete, {
-  //     network: network.value.name,
-  //   });
-  //   activityState.addActivities(
-  //     [
-  //       {
-  //         ...txActivity,
-  //         ...{ transactionHash: txid },
-  //       },
-  //     ],
-  //     {
-  //       address: network.value.displayAddress(txData.fromAddress),
-  //       network: network.value.name,
-  //     },
-  //   );
-  //
-  //   isSendDone.value = true;
-  //   if (getCurrentContext() === 'popup') {
-  //     setTimeout(() => {
-  //       isProcessing.value = false;
-  //       router.go(-2);
-  //     }, 4500);
-  //   } else {
-  //     setTimeout(() => {
-  //       isProcessing.value = false;
-  //       window.close();
-  //     }, 1500);
-  //   }
-  //   emits('update:spark-state-changed', network.value);
-  // })
-  // .catch(error => {
-  //   isProcessing.value = false;
-  //   if (isAxiosError(error)) {
-  //     errorMsg.value = JSON.stringify(error.response?.data.error.message);
-  //   } else {
-  //     errorMsg.value = JSON.stringify(error);
-  //   }
-  //   trackSendEvents(SendEventType.SendFailed, {
-  //     network: network.value.name,
-  //     error: error.message,
-  //   });
-  //   txActivity.status = ActivityStatus.failed;
-  //   activityState.addActivities([txActivity], {
-  //     address: txData.fromAddress,
-  //     network: network.value.name,
-  //   });
-  // });
 };
 
 const isHasScroll = () => {
