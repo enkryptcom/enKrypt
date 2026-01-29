@@ -8,11 +8,7 @@
         @toggle-type="toggleSelector"
       />
 
-      <!--      "!!accountInfo.sparkAccount && network.name === NetworkNames.Firo"-->
-      <div
-        v-if="!!accountInfo.sparkAccount && network.name === NetworkNames.Firo"
-        class="send-transaction__tabs"
-      >
+      <div v-if="!!accountInfo.sparkAccount && network.name === NetworkNames.Firo" class="send-transaction__tabs">
         <button
           :class="
             selectedSendTab === 'transparent' && 'send-transaction__tabs-active'
@@ -142,7 +138,6 @@ const toggleSelector = (isTokenSend: boolean) => {
       letter-spacing: 1.5px;
       text-transform: uppercase;
       color: @primaryLabel;
-      display: flex;
       justify-content: flex-start;
       align-items: center;
       flex-direction: row;

@@ -87,12 +87,13 @@ export class FiroWallet {
   }
 
   async getSecret(): Promise<Buffer> {
-    const { secret } = await this.#storage.get(
+    const value = await this.#storage.get(
       configs.STORAGE_KEYS.FIRO_WALLET_SECRET,
     );
-    if (!secret) {
+    if (!value || !value?.secret) {
       throw Error('FiroWallet not initialize');
     }
+    const { secret } = value;
     return bip39.mnemonicToSeedSync(secret);
   }
 

@@ -21,7 +21,7 @@ import { intersectSets } from '@action/utils/set-utils';
 import BigNumber from 'bignumber.js';
 
 export async function sendFromSparkAddress(
-  network: bitcoin.Network,
+  networkInfo: bitcoin.Network,
   to: string,
   amount: string,
 ): Promise<string | undefined> {
@@ -311,7 +311,7 @@ export async function sendFromSparkAddress(
     );
   }
 
-  const tempTx = new bitcoin.Psbt({ network: network.networkInfo });
+  const tempTx = new bitcoin.Psbt({ network: networkInfo });
   tempTx.setVersion(3 | (SPARK_TX_TYPE << 16)); // version 3 and tx type in high bits (3 | (SPARK_TX_TYPE << 16));
   tempTx.setLocktime(LOCK_TIME); // new Date().getTime() / 1000
 
@@ -505,7 +505,7 @@ export async function sendFromSparkAddress(
   //   [result],
   // );
 
-  const psbt = new bitcoin.Psbt({ network: network.networkInfo });
+  const psbt = new bitcoin.Psbt({ network: networkInfo });
 
   // const api = (await network.api()) as unknown as FiroAPI;
 

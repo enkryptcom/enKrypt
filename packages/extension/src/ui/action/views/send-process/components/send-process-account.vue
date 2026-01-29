@@ -14,7 +14,17 @@
     />
     <div class="send-process-account__name">
       <p>To</p>
-      <h4>{{ name ? name : network.displayAddress(address) }}</h4>
+      <h4>
+        {{
+          name
+            ? name
+            : $filters.replaceWithEllipsis(
+                network.displayAddress(address),
+                6,
+                4,
+              )
+        }}
+      </h4>
       <h6 v-show="!!name">
         {{
           $filters.replaceWithEllipsis(network.displayAddress(address), 6, 4)

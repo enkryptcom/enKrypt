@@ -151,7 +151,7 @@ import BackupState from '@/libs/backup-state';
 import { useMenuStore } from './store/menu-store';
 import { useCurrencyStore, type Currency } from './views/settings/store';
 import { useRateStore } from './store/rate-store';
-import { isGeoRestricted } from '@/libs/utils/screening';
+import { isGeoRestricted, isWalletRestricted } from '@/libs/utils/screening';
 
 const wallet = new PublicFiroWallet();
 const db = new IndexedDBHelper();
