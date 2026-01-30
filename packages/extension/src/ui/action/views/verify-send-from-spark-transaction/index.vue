@@ -30,7 +30,6 @@
             :network="network"
           />
           <verify-transaction-amount :token="txData.toToken" />
-          {{ errorMsg }}
         </div>
       </custom-scrollbar>
 
@@ -58,6 +57,7 @@
 
     <send-process
       v-if="isProcessing"
+      v-model="isProcessing"
       :to-address="txData.toAddress"
       :network="network"
       :token="txData.toToken"
@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref, ComponentPublicInstance, PropType } from 'vue';
+import { onBeforeMount, ref, ComponentPublicInstance } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import CloseIcon from '@action/icons/common/close-icon.vue';
 import BaseButton from '@action/components/base-button/index.vue';
@@ -88,11 +88,7 @@ import { VerifyTransactionParams } from '@/providers/bitcoin/ui/types';
 import { sendFromSparkAddress } from '@/libs/spark-handler';
 import { fromBase } from '@enkryptcom/utils';
 import { BaseNetwork } from '@/types/base-network';
-import * as bitcoin from 'bitcoinjs-lib';
-import FiroAPI from '@/providers/bitcoin/libs/api-firo.ts';
-import { SPARK_TX_TYPE, LOCK_TIME } from '@/libs/spark-handler/constants.ts';
-import { numberToReversedHex } from '@/libs/spark-handler/utils.ts';
-import { createTempFromSparkTx } from '@/libs/spark-handler/createTempFromSparkTx.ts';
+import FiroAPI from '@/providers/bitcoin/libs/api-firo';
 
 const emits = defineEmits<{
   (e: 'update:spark-state-changed', network: BaseNetwork): void;
@@ -129,92 +125,104 @@ const close = () => {
 };
 
 const sendAction = async () => {
-  isProcessing.value = true;
-  trackSendEvents(SendEventType.SendApprove, {
-    network: network.value.name,
-  });
-  const txActivity: Activity = {
-    from: network.value.displayAddress(txData.fromAddress),
-    to: txData.toAddress,
-    isIncoming: txData.fromAddress === txData.toAddress,
-    network: network.value.name,
-    status: ActivityStatus.pending,
-    timestamp: new Date().getTime(),
-    token: {
-      decimals: txData.toToken.decimals,
-      icon: txData.toToken.icon,
-      name: txData.toToken.name,
-      symbol: txData.toToken.symbol,
-      price: txData.toToken.price,
-    },
-    type: ActivityType.transaction,
-    value: txData.toToken.amount,
-    transactionHash: '',
-  };
-
-  const activityState = new ActivityState();
-
-  const api = (await network.value.api()) as unknown as FiroAPI;
-
-  await sendFromSparkAddress(
-    network.value,
-    txData.toAddress,
-    fromBase(txData.toToken.amount, txData.toToken.decimals).toString(),
-  )
-    .then(txData => {
-      console.log('txData in vue', txData?.slice(0, 14));
-      return txData;
-    })
-    .then(txData => {
-      trackSendEvents(SendEventType.SendComplete, {
-        network: network.value.name,
-      });
-      if (txData) {
-        api.broadcastTxRPC(txData);
-      } else {
-        throw new Error('Transaction data is undefined');
-      }
-
-      activityState.addActivities(
-        [
-          {
-            ...txActivity,
-            ...{ transactionHash: txData },
-          },
-        ],
-        {
-          address: network.value.displayAddress(txData),
-          network: network.value.name,
-        },
-      );
-
-      isSendDone.value = true;
-      if (getCurrentContext() === 'popup') {
-        setTimeout(() => {
-          isProcessing.value = false;
-          router.go(-2);
-        }, 4500);
-      } else {
-        setTimeout(() => {
-          isProcessing.value = false;
-          window.close();
-        }, 1500);
-      }
-      emits('update:spark-state-changed', network.value);
-    })
-    .catch(error => {
-      isProcessing.value = false;
-      errorMsg.value = JSON.stringify(error);
-      trackSendEvents(SendEventType.SendFailed, {
-        network: network.value.name,
-        error: error.message,
-      });
-      txActivity.status = ActivityStatus.failed;
-      activityState.addActivities([txActivity], {
-        address: txData.fromAddress,
-        network: network.value.name,
-      });
+  try {
+    isProcessing.value = true;
+    trackSendEvents(SendEventType.SendApprove, {
+      network: network.value.name,
     });
+    const txActivity: Activity = {
+      from: network.value.displayAddress(txData.fromAddress),
+      to: txData.toAddress,
+      isIncoming: txData.fromAddress === txData.toAddress,
+      network: network.value.name,
+      status: ActivityStatus.pending,
+      timestamp: new Date().getTime(),
+      token: {
+        decimals: txData.toToken.decimals,
+        icon: txData.toToken.icon,
+        name: txData.toToken.name,
+        symbol: txData.toToken.symbol,
+        price: txData.toToken.price,
+      },
+      type: ActivityType.transaction,
+      value: txData.toToken.amount,
+      transactionHash: '',
+    };
+
+    const activityState = new ActivityState();
+
+    const api = (await network.value.api()) as unknown as FiroAPI;
+
+    const rawTx = await sendFromSparkAddress(
+      network.value.networkInfo,
+      txData.toAddress,
+      fromBase(txData.toToken.amount, txData.toToken.decimals).toString(),
+    );
+
+    console.log('rawTx in vue', rawTx?.slice(0, 14));
+
+    if (!rawTx) {
+      throw new Error('Transaction data is undefined');
+    }
+
+    api
+      .broadcastTx(rawTx)
+      .then(({ txid }) => {
+        trackSendEvents(SendEventType.SendComplete, {
+          network: network.value.name,
+        });
+        activityState.addActivities(
+          [
+            {
+              ...txActivity,
+              ...{ transactionHash: txid },
+            },
+          ],
+          {
+            address: network.value.displayAddress(txData.fromAddress),
+            network: network.value.name,
+          },
+        );
+
+        isSendDone.value = true;
+        if (getCurrentContext() === 'popup') {
+          setTimeout(() => {
+            isProcessing.value = false;
+            router.go(-2);
+          }, 4500);
+        } else {
+          setTimeout(() => {
+            isProcessing.value = false;
+            window.close();
+          }, 1500);
+        }
+        emits('update:spark-state-changed', network.value);
+      })
+      .catch(error => {
+        trackSendEvents(SendEventType.SendFailed, {
+          network: network.value.name,
+          error: error.message,
+        });
+        txActivity.status = ActivityStatus.failed;
+        activityState.addActivities([txActivity], {
+          address: txData.fromAddress,
+          network: network.value.name,
+        });
+
+        isProcessing.value = false;
+        errorMsg.value = JSON.stringify(error);
+        console.error('ERROR', error);
+      });
+  } catch (error: any) {
+    trackSendEvents(SendEventType.SendFailed, {
+      network: network.value.name,
+      error: error.message,
+    });
+
+    isProcessing.value = false;
+    errorMsg.value = JSON.stringify(error);
+    console.error('ERROR', error);
+  }
 };
 
 const isHasScroll = () => {
@@ -234,7 +242,7 @@ const isHasScroll = () => {
   width: 100%;
   height: 600px;
   background-color: @white;
-  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.16);
   margin: 0;
   box-sizing: border-box;
   position: relative;
@@ -326,8 +334,8 @@ const isHasScroll = () => {
 
     &.border {
       box-shadow:
-        0px 0px 6px rgba(0, 0, 0, 0.05),
-        0px 0px 1px rgba(0, 0, 0, 0.25);
+        0 0 6px rgba(0, 0, 0, 0.05),
+        0 0 1px rgba(0, 0, 0, 0.25);
     }
 
     &-cancel {
