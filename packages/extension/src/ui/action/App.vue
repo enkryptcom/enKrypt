@@ -122,7 +122,7 @@ import { InternalMethods } from '@/types/messenger';
 import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB';
 import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import { fromBase } from '@enkryptcom/utils';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Browser from 'webextension-polyfill';
 import AccountsHeader from './components/accounts-header/index.vue';
@@ -135,7 +135,6 @@ import ModalNewVersion from './views/modal-new-version/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
 import { useSynchronizeSparkState } from '@action/composables/synchronize-spark-state';
-import ActivityState from '@/libs/activity-state';
 import ModalUpdates from './views/updates/index.vue';
 import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
 import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
@@ -150,14 +149,13 @@ import { useMenuStore } from './store/menu-store';
 import { useCurrencyStore, type Currency } from './views/settings/store';
 import { useRateStore } from './store/rate-store';
 import { isGeoRestricted, isWalletRestricted } from '@/libs/utils/screening';
-import { ActivityStatus, ActivityType } from '@/types/activity';
+import { useUpdateActivityState } from '@action/composables/update-activity-state';
 
 const wallet = new PublicFiroWallet();
 const db = new IndexedDBHelper();
 const domainState = new DomainState();
 const rateState = new RateState();
 const backupState = new BackupState();
-const activityState = new ActivityState();
 
 const defaultNetwork = DEFAULT_EVM_NETWORK;
 const currentVersion = __PACKAGE_VERSION__;
@@ -209,78 +207,7 @@ const { sparkUnusedTxDetails } = useSynchronizeSparkState(
   },
 );
 
-console.log('sparkUnusedTxDetails', sparkUnusedTxDetails);
-
-watch(
-  [sparkUnusedTxDetails, currentNetwork],
-  () => {
-    const network = currentNetwork.value;
-    const selectedAccount = accountHeaderData.value.selectedAccount;
-    const details = sparkUnusedTxDetails.value;
-
-    console.log('Watching sparkUnusedTxDetails change', details);
-    if (
-      network.name !== NetworkNames.Firo ||
-      !selectedAccount ||
-      !details.length
-    ) {
-      return;
-    }
-
-    sparkUnusedTxDetails.value.forEach(txDetail => {
-      if (!txDetail || !txDetail.vin.length || !txDetail.vout.length) {
-        return;
-      }
-      console.log('txDetail', txDetail);
-      activityState.addActivities(
-        [
-          {
-            network: currentNetwork.value.name,
-            from: 'Hidden',
-            to: 'Hidden',
-            isIncoming: false,
-            status: ActivityStatus.success,
-            timestamp: txDetail.time * 1000,
-            type: ActivityType.spark_transaction,
-            value: 'Hidden',
-            transactionHash: txDetail.txid,
-            token: {
-              icon: currentNetwork.value.icon,
-              symbol: currentNetwork.value.currencyName,
-              name: currentNetwork.value.currencyName,
-              decimals: currentNetwork.value.decimals,
-            },
-          },
-        ],
-        {
-          address: network.displayAddress(selectedAccount.address),
-          network: network.name,
-        },
-      );
-    });
-    // const activityAddress = network.displayAddress(selectedAccount.address);
-    // const token = {
-    //   name: network.name_long,
-    //   symbol: network.currencyName,
-    //   icon: network.icon,
-    //   decimals: network.decimals,
-    //   price: '0',
-    // };
-    // const activities = details.map(tx =>
-    //   mapFiroExplorerTxToActivity(
-    //     tx,
-    //     activityAddress,
-    //     network.name,
-    //     token,
-    //   ),
-    // );
-    // void activityState.addActivities(activities, {
-    //   address: activityAddress,
-    //   network: network.name,
-    // });
-  },
-  { deep: true },
-);
+useUpdateActivityState(currentNetwork, sparkUnusedTxDetails, accountHeaderData);
 
 /** -------------------
  * Rate

@@ -29,8 +29,8 @@ const syncTagsOnce = async (): Promise<SetsUpdateResult> => {
     );
 
     const diffTags = differenceSets(
-      new Set(updates?.tags ?? []),
       new Set(localTags?.tags ?? []),
+      new Set(updates?.tags ?? []),
     );
 
     const mergedTags = Array.from(

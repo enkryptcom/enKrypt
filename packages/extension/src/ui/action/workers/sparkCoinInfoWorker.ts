@@ -1,18 +1,18 @@
 import {
   getSparkCoinInfo,
   SparkCoinValue,
-} from '@/libs/spark-handler/getSparkCoinInfo.ts';
-import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB.ts';
-import { wasmWorkerInstance } from '@/libs/utils/wasm-worker-loader.ts';
+} from '@/libs/spark-handler/getSparkCoinInfo';
+import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB';
+import { wasmWorkerInstance } from '@/libs/utils/wasm-worker-loader';
 import {
   getIncomingViewKey,
   getSpendKeyObj,
-} from '@/libs/spark-handler/generateSparkWallet.ts';
+} from '@/libs/spark-handler/generateSparkWallet';
 import {
   AnonymitySetModel,
   MyCoinModel,
 } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
-import { differenceSets } from '@action/utils/set-utils.ts';
+import { differenceSets } from '@action/utils/set-utils';
 
 const db = new IndexedDBHelper();
 
@@ -51,9 +51,8 @@ const removeDuplicates = (coinsResult: Set<MyCoinModel>): Set<MyCoinModel> => {
 };
 
 async function fetchAllCoinInfos(
-  firstCoinSetId: number,
   myCoinsMap: Map<string, MyCoinModel>,
-  allSets: AnonymitySetModel[],
+  slicedSets: AnonymitySetModel[],
   fullViewKeyObj: number,
   incomingViewKeyObj: number,
   Module: WasmModule,
@@ -62,7 +61,7 @@ async function fetchAllCoinInfos(
     const allPromises: Promise<any>[] = [];
     const finalResult: CheckedCoinData[] = [];
 
-    allSets.slice(firstCoinSetId).forEach((set, index) => {
+    slicedSets.forEach((set, index) => {
       set.coins.forEach(coin => {
         const setCoin = `${coin.join()}${set.setHash}`;
 
@@ -156,18 +155,18 @@ addEventListener('message', async () => {
     myCoinsMap.set(`${coin.coin.join()}${coin.setHash}`, coin);
   });
 
-  const lastCoinSetId = (myCoins ?? []).at(-1)?.setId ?? 0;
-
-  const firstCoinSetId = lastCoinSetId - 1 < 1 ? 0 : lastCoinSetId - 1;
+  const lastCheckedSetIndex =
+    (await db.readData<string>(DB_DATA_KEYS.lastCheckedSetIndex)) ?? 0;
 
   const result = await fetchAllCoinInfos(
-    firstCoinSetId,
     myCoinsMap,
-    allSets,
+    allSets.slice(Number(lastCheckedSetIndex)),
     fullViewKeyObj,
     incomingViewKeyObj,
     Module,
   );
+
+  await db.saveData(DB_DATA_KEYS.lastCheckedSetIndex, allSets.length - 1);
 
   Module.ccall(
     'js_freeIncomingViewKey',

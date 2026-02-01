@@ -411,7 +411,6 @@ export default class FiroElectrum {
     const promises = Array.from({ length: latestSetId }, (_, i) =>
       this.getSparkAnonymitySetMeta([String(i + 1)]),
     );
-
     return Promise.all(promises);
   }
 
