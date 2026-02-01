@@ -116,7 +116,6 @@ import EVMAccountState from '@/providers/ethereum/libs/accounts-state';
 import { MessageMethod } from '@/providers/ethereum/types';
 import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 import { MessageMethod as KadenaMessageMethod } from '@/providers/kadena/types';
-import { KadenaNetwork } from '@/providers/kadena/types/kadena-network';
 import SolAccountState from '@/providers/solana/libs/accounts-state';
 import { BaseNetwork } from '@/types/base-network';
 import { InternalMethods } from '@/types/messenger';
@@ -136,7 +135,6 @@ import ModalNewVersion from './views/modal-new-version/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
 import { useSynchronizeSparkState } from '@action/composables/synchronize-spark-state';
-import { mapFiroExplorerTxToActivity } from '@action/composables/map-firo-explorer-tx-to-activity';
 import ActivityState from '@/libs/activity-state';
 import ModalUpdates from './views/updates/index.vue';
 import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
@@ -149,9 +147,10 @@ import { useNetworksStore } from './store/networks-store';
 import { storeToRefs } from 'pinia';
 import BackupState from '@/libs/backup-state';
 import { useMenuStore } from './store/menu-store';
-import { useCurrencyStore, type Currency } from './views/settings/store';
+import { type Currency, useCurrencyStore } from './views/settings/store';
 import { useRateStore } from './store/rate-store';
 import { isGeoRestricted, isWalletRestricted } from '@/libs/utils/screening';
+import { ActivityStatus, ActivityType } from '@/types/activity';
 
 const wallet = new PublicFiroWallet();
 const db = new IndexedDBHelper();
@@ -202,7 +201,7 @@ const { sparkUnusedTxDetails } = useSynchronizeSparkState(
         sparkAccount: {
           ...(accountHeaderData.value.sparkAccount ?? {}),
           sparkBalance: {
-            availableBalance: sparkBalance,
+            availableBalance: sparkBalance || '0',
           },
         },
       };
@@ -236,15 +235,21 @@ watch(
       activityState.addActivities(
         [
           {
-            network: currentNetwork.value,
-            from: txDetail.vin[0]?.addr || 'N/A',
-            to: txDetail.vout?.[0]?.scriptPubKey?.addresses[0] || 'N/A',
+            network: currentNetwork.value.name,
+            from: 'Hidden',
+            to: 'Hidden',
             isIncoming: false,
-            status: 'confirmed',
+            status: ActivityStatus.success,
             timestamp: txDetail.time * 1000,
-            type: 'transaction',
-            value: txDetail.vout[0]?.value.toString() || '0',
+            type: ActivityType.spark_transaction,
+            value: 'Hidden',
             transactionHash: txDetail.txid,
+            token: {
+              icon: currentNetwork.value.icon,
+              symbol: currentNetwork.value.currencyName,
+              name: currentNetwork.value.currencyName,
+              decimals: currentNetwork.value.decimals,
+            },
           },
         ],
         {
@@ -477,9 +482,8 @@ const setNetwork = async (network: BaseNetwork) => {
     const defaultAddress = await wallet.getSparkAddressAsync();
 
     await db.waitInit();
-    const availableBalance = await db.readData<string>(
-      DB_DATA_KEYS.sparkBalance,
-    );
+    const availableBalance =
+      (await db.readData<string>(DB_DATA_KEYS.sparkBalance)) || '0';
 
     if (defaultAddress) {
       sparkAccount['defaultAddress'] = defaultAddress;

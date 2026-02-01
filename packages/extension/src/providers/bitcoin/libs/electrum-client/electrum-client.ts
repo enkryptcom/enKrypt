@@ -251,10 +251,10 @@ export default class FiroElectrum {
     txids: Array<string>,
     batchsize: number = 45,
     verbose?: boolean,
-  ): Promise<{ [txId: string]: string }> {
+  ): Promise<{ [txId: string]: FullTransactionModel }> {
     verbose = verbose !== false;
 
-    const ret: { [txId: string]: string } = {};
+    const ret: { [txId: string]: FullTransactionModel } = {};
     txids = [...new Set(txids)];
 
     const chunks = splitIntoChunks(txids, batchsize);
@@ -271,9 +271,7 @@ export default class FiroElectrum {
 
       res.forEach((el: any, index: number) => {
         const txid = chunk[index];
-        if (typeof txid === 'string' && typeof el === 'string') {
-          ret[txid] = el;
-        }
+        ret[txid] = el;
       });
     }
 
