@@ -85,9 +85,7 @@ export const useSynchronizeSparkState = (
 
     const usedMyCoinsTagsSet = intersectSets(coinsTagsSet, myCoinsTagsSet);
 
-    await Promise.all(
-      Array.from(usedMyCoinsTagsSet).map(tag => db.markCoinsAsUsed(tag)),
-    );
+    await db.markCoinsAsUsed(Array.from(usedMyCoinsTagsSet));
 
     coinFetchDone.value = false;
     tagFetchDone.value = false;

@@ -166,7 +166,7 @@ const sendAction = async () => {
     }
 
     api
-      .broadcastTx(rawTx)
+      .broadcastTxRPC(rawTx)
       .then(({ txid }) => {
         trackSendEvents(SendEventType.SendComplete, {
           network: network.value.name,

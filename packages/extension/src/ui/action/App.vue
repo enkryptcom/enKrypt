@@ -136,7 +136,6 @@ import ModalNewVersion from './views/modal-new-version/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
 import { useSynchronizeSparkState } from '@action/composables/synchronize-spark-state';
-import { mapFiroExplorerTxToActivity } from '@action/composables/map-firo-explorer-tx-to-activity';
 import ActivityState from '@/libs/activity-state';
 import ModalUpdates from './views/updates/index.vue';
 import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
@@ -240,7 +239,7 @@ watch(
             from: txDetail.vin[0]?.addr || 'N/A',
             to: txDetail.vout?.[0]?.scriptPubKey?.addresses[0] || 'N/A',
             isIncoming: false,
-            status: 'confirmed',
+            status: 'success',
             timestamp: txDetail.time * 1000,
             type: 'transaction',
             value: txDetail.vout[0]?.value.toString() || '0',

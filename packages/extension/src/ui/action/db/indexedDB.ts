@@ -1,4 +1,7 @@
-import { AnonymitySetModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
+import {
+  AnonymitySetModel,
+  MyCoinModel,
+} from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
 
 export const DB_DATA_KEYS = {
   sets: 'sets',
@@ -110,19 +113,30 @@ export class IndexedDBHelper {
     await this.saveData(key, data);
   }
 
-  async markCoinsAsUsed(tag: string): Promise<void> {
-    const myCoins = await this.readData<any[]>(DB_DATA_KEYS.myCoins);
+  async markCoinsAsUsed(tags: string[]): Promise<void> {
+    if (!tags.length) return;
+
+    const myCoins =
+      (await this.readData<MyCoinModel[]>(DB_DATA_KEYS.myCoins)) || [];
     const usedCoinsTags = await this.readData<{
       tags: string[];
       txHashes: [string, string][];
     }>(DB_DATA_KEYS.usedCoinsTags);
 
-    const txHashesMap = new Map(usedCoinsTags?.txHashes || []);
-    const updatedCoins = myCoins.map((coin: any) => {
-      if (coin.tag === tag) {
-        return { ...coin, isUsed: true, txHash: txHashesMap.get(tag) || null };
-      }
-      return coin;
+    if (!usedCoinsTags) {
+      console.warn('Missing usedCoinsTags in IndexedDB');
+      return;
+    }
+
+    const tagsSet = new Set(tags);
+    const txHashesMap = new Map(usedCoinsTags.txHashes || []);
+    const updatedCoins = myCoins.map(coin => {
+      if (!tagsSet.has(coin.tag)) return coin;
+      return {
+        ...coin,
+        isUsed: true,
+        txHash: txHashesMap.get(coin.tag) || null,
+      };
     });
     await this.saveData(DB_DATA_KEYS.myCoins, updatedCoins);
   }
