@@ -127,6 +127,56 @@
       </div>
     </section>
   </section>
+  <section
+    v-if="activity.type === ActivityType.spark_transaction"
+    class="container-empty"
+  >
+    <a
+      :class="{
+        'network-activity__activity-link-disabled':
+          !isPending && activityLinkDisabled,
+      }"
+      :href="!isPending && activityLinkDisabled ? undefined : transactionURL"
+      target="_blank"
+      class="network-activity__transaction"
+    >
+      <div class="network-activity__transaction-info">
+        <img :src="activity.from" @error="imageLoadError" />
+
+        <div class="network-activity__transaction-info-name">
+          <h4>Spark spend</h4>
+          <p>
+            <span
+              class="network-activity__transaction-info-status"
+              :class="{
+                error: activity.status === ActivityStatus.failed,
+                dropped: activity.status === ActivityStatus.dropped,
+              }"
+              >{{ status }}</span
+            >
+            <transaction-timer
+              v-if="activity.status === ActivityStatus.pending"
+              :date="activity.timestamp"
+            />
+            <span v-else-if="activity.timestamp !== 0">{{ date }}</span>
+            <span
+              v-if="network.subNetworks && activity.chainId !== undefined"
+              class="network-activity__transaction-info-chainid"
+              >{{ activity.isIncoming ? 'on' : 'from' }} chain
+              {{ activity.chainId }}</span
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="network-activity__transaction-amount">
+        <h4>
+          {{ activity.value }}
+          <span>{{ activity.token.symbol }}</span>
+        </h4>
+      </div>
+    </a>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -246,7 +296,11 @@ let swapActivityDescriptionId: null | string = null;
 watch(
   () => props.activity,
   function (activity) {
-    if (activity.type !== ActivityType.swap) return;
+    if (
+      activity.type === ActivityType.transaction ||
+      activity.type === ActivityType.spark_transaction
+    )
+      return;
     const rawInfo = activity.rawInfo as SwapRawInfo;
     const data: SwapActivityDescriptionData = {
       fromNetworkName: activity.network,

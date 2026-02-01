@@ -204,7 +204,6 @@ const loadingAsset = new BTCToken({
 });
 
 const addressInputTo = ref();
-const isSendSpark = ref(false);
 const selected: string = route.params.id as string;
 const paramNFTData: NFTItem = JSON.parse(
   route.params.tokenData ? (route.params.tokenData as string) : '{}',
