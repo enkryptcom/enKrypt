@@ -146,7 +146,10 @@ export const syncCoinSetsOnce = async (): Promise<CoinSetUpdateResult[]> => {
         setId,
         remoteMeta,
         localSet,
-      );
+      ).catch(error => {
+        console.warn('syncCoinSetsOnce:fetchNewCoinsForSet', error);
+        return { coins: [], isFullReplacement: false };
+      });
 
       if (!newCoins.length) {
         return null;
@@ -189,7 +192,7 @@ export const syncCoinSetsOnce = async (): Promise<CoinSetUpdateResult[]> => {
 };
 
 export const startCoinSetSync = (options?: CoinSetSyncOptions) => {
-  const intervalMs = options?.intervalMs ?? 60_000;
+  const intervalMs = options?.intervalMs ?? 20_000;
   let stopped = false;
   let timer: ReturnType<typeof setTimeout> | null = null;
   let isRunning = false;

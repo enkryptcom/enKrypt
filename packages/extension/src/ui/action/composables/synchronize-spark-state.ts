@@ -36,12 +36,16 @@ export const useSynchronizeSparkState = (
     const myCoins = await db.readData<MyCoinModel[]>(DB_DATA_KEYS.myCoins);
     const myCoinsTagsSet = new Set((myCoins ?? []).map(coin => coin.tag));
 
+    coinFetchDone.value = false;
+    tagFetchDone.value = false;
+
+    if (!myCoins?.length || !usedCoinsTags?.tags?.length) {
+      return;
+    }
+
     const usedMyCoinsTagsSet = intersectSets(coinsTagsSet, myCoinsTagsSet);
 
     await db.markCoinsAsUsed(Array.from(usedMyCoinsTagsSet));
-
-    coinFetchDone.value = false;
-    tagFetchDone.value = false;
 
     const myCoinsIsUsedApplied = await db.readData<MyCoinModel[]>(
       DB_DATA_KEYS.myCoins,
@@ -134,7 +138,7 @@ export const useSynchronizeSparkState = (
   watch(
     () => [coinFetchDone.value, tagFetchDone.value],
     ([updatedCoinFetchDone, updatedTagFetchDone]) => {
-      if (updatedCoinFetchDone && updatedTagFetchDone) {
+      if (updatedCoinFetchDone || updatedTagFetchDone) {
         void markCoinsAsUsed();
       }
     },
