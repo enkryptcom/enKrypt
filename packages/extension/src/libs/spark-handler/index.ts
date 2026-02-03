@@ -5,7 +5,10 @@ import {
 } from '@/libs/spark-handler/generateSparkWallet';
 import { getSparkCoinInfo } from '@/libs/spark-handler/getSparkCoinInfo';
 import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB';
-import { OwnedCoinData } from '@action/workers/sparkCoinInfoWorker';
+import {
+  OwnedCoinData,
+  removeDuplicates,
+} from '@action/workers/sparkCoinInfoWorker';
 import * as bitcoin from 'bitcoinjs-lib';
 import { isSparkAddress } from '@/providers/bitcoin/libs/utils';
 import {
@@ -56,6 +59,10 @@ export async function sendFromSparkAddress(
   const revalidatedCoins = ownedCoins.filter(ownedCoin => {
     return !usedMyCoinsTagsSet.has(ownedCoin.tag);
   });
+
+  const revalidatedUniqueCoins = Array.from(
+    removeDuplicates(new Set(revalidatedCoins)),
+  );
 
   const spendCoinList: {
     coin: string[];
@@ -122,7 +129,7 @@ export async function sendFromSparkAddress(
 
   const coinMetaPromiseList: Promise<void>[] = [];
 
-  revalidatedCoins.forEach(ownedCoin => {
+  revalidatedUniqueCoins.forEach(ownedCoin => {
     const myCoinMetaData = getSparkCoinInfo({
       coin: ownedCoin.coin,
       fullViewKeyObj,

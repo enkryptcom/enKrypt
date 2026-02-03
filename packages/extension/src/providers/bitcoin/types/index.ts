@@ -111,8 +111,10 @@ export interface SSTxType {
   }[];
 }
 
-export interface FiroTxType
-  extends Omit<SSTxType, 'fee' | 'timestamp' | 'vout' | 'blockHeight'> {
+export interface FiroTxType extends Omit<
+  SSTxType,
+  'fee' | 'timestamp' | 'vout' | 'blockHeight'
+> {
   fees: number;
   time: number;
   blockheight: number;

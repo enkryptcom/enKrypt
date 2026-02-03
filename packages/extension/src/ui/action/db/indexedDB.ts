@@ -114,34 +114,6 @@ export class IndexedDBHelper {
     await this.saveData(key, data);
   }
 
-  async markCoinsAsUsed(tags: string[]): Promise<void> {
-    if (!tags.length) return;
-
-    const myCoins =
-      (await this.readData<MyCoinModel[]>(DB_DATA_KEYS.myCoins)) || [];
-    const usedCoinsTags = await this.readData<{
-      tags: string[];
-      txHashes: [string, string][];
-    }>(DB_DATA_KEYS.usedCoinsTags);
-
-    if (!usedCoinsTags) {
-      console.warn('Missing usedCoinsTags in IndexedDB');
-      return;
-    }
-
-    const tagsSet = new Set(tags);
-    const txHashesMap = new Map(usedCoinsTags.txHashes || []);
-    const updatedCoins = myCoins.map(coin => {
-      if (!tagsSet.has(coin.tag)) return coin;
-      return {
-        ...coin,
-        isUsed: true,
-        txHash: txHashesMap.get(coin.tag) || null,
-      };
-    });
-    await this.saveData(DB_DATA_KEYS.myCoins, updatedCoins);
-  }
-
   async removeSector(
     key: string,
     index: number,

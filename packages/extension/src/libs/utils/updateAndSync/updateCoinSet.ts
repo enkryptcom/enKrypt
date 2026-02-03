@@ -2,6 +2,7 @@ import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB';
 import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
 import type { AnonymitySetMetaModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
 import { differenceSets } from '@action/utils/set-utils';
+import { getSetsFromDb } from '@/libs/utils/updateAndSync/getSetsFromDb';
 
 export type StoredAnonymitySet = {
   coins: string[][];
@@ -35,25 +36,6 @@ export type CoinSetSyncOptions = {
 const wallet = new PublicFiroWallet();
 const db = new IndexedDBHelper();
 
-const getLocalSets = async (): Promise<StoredAnonymitySet[]> => {
-  try {
-    const data =
-      (await db.readData<StoredAnonymitySet[]>(DB_DATA_KEYS.sets)) ?? [];
-    if (Array.isArray(data)) {
-      return data;
-    } else {
-      return [];
-    }
-  } catch (error) {
-    console.warn(
-      'updateCoinSet:getLocalSets',
-      'Failed to read local sets',
-      error,
-    );
-    return [];
-  }
-};
-
 const getMyCoinHashes = async (): Promise<Set<string>> => {
   try {
     const myCoins = await db.readData<StoredCoin[]>('myCoins');
@@ -84,7 +66,11 @@ const fetchNewCoinsForSet = async (
 ): Promise<{ coins: string[][]; isFullReplacement: boolean }> => {
   const localCoinsCount = localSet?.coins?.length ?? 0;
 
-  if (!localSet || meta.size <= localCoinsCount + 1) {
+  console.log('===>>>localCoinsCount', localCoinsCount);
+
+  console.log('===>>>Meta for set', meta, localCoinsCount);
+
+  if (!localSet || meta.size <= localCoinsCount) {
     const [firstChunk, secondChunk] = await Promise.all([
       wallet.fetchAnonymitySetSector(
         setId,
@@ -117,7 +103,7 @@ const fetchNewCoinsForSet = async (
 export const syncCoinSetsOnce = async (): Promise<CoinSetUpdateResult[]> => {
   const [remoteMetas, localSets, myCoinHashes] = await Promise.all([
     wallet.getAllSparkAnonymitySetMeta(),
-    getLocalSets(),
+    getSetsFromDb(),
     getMyCoinHashes(),
   ]);
 
@@ -144,6 +130,8 @@ export const syncCoinSetsOnce = async (): Promise<CoinSetUpdateResult[]> => {
         }
       }
 
+      console.log('===>>>Local set', localSet);
+
       const { coins: newCoins, isFullReplacement } = await fetchNewCoinsForSet(
         setId,
         remoteMeta,
@@ -157,10 +145,15 @@ export const syncCoinSetsOnce = async (): Promise<CoinSetUpdateResult[]> => {
         return null;
       }
 
+      console.log('===>>>Local coins for set', localSets?.[index]?.coins);
+      console.log('===>>>New fetched coins for set', newCoins);
+
       const updatedCoinsSet = differenceSets(
         new Set(localSets?.[index]?.coins ?? []),
         new Set(newCoins),
       );
+
+      console.log('===>>>Updated coins for set', updatedCoinsSet);
 
       localSets[index] = {
         blockHash: remoteMeta.blockHash,
@@ -169,7 +162,7 @@ export const syncCoinSetsOnce = async (): Promise<CoinSetUpdateResult[]> => {
       };
 
       if (!localSets[index] || isFullReplacement) {
-        await db.saveData(DB_DATA_KEYS.sets, localSets);
+        await db.saveData(DB_DATA_KEYS.sets, localSets); // TODO: check
       } else {
         await db.appendSetData(DB_DATA_KEYS.sets, index, {
           ...localSets[index],
@@ -195,7 +188,7 @@ export const syncCoinSetsOnce = async (): Promise<CoinSetUpdateResult[]> => {
 };
 
 export const startCoinSetSync = (options?: CoinSetSyncOptions) => {
-  const intervalMs = options?.intervalMs ?? 20_000;
+  const intervalMs = options?.intervalMs ?? 60_000;
   let stopped = false;
   let timer: ReturnType<typeof setTimeout> | null = null;
   let isRunning = false;

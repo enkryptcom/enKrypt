@@ -4,7 +4,6 @@ import { differenceSets } from '@action/utils/set-utils';
 
 type SetsUpdateResult = {
   tags: string[];
-  // txHashes: string[];
 };
 
 export type TagsSyncOptions = {
@@ -19,34 +18,28 @@ const db = new IndexedDBHelper();
 
 const syncTagsOnce = async (): Promise<SetsUpdateResult> => {
   try {
-    const localTags = await db.readData<{ tags: string[] }>(
-      DB_DATA_KEYS.usedCoinsTags,
-    );
+    const localTags = await db.readData<{
+      tags: string[];
+      txHashes: string[][];
+    }>(DB_DATA_KEYS.usedCoinsTags);
 
     const txHashes = await wallet.getUsedCoinsTagsTxHashes(0);
-    const updates = await wallet.getUsedSparkCoinsTags(
-      !!localTags?.tags?.length ? localTags?.tags?.length : 0,
-    );
-
-    const diffTags = differenceSets(
-      new Set(localTags?.tags ?? []),
-      new Set(updates?.tags ?? []),
-    );
-
-    const mergedTags = Array.from(
-      new Set([...(diffTags.values() ?? []), ...(updates?.tags ?? [])]),
-    );
-    await db.saveData(DB_DATA_KEYS.usedCoinsTags, {
-      tags: mergedTags,
-      txHashes: txHashes.tagsandtxids,
-    });
+    const coinTags = await wallet.getUsedSparkCoinsTags(0);
 
     // Prevent sending updates if there are no new tags
-    if (mergedTags.length === localTags?.tags?.length) {
+    if (
+      coinTags.tags.length === localTags?.tags?.length &&
+      txHashes.tagsandtxids.length === localTags?.txHashes?.length
+    ) {
       return { tags: [] };
     }
 
-    return updates;
+    await db.saveData(DB_DATA_KEYS.usedCoinsTags, {
+      tags: coinTags.tags,
+      txHashes: txHashes.tagsandtxids,
+    });
+
+    return coinTags;
   } catch (error) {
     throw error;
   }

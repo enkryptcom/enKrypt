@@ -1,6 +1,6 @@
 import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB';
 import type { CoinSetUpdateResult, StoredAnonymitySet } from './updateCoinSet';
-import { FiroWallet } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
+import { getSetsFromDb } from '@/libs/utils/updateAndSync/getSetsFromDb';
 
 const db = new IndexedDBHelper();
 
@@ -29,7 +29,7 @@ const mergeCoins = (existing: string[][], incoming: string[][]): string[][] => {
   if (!incoming?.length) return [...existing];
 
   const seen = new Set(existing.map(coin => JSON.stringify(coin)));
-  const merged = [...existing];
+  const merged: string[][] = [];
 
   incoming.forEach(coin => {
     const key = JSON.stringify(coin);
@@ -38,7 +38,7 @@ const mergeCoins = (existing: string[][], incoming: string[][]): string[][] => {
     merged.push(coin);
   });
 
-  return merged;
+  return [...merged, ...existing];
 };
 
 export const appendCoinSetUpdates = async (
@@ -49,9 +49,7 @@ export const appendCoinSetUpdates = async (
   const normalizedUpdates = normalizeUpdates(updates);
   if (!normalizedUpdates.length) return;
 
-  const existingSets =
-    (await db.readData<StoredAnonymitySet[]>(DB_DATA_KEYS.sets)) ?? [];
-  const updatedSets = Array.isArray(existingSets) ? [...existingSets] : [];
+  const updatedSets = await getSetsFromDb();
 
   normalizedUpdates.forEach(update => {
     const setId = update.setId;
@@ -68,5 +66,5 @@ export const appendCoinSetUpdates = async (
     };
   });
 
-  await db.saveData(DB_DATA_KEYS.sets, updatedSets);
+  return db.saveData(DB_DATA_KEYS.sets, updatedSets);
 };
