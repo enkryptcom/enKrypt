@@ -106,8 +106,8 @@ const fetchNewCoinsForSet = async (
   const sector = await wallet.fetchAnonymitySetSector(
     setId,
     meta.blockHash,
-    localCoinsCount,
-    meta.size,
+    0,
+    meta.size - localCoinsCount,
   );
 
   const coins = sector.coins ?? [];
@@ -120,6 +120,8 @@ export const syncCoinSetsOnce = async (): Promise<CoinSetUpdateResult[]> => {
     getLocalSets(),
     getMyCoinHashes(),
   ]);
+
+  console.log('======>>> syncCoinSetsOnce:remoteMetas', remoteMetas);
 
   if (!Array.isArray(remoteMetas) || remoteMetas.length === 0) {
     return [];

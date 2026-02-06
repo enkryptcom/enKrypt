@@ -1,6 +1,7 @@
 import { ref, onMounted, watch, Ref } from 'vue';
 import { NetworkNames } from '@enkryptcom/types/dist';
 import { startCoinSetSync } from '@/libs/utils/updateAndSync/updateCoinSet';
+import { appendCoinSetUpdates } from '@/libs/utils/updateAndSync/handleCoinSetUpdates';
 import { startTagSetSync } from '@/libs/utils/updateAndSync/updateTagsSet';
 import BigNumber from 'bignumber.js';
 import { BaseNetwork } from '@/types/base-network';
@@ -28,9 +29,10 @@ export const useSynchronizeSparkState = (
   const sparkUnusedTxDetails = ref<FullTransactionModel[]>([]);
 
   const markCoinsAsUsed = async () => {
-    const usedCoinsTags = await db.readData<{ tags: [string, string] }>(
-      DB_DATA_KEYS.usedCoinsTags,
-    );
+    const usedCoinsTags = await db.readData<{
+      tags: string[];
+      txHashes: [string, string][];
+    }>(DB_DATA_KEYS.usedCoinsTags);
 
     const coinsTagsSet = new Set(usedCoinsTags?.tags ?? []);
     const myCoins = await db.readData<MyCoinModel[]>(DB_DATA_KEYS.myCoins);
@@ -115,6 +117,14 @@ export const useSynchronizeSparkState = (
       isPending.value = true;
 
       startCoinSetSync({
+        onUpdate: updates => {
+          console.log(
+            '%c[synchronize] Coin set updates received',
+            'color: blue',
+            updates,
+          );
+          void appendCoinSetUpdates(updates);
+        },
         onComplete: () => {
           synchronizeWorker();
         },

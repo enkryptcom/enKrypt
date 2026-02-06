@@ -55,8 +55,6 @@ export default class FiroElectrum {
   mainClient?: ElectrumClient = undefined;
   wasConnectedAtLeastOnce = false;
 
-  private all_anonymity_sets_meta: AnonymitySetMetaModel[] = [];
-
   async getCoinIDs(coinHashes: string[]) {
     return this.mainClient
       ?.request('spark.getsparkmintmetadata', [
@@ -408,17 +406,13 @@ export default class FiroElectrum {
   }
 
   async getAllSparkAnonymitySetMeta() {
-    if (this.all_anonymity_sets_meta.length) {
-      return this.all_anonymity_sets_meta;
-    }
     const latestSetId = await this.getLatestSetId();
 
     const promises = Array.from({ length: latestSetId }, (_, i) =>
       this.getSparkAnonymitySetMeta([String(i + 1)]),
     );
-    this.all_anonymity_sets_meta = await Promise.all(promises);
 
-    return this.all_anonymity_sets_meta;
+    return Promise.all(promises);
   }
 
   async getUsedSparkCoinsTags(pivot: number): Promise<{ tags: string[] }> {
