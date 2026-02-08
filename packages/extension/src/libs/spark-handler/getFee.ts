@@ -1,4 +1,4 @@
-import { SATOSHI } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
+import { SATOSHI } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import { firoElectrum } from '@/providers/bitcoin/libs/electrum-client/electrum-client';

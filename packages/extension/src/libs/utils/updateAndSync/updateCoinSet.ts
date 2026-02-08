@@ -1,5 +1,5 @@
 import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB';
-import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
+import { BaseFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import type { AnonymitySetMetaModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
 import { differenceSets } from '@action/utils/set-utils';
 import { getSetsFromDb } from '@/libs/utils/updateAndSync/getSetsFromDb';
@@ -33,7 +33,7 @@ export type CoinSetSyncOptions = {
   onComplete?: () => void;
 };
 
-const wallet = new PublicFiroWallet();
+const wallet = new BaseFiroWallet();
 const db = new IndexedDBHelper();
 
 const getMyCoinHashes = async (): Promise<Set<string>> => {
@@ -130,8 +130,6 @@ export const syncCoinSetsOnce = async (): Promise<CoinSetUpdateResult[]> => {
         }
       }
 
-      console.log('===>>>Local set', localSet);
-
       const { coins: newCoins, isFullReplacement } = await fetchNewCoinsForSet(
         setId,
         remoteMeta,
@@ -145,15 +143,10 @@ export const syncCoinSetsOnce = async (): Promise<CoinSetUpdateResult[]> => {
         return null;
       }
 
-      console.log('===>>>Local coins for set', localSets?.[index]?.coins);
-      console.log('===>>>New fetched coins for set', newCoins);
-
       const updatedCoinsSet = differenceSets(
         new Set(localSets?.[index]?.coins ?? []),
         new Set(newCoins),
       );
-
-      console.log('===>>>Updated coins for set', updatedCoinsSet);
 
       localSets[index] = {
         blockHash: remoteMeta.blockHash,

@@ -52,7 +52,7 @@
             <component
               :is="Component"
               :key="route.fullPath"
-              :is-syncing="isSyncing"
+              :is-syncing="isPending"
               :network="currentNetwork"
               :subnetwork="currentSubNetwork"
               :account-info="accountHeaderData"
@@ -111,7 +111,7 @@ import {
 import { DEFAULT_EVM_NETWORK, getNetworkByName } from '@/libs/utils/networks';
 import openOnboard from '@/libs/utils/open-onboard';
 import BTCAccountState from '@/providers/bitcoin/libs/accounts-state';
-import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
+import { BaseFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import EVMAccountState from '@/providers/ethereum/libs/accounts-state';
 import { MessageMethod } from '@/providers/ethereum/types';
 import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
@@ -151,7 +151,7 @@ import { useRateStore } from './store/rate-store';
 import { isGeoRestricted, isWalletRestricted } from '@/libs/utils/screening';
 import { useUpdateActivityState } from '@action/composables/update-activity-state';
 
-const wallet = new PublicFiroWallet();
+const wallet = new BaseFiroWallet();
 const db = new IndexedDBHelper();
 const domainState = new DomainState();
 const rateState = new RateState();
@@ -179,7 +179,6 @@ const addNetworkShow = ref(false);
 const settingsShow = ref(false);
 const updateShow = ref(false);
 const isLoading = ref(true);
-const isSyncing = ref(false);
 const latestVersion = ref('');
 const geoRestricted = ref(false);
 const isWalletInitialized = ref(false);
@@ -188,7 +187,7 @@ const isAddressRestricted = ref<{ isRestricted: boolean; address: string }>({
   address: '',
 });
 
-const { sparkUnusedTxDetails } = useSynchronizeSparkState(
+const { sparkUnusedTxDetails, isPending } = useSynchronizeSparkState(
   currentNetwork,
   sparkBalance => {
     if (sparkBalance && accountHeaderData.value.sparkAccount) {
@@ -206,6 +205,8 @@ const { sparkUnusedTxDetails } = useSynchronizeSparkState(
     }
   },
 );
+
+console.log(isPending);
 
 useUpdateActivityState(currentNetwork, sparkUnusedTxDetails, accountHeaderData);
 

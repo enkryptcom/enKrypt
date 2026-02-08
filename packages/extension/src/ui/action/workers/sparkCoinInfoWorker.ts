@@ -12,6 +12,7 @@ import {
   AnonymitySetModel,
   MyCoinModel,
 } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
+import { getSetsFromDb } from '@/libs/utils/updateAndSync/getSetsFromDb';
 
 const db = new IndexedDBHelper();
 
@@ -136,7 +137,7 @@ addEventListener('message', async () => {
     throw new Error('Failed to create IncomingViewKey and fullViewKeyObj');
   }
 
-  const allSets = await db.readData<AnonymitySetModel[]>(DB_DATA_KEYS.sets);
+  const allSets = await getSetsFromDb();
 
   const lastCheckedSetIndex =
     (await db.readData<string>(DB_DATA_KEYS.lastCheckedSetIndex)) ?? 0;

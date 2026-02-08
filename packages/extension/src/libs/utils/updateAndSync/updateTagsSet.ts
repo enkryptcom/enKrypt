@@ -1,6 +1,5 @@
 import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB';
-import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
-import { differenceSets } from '@action/utils/set-utils';
+import { BaseFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 
 type SetsUpdateResult = {
   tags: string[];
@@ -13,7 +12,7 @@ export type TagsSyncOptions = {
   onComplete?: () => void;
 };
 
-const wallet = new PublicFiroWallet();
+const wallet = new BaseFiroWallet();
 const db = new IndexedDBHelper();
 
 const syncTagsOnce = async (): Promise<SetsUpdateResult> => {

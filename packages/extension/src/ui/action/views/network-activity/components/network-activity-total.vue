@@ -28,7 +28,9 @@
       :class="{ 'btn__anonymize-error': !!errorMsg }"
       @click="anonymizeFunds()"
     >
-      Anonymize funds
+      <loader v-show="props.isSyncing" />
+      <span v-if="!props.isSyncing">Anonymize funds</span>
+      <span v-else>Synchronizing...</span>
     </button>
   </div>
 </template>
@@ -44,8 +46,10 @@ import { getMintTxData } from '@/libs/spark-handler/getMintTxData';
 import { getTotalMintedAmount } from '@/libs/spark-handler/getTotalMintedAmount';
 import { wasmInstance } from '@/libs/utils/wasm-loader';
 import FiroAPI from '@/providers/bitcoin/libs/api-firo';
-import { validator } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
-import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
+import {
+  validator,
+  BaseFiroWallet,
+} from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
@@ -54,6 +58,7 @@ import { AccountsHeaderData, SparkAccount } from '@action/types/account';
 import { NetworkNames } from '@enkryptcom/types';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
+import Loader from '@action/icons/common/loader.vue';
 
 const props = defineProps({
   cryptoAmount: {
@@ -75,6 +80,10 @@ const props = defineProps({
   network: {
     type: Object as PropType<BitcoinNetwork>,
     default: () => ({}),
+  },
+  isSyncing: {
+    type: Boolean,
+    default: false,
   },
   sparkAccount: {
     type: Object as PropType<SparkAccount | null>,
@@ -109,13 +118,17 @@ onBeforeMount(() => {
   }
 });
 
-const wallet = new PublicFiroWallet();
+const wallet = new BaseFiroWallet();
 
 const isTransferLoading = ref(false);
 const errorMsg = ref();
 
 const isAnonymizeBtnDisabled = computed(() => {
-  return isTransferLoading.value || Number(props.cryptoAmount) <= 0;
+  return (
+    props.isSyncing ||
+    isTransferLoading.value ||
+    Number(props.cryptoAmount) <= 0
+  );
 });
 
 const anonymizeFunds = async () => {
@@ -299,12 +312,14 @@ const anonymizeFunds = async () => {
 }
 
 .btn__anonymize {
-  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
   outline: none;
   cursor: pointer;
   border-radius: 8px;
   border: 1px solid @darkBg;
-  margin-top: 4px;
   background: @buttonBg;
   transition: all 300ms ease-in-out;
 

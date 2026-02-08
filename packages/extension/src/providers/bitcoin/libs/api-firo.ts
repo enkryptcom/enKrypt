@@ -2,18 +2,18 @@ import { BTCRawInfo } from '@/types/activity';
 import { ProviderAPIInterface } from '@/types/provider';
 import { BitcoinNetworkInfo, FiroTxType } from '../types';
 import { getAddress as getBitcoinAddress } from '../types/bitcoin-network';
-import { PublicFiroWallet } from './firo-wallet/public-firo-wallet';
+import { BaseFiroWallet } from './firo-wallet/base-firo-wallet';
 import { UnspentTxOutputModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
 
 class API implements ProviderAPIInterface {
   node: string;
   networkInfo: BitcoinNetworkInfo;
-  #wallet: PublicFiroWallet;
+  #wallet: BaseFiroWallet;
 
   constructor(node: string, networkInfo: BitcoinNetworkInfo) {
     this.node = node;
     this.networkInfo = networkInfo;
-    this.#wallet = new PublicFiroWallet();
+    this.#wallet = new BaseFiroWallet();
   }
 
   public get api() {

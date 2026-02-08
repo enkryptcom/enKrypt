@@ -1,10 +1,10 @@
 import PublicKeyRing from '@/libs/keyring/public-keyring';
 import { SparkAccount } from '@/ui/action/types/account';
-import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
+import { BaseFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import { wasmInstance } from '@/libs/utils/wasm-loader';
 
 export const getSpendKeyObj = async (wasm: WasmModule) => {
-  const wallet = new PublicFiroWallet();
+  const wallet = new BaseFiroWallet();
   const seed = await wallet.getSecret();
   let keyDataPtr;
   let spendKeyObj;

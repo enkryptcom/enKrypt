@@ -4,37 +4,65 @@ import { startCoinSetSync } from '@/libs/utils/updateAndSync/updateCoinSet';
 import { appendCoinSetUpdates } from '@/libs/utils/updateAndSync/handleCoinSetUpdates';
 import { startTagSetSync } from '@/libs/utils/updateAndSync/updateTagsSet';
 import { BaseNetwork } from '@/types/base-network';
-import { IndexedDBHelper } from '@action/db/indexedDB';
 import { FullTransactionModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
 import { markCoinsAsUsed } from '@/libs/utils/updateAndSync/marCoinAsUsed';
+
+let worker: Worker | null = null;
 
 export const useSynchronizeSparkState = (
   networkRef: Ref<BaseNetwork>,
   onBalanceCalculated?: (balance: string) => void,
 ) => {
-  const db = new IndexedDBHelper();
-
   const isPending = ref(false);
   const error = ref(null);
+
+  const isWorkerRunning = ref(false);
+  const pendingWorkerRun = ref(false);
 
   const coinFetchDone = ref(false);
   const tagFetchDone = ref(false);
 
   const sparkUnusedTxDetails = ref<FullTransactionModel[]>([]);
 
+  const cleanupAndMaybeRestart = () => {
+    worker?.terminate();
+    worker = null;
+
+    isWorkerRunning.value = false;
+
+    if (pendingWorkerRun.value) {
+      console.log('[synchronizeWorker] restarting postponed run');
+      synchronizeWorker();
+    }
+  }
+
   const synchronizeWorker = () => {
-    const worker = new Worker(
+    if (isWorkerRunning.value) {
+      pendingWorkerRun.value = true;
+      console.log('Worker already running, skip start');
+      return;
+    }
+
+    worker = new Worker(
       new URL('../workers/sparkCoinInfoWorker.ts', import.meta.url),
       { type: 'module' },
     );
 
     console.log('%c[synchronizeWorker] Worker initialized', 'color: green');
 
-    worker.postMessage('');
+    isWorkerRunning.value = true;
+    pendingWorkerRun.value = false;
 
     worker.onmessage = () => {
       coinFetchDone.value = true;
+      cleanupAndMaybeRestart();
     };
+
+    worker.onerror = () => {
+      cleanupAndMaybeRestart();
+    };
+
+    worker.postMessage('');
   };
 
   const synchronize = async () => {
@@ -69,8 +97,6 @@ export const useSynchronizeSparkState = (
     } catch (err: any) {
       error.value = err;
       console.error('Syncing error:', err);
-    } finally {
-      isPending.value = false;
     }
   };
 
@@ -89,6 +115,7 @@ export const useSynchronizeSparkState = (
           );
           stopCoinSetSyncFn();
           stopSyncTagSetFn();
+          isPending.value = false;
         });
       }
     },
@@ -102,6 +129,7 @@ export const useSynchronizeSparkState = (
         coinFetchDone.value = false;
         tagFetchDone.value = false;
         sparkUnusedTxDetails.value = await markCoinsAsUsed(onBalanceCalculated);
+        isPending.value = false;
       }
     },
   );

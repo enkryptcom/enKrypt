@@ -1,4 +1,4 @@
-import { validator } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
+import { validator } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import { ECPairInterface } from 'ecpair';
