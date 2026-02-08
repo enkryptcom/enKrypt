@@ -16,10 +16,13 @@
       <h3>
         {{ cryptoAmount }} <span>{{ symbol }}</span>
       </h3>
-      <p>
-        <span v-if="subnetwork !== ''">Chain {{ subnetwork }} &middot;</span>
-        {{ $filters.parseCurrency(fiatAmount) }}
-      </p>
+      <!--      <p>-->
+      <!--        <span v-if="subnetwork !== ''">Chain {{ subnetwork }} &middot;</span>-->
+      <!--        {{ $filters.parseCurrency(fiatAmount) }}-->
+      <!--      </p>-->
+      <h6 v-if="!!sparkAccount">
+        <span>{{ sparkAccount?.sparkBalance?.availableBalance }}</span> Private {{ symbol }}
+      </h6>
     </div>
     <button
       v-if="sparkAccount"
@@ -45,7 +48,6 @@ import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
 import { onBeforeMount, ref, PropType, watchEffect, computed } from 'vue';
 import { AccountsHeaderData, SparkAccount } from '@action/types/account';
-import { NetworkNames } from '@enkryptcom/types';
 import SynchronizeState from '@action/views/network-activity/components/synchronize-state.vue';
 import Loader from '@action/icons/common/loader.vue';
 
@@ -175,13 +177,25 @@ const openAnonymizeFundsModal = () => {
     h3 {
       font-style: normal;
       font-weight: 700;
-      font-size: 24px;
-      line-height: 32px;
+      font-size: 20px;
+      line-height: 28px;
       color: @primaryLabel;
       margin: 0;
 
       span {
         font-variant: small-caps;
+      }
+    }
+
+    h6 {
+      font-size: 16px;
+      line-height: 24px;
+      color: @secondaryLabel;
+      font-weight: 400;
+      margin: 0;
+
+      span {
+        font-size: 14px;
       }
     }
 
