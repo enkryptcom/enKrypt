@@ -13,9 +13,11 @@ import {
 import { magicHash, toCompact } from '../../libs/sign-message-utils';
 import HWwallet from '@enkryptcom/hw-wallets';
 import type BitcoinAPI from '@/providers/bitcoin/libs/api';
-import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
 import * as bitcoin from 'bitcoinjs-lib';
-import { validator } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
+import {
+  validator,
+  BaseFiroWallet,
+} from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 
 const PSBTSigner = (account: EnkryptAccount, network: BitcoinNetwork) => {
   return {
@@ -107,7 +109,7 @@ const FiroTransactionSigner = async (
   options: SignerTransactionOptions,
 ): Promise<Transaction> => {
   const { network, payload } = options;
-  const wallet = new PublicFiroWallet();
+  const wallet = new BaseFiroWallet();
   const address2Check = await wallet.getTransactionsAddresses();
   const addressKeyPairMapping =
     await wallet.getAddressKeyPairMapping(address2Check);
