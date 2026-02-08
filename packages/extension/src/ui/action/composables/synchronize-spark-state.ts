@@ -5,7 +5,7 @@ import { appendCoinSetUpdates } from '@/libs/utils/updateAndSync/handleCoinSetUp
 import { startTagSetSync } from '@/libs/utils/updateAndSync/updateTagsSet';
 import { BaseNetwork } from '@/types/base-network';
 import { FullTransactionModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
-import { markCoinsAsUsed } from '@/libs/utils/updateAndSync/marCoinAsUsed';
+import { markCoinsAsUsed } from '@/libs/utils/updateAndSync/markCoinsAsUsed';
 
 let worker: Worker | null = null;
 
@@ -13,7 +13,8 @@ export const useSynchronizeSparkState = (
   networkRef: Ref<BaseNetwork>,
   onBalanceCalculated?: (balance: string) => void,
 ) => {
-  const isPending = ref(false);
+  const isCoinFetchPending = ref(false);
+  const isTagFetchPending = ref(false);
   const error = ref(null);
 
   const isWorkerRunning = ref(false);
@@ -34,7 +35,7 @@ export const useSynchronizeSparkState = (
       console.log('[synchronizeWorker] restarting postponed run');
       synchronizeWorker();
     }
-  }
+  };
 
   const synchronizeWorker = () => {
     if (isWorkerRunning.value) {
@@ -70,16 +71,17 @@ export const useSynchronizeSparkState = (
       const networkName = networkRef.value.name;
       if (networkName !== NetworkNames.Firo) return;
 
-      isPending.value = true;
+      isCoinFetchPending.value = true;
+      isTagFetchPending.value = true;
 
       const stopCoinSetSyncFn = startCoinSetSync({
-        onUpdate: updates => {
+        onUpdate: async updates => {
           console.log(
             '%c[synchronize] Coin set updates received',
             'color: blue',
             updates,
           );
-          void appendCoinSetUpdates(updates);
+          await appendCoinSetUpdates(updates);
           synchronizeWorker();
         },
         onComplete: () => {
@@ -115,7 +117,8 @@ export const useSynchronizeSparkState = (
           );
           stopCoinSetSyncFn();
           stopSyncTagSetFn();
-          isPending.value = false;
+          isCoinFetchPending.value = false;
+          isTagFetchPending.value = false;
         });
       }
     },
@@ -125,18 +128,25 @@ export const useSynchronizeSparkState = (
   watch(
     () => [coinFetchDone.value, tagFetchDone.value],
     async ([updatedCoinFetchDone, updatedTagFetchDone]) => {
+      if (updatedCoinFetchDone) {
+        isCoinFetchPending.value = false;
+      }
+      if (updatedTagFetchDone) {
+        isTagFetchPending.value = false;
+      }
+
       if (updatedCoinFetchDone && updatedTagFetchDone) {
         coinFetchDone.value = false;
         tagFetchDone.value = false;
         sparkUnusedTxDetails.value = await markCoinsAsUsed(onBalanceCalculated);
-        isPending.value = false;
       }
     },
   );
 
   return {
     synchronize,
-    isPending,
+    isCoinFetchPending,
+    isTagFetchPending,
     error,
     sparkUnusedTxDetails,
   };

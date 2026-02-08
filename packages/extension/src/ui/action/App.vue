@@ -52,7 +52,8 @@
             <component
               :is="Component"
               :key="route.fullPath"
-              :is-syncing="isPending"
+              :is-coin-syncing="isCoinFetchPending"
+              :is-tag-syncing="isTagFetchPending"
               :network="currentNetwork"
               :subnetwork="currentSubNetwork"
               :account-info="accountHeaderData"
@@ -187,9 +188,8 @@ const isAddressRestricted = ref<{ isRestricted: boolean; address: string }>({
   address: '',
 });
 
-const { sparkUnusedTxDetails, isPending } = useSynchronizeSparkState(
-  currentNetwork,
-  sparkBalance => {
+const { sparkUnusedTxDetails, isCoinFetchPending, isTagFetchPending } =
+  useSynchronizeSparkState(currentNetwork, sparkBalance => {
     if (sparkBalance && accountHeaderData.value.sparkAccount) {
       console.log('UPDATING BALANCE');
 
@@ -203,10 +203,7 @@ const { sparkUnusedTxDetails, isPending } = useSynchronizeSparkState(
         },
       };
     }
-  },
-);
-
-console.log(isPending);
+  });
 
 useUpdateActivityState(currentNetwork, sparkUnusedTxDetails, accountHeaderData);
 

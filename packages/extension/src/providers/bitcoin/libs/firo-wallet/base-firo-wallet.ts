@@ -76,9 +76,7 @@ export class BaseFiroWallet {
   _node1: BIP32Interface | undefined = undefined;
 
   constructor() {
-    this.#storage = new BrowserStorage(
-      InternalStorageNamespace.firoWallet,
-    );
+    this.#storage = new BrowserStorage(InternalStorageNamespace.firoWallet);
   }
 
   async setSecret(secret: string): Promise<void> {

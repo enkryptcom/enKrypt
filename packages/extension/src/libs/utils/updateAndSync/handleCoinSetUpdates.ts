@@ -66,5 +66,5 @@ export const appendCoinSetUpdates = async (
     };
   });
 
-  return db.saveData(DB_DATA_KEYS.sets, updatedSets);
+  await db.saveData(DB_DATA_KEYS.sets, updatedSets);
 };

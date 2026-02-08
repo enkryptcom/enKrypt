@@ -14,7 +14,10 @@ import { magicHash, toCompact } from '../../libs/sign-message-utils';
 import HWwallet from '@enkryptcom/hw-wallets';
 import type BitcoinAPI from '@/providers/bitcoin/libs/api';
 import * as bitcoin from 'bitcoinjs-lib';
-import { validator, BaseFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
+import {
+  validator,
+  BaseFiroWallet,
+} from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 
 const PSBTSigner = (account: EnkryptAccount, network: BitcoinNetwork) => {
   return {
