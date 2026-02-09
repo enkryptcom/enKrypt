@@ -9,7 +9,7 @@ import {
 
 import * as bitcoin from 'bitcoinjs-lib';
 import BigNumber from 'bignumber.js';
-import { SATOSHI } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
+import { SATOSHI } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import { getRandomItem } from '@/providers/bitcoin/libs/firo-wallet/utils';
 
 const networkInfo = {
@@ -113,11 +113,6 @@ export default class FiroElectrum {
   }
 
   async getUsedCoinsTags(startPoint = 0): Promise<{ tags: string[] }> {
-    console.log(
-      'electrum_wallet:getUsedCoinsTags',
-      'startPoint',
-      startPoint.toString(),
-    );
     return await this.mainClient!.request('spark.getusedcoinstags', [
       startPoint.toString(),
     ]);
@@ -185,10 +180,6 @@ export default class FiroElectrum {
       }
       full.inputs = full.vin;
       full.outputs = full.vout;
-      // delete full.vin;
-      // delete full.vout;
-      // delete full.hex; // compact
-      // delete full.hash; // compact
       ret.push(full);
     }
     return ret;
@@ -411,7 +402,6 @@ export default class FiroElectrum {
     const promises = Array.from({ length: latestSetId }, (_, i) =>
       this.getSparkAnonymitySetMeta([String(i + 1)]),
     );
-
     return Promise.all(promises);
   }
 

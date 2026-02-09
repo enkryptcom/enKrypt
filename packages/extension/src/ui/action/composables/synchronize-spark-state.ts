@@ -1,112 +1,69 @@
-import { ref, onMounted, watch, Ref } from 'vue';
+import { ref, watch, Ref } from 'vue';
 import { NetworkNames } from '@enkryptcom/types/dist';
 import { startCoinSetSync } from '@/libs/utils/updateAndSync/updateCoinSet';
 import { appendCoinSetUpdates } from '@/libs/utils/updateAndSync/handleCoinSetUpdates';
 import { startTagSetSync } from '@/libs/utils/updateAndSync/updateTagsSet';
-import BigNumber from 'bignumber.js';
 import { BaseNetwork } from '@/types/base-network';
-import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB';
-import { intersectSets } from '@action/utils/set-utils';
-import {
-  FullTransactionModel,
-  MyCoinModel,
-} from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
-import { base64ToReversedHex } from '@/libs/spark-handler/utils';
-import { firoElectrum } from '@/providers/bitcoin/libs/electrum-client/electrum-client';
+import { FullTransactionModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
+import { markCoinsAsUsed } from '@/libs/utils/updateAndSync/markCoinsAsUsed';
+
+let worker: Worker | null = null;
 
 export const useSynchronizeSparkState = (
   networkRef: Ref<BaseNetwork>,
   onBalanceCalculated?: (balance: string) => void,
 ) => {
-  const db = new IndexedDBHelper();
-
-  const isPending = ref(false);
+  const isCoinFetchPending = ref(false);
+  const isTagFetchPending = ref(false);
   const error = ref(null);
+
+  const isWorkerRunning = ref(false);
+  const pendingWorkerRun = ref(false);
 
   const coinFetchDone = ref(false);
   const tagFetchDone = ref(false);
 
   const sparkUnusedTxDetails = ref<FullTransactionModel[]>([]);
 
-  const markCoinsAsUsed = async () => {
-    const usedCoinsTags = await db.readData<{
-      tags: string[];
-      txHashes: [string, string][];
-    }>(DB_DATA_KEYS.usedCoinsTags);
+  const cleanupAndMaybeRestart = () => {
+    worker?.terminate();
+    worker = null;
 
-    const coinsTagsSet = new Set(usedCoinsTags?.tags ?? []);
-    const myCoins = await db.readData<MyCoinModel[]>(DB_DATA_KEYS.myCoins);
-    const myCoinsTagsSet = new Set((myCoins ?? []).map(coin => coin.tag));
+    isWorkerRunning.value = false;
 
-    coinFetchDone.value = false;
-    tagFetchDone.value = false;
-
-    if (!myCoins?.length || !usedCoinsTags?.tags?.length) {
-      return;
+    if (pendingWorkerRun.value) {
+      console.log('[synchronizeWorker] restarting postponed run');
+      synchronizeWorker();
     }
-
-    const usedMyCoinsTagsSet = intersectSets(coinsTagsSet, myCoinsTagsSet);
-
-    await db.markCoinsAsUsed(Array.from(usedMyCoinsTagsSet));
-
-    const myCoinsIsUsedApplied = await db.readData<MyCoinModel[]>(
-      DB_DATA_KEYS.myCoins,
-    );
-
-    const unusedCoins = myCoinsIsUsedApplied.filter(el => !el.isUsed);
-
-    const balance = unusedCoins.reduce((a: bigint, c) => a + c.value, 0n);
-
-    const mintIds = unusedCoins.map(unusedCoin => unusedCoin.coin[1]);
-
-    const txIdsDecoded = mintIds
-      .map(base64 => {
-        try {
-          return base64ToReversedHex(base64);
-        } catch {
-          return '';
-        }
-      })
-      .filter(Boolean);
-
-    console.log('===>>>Unused Spark Coins TX IDs:', txIdsDecoded);
-
-    if (!!txIdsDecoded?.length) {
-      const results =
-        await firoElectrum.multiGetTransactionByTxid(txIdsDecoded);
-
-      sparkUnusedTxDetails.value = Object.values(results);
-    } else {
-      sparkUnusedTxDetails.value = [];
-    }
-
-    console.log('===>>>Spark Unused TX Details:', sparkUnusedTxDetails.value);
-
-    const sparkBalance = new BigNumber(balance.toString()).toString();
-
-    if (onBalanceCalculated) {
-      try {
-        onBalanceCalculated(sparkBalance);
-      } catch (err) {
-        console.error('Error in onBalanceCalculated callback:', err);
-      }
-    }
-    await db.saveData('sparkBalance', sparkBalance);
   };
 
   const synchronizeWorker = () => {
-    const worker = new Worker(
+    if (isWorkerRunning.value) {
+      pendingWorkerRun.value = true;
+      console.log('Worker already running, skip start');
+      return;
+    }
+
+    worker = new Worker(
       new URL('../workers/sparkCoinInfoWorker.ts', import.meta.url),
       { type: 'module' },
     );
 
     console.log('%c[synchronizeWorker] Worker initialized', 'color: green');
 
-    worker.postMessage('');
+    isWorkerRunning.value = true;
+    pendingWorkerRun.value = false;
 
     worker.onmessage = () => {
       coinFetchDone.value = true;
+      cleanupAndMaybeRestart();
     };
+
+    worker.onerror = () => {
+      cleanupAndMaybeRestart();
+    };
+
+    worker.postMessage('');
   };
 
   const synchronize = async () => {
@@ -114,53 +71,82 @@ export const useSynchronizeSparkState = (
       const networkName = networkRef.value.name;
       if (networkName !== NetworkNames.Firo) return;
 
-      isPending.value = true;
+      isCoinFetchPending.value = true;
+      isTagFetchPending.value = true;
 
-      startCoinSetSync({
-        onUpdate: updates => {
+      const stopCoinSetSyncFn = startCoinSetSync({
+        onUpdate: async updates => {
           console.log(
             '%c[synchronize] Coin set updates received',
             'color: blue',
             updates,
           );
-          void appendCoinSetUpdates(updates);
+          await appendCoinSetUpdates(updates);
+          synchronizeWorker();
         },
         onComplete: () => {
           synchronizeWorker();
         },
       });
 
-      startTagSetSync({
+      const stopSyncTagSetFn = startTagSetSync({
         onComplete: () => {
           tagFetchDone.value = true;
         },
       });
+
+      return { stopCoinSetSyncFn, stopSyncTagSetFn };
     } catch (err: any) {
       error.value = err;
       console.error('Syncing error:', err);
-    } finally {
-      isPending.value = false;
     }
   };
 
-  watch(() => networkRef.value.name, synchronize, { immediate: true });
+  watch(
+    () => networkRef.value.name,
+    async (_v, _ov, onCleanup) => {
+      const stopFns = await synchronize();
+
+      if (stopFns) {
+        const { stopSyncTagSetFn, stopCoinSetSyncFn } = stopFns;
+
+        onCleanup(() => {
+          console.log(
+            '%c[Network Change] Stopping previous sync processes',
+            'color: orange',
+          );
+          stopCoinSetSyncFn();
+          stopSyncTagSetFn();
+          isCoinFetchPending.value = false;
+          isTagFetchPending.value = false;
+        });
+      }
+    },
+    { immediate: true },
+  );
 
   watch(
     () => [coinFetchDone.value, tagFetchDone.value],
-    ([updatedCoinFetchDone, updatedTagFetchDone]) => {
-      if (updatedCoinFetchDone || updatedTagFetchDone) {
-        void markCoinsAsUsed();
+    async ([updatedCoinFetchDone, updatedTagFetchDone]) => {
+      if (updatedCoinFetchDone) {
+        isCoinFetchPending.value = false;
+      }
+      if (updatedTagFetchDone) {
+        isTagFetchPending.value = false;
+      }
+
+      if (updatedCoinFetchDone && updatedTagFetchDone) {
+        coinFetchDone.value = false;
+        tagFetchDone.value = false;
+        sparkUnusedTxDetails.value = await markCoinsAsUsed(onBalanceCalculated);
       }
     },
   );
 
-  onMounted(() => {
-    void synchronize();
-  });
-
   return {
     synchronize,
-    isPending,
+    isCoinFetchPending,
+    isTagFetchPending,
     error,
     sparkUnusedTxDetails,
   };

@@ -81,8 +81,10 @@ import { getMintTxData } from '@/libs/spark-handler/getMintTxData';
 import { getTotalMintedAmount } from '@/libs/spark-handler/getTotalMintedAmount';
 import { DEFAULT_BTC_NETWORK, getNetworkByName } from '@/libs/utils/networks';
 import FiroAPI from '@/providers/bitcoin/libs/api-firo';
-import { validator } from '@/providers/bitcoin/libs/firo-wallet/firo-wallet';
-import { PublicFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/public-firo-wallet';
+import {
+  validator,
+  BaseFiroWallet,
+} from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import { isAddress } from '@/providers/bitcoin/libs/utils';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { VerifyTransactionParams } from '@/providers/bitcoin/ui/types';
@@ -103,7 +105,7 @@ import { ComponentPublicInstance, onBeforeMount, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { wasmInstance } from '@/libs/utils/wasm-loader';
 
-const wallet = new PublicFiroWallet();
+const wallet = new BaseFiroWallet();
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
