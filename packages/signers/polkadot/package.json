@@ -22,7 +22,7 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
-    "@commitlint/cli": "^20.2.0",
+    "@commitlint/cli": "^20.3.1",
     "@enkryptcom/utils": "workspace:^",
     "@polkadot/util": "^14.0.1",
     "@polkadot/util-crypto": "^14.0.1",
@@ -31,22 +31,22 @@
   },
   "devDependencies": {
     "@enkryptcom/types": "workspace:^",
-    "@types/node": "^24.10.2",
-    "@typescript-eslint/eslint-plugin": "^8.49.0",
-    "@typescript-eslint/parser": "^8.49.0",
-    "eslint": "^9.39.1",
+    "@types/node": "^25.0.10",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
+    "eslint": "^9.39.2",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-module-resolver": "^1.5.0",
-    "prettier": "^3.7.4",
+    "prettier": "^3.8.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "8.49.0",
-    "vitest": "^4.0.15"
+    "typescript-eslint": "8.54.0",
+    "vitest": "^4.0.18"
   },
   "repository": {
     "type": "git",

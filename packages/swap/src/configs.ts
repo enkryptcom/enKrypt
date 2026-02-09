@@ -162,6 +162,8 @@ const TOKEN_LISTS: {
   [NetworkNames.Telos]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Telos}.json`,
 };
 
+const RWA_FILTER_LIST = "https://raw.githubusercontent.com/enkryptcom/dynamic-data/refs/heads/main/configs/filtered-rwa-addresses.json"
+const IP_COMPLY_URL = "https://partners.mewapi.io/o/ipcomply"
 /**
  * ```sh
  * curl -sL https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/changelly.json | jq . -C | less -R
@@ -198,4 +200,6 @@ export {
   TOP_TOKEN_INFO_LIST,
   DEFAULT_SLIPPAGE,
   PROVIDER_INFO,
+  RWA_FILTER_LIST,
+  IP_COMPLY_URL
 };
