@@ -16,16 +16,17 @@
       <h3>
         {{ cryptoAmount }} <span>{{ symbol }}</span>
       </h3>
-      <!--      <p>-->
-      <!--        <span v-if="subnetwork !== ''">Chain {{ subnetwork }} &middot;</span>-->
-      <!--        {{ $filters.parseCurrency(fiatAmount) }}-->
-      <!--      </p>-->
-      <h6 v-if="!!sparkAccount">
-        <span>{{ sparkAccount?.sparkBalance?.availableBalance }}</span> Private {{ symbol }}
+      <p v-if="network.name !== NetworkNames.Firo">
+        <span v-if="subnetwork !== ''">Chain {{ subnetwork }} &middot;</span>
+        {{ $filters.parseCurrency(fiatAmount) }}
+      </p>
+      <h6 v-if="!!sparkAccount && network.name === NetworkNames.Firo">
+        <span>{{ sparkAccount?.sparkBalance?.availableBalance }}</span> Private
+        {{ symbol }}
       </h6>
     </div>
     <button
-      v-if="sparkAccount"
+      v-if="sparkAccount && network.name === NetworkNames.Firo"
       class="btn__anonymize"
       @click="openAnonymizeFundsModal()"
     >
@@ -35,10 +36,14 @@
     </button>
 
     <synchronize-state
-      v-if="sunchromizeState"
-      v-model="sunchromizeState"
-      :isCoinSyncing="props.isCoinSyncing"
-      :isTagSyncing="props.isTagSyncing"
+      v-if="synchronizeState && network.name === NetworkNames.Firo"
+      v-model="synchronizeState"
+      :isCoinSyncing="isCoinSyncing"
+      :isTagSyncing="isTagSyncing"
+      :network="network"
+      :account-info="accountInfo"
+      :spark-account="sparkAccount"
+      :crypto-amount="cryptoAmount"
     />
   </div>
 </template>
@@ -46,10 +51,11 @@
 <script setup lang="ts">
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
-import { onBeforeMount, ref, PropType, watchEffect, computed } from 'vue';
+import { computed, onBeforeMount, PropType, ref, watchEffect } from 'vue';
 import { AccountsHeaderData, SparkAccount } from '@action/types/account';
 import SynchronizeState from '@action/views/network-activity/components/synchronize-state.vue';
 import Loader from '@action/icons/common/loader.vue';
+import { NetworkNames } from '@enkryptcom/types/dist';
 
 const props = defineProps({
   cryptoAmount: {
@@ -94,7 +100,7 @@ const props = defineProps({
 
 let timer: NodeJS.Timeout | null = null;
 const assumedError = ref(false);
-const sunchromizeState = ref(false);
+const synchronizeState = ref(false);
 
 watchEffect(() => {
   if (timer) {
@@ -119,7 +125,7 @@ const isSyncing = computed(() => {
 });
 
 const openAnonymizeFundsModal = () => {
-  sunchromizeState.value = true;
+  synchronizeState.value = true;
 };
 </script>
 
