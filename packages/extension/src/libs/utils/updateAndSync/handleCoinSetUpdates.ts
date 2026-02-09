@@ -59,7 +59,7 @@ export const appendCoinSetUpdates = async (
     const setIndex = setId - 1;
 
     const existingSet = updatedSets[setIndex];
-    const mergedCoins = mergeCoins(existingSet?.coins ?? [], update.set.coins);
+    const mergedCoins = mergeCoins(update.set.coins, existingSet?.coins ?? []);
 
     updatedSets[setIndex] = {
       blockHash: update.set.blockHash,
