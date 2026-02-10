@@ -16,17 +16,13 @@
       <h3>
         {{ cryptoAmount }} <span>{{ symbol }}</span>
       </h3>
-      <p v-if="network.name !== NetworkNames.Firo">
+      <p>
         <span v-if="subnetwork !== ''">Chain {{ subnetwork }} &middot;</span>
         {{ $filters.parseCurrency(fiatAmount) }}
       </p>
-      <h6 v-if="!!sparkAccount && network.name === NetworkNames.Firo">
-        <span>{{ sparkAccount?.sparkBalance?.availableBalance }}</span> Private
-        {{ symbol }}
-      </h6>
     </div>
     <button
-      v-if="sparkAccount && network.name === NetworkNames.Firo"
+      v-if="sparkAccount"
       class="btn__anonymize"
       @click="openAnonymizeFundsModal()"
     >
@@ -36,14 +32,10 @@
     </button>
 
     <synchronize-state
-      v-if="synchronizeState && network.name === NetworkNames.Firo"
-      v-model="synchronizeState"
-      :isCoinSyncing="isCoinSyncing"
-      :isTagSyncing="isTagSyncing"
-      :network="network"
-      :account-info="accountInfo"
-      :spark-account="sparkAccount"
-      :crypto-amount="cryptoAmount"
+      v-if="sunchromizeState"
+      v-model="sunchromizeState"
+      :isCoinSyncing="props.isCoinSyncing"
+      :isTagSyncing="props.isTagSyncing"
     />
   </div>
 </template>
@@ -51,11 +43,11 @@
 <script setup lang="ts">
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
-import { computed, onBeforeMount, PropType, ref, watchEffect } from 'vue';
+import { onBeforeMount, ref, PropType, watchEffect, computed } from 'vue';
 import { AccountsHeaderData, SparkAccount } from '@action/types/account';
+import { NetworkNames } from '@enkryptcom/types';
 import SynchronizeState from '@action/views/network-activity/components/synchronize-state.vue';
 import Loader from '@action/icons/common/loader.vue';
-import { NetworkNames } from '@enkryptcom/types/dist';
 
 const props = defineProps({
   cryptoAmount: {
@@ -100,7 +92,7 @@ const props = defineProps({
 
 let timer: NodeJS.Timeout | null = null;
 const assumedError = ref(false);
-const synchronizeState = ref(false);
+const sunchromizeState = ref(false);
 
 watchEffect(() => {
   if (timer) {
@@ -125,7 +117,7 @@ const isSyncing = computed(() => {
 });
 
 const openAnonymizeFundsModal = () => {
-  synchronizeState.value = true;
+  sunchromizeState.value = true;
 };
 </script>
 
@@ -183,25 +175,13 @@ const openAnonymizeFundsModal = () => {
     h3 {
       font-style: normal;
       font-weight: 700;
-      font-size: 20px;
-      line-height: 28px;
+      font-size: 24px;
+      line-height: 32px;
       color: @primaryLabel;
       margin: 0;
 
       span {
         font-variant: small-caps;
-      }
-    }
-
-    h6 {
-      font-size: 16px;
-      line-height: 24px;
-      color: @secondaryLabel;
-      font-weight: 400;
-      margin: 0;
-
-      span {
-        font-size: 14px;
       }
     }
 

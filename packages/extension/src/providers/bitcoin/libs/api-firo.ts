@@ -1,15 +1,9 @@
 import { BTCRawInfo } from '@/types/activity';
 import { ProviderAPIInterface } from '@/types/provider';
-import {
-  BitcoinNetworkInfo,
-  FiroTxType,
-  FiroUnspentType,
-  HaskoinUnspentType,
-} from '../types';
+import { BitcoinNetworkInfo, FiroTxType } from '../types';
 import { getAddress as getBitcoinAddress } from '../types/bitcoin-network';
 import { BaseFiroWallet } from './firo-wallet/base-firo-wallet';
-import { toBN } from 'web3-utils';
-import cacheFetch from '@/libs/cache-fetch';
+import { UnspentTxOutputModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
 
 class API implements ProviderAPIInterface {
   node: string;
@@ -73,19 +67,13 @@ class API implements ProviderAPIInterface {
   }
 
   async getBalance(pubkey: string): Promise<string> {
-    const address = pubkey.length < 64 ? pubkey : this.getAddress(pubkey);
-    return fetch(`${this.node}/insight-api-zcoin/addr/${address}/?noTxList=1`)
-      .then(res => res.json())
-      .then(
-        (balance: { balanceSat: string }) => {
-          if ((balance as any).message) return '0';
-          return toBN(balance.balanceSat).toString();
-        },
-      )
+    return this.#wallet
+      .getPublicBalance()
+      .then(balance => balance.toString())
       .catch(() => '0');
   }
 
-  async broadcastTx(rawtx: string): Promise<{ txid: string }> {
+  async broadcastTxRPC(rawtx: string): Promise<{ txid: string }> {
     return fetch(`${this.node}/insight-api-zcoin/tx/send`, {
       method: 'POST',
       headers: {
@@ -103,53 +91,23 @@ class API implements ProviderAPIInterface {
       });
   }
 
-  async FiroToHaskoinUTXOs(
-    FiroUTXOs: FiroUnspentType[],
-  ): Promise<HaskoinUnspentType[]> {
-    const ret: HaskoinUnspentType[] = [];
-    for (const utx of FiroUTXOs) {
-      if (utx.confirmations === 0) continue;
-      try {
-        const rawTxRes = (await cacheFetch({
-          url: `${this.node}/insight-api-zcoin/rawtx/${utx.txid}`,
-        })) as { rawtx: string };
-        const res = (await cacheFetch({
-          url: `${this.node}/insight-api-zcoin/tx/${utx.txid}`,
-        })) as FiroTxType;
-
-        ret.push({
-          address: utx.address,
-          block: {
-            height: res.blockheight,
-            position: 0,
-          },
-          index: utx.vout,
-          pkscript: 'res.vout[utx.vout].scriptPubKey.hex',
-          txid: utx.txid,
-          value: Number(utx.satoshis),
-          raw: rawTxRes.rawtx,
-        });
-      } catch (error) {
-        console.log(123, error);
-      }
-    }
-    ret.sort((a, b) => {
-      return a.value - b.value;
-    });
-    return ret;
+  async broadcastTx(txHex: string): Promise<{ txid: string }> {
+    const txid = await this.#wallet.broadcastTransaction(txHex);
+    return { txid };
   }
 
-  async getUTXOs(pubkey: string): Promise<HaskoinUnspentType[]> {
-    const address = pubkey.length < 64 ? pubkey : this.getAddress(pubkey);
+  async getUTXOs(pubkey: string): Promise<UnspentTxOutputModel[]> {
+    const spendableUtxos = await this.#wallet.getOnlySpendableUtxos();
 
-    return fetch(`${this.node}/insight-api-zcoin/addr/${address}/utxo`)
-      .then(res => {
-        return res.json();
-      })
-      .then(async (utxos: FiroUnspentType[]) => {
-        if ((utxos as any).message || !utxos.length) return [];
-        return await this.FiroToHaskoinUTXOs(utxos);
-      });
+    if ((spendableUtxos as any).message || !spendableUtxos.length) return [];
+    spendableUtxos.sort((a, b) => {
+      return a.amount - b.amount;
+    });
+
+    return spendableUtxos.map(el => ({
+      ...el,
+      value: el.satoshis,
+    }));
   }
 }
 export default API;
