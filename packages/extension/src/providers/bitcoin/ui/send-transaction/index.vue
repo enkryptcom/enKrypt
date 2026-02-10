@@ -591,6 +591,17 @@ const toggleSelector = (isTokenSend: boolean) => {
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    pointer-events: none;
+    z-index: 0;
+  }
 }
 
 .send-transaction {
@@ -604,6 +615,18 @@ const toggleSelector = (isTokenSend: boolean) => {
   overflow-y: auto;
   overflow-x: hidden;
   z-index: 1;
+  animation: fadeInUp 300ms ease-out;
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
   &::-webkit-scrollbar {
     width: 4px;
