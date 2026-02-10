@@ -60,10 +60,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, ref } from 'vue';
 import AppDialog from '@action/components/app-dialog/index.vue';
 import DoneIcon from '@action/icons/common/done_icon.vue';
 import InfoIcon from '@action/icons/common/info-icon.vue';
+import { computed, PropType, ref } from 'vue';
+import { AccountsHeaderData, SparkAccount } from '@action/types/account';
+import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import Loader from '@action/icons/common/loader.vue';
 import { NetworkNames } from '@enkryptcom/types/dist';
 import {
@@ -74,9 +76,7 @@ import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import { wasmInstance } from '@/libs/utils/wasm-loader';
 import FiroAPI from '@/providers/bitcoin/libs/api-firo';
-import { AccountsHeaderData, SparkAccount } from '@action/types/account';
 import { getMintTxData } from '@/libs/spark-handler/getMintTxData';
-import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { getTotalMintedAmount } from '@/libs/spark-handler/getTotalMintedAmount';
 import { createTempTx } from '@/libs/spark-handler/createTempTx';
 import { getFee } from '@/libs/spark-handler/getFee';
@@ -116,9 +116,9 @@ const props = defineProps({
   isWindowPopup: Boolean,
 });
 
-const wallet = new BaseFiroWallet();
-
 const model = defineModel<boolean>();
+
+const wallet = new BaseFiroWallet();
 
 const isTransferLoading = ref(false);
 const errorMsg = ref();
@@ -399,5 +399,4 @@ const anonymizeFunds = async () => {
     border: 1px solid @gray01;
   }
 }
-
 </style>

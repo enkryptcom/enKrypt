@@ -55,9 +55,9 @@ import BalanceLoader from '@action/icons/common/balance-loader.vue';
 import { fromBase } from '@enkryptcom/utils';
 import { computed, onBeforeMount, PropType, ref, watchEffect } from 'vue';
 import { AccountsHeaderData, SparkAccount } from '@action/types/account';
+import { NetworkNames } from '@enkryptcom/types';
 import SynchronizeState from '@action/views/network-activity/components/synchronize-state.vue';
 import Loader from '@action/icons/common/loader.vue';
-import { NetworkNames } from '@enkryptcom/types/dist';
 
 const props = defineProps({
   cryptoAmount: {
