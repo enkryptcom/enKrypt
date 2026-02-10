@@ -14,7 +14,7 @@ const etcOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: 'ETC',
   currencyNameLong: 'Ethereum Classic',
-  node: 'wss://nodes.mewapi.io/ws/etc',
+  node: 'https://etc.rivet.link',
   icon,
   basePath: "m/44'/61'/0'/0",
   coingeckoID: 'ethereum-classic',
