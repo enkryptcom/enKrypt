@@ -21,7 +21,8 @@
         {{ $filters.parseCurrency(fiatAmount) }}
       </p>
       <h6 v-if="!!sparkAccount && network.name === NetworkNames.Firo">
-        <span>{{ sparkAccount?.sparkBalance?.availableBalance }}</span> Private
+        <span>{{ sparkBalanceFormatted }}</span>
+        Private
         {{ symbol }}
       </h6>
     </div>
@@ -51,6 +52,7 @@
 <script setup lang="ts">
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
+import { fromBase } from '@enkryptcom/utils';
 import { computed, onBeforeMount, PropType, ref, watchEffect } from 'vue';
 import { AccountsHeaderData, SparkAccount } from '@action/types/account';
 import SynchronizeState from '@action/views/network-activity/components/synchronize-state.vue';
@@ -122,6 +124,12 @@ onBeforeMount(() => {
 
 const isSyncing = computed(() => {
   return props.isCoinSyncing || props.isTagSyncing;
+});
+
+const sparkBalanceFormatted = computed(() => {
+  const balance = props.sparkAccount?.sparkBalance?.availableBalance;
+  if (!balance) return '0';
+  return fromBase(String(balance), props.network.decimals ?? 8);
 });
 
 const openAnonymizeFundsModal = () => {

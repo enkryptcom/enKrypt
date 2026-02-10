@@ -8,12 +8,14 @@ import { base64ToReversedHex } from '@/libs/spark-handler/utils';
 import { firoElectrum } from '@/providers/bitcoin/libs/electrum-client/electrum-client';
 import BigNumber from 'bignumber.js';
 
+export type SparkUnusedTxDetails = FullTransactionModel & { value: number };
+
 const db = new IndexedDBHelper();
 
 export const markCoinsAsUsed = async (
   onBalanceCalculated?: (balance: string) => void,
-): Promise<FullTransactionModel[]> => {
-  let unusedTxDetails: FullTransactionModel[] = [];
+): Promise<SparkUnusedTxDetails[]> => {
+  let unusedTxDetails: SparkUnusedTxDetails[] = [];
 
   const usedCoinsTags = await db.readData<{
     tags: string[];
@@ -73,7 +75,35 @@ export const markCoinsAsUsed = async (
   if (!!txIdsDecoded?.length) {
     const results = await firoElectrum.multiGetTransactionByTxid(txIdsDecoded);
 
-    unusedTxDetails = Object.values(results);
+    unusedTxDetails = txIdsDecoded
+      .map((txId, index) => {
+        const tx = results[txId];
+
+        if (!tx) {
+          console.warn(`Transaction details not found for txId: ${txId}`);
+          return null;
+        }
+
+        const coin = unusedCoins[index];
+        const coinValue = coin?.value;
+
+        if (coinValue === undefined) {
+          console.warn(
+            `Coin value not found for txId: ${txId}, index: ${index}`,
+          );
+
+          return {
+            ...tx,
+            value: '0',
+          };
+        }
+
+        return {
+          ...tx,
+          value: Number(coinValue)
+        };
+      })
+      .filter((tx): tx is SparkUnusedTxDetails => tx !== null);
   }
 
   console.log('===>>>Spark Unused TX Details:', unusedTxDetails);

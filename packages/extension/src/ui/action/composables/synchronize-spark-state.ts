@@ -4,8 +4,10 @@ import { startCoinSetSync } from '@/libs/utils/updateAndSync/updateCoinSet';
 import { appendCoinSetUpdates } from '@/libs/utils/updateAndSync/handleCoinSetUpdates';
 import { startTagSetSync } from '@/libs/utils/updateAndSync/updateTagsSet';
 import { BaseNetwork } from '@/types/base-network';
-import { FullTransactionModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
-import { markCoinsAsUsed } from '@/libs/utils/updateAndSync/markCoinsAsUsed';
+import {
+  markCoinsAsUsed,
+  SparkUnusedTxDetails,
+} from '@/libs/utils/updateAndSync/markCoinsAsUsed';
 
 let worker: Worker | null = null;
 
@@ -23,7 +25,7 @@ export const useSynchronizeSparkState = (
   const coinFetchDone = ref(false);
   const tagFetchDone = ref(false);
 
-  const sparkUnusedTxDetails = ref<FullTransactionModel[]>([]);
+  const sparkUnusedTxDetails = ref<SparkUnusedTxDetails[]>([]);
 
   const cleanupAndMaybeRestart = () => {
     worker?.terminate();
