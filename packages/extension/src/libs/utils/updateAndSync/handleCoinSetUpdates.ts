@@ -29,16 +29,16 @@ const mergeCoins = (existing: string[][], incoming: string[][]): string[][] => {
   if (!incoming?.length) return [...existing];
 
   const seen = new Set(existing.map(coin => JSON.stringify(coin)));
-  const merged: string[][] = [];
+  const updates: string[][] = [];
 
   incoming.forEach(coin => {
     const key = JSON.stringify(coin);
     if (seen.has(key)) return;
     seen.add(key);
-    merged.push(coin);
+    updates.push(coin);
   });
 
-  return [...merged, ...existing];
+  return [...updates, ...existing];
 };
 
 export const appendCoinSetUpdates = async (
@@ -57,7 +57,7 @@ export const appendCoinSetUpdates = async (
     const setIndex = setId - 1;
 
     const existingSet = updatedSets[setIndex];
-    const mergedCoins = mergeCoins(update.set.coins, existingSet?.coins ?? []);
+    const mergedCoins = mergeCoins(existingSet?.coins ?? [], update.set.coins);
 
     updatedSets[setIndex] = {
       blockHash: update.set.blockHash,

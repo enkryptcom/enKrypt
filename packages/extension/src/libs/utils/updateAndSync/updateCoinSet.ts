@@ -38,7 +38,7 @@ const db = new IndexedDBHelper();
 
 const getMyCoinHashes = async (): Promise<Set<string>> => {
   try {
-    const myCoins = await db.readData<StoredCoin[]>('myCoins');
+    const myCoins = await db.readData<StoredCoin[]>(DB_DATA_KEYS.myCoins);
     if (!Array.isArray(myCoins)) {
       return new Set();
     }
@@ -151,15 +151,15 @@ export const syncCoinSetsOnce = async (): Promise<CoinSetUpdateResult[]> => {
       localSets[index] = {
         blockHash: remoteMeta.blockHash,
         setHash: remoteMeta.setHash,
-        coins: [...(localSets?.[index]?.coins ?? []), ...updatedCoinsSet],
+        coins: [...updatedCoinsSet, ...(localSets?.[index]?.coins ?? [])],
       };
 
       if (!localSets[index] || isFullReplacement) {
-        await db.saveData(DB_DATA_KEYS.sets, localSets); // TODO: check
+        await db.saveData(DB_DATA_KEYS.sets, localSets);
       } else {
-        await db.appendSetData(DB_DATA_KEYS.sets, index, {
-          ...localSets[index],
-        });
+        // await db.appendSetData(DB_DATA_KEYS.sets, index, {
+        //   ...localSets[index],
+        // });
       }
 
       const matchedCoins = newCoins.filter(coin =>
