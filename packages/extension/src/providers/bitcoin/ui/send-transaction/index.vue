@@ -1,6 +1,14 @@
 <template>
   <div class="container">
-    <div v-if="!!selected" class="send-transaction">
+    <!-- Loading State -->
+    <div v-if="isLoadingAssets" class="send-transaction__loading">
+      <div class="send-transaction__loading-content">
+        <div class="send-transaction__loading-spinner"></div>
+        <p class="send-transaction__loading-text">Loading...</p>
+      </div>
+    </div>
+
+    <div v-if="!!selected && !isLoadingAssets" class="send-transaction">
       <send-header
         :is-send-token="isSendToken"
         :is-nft-available="!!network.NFTHandler"
@@ -42,11 +50,28 @@
         :address="addressTo"
         :network="network"
         @selected:account="selectAccountTo"
-        @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
+        @update:paste-from-clipboard="
+          () => {
+            addressInputTo.pasteFromClipboard();
+            toggleSelectContactTo(false);
+          }
+        "
         @close="toggleSelectContactTo"
       />
 
-      <send-token-select v-if="isSendToken" :token="selectedAsset" />
+      <send-token-select
+        v-if="isSendToken"
+        :token="selectedAsset"
+        @update:toggle-token-select="toggleSelectToken"
+      />
+
+      <assets-select-list
+        v-model="isOpenSelectToken"
+        :is-send="true"
+        :assets="accountAssets"
+        :is-loading="isLoadingAssets"
+        @update:select-asset="selectToken"
+      />
 
       <send-nft-select
         v-if="!isSendToken"
@@ -67,6 +92,7 @@
       <send-input-amount
         v-if="isSendToken"
         :amount="amount"
+        :show-max="showMax"
         :fiat-value="selectedAsset.price"
         :has-enough-balance="!nativeBalanceAfterTransaction.isNeg()"
         @update:input-amount="inputAmount"
@@ -133,6 +159,7 @@ import SendHeader from '@/providers/common/ui/send-transaction/send-header.vue';
 import SendAddressInput from './components/send-address-input.vue';
 import SendFromContactsList from '@/providers/common/ui/send-transaction/send-from-contacts-list.vue';
 import SendContactsList from '@/providers/common/ui/send-transaction/send-contacts-list.vue';
+import AssetsSelectList from '@action/views/assets-select-list/index.vue';
 import SendTokenSelect from './components/send-token-select.vue';
 import SendAlert from '@/providers/bitcoin/ui/send-transaction/components/send-alert.vue';
 import SendInputAmount from '@/providers/common/ui/send-transaction/send-input-amount.vue';
@@ -197,10 +224,12 @@ const paramNFTData: NFTItem = JSON.parse(
   route.params.tokenData ? (route.params.tokenData as string) : '{}',
 ) as NFTItem;
 const isSendToken = ref<boolean>(JSON.parse(route.params.isToken as string));
+const accountAssets = ref<BTCToken[]>([]);
 const selectedAsset = ref<BTCToken>(loadingAsset);
 const amount = ref<string>('');
 const accountUTXOs = ref<HaskoinUnspentType[]>([]);
 const isOpenSelectNft = ref(false);
+const isOpenSelectToken = ref(false);
 
 const sendAmount = computed(() => {
   if (amount.value && amount.value !== '') return amount.value;
@@ -215,6 +244,10 @@ const addressFrom = ref<string>(
 );
 const addressTo = ref<string>('');
 const isLoadingAssets = ref(true);
+
+const showMax = computed(() => {
+  return true;
+});
 
 onMounted(async () => {
   trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
@@ -278,9 +311,19 @@ const fetchAssets = () => {
   selectedAsset.value = loadingAsset;
   isLoadingAssets.value = true;
   return props.network.getAllTokens(addressFrom.value).then(allAssets => {
+    accountAssets.value = allAssets as BTCToken[];
     selectedAsset.value = allAssets[0] as BTCToken;
     isLoadingAssets.value = false;
   });
+};
+
+const toggleSelectToken = () => {
+  isOpenSelectToken.value = !isOpenSelectToken.value;
+};
+
+const selectToken = (token: BTCToken) => {
+  selectedAsset.value = token;
+  isOpenSelectToken.value = false;
 };
 
 const sendButtonTitle = computed(() => {
@@ -544,11 +587,10 @@ const toggleSelector = (isTokenSend: boolean) => {
 .container {
   width: 100%;
   height: 600px;
-  background-color: @white;
-  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
   margin: 0;
   box-sizing: border-box;
   position: relative;
+  overflow: hidden;
 }
 
 .send-transaction {
@@ -556,34 +598,163 @@ const toggleSelector = (isTokenSend: boolean) => {
   height: 100%;
   box-sizing: border-box;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 88px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+  }
 
   &__buttons {
     position: absolute;
     left: 0;
     bottom: 0;
-    padding: 0 32px 32px 32px;
+    padding: 16px 24px 24px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-direction: row;
     width: 100%;
     box-sizing: border-box;
+    gap: 12px;
+    z-index: 10;
+    background: @white;
 
     &-cancel {
-      width: 170px;
+      flex: 1;
+      min-width: 0;
+
+      :deep(.base-button) {
+        border: 1.5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 200ms ease-in-out;
+
+        &:hover {
+          border-color: rgba(0, 0, 0, 0.2);
+          background: rgba(0, 0, 0, 0.02);
+        }
+      }
     }
 
     &-send {
-      width: 218px;
+      flex: 1.3;
+      min-width: 0;
+
+      :deep(.base-button) {
+        border-radius: 12px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(98, 126, 234, 0.3);
+        transition: all 200ms ease-in-out;
+
+        &:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(98, 126, 234, 0.4);
+        }
+
+        &:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
+        &:disabled {
+          background: #e2e8f0;
+          box-shadow: none;
+        }
+      }
     }
   }
-}
-p {
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 20px;
-  letter-spacing: 0.25px;
-  color: @error;
-  margin: 0;
+
+  &__loading {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    &-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    &-spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(98, 126, 234, 0.15);
+      border-top-color: #627eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    &-text {
+      font-size: 15px;
+      font-weight: 500;
+      color: @secondaryLabel;
+      margin: 0;
+      letter-spacing: 0.1px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  }
+
+  // Staggered animation for child elements
+  & > *:nth-child(1) {
+    animation-delay: 0ms;
+  }
+  & > *:nth-child(2) {
+    animation-delay: 30ms;
+  }
+  & > *:nth-child(3) {
+    animation-delay: 60ms;
+  }
+  & > *:nth-child(4) {
+    animation-delay: 90ms;
+  }
+  & > *:nth-child(5) {
+    animation-delay: 120ms;
+  }
+  & > *:nth-child(6) {
+    animation-delay: 150ms;
+  }
+  & > *:nth-child(7) {
+    animation-delay: 180ms;
+  }
+  & > *:nth-child(8) {
+    animation-delay: 210ms;
+  }
+
+  & > * {
+    animation: elementFadeIn 250ms ease-out backwards;
+  }
+
+  @keyframes elementFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 </style>
