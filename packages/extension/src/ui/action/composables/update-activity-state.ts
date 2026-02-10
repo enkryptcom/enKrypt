@@ -4,13 +4,13 @@ import { BaseNetwork } from '@/types/base-network';
 import { ActivityStatus, ActivityType } from '@/types/activity';
 import ActivityState from '@/libs/activity-state';
 import { AccountsHeaderData } from '@action/types/account';
-import { FullTransactionModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
+import { SparkUnusedTxDetails } from '@/libs/utils/updateAndSync/markCoinsAsUsed';
 
 const activityState = new ActivityState();
 
 export const useUpdateActivityState = (
   networkRef: Ref<BaseNetwork>,
-  sparkUnusedTxDetails: Ref<FullTransactionModel[]>,
+  sparkUnusedTxDetails: Ref<SparkUnusedTxDetails[]>,
   accountHeaderData: Ref<AccountsHeaderData>,
 ) => {
   watch(
@@ -43,7 +43,7 @@ export const useUpdateActivityState = (
               status: ActivityStatus.success,
               timestamp: txDetail.time * 1000,
               type: ActivityType.spark_transaction,
-              value: 'Hidden',
+              value: (txDetail.value / network.decimals).toString(),
               transactionHash: txDetail.txid,
               token: {
                 icon: network.icon,
