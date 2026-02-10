@@ -73,7 +73,7 @@ class API implements ProviderAPIInterface {
       .catch(() => '0');
   }
 
-  async broadcastTxRPC(rawtx: string): Promise<{ txid: string }> {
+  async broadcastTx(rawtx: string): Promise<{ txid: string }> {
     return fetch(`${this.node}/insight-api-zcoin/tx/send`, {
       method: 'POST',
       headers: {
@@ -91,7 +91,7 @@ class API implements ProviderAPIInterface {
       });
   }
 
-  async broadcastTx(txHex: string): Promise<{ txid: string }> {
+  async broadcastTxElectrum(txHex: string): Promise<{ txid: string }> {
     const txid = await this.#wallet.broadcastTransaction(txHex);
     return { txid };
   }

@@ -16,13 +16,17 @@
       <h3>
         {{ cryptoAmount }} <span>{{ symbol }}</span>
       </h3>
-      <p>
+      <p v-if="network.name !== NetworkNames.Firo">
         <span v-if="subnetwork !== ''">Chain {{ subnetwork }} &middot;</span>
         {{ $filters.parseCurrency(fiatAmount) }}
       </p>
+      <h6 v-if="!!sparkAccount && network.name === NetworkNames.Firo">
+        <span>{{ sparkAccount?.sparkBalance?.availableBalance }}</span> Private
+        {{ symbol }}
+      </h6>
     </div>
     <button
-      v-if="sparkAccount"
+      v-if="sparkAccount && network.name === NetworkNames.Firo"
       class="btn__anonymize"
       @click="openAnonymizeFundsModal()"
     >
@@ -32,10 +36,14 @@
     </button>
 
     <synchronize-state
-      v-if="sunchromizeState"
-      v-model="sunchromizeState"
-      :isCoinSyncing="props.isCoinSyncing"
-      :isTagSyncing="props.isTagSyncing"
+      v-if="synchronizeState && network.name === NetworkNames.Firo"
+      v-model="synchronizeState"
+      :isCoinSyncing="isCoinSyncing"
+      :isTagSyncing="isTagSyncing"
+      :network="network"
+      :account-info="accountInfo"
+      :spark-account="sparkAccount"
+      :crypto-amount="cryptoAmount"
     />
   </div>
 </template>
@@ -92,7 +100,7 @@ const props = defineProps({
 
 let timer: NodeJS.Timeout | null = null;
 const assumedError = ref(false);
-const sunchromizeState = ref(false);
+const synchronizeState = ref(false);
 
 watchEffect(() => {
   if (timer) {
@@ -117,7 +125,7 @@ const isSyncing = computed(() => {
 });
 
 const openAnonymizeFundsModal = () => {
-  sunchromizeState.value = true;
+  synchronizeState.value = true;
 };
 </script>
 
@@ -175,13 +183,25 @@ const openAnonymizeFundsModal = () => {
     h3 {
       font-style: normal;
       font-weight: 700;
-      font-size: 24px;
-      line-height: 32px;
+      font-size: 20px;
+      line-height: 28px;
       color: @primaryLabel;
       margin: 0;
 
       span {
         font-variant: small-caps;
+      }
+    }
+
+    h6 {
+      font-size: 16px;
+      line-height: 24px;
+      color: @secondaryLabel;
+      font-weight: 400;
+      margin: 0;
+
+      span {
+        font-size: 14px;
       }
     }
 
