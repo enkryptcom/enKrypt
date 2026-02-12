@@ -53,6 +53,11 @@ export class IndexedDBHelper {
     };
   }
 
+  async resetDB() {
+    if (!this.db) throw new Error('Missing db');
+    await Promise.all(Object.values(DB_DATA_KEYS).map(v => this.clearData(v)));
+  }
+
   private getObjectStore(mode: IDBTransactionMode): IDBObjectStore {
     if (!this.db) throw new Error('Missing db');
     const transaction = this.db.transaction(this.storeName, mode);

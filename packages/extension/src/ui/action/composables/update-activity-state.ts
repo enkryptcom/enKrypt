@@ -5,6 +5,7 @@ import { ActivityStatus, ActivityType } from '@/types/activity';
 import ActivityState from '@/libs/activity-state';
 import { AccountsHeaderData } from '@action/types/account';
 import { SparkUnusedTxDetails } from '@/libs/utils/updateAndSync/markCoinsAsUsed';
+import { fromBase } from '@enkryptcom/utils';
 
 const activityState = new ActivityState();
 
@@ -15,10 +16,9 @@ export const useUpdateActivityState = (
 ) => {
   watch(
     [sparkUnusedTxDetails, networkRef],
-    () => {
+    async ([details]) => {
       const network = networkRef.value;
       const selectedAccount = accountHeaderData.value.selectedAccount;
-      const details = sparkUnusedTxDetails.value;
 
       if (
         network.name !== NetworkNames.Firo ||
@@ -29,11 +29,12 @@ export const useUpdateActivityState = (
       }
       console.log('Watching sparkUnusedTxDetails change', details);
 
-      sparkUnusedTxDetails.value.forEach(txDetail => {
+      for (const txDetail of details) {
         if (!txDetail || !txDetail.vin.length || !txDetail.vout.length) {
           return;
         }
-        activityState.addActivities(
+
+        await activityState.addActivities(
           [
             {
               network: network.name,
@@ -43,7 +44,7 @@ export const useUpdateActivityState = (
               status: ActivityStatus.success,
               timestamp: txDetail.time * 1000,
               type: ActivityType.spark_transaction,
-              value: (txDetail.value / network.decimals).toString(),
+              value: fromBase(`${txDetail.value}`, network.decimals).toString(),
               transactionHash: txDetail.txid,
               token: {
                 icon: network.icon,
@@ -58,7 +59,7 @@ export const useUpdateActivityState = (
             network: network.name,
           },
         );
-      });
+      }
     },
     { deep: true },
   );
