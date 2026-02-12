@@ -97,5 +97,8 @@ export class KeyRingBase {
   deleteAccount(address: string): Promise<void> {
     return this.#keyring.deleteAccount(address);
   }
+  async getPrivateKeyForECash(account: EnkryptAccount): Promise<Buffer> {
+    return this.#keyring.getPrivateKeyForECash(account);
+  }
 }
 export default KeyRingBase;

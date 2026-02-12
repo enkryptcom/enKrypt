@@ -50,6 +50,7 @@ class KeyRing {
       [SignerType.ed25519]: new PolkadotSigner(SignerType.ed25519),
       [SignerType.sr25519]: new PolkadotSigner(SignerType.sr25519),
       [SignerType.secp256k1btc]: new BitcoinSigner(),
+      [SignerType.secp256k1ecash]: new BitcoinSigner(),
       [SignerType.ed25519kda]: new KadenaSigner(),
       [SignerType.ed25519sol]: new KadenaSigner(),
       [SignerType.ed25519mas]: new MassaSigner(),
@@ -384,6 +385,48 @@ class KeyRing {
     this.#mnemonic = null;
     this.#privkeys = {};
     this.#isLocked = true;
+  }
+
+  /**
+   * Get private key for eCash wallet operations
+   * This generates the keypair and returns only the private key
+   * Used for eCash transactions which need the raw private key for ecash-wallet library
+   *
+   * @param account - The account to get the private key for
+   * @returns Buffer containing the private key bytes
+   */
+  async getPrivateKeyForECash(account: EnkryptAccount): Promise<Buffer> {
+    assert(!this.#isLocked, Errors.KeyringErrors.Locked);
+    this.#resetTimeout();
+    assert(
+      account.signerType === SignerType.secp256k1ecash,
+      Errors.KeyringErrors.CannotUseKeyring,
+    );
+    assert(
+      !Object.values(HWwalletType).includes(
+        account.walletType as unknown as HWwalletType,
+      ),
+      Errors.KeyringErrors.CannotUseKeyring,
+    );
+
+    let keypair: KeyPair;
+    if (account.walletType === WalletType.privkey) {
+      const pubKey = (await this.getKeysArray()).find(
+        (i) =>
+          i.basePath === account.basePath && i.pathIndex === account.pathIndex,
+      ).publicKey;
+      keypair = {
+        privateKey: this.#privkeys[account.pathIndex.toString()],
+        publicKey: pubKey,
+      };
+    } else {
+      keypair = await this.#signers[account.signerType].generate(
+        this.#mnemonic,
+        pathParser(account.basePath, account.pathIndex, account.signerType),
+      );
+    }
+
+    return hexToBuffer(keypair.privateKey);
   }
 }
 
