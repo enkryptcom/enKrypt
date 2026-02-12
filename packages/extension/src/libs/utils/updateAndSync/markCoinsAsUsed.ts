@@ -24,27 +24,15 @@ export const markCoinsAsUsed = async (
   const coinsTagsSet = new Set(usedCoinsTags?.tags ?? []);
 
   const myCoins = await db.readData<MyCoinModel[]>(DB_DATA_KEYS.myCoins);
-  const myCoinsTagsSet = new Set((myCoins ?? []).map(coin => coin.tag));
 
   if (!myCoins?.length || !usedCoinsTags?.tags?.length) {
-    return [];
-  }
-
-  console.log('>>>>coinsTagsSet', coinsTagsSet);
-  console.log('>>>>myCoinsTagsSet', myCoinsTagsSet);
-
-  const usedMyCoinsTagsSet = intersectSets(coinsTagsSet, myCoinsTagsSet);
-
-  console.log('>>>>intersection usedMyCoinsTagsSet', usedMyCoinsTagsSet);
-
-  if (usedMyCoinsTagsSet.size === 0) {
     return [];
   }
 
   const txHashesMap = new Map(usedCoinsTags.txHashes || []);
   console.log('>>>>txHashesMap', txHashesMap);
   const updatedCoins = myCoins.map(coin => {
-    if (!usedMyCoinsTagsSet.has(coin.tag)) return coin;
+    if (!coinsTagsSet.has(coin.tag)) return coin;
     return {
       ...coin,
       isUsed: true,
@@ -100,7 +88,7 @@ export const markCoinsAsUsed = async (
 
         return {
           ...tx,
-          value: Number(coinValue)
+          value: Number(coinValue),
         };
       })
       .filter((tx): tx is SparkUnusedTxDetails => tx !== null);
