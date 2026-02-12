@@ -6,6 +6,7 @@ import {
   formatFloatingPointValue,
 } from '@/libs/utils/number-formatter';
 import { useCurrencyStore } from '../views/settings/store';
+
 export const replaceWithEllipsis = (
   value: string,
   keepLeft: number,
@@ -35,8 +36,29 @@ export const parseCurrency = (value: string | number): string => {
     amount.isNaN() || amount.isZero()
       ? 0
       : amount.times(exchangeRate).toNumber();
+
   const notation = BigNumber(finalValue).gt(999999) ? 'compact' : 'standard';
-  return `${amount.lt(0.0000001) && amount.gt(0) ? '< ' : ''}${new Intl.NumberFormat(locale, { style: 'currency', currency: currency, notation }).format(finalValue)}`;
+
+  let minimumFractionDigits = 2;
+  let maximumFractionDigits = 2;
+
+  if (finalValue > 0 && finalValue < 0.01) {
+    minimumFractionDigits = 2;
+    maximumFractionDigits = 8;
+  } else if (finalValue >= 0.01 && finalValue < 1) {
+    minimumFractionDigits = 2;
+    maximumFractionDigits = 4;
+  }
+
+  const formatted = new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: currency,
+    notation,
+    minimumFractionDigits,
+    maximumFractionDigits,
+  }).format(finalValue);
+
+  return `${amount.lt(0.0000001) && amount.gt(0) ? '< ' : ''}${formatted}`;
 };
 
 export const truncate = (value: string, length: number): string => {
@@ -60,4 +82,5 @@ export const formatDuration = (
 
   return `${m.padStart(2, '0')}:${s.padStart(2, '0')} `;
 };
+
 export { formatFiatValue, formatFloatingPointValue };
