@@ -34,6 +34,7 @@ export enum ProviderName {
   kadena = 'kadena',
   solana = 'solana',
   massa = 'massa',
+  ecash = 'ecash',
 }
 export enum InternalStorageNamespace {
   keyring = 'KeyRing',
