@@ -16,7 +16,8 @@
       <div class="deposit__code">
         <qrcode-vue
           :value="
-            $props.network?.provider == ProviderName.kadena
+            $props.network?.provider == ProviderName.kadena ||
+            $props.network?.provider == ProviderName.ecash
               ? network.displayAddress(account.address)
               : network.provider + ':' + network.displayAddress(account.address)
           "

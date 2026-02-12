@@ -248,6 +248,13 @@ const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {
     activity.status = status;
     activity.rawInfo = massaInfo;
     updateActivitySync(activity).then(() => updateVisibleActivity(activity));
+  } else if (props.network.provider === ProviderName.ecash) {
+    if (!info) return;
+    const xecInfo = info as BTCRawInfo;
+    if (isActivityUpdating) return;
+    activity.status = ActivityStatus.success;
+    activity.rawInfo = xecInfo;
+    updateActivitySync(activity).then(() => updateVisibleActivity(activity));
   }
 
   // If we're this far in then the transaction has reached a terminal status
