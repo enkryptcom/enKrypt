@@ -25,6 +25,9 @@ const defaultSettings = {
     randomUserID: '',
     isMetricsEnabled: true,
   },
+  currencySettingsState: {
+    value: '',
+  },
   manifestVersion: 3,
 };
 
@@ -91,9 +94,12 @@ describe('Test Ethereum reponses', () => {
     });
     await provider.request({ method: 'eth_unknownMethod' }).catch(e => {
       expect(e).to.be.deep.equal({
-        code: 4200,
-        message:
-          'Unsupported Method: The Provider does not support the requested method.',
+        code: 4001,
+        message: {
+          code: 4200,
+          message:
+            'Unsupported Method: The Provider does not support the requested method.',
+        },
       });
     });
     await provider.request({ method: 'eth_accounts' }).then(res => {
