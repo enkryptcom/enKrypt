@@ -27,9 +27,9 @@
     "localforage": "^1.10.0"
   },
   "devDependencies": {
-    "@types/node": "^22.19.10",
-    "@typescript-eslint/eslint-plugin": "^8.55.0",
-    "@typescript-eslint/parser": "^8.55.0",
+    "@types/node": "^22.19.11",
+    "@typescript-eslint/eslint-plugin": "^8.56.0",
+    "@typescript-eslint/parser": "^8.56.0",
     "eslint": "^9.39.2",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.8",
@@ -41,7 +41,7 @@
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "8.55.0",
+    "typescript-eslint": "8.56.0",
     "vitest": "^4.0.18"
   },
   "repository": {
