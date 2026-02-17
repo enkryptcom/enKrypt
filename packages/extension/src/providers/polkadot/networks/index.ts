@@ -7,7 +7,6 @@ import astrNode from './astar/astar';
 import bncNode from './bifrost/polkadot';
 import bncKusamaNode from './bifrost/kusama';
 import edgNode from './edgeware';
-import quartzNode from './unique/quartz';
 import uniqueNode from './unique/unique';
 import penNode from './pendulum/pendulum';
 import ampeNode from './pendulum/amplitude';
@@ -27,7 +26,6 @@ export default {
   bifrost: bncNode,
   bifrostKusama: bncKusamaNode,
   edgeware: edgNode,
-  quartz: quartzNode,
   unique: uniqueNode,
   pendulum: penNode,
   amplitude: ampeNode,
