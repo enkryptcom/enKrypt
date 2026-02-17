@@ -388,10 +388,21 @@ const setNetwork = async (network: BaseNetwork) => {
   if (!network.subNetworks) {
     currentSubNetwork.value = '';
   }
-  const activeAccounts = await getAccountsByNetworkName(network.name);
+
+  let activeAccounts = await getAccountsByNetworkName(network.name);
   const inactiveAccounts = await kr.getAccounts(
     getOtherSigners(network.signer),
   );
+
+  if (network.name === NetworkNames.Firo) {
+    activeAccounts = activeAccounts.filter(account => {
+      if (account.basePath === "m/44'/136'/0'/0") {
+        return true;
+      }
+      inactiveAccounts.push(account);
+      return false;
+    });
+  }
 
   const selectedAddress = await domainState.getSelectedAddress();
 

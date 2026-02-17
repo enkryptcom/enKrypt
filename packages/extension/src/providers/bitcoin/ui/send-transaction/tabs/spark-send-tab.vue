@@ -227,7 +227,7 @@ const setAsset = async () => {
   }
   console.log(props.sparkAccount.sparkBalance.availableBalance);
   availableAsset.value.balance = String(
-    props.sparkAccount.sparkBalance.availableBalance || 400000000, // TODO : remove this fallback value
+    props.sparkAccount.sparkBalance.availableBalance,
   );
   availableAsset.value.name = 'Available Balance';
 };
