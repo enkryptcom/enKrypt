@@ -53,7 +53,6 @@ import scrollNode from './scroll';
 import cotiTestnetNode from './coti-testnet';
 import hoodiNode from './hoodi';
 import fraxtalNode from './fraxtal';
-import _5ireNode from './5ire';
 import beraNode from './bera';
 import storyNode from './story';
 import gravityNode from './gravity';
@@ -136,7 +135,6 @@ export default {
   hoodi: hoodiNode,
   frax: fraxtalNode,
   taraxa: taraxa,
-  '5ire': _5ireNode,
   bera: beraNode,
   story: storyNode,
   gravity: gravityNode,

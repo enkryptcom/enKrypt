@@ -84,7 +84,6 @@ export enum NetworkNames {
   CotiTestnet = "CotiTestnet",
   Hoodi = "Hoodi",
   Fraxtal = "fraxtal",
-  Fire = "5ire",
   Story = "Story",
   Abstract = "Abstract",
   Unichain = "Unichain",
