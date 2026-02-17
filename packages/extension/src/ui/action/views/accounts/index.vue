@@ -119,14 +119,16 @@ import ImportAccountIcon from '@action/icons/actions/import-account-icon.vue';
 import ImportAccount from '@action/views/import-account/index.vue';
 import BaseInputDebounced from '@action/components/base-input-debounced/index.vue';
 import { AccountsHeaderData } from '../../types/account';
-import { PropType, ref, computed } from 'vue';
+import { computed, PropType, ref } from 'vue';
 import openHardware from '@/libs/utils/open-hardware';
 import scrollSettings from '@/libs/utils/scroll-settings';
-import { EnkryptAccount } from '@enkryptcom/types';
+import {
+  EnkryptAccount,
+  SignerType,
+  WalletType,
+} from '@enkryptcom/types';
 import HWwallets from '@enkryptcom/hw-wallets';
-import { SignerType } from '@enkryptcom/types';
 import { BaseNetwork } from '@/types/base-network';
-import { WalletType } from '@enkryptcom/types';
 import { ProviderName } from '@/types/provider';
 
 const emit = defineEmits<{

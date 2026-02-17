@@ -45,7 +45,6 @@
           @address-changed="onSelectedAddressChanged"
           @select:subnetwork="onSelectedSubnetworkChange"
           @toggle:deposit="toggleDepositWindow"
-          @action:generate-new-spark="generateNewSparkAddress"
         />
         <router-view v-slot="{ Component }" name="view">
           <transition :name="transitionName" mode="out-in">
@@ -60,7 +59,6 @@
               @update:init="init"
               @toggle:deposit="toggleDepositWindow"
               @open:buy-action="openBuyPage"
-              @action:generate-new-spark="generateNewSparkAddress"
               @update:spark-state-changed="getSparkAccountState"
             />
           </transition>
@@ -151,6 +149,7 @@ import { useCurrencyStore, type Currency } from './views/settings/store';
 import { useRateStore } from './store/rate-store';
 import { isGeoRestricted, isWalletRestricted } from '@/libs/utils/screening';
 import { useUpdateActivityState } from '@action/composables/update-activity-state';
+import { partition } from '@action/utils/array-utils';
 
 const wallet = new BaseFiroWallet();
 const db = new IndexedDBHelper();
@@ -351,19 +350,6 @@ onMounted(async () => {
   }
 });
 
-/**
- * Update the gradient of the app menu on the active network change
- */
-
-const generateNewSparkAddress = async () => {
-  wallet.skipAddress();
-  const defaultAddress = await wallet.getSparkAddressAsync();
-
-  if (accountHeaderData.value.sparkAccount && defaultAddress) {
-    accountHeaderData.value.sparkAccount.defaultAddress = defaultAddress;
-  }
-};
-
 const getSparkAccountState = async (network: BaseNetwork) => {
   if (network.name === NetworkNames.Firo) {
     const defaultAddress = await wallet.getSparkAddressAsync();
@@ -390,31 +376,14 @@ const setNetwork = async (network: BaseNetwork) => {
   }
 
   let activeAccounts = await getAccountsByNetworkName(network.name);
-  const inactiveAccounts = await kr.getAccounts(
-    getOtherSigners(network.signer),
-  );
-
-  if (network.name === NetworkNames.Firo) {
-    activeAccounts = activeAccounts.filter(account => {
-      if (account.basePath === "m/44'/136'/0'/0") {
-        return true;
-      }
-      inactiveAccounts.push(account);
-      return false;
-    });
-  }
-
-  const selectedAddress = await domainState.getSelectedAddress();
-
-  let selectedAccount = activeAccounts[0];
-  if (selectedAddress) {
-    const found = activeAccounts.find(acc => acc.address === selectedAddress);
-    if (found) selectedAccount = found;
-  }
+  let inactiveAccounts = await kr.getAccounts(getOtherSigners(network.signer));
 
   const sparkAccount = {} as SparkAccount;
 
   if (network.name === NetworkNames.Firo) {
+    /**
+     * Init spark account info
+     */
     const defaultAddress = await wallet.getSparkAddressAsync();
 
     await db.waitInit();
@@ -425,6 +394,27 @@ const setNetwork = async (network: BaseNetwork) => {
       sparkAccount['defaultAddress'] = defaultAddress;
     }
     sparkAccount['sparkBalance'] = { availableBalance };
+
+    /**
+     * Filter Firo accounts by base path
+     */
+    const firoBasePath = "m/44'/136'/0'/0";
+
+    const [activeAccs, inactiveAccs] = partition(
+      activeAccounts,
+      account => account.basePath === firoBasePath,
+    );
+
+    activeAccounts = activeAccs;
+    inactiveAccounts = inactiveAccs;
+  }
+
+  const selectedAddress = await domainState.getSelectedAddress();
+
+  let selectedAccount = activeAccounts[0];
+  if (selectedAddress) {
+    const found = activeAccounts.find(acc => acc.address === selectedAddress);
+    if (found) selectedAccount = found;
   }
 
   accountHeaderData.value = {

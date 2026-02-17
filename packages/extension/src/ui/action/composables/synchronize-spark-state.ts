@@ -1,5 +1,5 @@
 import { ref, watch, Ref } from 'vue';
-import { NetworkNames } from '@enkryptcom/types/dist';
+import { NetworkNames } from '@enkryptcom/types';
 import { startCoinSetSync } from '@/libs/utils/updateAndSync/updateCoinSet';
 import { appendCoinSetUpdates } from '@/libs/utils/updateAndSync/handleCoinSetUpdates';
 import { startTagSetSync } from '@/libs/utils/updateAndSync/updateTagsSet';

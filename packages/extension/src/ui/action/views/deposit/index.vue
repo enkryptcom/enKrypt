@@ -79,15 +79,6 @@
             />
           </div>
 
-          <div class="deposit__generate">
-            <button
-              class="deposit__generate-new-spark-address"
-              @click="generateNewSparkAddress()"
-            >
-              Generate new address
-            </button>
-          </div>
-
           <div class="deposit__account">
             <div class="deposit__account-info">
               <p class="deposit__account-text">
@@ -106,12 +97,6 @@
               v-if="isCopied"
               :hide="toggleNotification"
               text="Address copied"
-              class="deposit__notification"
-            />
-            <notification
-              v-if="isGenerated"
-              :hide="toggleGeneratedNotification"
-              text="New Spark address generated"
               class="deposit__notification"
             />
           </div>
@@ -175,7 +160,6 @@ import AppDialog from '@action/components/app-dialog/index.vue';
 import { SparkAccount } from '../../types/account';
 
 const isCopied = ref(false);
-const isGenerated = ref(false);
 const activeTab = ref<'transparent' | 'spark'>('spark');
 const subNetwork = ref<SubNetworkOptions | null>(null);
 
@@ -204,7 +188,6 @@ const props = defineProps({
 
 const emit = defineEmits<{
   (e: 'toggle:deposit'): void;
-  (e: 'action:generate-new-spark'): void;
 }>();
 
 const copy = (address: string) => {
@@ -218,15 +201,6 @@ const toggleNotification = () => {
 
 const setActiveTab = (value: 'transparent' | 'spark') => {
   activeTab.value = value;
-};
-
-const generateNewSparkAddress = () => {
-  emit('action:generate-new-spark');
-  toggleGeneratedNotification();
-};
-
-const toggleGeneratedNotification = () => {
-  isGenerated.value = !isGenerated.value;
 };
 
 onMounted(() => {
@@ -244,7 +218,6 @@ watch(
   v => {
     if (!v) {
       isCopied.value = false;
-      isGenerated.value = false;
       activeTab.value = 'spark';
     }
   },
@@ -280,41 +253,6 @@ watch(
 
   &.show {
     display: flex;
-  }
-
-  &__generate {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 12px;
-
-    &-new-spark-address {
-      border: 1px solid #6b0404;
-      outline: none;
-      border-radius: 8px;
-      padding: 8px 12px;
-      box-sizing: border-box;
-      background: @buttonBg;
-      text-decoration: none;
-      font-style: normal;
-      font-weight: 500;
-      font-size: 11px;
-      line-height: 16px;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: @primaryLabel;
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      flex-direction: row;
-      cursor: pointer;
-      transition: opacity 300ms ease-in-out;
-
-      &:hover {
-        opacity: 0.8;
-      }
-    }
   }
 
   &__tabs {

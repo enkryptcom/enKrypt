@@ -1,6 +1,6 @@
 import * as ecc from '@bitcoinerlab/secp256k1';
 import { Storage } from '@enkryptcom/storage';
-import { NetworkNames } from '@enkryptcom/types/dist';
+import { NetworkNames } from '@enkryptcom/types';
 import BigNumber from 'bignumber.js';
 import type { BIP32Interface } from 'bip32';
 import * as bip32 from 'bip32';

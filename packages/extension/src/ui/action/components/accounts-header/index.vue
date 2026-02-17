@@ -4,12 +4,12 @@
       v-if="!!accountInfo.selectedAccount"
       :name="accountInfo.selectedAccount.name"
       :address="network.displayAddress(accountInfo.selectedAccount.address)"
+      :sparkAddress="accountInfo.sparkAccount?.defaultAddress"
       :toggle-accounts="toggleAccounts"
       :active="showAccounts"
       :network="network"
       v-bind="$attrs"
       @toggle:deposit="$emit('toggle:deposit')"
-      @action:generate-new-spark="$emit('action:generate-new-spark')"
       @select:subnetwork="$emit('select:subnetwork', $event)"
     />
 
@@ -28,7 +28,6 @@
       :show-deposit="showDeposit"
       :network="network"
       @toggle:deposit="$emit('toggle:deposit')"
-      @action:generate-new-spark="$emit('action:generate-new-spark')"
     />
   </div>
 </template>
@@ -44,7 +43,6 @@ import { BaseNetwork } from '@/types/base-network';
 const router = useRouter();
 defineEmits<{
   (e: 'toggle:deposit'): void;
-  (e: 'action:generate-new-spark'): void;
   (e: 'select:subnetwork', id: string): void;
 }>();
 const showAccounts = ref(false);
