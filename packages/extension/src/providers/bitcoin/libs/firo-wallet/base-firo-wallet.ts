@@ -16,11 +16,6 @@ import {
 import { firoElectrum } from '../electrum-client/electrum-client';
 import configs from './configs';
 import { getSparkState } from '@/libs/spark-handler/generateSparkWallet';
-import {
-  LOCAL_STORAGE_KEYS,
-  LOCAL_STORAGE_PREFIXES,
-  LocalStorageHelper,
-} from '@action/db/localStorage';
 import BrowserStorage from '@/libs/common/browser-storage';
 import { InternalStorageNamespace } from '@/types/provider';
 
@@ -63,6 +58,7 @@ export class BaseFiroWallet {
   seed: string = '';
   network = NETWORK;
   balance: number = 0;
+  private addresses2Check: string[] | null = null;
 
   next_free_address_index = 0;
   next_free_change_address_index = 0;
@@ -229,33 +225,34 @@ export class BaseFiroWallet {
     return this._xPub;
   }
 
-  async getSparkAddressAsync(): Promise<string | undefined> {
-    const localStorage = new LocalStorageHelper(LOCAL_STORAGE_PREFIXES.wallet);
-
-    if (!localStorage.exists(LOCAL_STORAGE_KEYS.sparkIndex)) {
-      localStorage.set(LOCAL_STORAGE_KEYS.sparkIndex, 1);
+  private initAddresses2Check = async () => {
+    if (this.addresses2Check?.length) {
+      return this.addresses2Check;
     }
+    const address2Check = await this.getTransactionsAddresses();
+    this.addresses2Check = address2Check;
+    return address2Check;
+  };
 
-    const currentIndex = localStorage.get<number>(
-      LOCAL_STORAGE_KEYS.sparkIndex,
-    );
+  async getAddressIndex(address: string) {
+    const address2Check = await this.initAddresses2Check();
+    return address2Check.indexOf(address);
+  }
+
+  async getSparkAddressAsync(
+    currentAddress: string,
+  ): Promise<string | undefined> {
+    const currentIndex = await this.getAddressIndex(currentAddress);
+
+    if (currentIndex === -1) {
+      console.error(
+        `🚨 Current address not found in address2Check: ${currentAddress}`,
+      );
+      return undefined;
+    }
 
     const sparkState = await getSparkState(currentIndex);
     return sparkState?.defaultAddress;
-  }
-
-  skipAddress(): void {
-    const localStorage = new LocalStorageHelper(LOCAL_STORAGE_PREFIXES.wallet);
-
-    if (!localStorage.exists(LOCAL_STORAGE_KEYS.sparkIndex)) {
-      localStorage.set(LOCAL_STORAGE_KEYS.sparkIndex, 1);
-    }
-
-    const currentIndex = localStorage.get<number>(
-      LOCAL_STORAGE_KEYS.sparkIndex,
-    );
-
-    localStorage.set(LOCAL_STORAGE_KEYS.sparkIndex, currentIndex! + 1);
   }
 
   async _getInternalAddressByIndex(index: number): Promise<string | undefined> {

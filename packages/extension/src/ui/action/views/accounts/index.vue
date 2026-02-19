@@ -20,6 +20,7 @@
           :is-checked="accountInfo.selectedAccount?.address == account.address"
           :select="selectAccount"
           :active="true"
+          :network="network"
           :identicon-element="network.identicon"
           :show-edit="true"
           :deletable="account.walletType !== WalletType.mnemonic"
@@ -39,6 +40,7 @@
           :is-checked="false"
           :active="false"
           :identicon-element="network.identicon"
+          :network="network"
         />
         <div
           v-if="displayInactive.length === 0 && displayActive.length === 0"
