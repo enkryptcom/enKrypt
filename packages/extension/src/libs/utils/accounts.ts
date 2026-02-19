@@ -2,6 +2,7 @@ import { EnkryptAccount, NetworkNames, SignerType } from '@enkryptcom/types';
 import PublicKeyRing from '../keyring/public-keyring';
 import { getNetworkByName } from './networks';
 import { ProviderName } from '@/types/provider';
+import { FIRO_BASE_PATH } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 
 const getOtherSigners = (signers: SignerType[]): SignerType[] => {
   const otherSigners: SignerType[] = [];
@@ -16,22 +17,32 @@ export const getAccountsByNetworkName = async (
 ): Promise<EnkryptAccount[]> => {
   const network = await getNetworkByName(networkName);
 
+  debugger;
   if (!network) return [];
 
   const keyring = new PublicKeyRing();
 
   const accounts = await keyring.getAccounts(network.signer);
 
-  const filtered = accounts.filter(account => {
-    if (
-      account.isHardware &&
-      account.HWOptions !== undefined &&
-      network.provider !== ProviderName.ethereum
-    ) {
-      return account.HWOptions.networkName === networkName;
-    }
-    return true;
-  });
+  const filtered = accounts
+    .filter(account => {
+      if (
+        account.isHardware &&
+        account.HWOptions !== undefined &&
+        network.provider !== ProviderName.ethereum
+      ) {
+        return account.HWOptions.networkName === networkName;
+      }
+      return true;
+    })
+    .filter(account => {
+      if (network.name === NetworkNames.Firo) {
+        return account.basePath === FIRO_BASE_PATH;
+      } else {
+        return account.basePath !== FIRO_BASE_PATH;
+      }
+    });
+
   return filtered.map(f => {
     if (
       network.signer.includes(SignerType.secp256k1btc) &&

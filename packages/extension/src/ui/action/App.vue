@@ -375,8 +375,10 @@ const setNetwork = async (network: BaseNetwork) => {
     currentSubNetwork.value = '';
   }
 
-  let activeAccounts = await getAccountsByNetworkName(network.name);
-  let inactiveAccounts = await kr.getAccounts(getOtherSigners(network.signer));
+  const activeAccounts = await getAccountsByNetworkName(network.name);
+  const inactiveAccounts = await kr.getAccounts(
+    getOtherSigners(network.signer),
+  );
 
   const sparkAccount = {} as SparkAccount;
 
@@ -398,15 +400,15 @@ const setNetwork = async (network: BaseNetwork) => {
     /**
      * Filter Firo accounts by base path
      */
-    const firoBasePath = "m/44'/136'/0'/0";
-
-    const [activeAccs, inactiveAccs] = partition(
-      activeAccounts,
-      account => account.basePath === firoBasePath,
-    );
-
-    activeAccounts = activeAccs;
-    inactiveAccounts = inactiveAccs;
+    // const firoBasePath = "m/44'/136'/0'/0";
+    //
+    // const [activeAccs, inactiveAccs] = partition(
+    //   activeAccounts,
+    //   account => account.basePath === firoBasePath,
+    // );
+    //
+    // activeAccounts = activeAccs;
+    // inactiveAccounts = inactiveAccs;
   }
 
   const selectedAddress = await domainState.getSelectedAddress();

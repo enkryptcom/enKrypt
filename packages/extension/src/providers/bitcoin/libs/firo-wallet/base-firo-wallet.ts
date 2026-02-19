@@ -39,6 +39,7 @@ const EXTERNAL_INDEX = 0;
 const INTERNAL_INDEX = 1;
 
 export const SATOSHI = new BigNumber(100000000);
+export const FIRO_BASE_PATH = "m/44'/136'/0'/0";
 
 const NETWORK = {
   name: NetworkNames.Firo,
