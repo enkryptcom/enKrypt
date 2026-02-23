@@ -17,7 +17,6 @@ export const getAccountsByNetworkName = async (
 ): Promise<EnkryptAccount[]> => {
   const network = await getNetworkByName(networkName);
 
-  debugger;
   if (!network) return [];
 
   const keyring = new PublicKeyRing();

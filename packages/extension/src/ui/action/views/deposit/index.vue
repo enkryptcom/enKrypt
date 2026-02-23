@@ -33,11 +33,9 @@
           <div class="deposit__code">
             <qrcode-vue
               :value="
-                $props.network?.provider == ProviderName.kadena
-                  ? network.displayAddress(account.address)
-                  : network.provider +
-                    ':' +
-                    network.displayAddress(account.address)
+                NetworkNames.Firo +
+                ':' +
+                network.displayAddress(account.address)
               "
               :size="150"
               level="H"
@@ -73,7 +71,7 @@
         <div v-if="activeTab === 'spark' && !!sparkAccount">
           <div class="deposit__code">
             <qrcode-vue
-              :value="network.provider + ':' + sparkAccount?.defaultAddress"
+              :value="NetworkNames.Firo + ':' + sparkAccount?.defaultAddress"
               :size="150"
               level="H"
             />

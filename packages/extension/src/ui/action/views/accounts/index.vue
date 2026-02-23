@@ -20,6 +20,7 @@
           :is-checked="accountInfo.selectedAccount?.address == account.address"
           :select="selectAccount"
           :active="true"
+          :network="network"
           :identicon-element="network.identicon"
           :show-edit="true"
           :deletable="account.walletType !== WalletType.mnemonic"
@@ -39,6 +40,7 @@
           :is-checked="false"
           :active="false"
           :identicon-element="network.identicon"
+          :network="network"
         />
         <div
           v-if="displayInactive.length === 0 && displayActive.length === 0"
@@ -122,11 +124,7 @@ import { AccountsHeaderData } from '../../types/account';
 import { computed, PropType, ref } from 'vue';
 import openHardware from '@/libs/utils/open-hardware';
 import scrollSettings from '@/libs/utils/scroll-settings';
-import {
-  EnkryptAccount,
-  SignerType,
-  WalletType,
-} from '@enkryptcom/types';
+import { EnkryptAccount, SignerType, WalletType } from '@enkryptcom/types';
 import HWwallets from '@enkryptcom/hw-wallets';
 import { BaseNetwork } from '@/types/base-network';
 import { ProviderName } from '@/types/provider';
