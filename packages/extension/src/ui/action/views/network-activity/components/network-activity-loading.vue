@@ -12,8 +12,17 @@ defineProps({
   isEmpty: Boolean,
 });
 </script>
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
 .network-activity {
   &__loading {
@@ -25,20 +34,26 @@ defineProps({
     flex-direction: column;
     padding-bottom: 56px;
     box-sizing: border-box;
+    animation: fadeIn 0.4s ease-out;
 
     svg {
-      margin-bottom: 8px;
+      margin-bottom: 12px;
+      opacity: 0.7;
     }
 
     p {
       font-style: normal;
-      font-weight: 400;
+      font-weight: 500;
       font-size: 14px;
-      line-height: 20px;
-      letter-spacing: 0.25px;
+      line-height: 22px;
+      letter-spacing: 0.2px;
       color: @tertiaryLabel;
       margin: 0;
       text-align: center;
+      padding: 16px 32px;
+      background: rgba(0, 0, 0, 0.02);
+      border-radius: 12px;
+      border: 1px dashed rgba(0, 0, 0, 0.08);
     }
   }
 }

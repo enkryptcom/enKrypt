@@ -14,7 +14,7 @@
         ref="addressInput"
         v-model="address"
         type="text"
-        :disabled="disableDirectInput"
+        :readonly="disableDirectInput"
         placeholder="address"
         :style="{
           color: !network.isAddress(solAddress) ? 'red' : 'black',
@@ -82,69 +82,97 @@ const changeFocus = (val: FocusEvent) => {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
 
 .send-address-input {
-  height: 64px;
-  background: #ffffff;
-  margin: 12px 32px 8px 32px;
+  height: 60px;
+  background: @white;
+  margin: 8px 24px;
   box-sizing: border-box;
-  border: 1px solid @gray02;
-  box-sizing: border-box;
-  border-radius: 10px;
-  width: calc(~'100% - 64px');
-  padding: 16px;
+  border: 1.5px solid rgba(98, 126, 234, 0.15);
+  border-radius: 14px;
+  width: calc(~'100% - 48px');
+  padding: 12px 16px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   flex-direction: row;
   position: relative;
+  transition: all 200ms ease-in-out;
+  box-shadow: 0 2px 8px rgba(98, 126, 234, 0.06);
+
+  &:hover {
+    border-color: rgba(98, 126, 234, 0.25);
+    box-shadow: 0 2px 8px rgba(98, 126, 234, 0.08);
+  }
 
   &.focus {
     border: 2px solid @primary;
-    width: calc(~'100% - 62px');
-    margin: 12px 31px 8px 31px;
+    box-shadow: 0 0 0 3px rgba(98, 126, 234, 0.12);
+    margin: 8px 24px;
+    width: calc(~'100% - 48px');
+    padding: 11px 15px;
   }
 
   &__avatar {
-    background: @buttonBg;
-    box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
-    width: 32px;
-    height: 32px;
-    border-radius: 100%;
+    box-shadow: inset 0px 0px 2px rgba(0, 0, 0, 0.08);
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 12px;
     overflow: hidden;
     margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     img {
       width: 100%;
       height: 100%;
+      object-fit: cover;
     }
   }
 
   &__address {
+    flex: 1;
+    min-width: 0;
+
     p {
       font-style: normal;
-      font-weight: 400;
-      font-size: 12px;
-      line-height: 16px;
+      font-weight: 500;
+      font-size: 11px;
+      line-height: 14px;
       letter-spacing: 0.5px;
+      text-transform: uppercase;
       color: @secondaryLabel;
-      margin: 0;
+      margin: 0 0 2px 0;
     }
 
     input {
-      width: 290px;
-      height: 24px;
+      width: 100%;
+      height: 22px;
       font-style: normal;
-      font-weight: 400;
-      font-size: 16px;
-      line-height: 24px;
-      letter-spacing: 0.25px;
+      font-weight: 500;
+      font-size: 15px;
+      line-height: 22px;
+      letter-spacing: 0.1px;
       color: @primaryLabel;
       border: 0 none;
       outline: none;
       padding: 0;
+      background: transparent;
+      text-overflow: ellipsis;
+
+      &::placeholder {
+        color: @tertiaryLabel;
+        font-weight: 400;
+      }
+
+      &:disabled {
+        cursor: pointer;
+        opacity: 1;
+      }
     }
   }
 
@@ -152,9 +180,16 @@ const changeFocus = (val: FocusEvent) => {
     position: absolute;
     font-size: 0;
     cursor: pointer;
-    padding: 4px;
+    padding: 6px;
     right: 8px;
-    top: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 8px;
+    transition: background 150ms ease-in-out;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
   }
 }
 </style>

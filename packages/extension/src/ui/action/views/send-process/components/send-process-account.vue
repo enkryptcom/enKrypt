@@ -56,7 +56,7 @@ defineProps({
 });
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
 
 .send-process-account {
@@ -66,39 +66,46 @@ defineProps({
   align-items: center;
   flex-direction: row;
   width: 100%;
-  padding: 12px 16px;
+  padding: 14px 16px;
   box-sizing: border-box;
+  background: @white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.06);
 
   &__img {
-    width: 32px;
-    height: 24px;
+    width: 36px;
+    height: 36px;
     margin-right: 12px;
-    border-radius: 5px;
-
-    &.avatar {
-      height: 32px;
-      border-radius: 100%;
-    }
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+    object-fit: cover;
   }
 
   &__name {
-    h4 {
-      font-style: normal;
-      font-weight: 400;
-      font-size: 16px;
-      line-height: 24px;
-      color: @primaryLabel;
-      margin: 0;
-      word-break: break-all;
-    }
+    flex: 1;
+    min-width: 0;
 
     p {
       font-style: normal;
-      font-weight: 400;
-      font-size: 12px;
-      line-height: 16px;
-      color: @secondaryLabel;
+      font-weight: 500;
+      font-size: 11px;
+      line-height: 14px;
+      color: @tertiaryLabel;
+      margin: 0 0 2px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    h4 {
+      font-style: normal;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 20px;
+      color: @primaryLabel;
       margin: 0;
+      word-break: break-all;
     }
 
     h6 {
@@ -107,7 +114,9 @@ defineProps({
       font-size: 12px;
       line-height: 16px;
       color: @secondaryLabel;
-      margin: 0;
+      margin: 2px 0 0 0;
+      font-family: 'SF Mono', 'Roboto Mono', monospace;
+      letter-spacing: -0.3px;
     }
   }
 }

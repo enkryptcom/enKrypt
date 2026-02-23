@@ -23,7 +23,7 @@ const assetHubOptions: SubstrateNetworkOptions = {
   icon,
   decimals: 10,
   prefix: 0,
-  node: 'wss://dot-rpc.stakeworld.io/assethub',
+  node: 'wss://asset-hub-polkadot-rpc.n.dwellir.com/',
   coingeckoID: 'polkadot',
   genesisHash:
     '0x68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f',

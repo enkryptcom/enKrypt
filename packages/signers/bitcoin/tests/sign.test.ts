@@ -4,7 +4,7 @@ import { getPublicKey } from "@noble/secp256k1";
 import { BitcoinSigner } from "../src";
 import fixtures from "./fixtures";
 
-describe("Ethreum signing", () => {
+describe("Bitcoin signing", () => {
   it("it should sign correctly", { timeout: 20_000 }, async () => {
     const ethreumSigner = new BitcoinSigner();
     const promises = fixtures.valid.map((f) => {
