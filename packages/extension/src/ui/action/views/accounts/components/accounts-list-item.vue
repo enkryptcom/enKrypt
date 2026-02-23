@@ -13,7 +13,9 @@
         {{ $filters.formatFloatingPointValue(amount).value }} {{ symbol }}
         <span>{{
           $filters.replaceWithEllipsis(
-            network.name === NetworkNames.Firo ? sparkDisplayAddress : address,
+            network.name === NetworkNames.Firo && active
+              ? sparkDisplayAddress
+              : address,
             6,
             4,
           )

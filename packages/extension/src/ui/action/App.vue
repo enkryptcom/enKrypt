@@ -384,8 +384,8 @@ const setNetwork = async (network: BaseNetwork) => {
     currentSubNetwork.value = '';
   }
 
-  let activeAccounts = await getAccountsByNetworkName(network.name);
-  let inactiveAccounts = await kr.getAccounts(
+  const activeAccounts = await getAccountsByNetworkName(network.name);
+  const inactiveAccounts = await kr.getAccounts(
     getOtherSigners(network.signer),
   );
 
@@ -394,19 +394,6 @@ const setNetwork = async (network: BaseNetwork) => {
   const selectedAddress = await domainState.getSelectedAddress();
 
   if (network.name === NetworkNames.Firo) {
-    /**
-     * Filter Firo accounts by base path
-     */
-    const firoBasePath = "m/44'/136'/0'/0";
-
-    const [activeAccs, inactiveAccs] = partition(
-      activeAccounts,
-      account => account.basePath === firoBasePath,
-    );
-
-    activeAccounts = activeAccs;
-    inactiveAccounts = inactiveAccs;
-
     /**
      * Init spark account info
      */
@@ -417,7 +404,10 @@ const setNetwork = async (network: BaseNetwork) => {
       if (found) selectedAccount = found;
     }
 
-    const defaultAddress = await getSparkAddress(network, selectedAccount.address);
+    const defaultAddress = await getSparkAddress(
+      network,
+      selectedAccount.address,
+    );
 
     await db.waitInit();
     const availableBalance =

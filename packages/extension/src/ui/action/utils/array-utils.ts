@@ -1,4 +1,7 @@
-export const partition = <T>(array: T[], predicate: (item: T) => boolean): [T[], T[]] => {
+export const partition = <T>(
+  array: T[],
+  predicate: (item: T) => boolean,
+): [T[], T[]] => {
   const truthy: T[] = [];
   const falsy: T[] = [];
 
@@ -7,4 +10,4 @@ export const partition = <T>(array: T[], predicate: (item: T) => boolean): [T[],
   }
 
   return [truthy, falsy];
-}
+};

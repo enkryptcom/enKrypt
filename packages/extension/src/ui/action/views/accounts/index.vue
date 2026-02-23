@@ -124,11 +124,7 @@ import { AccountsHeaderData } from '../../types/account';
 import { computed, PropType, ref } from 'vue';
 import openHardware from '@/libs/utils/open-hardware';
 import scrollSettings from '@/libs/utils/scroll-settings';
-import {
-  EnkryptAccount,
-  SignerType,
-  WalletType,
-} from '@enkryptcom/types';
+import { EnkryptAccount, SignerType, WalletType } from '@enkryptcom/types';
 import HWwallets from '@enkryptcom/hw-wallets';
 import { BaseNetwork } from '@/types/base-network';
 import { ProviderName } from '@/types/provider';
