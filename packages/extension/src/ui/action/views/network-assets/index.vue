@@ -7,10 +7,16 @@
       >
         <div v-if="!!selected" class="network-assets">
           <network-activity-total
+            :isCoinSyncing="props.isCoinSyncing"
+            :isTagSyncing="props.isTagSyncing"
             :crypto-amount="cryptoAmount"
             :fiat-amount="fiatAmount"
             :symbol="network.currencyName"
             :subnetwork="props.subnetwork"
+            :network="props.network as BitcoinNetwork"
+            :account-info="props.accountInfo"
+            :spark-account="props.accountInfo.sparkAccount"
+            @update:spark-state="updateSparkState"
           />
 
           <!-- Banners -->
@@ -53,6 +59,7 @@
       <deposit
         v-if="!!props.accountInfo.selectedAccount"
         :account="props.accountInfo.selectedAccount"
+        :spark-account="props.accountInfo.sparkAccount"
         :show-deposit="showDeposit"
         :network="network"
         @toggle:deposit="toggleDeposit"
@@ -79,16 +86,17 @@ import NetworkAssetsLoading from './components/network-assets-loading.vue';
 import NetworkAssetsError from './components/network-assets-error.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import { computed, onMounted, type PropType, ref, toRef, watch } from 'vue';
-import type { AssetsType } from '@/types/provider';
-import type { AccountsHeaderData } from '../../types/account';
-import accountInfoComposable from '@action/composables/account-info';
-import { BaseNetwork } from '@/types/base-network';
 import scrollSettings from '@/libs/utils/scroll-settings';
-import Deposit from '@action/views/deposit/index.vue';
+import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
+import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
+import { BaseNetwork } from '@/types/base-network';
+import type { AssetsType } from '@/types/provider';
 import BaseButton from '@action/components/base-button/index.vue';
+import accountInfoComposable from '@action/composables/account-info';
+import Deposit from '@action/views/deposit/index.vue';
+import type { AccountsHeaderData } from '../../types/account';
 import CustomEvmToken from './components/custom-evm-token.vue';
 import CustomMassaToken from './components/custom-massa-token.vue';
-import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 import { ProviderName } from '@/types/provider';
 import NetworkAssetsSolanaStakingBanner from './components/network-assets-solana-staking-banner.vue';
 import BannersState from '@/libs/banners-state';
@@ -97,6 +105,14 @@ const showDeposit = ref(false);
 
 const route = useRoute();
 const props = defineProps({
+  isCoinSyncing: {
+    type: Boolean,
+    default: false,
+  },
+  isTagSyncing: {
+    type: Boolean,
+    default: false,
+  },
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
@@ -113,6 +129,10 @@ const props = defineProps({
 const assets = ref<AssetsType[]>([]);
 const isLoading = ref(false);
 const isFetchError = ref(false);
+
+const emits = defineEmits<{
+  (e: 'update:spark-state-changed', network: BaseNetwork): void;
+}>();
 
 const { cryptoAmount, fiatAmount } = accountInfoComposable(
   toRef(props, 'network'),
@@ -141,6 +161,10 @@ const updateAssets = () => {
         assets.value = [];
       });
   }
+};
+const updateSparkState = (network: BaseNetwork) => {
+  updateAssets();
+  emits('update:spark-state-changed', network);
 };
 const selectedAddress = computed(
   () => props.accountInfo.selectedAccount?.address || '',
@@ -226,7 +250,6 @@ const closeSolanaStakingBanner = () => {
 
   &__scroll-area {
     position: relative;
-    margin: auto;
     width: 100%;
     height: 100%;
     max-height: 530px;

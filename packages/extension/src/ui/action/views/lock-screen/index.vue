@@ -42,21 +42,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import LogoBig from '@action/icons/common/logo-big.vue';
-import BaseButton from '@action/components/base-button/index.vue';
-import LockScreenPasswordInput from './components/lock-screen-password-input.vue';
-import LockScreenForgot from './components/lock-screen-forgot.vue';
-import LockScreenTimer from './components/lock-screen-timer.vue';
 import { sendToBackgroundFromAction } from '@/libs/messenger/extension';
-import { InternalMethods } from '@/types/messenger';
-import { computed } from 'vue';
-import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
 import { trackGenericEvents } from '@/libs/metrics';
 import { GenericEvents } from '@/libs/metrics/types';
+import { InternalMethods } from '@/types/messenger';
+import BaseButton from '@action/components/base-button/index.vue';
+import LogoBig from '@action/icons/common/logo-big.vue';
+import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
+import { computed, ref } from 'vue';
+import LockScreenForgot from './components/lock-screen-forgot.vue';
+import LockScreenPasswordInput from './components/lock-screen-password-input.vue';
+import LockScreenTimer from './components/lock-screen-timer.vue';
 
 const emit = defineEmits<{
   (e: 'update:init'): void;
+  (e: 'update:init-spark-state', password: string): void;
 }>();
 
 const password = ref(__PREFILL_PASSWORD__!);

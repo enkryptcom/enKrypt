@@ -5,6 +5,28 @@ import { fromBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
 import { BitcoinNetwork } from '../types/bitcoin-network';
 import { BTCTxInfo } from '../ui/types';
+import { wasmInstance } from '@/libs/utils/wasm-loader';
+
+export const isSparkAddress = async (
+  address = '',
+  isTestNetwork = false,
+): Promise<boolean> => {
+  const wasm = await wasmInstance.getInstance();
+
+  if (!wasm) {
+    console.log('Wasm not loaded');
+    return false;
+  }
+
+  const isAddressValid = wasm.ccall(
+    'js_isValidSparkAddress',
+    'number',
+    ['string', 'number'],
+    [address, isTestNetwork],
+  );
+
+  return !!isAddressValid;
+};
 
 const isAddress = (address: string, network: BitcoinNetworkInfo): boolean => {
   try {
@@ -28,6 +50,7 @@ const getTxInfo = (
       hash: u.txid,
       index: u.index,
       raw: u.raw,
+      address: u.address,
       witnessUtxo: {
         script: u.pkscript,
         value: u.value,
@@ -39,6 +62,7 @@ const getTxInfo = (
       hash: ordinalUTXO.txid,
       index: ordinalUTXO.index,
       raw: ordinalUTXO.raw,
+      address: ordinalUTXO.address,
       witnessUtxo: {
         script: ordinalUTXO.pkscript,
         value: ordinalUTXO.value,

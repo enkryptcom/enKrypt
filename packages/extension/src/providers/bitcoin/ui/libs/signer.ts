@@ -13,6 +13,11 @@ import {
 import { magicHash, toCompact } from '../../libs/sign-message-utils';
 import HWwallet from '@enkryptcom/hw-wallets';
 import type BitcoinAPI from '@/providers/bitcoin/libs/api';
+import * as bitcoin from 'bitcoinjs-lib';
+import {
+  validator,
+  BaseFiroWallet,
+} from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 
 const PSBTSigner = (account: EnkryptAccount, network: BitcoinNetwork) => {
   return {
@@ -98,6 +103,66 @@ const TransactionSigner = async (
       return tx.extractTransaction();
     });
   }
+};
+
+const FiroTransactionSigner = async (
+  options: SignerTransactionOptions,
+): Promise<Transaction> => {
+  const { network, payload } = options;
+  const wallet = new BaseFiroWallet();
+  const address2Check = await wallet.getTransactionsAddresses();
+  const addressKeyPairMapping =
+    await wallet.getAddressKeyPairMapping(address2Check);
+
+  const tx = new Psbt({
+    network: network.networkInfo,
+    maximumFeeRate: network.networkInfo.maxFeeRate,
+  });
+
+  const allInputs = payload.inputs.map(u => {
+    const res: {
+      hash: string;
+      index: number;
+      witnessUtxo?: { script: Buffer; value: number };
+      nonWitnessUtxo?: Buffer;
+      address: string;
+    } = {
+      hash: u.hash,
+      index: u.index,
+      address: u.address,
+    };
+    res.nonWitnessUtxo = Buffer.from(u.raw, 'hex');
+    return res;
+  });
+
+  allInputs.forEach(input => {
+    tx.addInput({
+      hash: input.hash,
+      index: input.index,
+      nonWitnessUtxo: input.nonWitnessUtxo,
+    });
+  });
+  payload.outputs.forEach(output => tx.addOutput(output));
+
+  allInputs.forEach((input, i) => {
+    const keyPair = addressKeyPairMapping[input.address];
+    const Signer = {
+      sign: (hash: Uint8Array) => {
+        return Buffer.from(keyPair.sign(hash));
+      },
+      publicKey: Buffer.from(keyPair.publicKey),
+    } as unknown as bitcoin.Signer;
+
+    tx.signInput(i, Signer);
+  });
+
+  if (!tx.validateSignaturesOfAllInputs(validator)) {
+    throw new Error('Error: Some inputs were not signed!');
+  }
+
+  tx.finalizeAllInputs();
+
+  return tx.extractTransaction();
 };
 
 const MessageSigner = (
@@ -196,4 +261,4 @@ const MessageSigner = (
   }
 };
 
-export { TransactionSigner, MessageSigner, PSBTSigner };
+export { TransactionSigner, FiroTransactionSigner, MessageSigner, PSBTSigner };

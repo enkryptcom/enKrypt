@@ -4,6 +4,7 @@
       v-if="!!accountInfo.selectedAccount"
       :name="accountInfo.selectedAccount.name"
       :address="network.displayAddress(accountInfo.selectedAccount.address)"
+      :sparkAddress="accountInfo.sparkAccount?.defaultAddress"
       :toggle-accounts="toggleAccounts"
       :active="showAccounts"
       :network="network"
@@ -23,6 +24,7 @@
     <deposit
       v-if="!!accountInfo.selectedAccount"
       :account="accountInfo.selectedAccount"
+      :spark-account="accountInfo.sparkAccount"
       :show-deposit="showDeposit"
       :network="network"
       @toggle:deposit="$emit('toggle:deposit')"

@@ -51,12 +51,15 @@
             <component
               :is="Component"
               :key="route.fullPath"
+              :is-coin-syncing="isCoinFetchPending"
+              :is-tag-syncing="isTagFetchPending"
               :network="currentNetwork"
               :subnetwork="currentSubNetwork"
               :account-info="accountHeaderData"
               @update:init="init"
               @toggle:deposit="toggleDepositWindow"
               @open:buy-action="openBuyPage"
+              @update:spark-state-changed="getSparkAccountState"
             />
           </transition>
         </router-view>
@@ -98,21 +101,24 @@
 import DomainState from '@/libs/domain-state';
 import PublicKeyRing from '@/libs/keyring/public-keyring';
 import { sendToBackgroundFromAction } from '@/libs/messenger/extension';
+import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
+import RateState from '@/libs/rate-state';
 import {
   getAccountsByNetworkName,
   getOtherSigners,
 } from '@/libs/utils/accounts';
-import ModalNewVersion from './views/modal-new-version/index.vue';
 import { DEFAULT_EVM_NETWORK, getNetworkByName } from '@/libs/utils/networks';
 import openOnboard from '@/libs/utils/open-onboard';
 import BTCAccountState from '@/providers/bitcoin/libs/accounts-state';
+import { BaseFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import EVMAccountState from '@/providers/ethereum/libs/accounts-state';
-import SolAccountState from '@/providers/solana/libs/accounts-state';
 import { MessageMethod } from '@/providers/ethereum/types';
 import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 import { MessageMethod as KadenaMessageMethod } from '@/providers/kadena/types';
+import SolAccountState from '@/providers/solana/libs/accounts-state';
 import { BaseNetwork } from '@/types/base-network';
 import { InternalMethods } from '@/types/messenger';
+import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB';
 import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import { fromBase } from '@enkryptcom/utils';
 import { computed, onMounted, ref } from 'vue';
@@ -121,14 +127,15 @@ import Browser from 'webextension-polyfill';
 import AccountsHeader from './components/accounts-header/index.vue';
 import AppMenu from './components/app-menu/index.vue';
 import NetworkMenu from './components/network-menu/index.vue';
-import { AccountsHeaderData } from './types/account';
+import Restricted from './views/restricted/index.vue';
+import { AccountsHeaderData, SparkAccount } from './types/account';
 import AddNetwork from './views/add-network/index.vue';
+import ModalNewVersion from './views/modal-new-version/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import Settings from './views/settings/index.vue';
+import { useSynchronizeSparkState } from '@action/composables/synchronize-spark-state';
 import ModalUpdates from './views/updates/index.vue';
-import Restricted from './views/restricted/index.vue';
 import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
-import RateState from '@/libs/rate-state';
 import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
 import { trackBuyEvents, trackNetwork } from '@/libs/metrics';
 import { getLatestEnkryptVersion } from '@action/utils/browser';
@@ -136,28 +143,36 @@ import { gt as semverGT } from 'semver';
 import { useUpdatesStore } from './store/updates-store';
 import { useNetworksStore } from './store/networks-store';
 import { storeToRefs } from 'pinia';
-import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
 import BackupState from '@/libs/backup-state';
 import { useMenuStore } from './store/menu-store';
 import { useCurrencyStore, type Currency } from './views/settings/store';
 import { useRateStore } from './store/rate-store';
 import { isGeoRestricted, isWalletRestricted } from '@/libs/utils/screening';
+import { useUpdateActivityState } from '@action/composables/update-activity-state';
+import { partition } from '@action/utils/array-utils';
+import { getSparkAddress } from '@action/composables/get-spark-address';
 
+const wallet = new BaseFiroWallet();
+const db = new IndexedDBHelper();
 const domainState = new DomainState();
 const rateState = new RateState();
 const backupState = new BackupState();
+
+const defaultNetwork = DEFAULT_EVM_NETWORK;
+const currentVersion = __PACKAGE_VERSION__;
+
 const showDepositWindow = ref(false);
 const accountHeaderData = ref<AccountsHeaderData>({
   activeAccounts: [],
   inactiveAccounts: [],
   selectedAccount: null,
   activeBalances: [],
+  sparkAccount: null,
 });
 
 const router = useRouter();
 const route = useRoute();
 const transitionName = 'fade';
-const defaultNetwork = DEFAULT_EVM_NETWORK;
 const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const currentSubNetwork = ref<string>('');
 const kr = new PublicKeyRing();
@@ -165,7 +180,6 @@ const addNetworkShow = ref(false);
 const settingsShow = ref(false);
 const updateShow = ref(false);
 const isLoading = ref(true);
-const currentVersion = __PACKAGE_VERSION__;
 const latestVersion = ref('');
 const geoRestricted = ref(false);
 const isWalletInitialized = ref(false);
@@ -173,6 +187,25 @@ const isAddressRestricted = ref<{ isRestricted: boolean; address: string }>({
   isRestricted: false,
   address: '',
 });
+
+const { sparkUnusedTxDetails, isCoinFetchPending, isTagFetchPending } =
+  useSynchronizeSparkState(currentNetwork, sparkBalance => {
+    if (sparkBalance && accountHeaderData.value.sparkAccount) {
+      console.log('UPDATING BALANCE');
+
+      accountHeaderData.value = {
+        ...accountHeaderData.value,
+        sparkAccount: {
+          ...(accountHeaderData.value.sparkAccount ?? {}),
+          sparkBalance: {
+            availableBalance: sparkBalance || '0',
+          },
+        },
+      };
+    }
+  });
+
+useUpdateActivityState(currentNetwork, sparkUnusedTxDetails, accountHeaderData);
 
 /** -------------------
  * Rate
@@ -318,9 +351,29 @@ onMounted(async () => {
   }
 });
 
-/**
- * Update the gradient of the app menu on the active network change
- */
+const getSparkAccountState = async (network: BaseNetwork) => {
+  if (network.name === NetworkNames.Firo) {
+    // TODO: check maybe redundand
+    const selectedAccount = accountHeaderData.value.selectedAccount;
+    const currentSelectedAddress = selectedAccount?.address;
+
+    if (!currentSelectedAddress) {
+      return null;
+    }
+    const displayAddress = network.displayAddress(currentSelectedAddress);
+    const defaultAddress = await wallet.getSparkAddressAsync(displayAddress);
+    await db.waitInit();
+    const availableBalance = await db.readData<string>(
+      DB_DATA_KEYS.sparkBalance,
+    );
+    if (defaultAddress) {
+      accountHeaderData.value.sparkAccount = {
+        defaultAddress,
+        sparkBalance: { availableBalance },
+      };
+    }
+  }
+};
 
 const setNetwork = async (network: BaseNetwork) => {
   trackNetwork(NetworkChangeEvents.NetworkChangePopup, {
@@ -330,12 +383,41 @@ const setNetwork = async (network: BaseNetwork) => {
   if (!network.subNetworks) {
     currentSubNetwork.value = '';
   }
+
   const activeAccounts = await getAccountsByNetworkName(network.name);
   const inactiveAccounts = await kr.getAccounts(
     getOtherSigners(network.signer),
   );
 
+  const sparkAccount = {} as SparkAccount;
+
   const selectedAddress = await domainState.getSelectedAddress();
+
+  if (network.name === NetworkNames.Firo) {
+    /**
+     * Init spark account info
+     */
+
+    let selectedAccount = activeAccounts[0];
+    if (selectedAddress) {
+      const found = activeAccounts.find(acc => acc.address === selectedAddress);
+      if (found) selectedAccount = found;
+    }
+
+    const defaultAddress = await getSparkAddress(
+      network,
+      selectedAccount.address,
+    );
+
+    await db.waitInit();
+    const availableBalance =
+      (await db.readData<string>(DB_DATA_KEYS.sparkBalance)) || '0';
+
+    if (defaultAddress) {
+      sparkAccount['defaultAddress'] = defaultAddress;
+    }
+    sparkAccount['sparkBalance'] = { availableBalance };
+  }
 
   let selectedAccount = activeAccounts[0];
   if (selectedAddress) {
@@ -348,6 +430,7 @@ const setNetwork = async (network: BaseNetwork) => {
     inactiveAccounts,
     selectedAccount,
     activeBalances: activeAccounts.map(() => '~'),
+    sparkAccount,
   };
 
   currentNetwork.value = network;
@@ -459,7 +542,17 @@ const onSelectedSubnetworkChange = async (id: string) => {
 };
 
 const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
+  const defaultAddress = await getSparkAddress(
+    currentNetwork,
+    newAccount.address,
+  );
+
+  if (defaultAddress && accountHeaderData.value.sparkAccount) {
+    accountHeaderData.value.sparkAccount['defaultAddress'] = defaultAddress;
+  }
+
   accountHeaderData.value.selectedAccount = newAccount;
+
   await checkAddress(newAccount);
   if (!isAddressRestricted.value.isRestricted) {
     const accountStates = {

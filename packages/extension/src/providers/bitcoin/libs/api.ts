@@ -1,12 +1,12 @@
 import { BTCRawInfo } from '@/types/activity';
 import { ProviderAPIInterface } from '@/types/provider';
+import { toBN } from 'web3-utils';
 import {
   BitcoinNetworkInfo,
   HaskoinBalanceType,
   HaskoinTxType,
   HaskoinUnspentType,
 } from '../types';
-import { toBN } from 'web3-utils';
 import { getAddress as getBitcoinAddress } from '../types/bitcoin-network';
 import { filterOutOrdinals } from './filter-ordinals';
 

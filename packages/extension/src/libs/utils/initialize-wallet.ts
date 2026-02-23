@@ -27,6 +27,16 @@ export const initAccounts = async (keyring: KeyRing) => {
   const ed25519massa = (
     await getAccountsByNetworkName(NetworkNames.Massa)
   ).filter(acc => !acc.isTestWallet);
+  const secp256k1Firo = (
+    await getAccountsByNetworkName(NetworkNames.Firo)
+  ).filter(acc => !acc.isTestWallet);
+  if (secp256k1Firo.length == 0)
+    await keyring.saveNewAccount({
+      basePath: BitcoinNetworks.firo.basePath,
+      name: 'Firo Account 1',
+      signerType: BitcoinNetworks.firo.signer[0],
+      walletType: WalletType.mnemonic,
+    });
   if (secp256k1.length == 0)
     await keyring.saveNewAccount({
       basePath: EthereumNetworks.ethereum.basePath,

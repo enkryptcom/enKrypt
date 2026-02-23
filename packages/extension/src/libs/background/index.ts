@@ -1,25 +1,25 @@
+import DomainState from '@/libs/domain-state';
+import { sendToWindow } from '@/libs/messenger/extension';
+import PersistentEvents from '@/libs/persistent-events';
+import TabInfo from '@/libs/utils/tab-info';
+import Providers from '@/providers';
+import { BaseFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import {
   InternalMethods,
   InternalOnMessageResponse,
   Message,
 } from '@/types/messenger';
-import { RPCRequestType, OnMessageResponse } from '@enkryptcom/types';
+import { ProviderName } from '@/types/provider';
+import { OnMessageResponse, RPCRequestType } from '@enkryptcom/types';
 import { v4 as randomUUID } from 'uuid';
+import Browser from 'webextension-polyfill';
 import { getCustomError } from '../error';
 import KeyRingBase from '../keyring/keyring';
-import { sendToWindow } from '@/libs/messenger/extension';
-import { ProviderName } from '@/types/provider';
-import Providers from '@/providers';
-import Browser from 'webextension-polyfill';
-import TabInfo from '@/libs/utils/tab-info';
-import PersistentEvents from '@/libs/persistent-events';
-import DomainState from '@/libs/domain-state';
-import { TabProviderType, ProviderType, ExternalMessageOptions } from './types';
 import { getProviderNetworkByName } from '../utils/networks';
 import {
-  sign,
-  getEthereumPubKey,
   ethereumDecrypt,
+  getEthereumPubKey,
+  sign,
   unlock,
   changeNetwork,
   sendToTab,
@@ -29,9 +29,11 @@ import {
 import { handlePersistentEvents } from './external';
 import SettingsState from '../settings-state';
 import { isGeoRestricted } from '../utils/screening';
+import { ExternalMessageOptions, ProviderType, TabProviderType } from './types';
 
 class BackgroundHandler {
   #keyring: KeyRingBase;
+  #wallet: BaseFiroWallet;
   #tabProviders: TabProviderType;
   #providers: ProviderType;
   #persistentEvents: PersistentEvents;
@@ -41,6 +43,7 @@ class BackgroundHandler {
 
   constructor() {
     this.#keyring = new KeyRingBase();
+    this.#wallet = new BaseFiroWallet();
     this.#persistentEvents = new PersistentEvents();
     this.#domainState = new DomainState();
     this.#settingsState = new SettingsState();
@@ -162,7 +165,7 @@ class BackgroundHandler {
         return response;
       });
   }
-  internalHandler(msg: Message): Promise<InternalOnMessageResponse> {
+  async internalHandler(msg: Message): Promise<InternalOnMessageResponse> {
     const message = JSON.parse(msg.message) as RPCRequestType;
     switch (message.method) {
       case InternalMethods.sign:
@@ -172,6 +175,9 @@ class BackgroundHandler {
       case InternalMethods.ethereumDecrypt:
         return ethereumDecrypt(this.#keyring, message);
       case InternalMethods.unlock:
+        const password = message?.params?.[0] as string;
+        const mnemonic = await this.#keyring.getSavedMnemonic(password);
+        this.#wallet.setSecret(mnemonic);
         return unlock(this.#keyring, message);
       case InternalMethods.lock:
         return lock(this.#keyring);
