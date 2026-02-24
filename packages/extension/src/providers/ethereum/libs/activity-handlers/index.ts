@@ -4,7 +4,6 @@ import OkcActivity from './providers/okc';
 import TomoScan from './providers/tomoscan';
 import OntEVMActivity from './providers/ont-evm';
 import TelosActivity from './providers/telos';
-import GodwokenActivity from './providers/godwoken';
 import RoutescanActivity from './providers/routescan';
 export {
   RivetActivity,
@@ -13,6 +12,5 @@ export {
   OntEVMActivity,
   TomoScan,
   TelosActivity,
-  GodwokenActivity,
   RoutescanActivity,
 };

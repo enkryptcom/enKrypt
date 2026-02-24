@@ -68,7 +68,16 @@ export class Provider extends EventEmitter implements ProviderInterface {
         },
       );
     }
-    return this.sendMessageHandler(this.name, JSON.stringify(request));
+    const resp = await this.sendMessageHandler(
+      this.name,
+      JSON.stringify(request),
+    ).catch(e => {
+      return Promise.reject({
+        code: 4001,
+        message: e,
+      });
+    });
+    return resp;
   }
   enable(): Promise<any> {
     return this.request({ method: 'eth_requestAccounts' });
@@ -147,7 +156,7 @@ const injectDocument = (
   const proxiedProvider = new Proxy(provider, ProxyHandler);
   document['enkrypt']['providers'][options.name] = provider;
   if (__IS_OPERA__) {
-    document[options.name] = proxiedProvider; // Opera expects you to inject immediately and their wallet switcher will handle conflicts
+    (document as EnkryptWindow)[options.name] = proxiedProvider; // Opera expects you to inject immediately and their wallet switcher will handle conflicts
   }
   options
     .sendMessageHandler(
@@ -156,7 +165,7 @@ const injectDocument = (
     )
     .then((settings: SettingsType) => {
       if (!settings.evm.inject.disabled)
-        document[options.name] = proxiedProvider; //proxy is needed due to web3js 1.3.0 callbackify issue. Used in superrare
+        (document as EnkryptWindow)[options.name] = proxiedProvider; //proxy is needed due to web3js 1.3.0 callbackify issue. Used in superrare
     });
   const ENKRYPT_UUID_V4 = randomUUID();
   // EIP-6963
@@ -168,7 +177,7 @@ const injectDocument = (
       rdns: 'com.enkrypt',
     };
     document.dispatchEvent(
-      new document.CustomEvent(EIP6963Events.announce, {
+      new (window as any).CustomEvent(EIP6963Events.announce, {
         detail: { info, provider: proxiedProvider },
       }),
     );

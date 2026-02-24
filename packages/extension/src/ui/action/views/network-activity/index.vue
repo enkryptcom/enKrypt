@@ -8,6 +8,9 @@
         <network-activity-total
           :crypto-amount="cryptoAmount"
           :fiat-amount="fiatAmount"
+          :token-price="tokenPrice"
+          :price-change-percentage="priceChangePercentage"
+          :sparkline="sparkline"
           :symbol="props.network.currencyName"
           v-bind="$attrs"
         />
@@ -93,10 +96,13 @@ const props = defineProps({
   },
 });
 
-const { cryptoAmount, fiatAmount } = accountInfoComposable(
-  toRef(props, 'network'),
-  toRef(props, 'accountInfo'),
-);
+const {
+  cryptoAmount,
+  fiatAmount,
+  tokenPrice,
+  priceChangePercentage,
+  sparkline,
+} = accountInfoComposable(toRef(props, 'network'), toRef(props, 'accountInfo'));
 
 const forceUpdateVal = ref(0);
 const isNoActivity = ref(false);
@@ -330,14 +336,43 @@ onUnmounted(() => {
 @import '@action/styles/theme.less';
 @import '@action/styles/custom-scroll.less';
 
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .container {
   width: 100%;
   height: 600px;
-  background-color: @white;
-  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 50%, @white 100%);
+  box-shadow: none;
   margin: 0;
   padding-top: 0;
   box-sizing: border-box;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 180px;
+    background: linear-gradient(
+      180deg,
+      rgba(98, 126, 234, 0.06) 0%,
+      rgba(138, 100, 220, 0.04) 50%,
+      transparent 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
 
   .deposit {
     left: 0;
@@ -348,6 +383,9 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+  animation: fadeInUp 0.3s ease-out;
 
   &__scroll-area {
     position: relative;
@@ -367,13 +405,15 @@ onUnmounted(() => {
   }
 
   &__header {
-    padding: 8px 20px 0 20px;
+    padding: 16px 24px 8px 24px;
     font-style: normal;
-    font-weight: 700;
-    font-size: 16px;
-    line-height: 24px;
-    color: @primaryLabel;
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 18px;
+    color: @tertiaryLabel;
     margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 }
 </style>

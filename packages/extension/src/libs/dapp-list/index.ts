@@ -63,8 +63,6 @@ const lists: Partial<Record<NetworkNames, string>> = {
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/nova.json',
   [NetworkNames.Forma]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/forma.json',
-  [NetworkNames.Godwoken]:
-    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/godwoken.json',
   [NetworkNames.ImmutableZkevm]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/imx.json',
   [NetworkNames.MantaPacific]:

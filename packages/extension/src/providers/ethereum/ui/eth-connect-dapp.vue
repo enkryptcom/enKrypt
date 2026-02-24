@@ -9,46 +9,64 @@
     </template>
 
     <template #content>
-      <h2>Connect with Enkrypt</h2>
+      <div class="provider-connect-dapp__content-wrap">
+        <div class="provider-connect-dapp__titles">
+          <h2 class="provider-connect-dapp__main-title">Connect your wallet</h2>
+          <p class="provider-connect-dapp__sub-title">
+            This site is requesting access to your wallet
+          </p>
+        </div>
 
-      <div class="common-popup__block no-inset">
-        <div class="common-popup__account">
-          <img :src="Options.faviconURL" />
-          <div class="common-popup__account-info">
-            <h4>{{ Options.domain }}</h4>
+        <div class="provider-connect-dapp__connection-viz">
+          <div class="provider-connect-dapp__card">
+            <div class="provider-connect-dapp__card-icon">
+              <img :src="Options.faviconURL" />
+            </div>
+            <div class="provider-connect-dapp__card-info">
+              <h4>{{ Options.title || Options.domain }}</h4>
+              <p>{{ Options.domain }}</p>
+            </div>
+          </div>
+
+          <div class="provider-connect-dapp__link-container">
+            <link-icon />
+          </div>
+
+          <div class="provider-connect-dapp__card account-card">
+            <select-account-input
+              :name="accountHeaderData.selectedAccount?.name"
+              :address="displayAddress"
+              :identicon="identicon"
+              @toggle:select-accounts="toggleAccounts"
+            />
           </div>
         </div>
-      </div>
 
-      <div class="provider-connect-dapp__link">
-        <link-icon />
-      </div>
-
-      <div class="common-popup__block no-inset no-padding">
-        <select-account-input
-          :name="accountHeaderData.selectedAccount?.name"
-          :address="displayAddress"
-          :identicon="identicon"
-          @toggle:select-accounts="toggleAccounts"
-        />
-      </div>
-
-      <div v-if="!isRestricted" class="provider-connect-dapp__info">
-        <info-icon-gray />
-        <p>
-          This will reveal your public address, wallet balance and activity to
-          {{ Options.domain }}
-        </p>
-      </div>
-      <div v-if="isRestricted" class="provider-connect-dapp__info">
-        <info-icon-gray />
-        <p>
-          Your wallet address is restricted! if you believe this is an error
-          please contact us at
-          <a href="mailto:support@myetherwallet.com"
-            >support@myetherwallet.com</a
-          >.
-        </p>
+        <div
+          class="provider-connect-dapp__permissions"
+          :class="{ restricted: isRestricted }"
+        >
+          <div class="provider-connect-dapp__permissions-header">
+            <info-icon-gray />
+            <span>Permissions requested</span>
+          </div>
+          <div
+            v-if="!isRestricted"
+            class="provider-connect-dapp__permissions-list"
+          >
+            <p>• View your wallet address and balance</p>
+            <p>• View your past activity and transactions</p>
+          </div>
+          <div v-else class="provider-connect-dapp__permissions-error">
+            <p>
+              Your wallet address is restricted. Please contact
+              <a href="mailto:support@myetherwallet.com"
+                >support@myetherwallet.com</a
+              >
+              for assistance.
+            </p>
+          </div>
+        </div>
       </div>
 
       <modal-accounts
@@ -187,4 +205,272 @@ const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
 <style lang="less">
 @import '@/providers/ethereum/ui/styles/common-popup.less';
 @import '@action/styles/provider-connect-dapp.less';
+
+.provider-connect-dapp {
+  &__content-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  &__titles {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  &__main-title {
+    font-style: normal;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 28px;
+    letter-spacing: -0.01em;
+    color: @primaryLabel;
+    margin: 0 0 4px 0;
+  }
+
+  &__sub-title {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: @secondaryLabel;
+    margin: 0;
+  }
+
+  &__connection-viz {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 20px;
+  }
+
+  &__card {
+    background: @white;
+    border: 1px solid @gray01;
+    border-radius: 12px;
+    padding: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+
+    &:hover {
+      border-color: @gray02;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    &-icon {
+      width: 40px;
+      height: 40px;
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: @lightBg;
+      border-radius: 10px;
+      overflow: hidden;
+
+      img {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+      }
+    }
+
+    &-info {
+      flex: 1;
+      min-width: 0;
+
+      h4 {
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 20px;
+        color: @primaryLabel;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      p {
+        font-size: 12px;
+        line-height: 16px;
+        color: @secondaryLabel;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    &.account-card {
+      padding: 0;
+      overflow: hidden;
+
+      .select-account-input {
+        padding: 12px;
+        height: auto;
+
+        &__info {
+          img {
+            width: 40px;
+            height: 40px;
+            margin-right: 12px;
+          }
+
+          &-name {
+            p {
+              font-weight: 600;
+              font-size: 14px;
+              line-height: 20px;
+            }
+            span {
+              font-size: 12px;
+              line-height: 16px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &__link-container {
+    width: 100%;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  &__permissions {
+    width: 100%;
+    background: @lightBg;
+    border-radius: 12px;
+    padding: 16px;
+    box-sizing: border-box;
+
+    &-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+
+      span {
+        font-weight: 600;
+        font-size: 12px;
+        line-height: 16px;
+        color: @primaryLabel;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    &-list {
+      p {
+        font-size: 12px;
+        line-height: 18px;
+        color: @secondaryLabel;
+        margin: 2px 0;
+      }
+    }
+
+    &-error {
+      p {
+        font-size: 12px;
+        line-height: 18px;
+        color: @error;
+        margin: 0;
+
+        a {
+          color: @error;
+          text-decoration: underline;
+        }
+      }
+    }
+
+    &.restricted {
+      background: @error01;
+      border: 1px solid @error;
+    }
+  }
+}
+
+.common-popup {
+  padding: 0 !important;
+
+  &__header {
+    padding: 16px 20px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  &__content {
+    max-width: 100% !important;
+  }
+
+  &__logo {
+    width: 80px !important;
+    height: auto !important;
+  }
+
+  &__network {
+    position: static !important;
+    display: flex !important;
+    align-items: center !important;
+
+    img {
+      width: 20px !important;
+      height: 20px !important;
+      margin-right: 8px !important;
+    }
+
+    p {
+      font-size: 12px !important;
+      line-height: 16px !important;
+      font-weight: 600 !important;
+    }
+  }
+
+  &__buttons {
+    padding: 16px 20px !important;
+    gap: 12px !important;
+    background: @white !important;
+    border-top: 1px solid @gray01 !important;
+
+    &-cancel,
+    &-send {
+      width: auto !important;
+      flex: 1 !important;
+    }
+
+    .button {
+      height: 40px !important;
+      line-height: 40px !important;
+      border-radius: 10px !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+    }
+  }
+}
 </style>

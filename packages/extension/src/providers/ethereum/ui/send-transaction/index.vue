@@ -1,6 +1,14 @@
 <template>
   <div class="container">
-    <div v-if="!!selected" class="send-transaction">
+    <!-- Loading State -->
+    <div v-if="isLoadingAssets" class="send-transaction__loading">
+      <div class="send-transaction__loading-content">
+        <div class="send-transaction__loading-spinner"></div>
+        <p class="send-transaction__loading-text">Loading...</p>
+      </div>
+    </div>
+
+    <div v-if="!!selected && !isLoadingAssets" class="send-transaction">
       <send-header
         :is-send-token="isSendToken"
         :is-nft-available="!!network.NFTHandler"
@@ -472,7 +480,12 @@ const errorMsg = computed(() => {
     return `Invalid decimals for ${selectedAsset.value.symbol}.`;
   }
 
-  if (!isSendToken.value && !selectedNft.value.id) {
+  if (
+    !isSendToken.value &&
+    !selectedNft.value.id &&
+    selectedNft.value.name !== 'No NFTs found' &&
+    selectedNft.value.name !== 'Loading'
+  ) {
     return `Invalid NFT selected.`;
   }
 
@@ -851,11 +864,21 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
 .container {
   width: 100%;
   height: 600px;
-  background-color: @white;
-  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
   margin: 0;
   box-sizing: border-box;
   position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    pointer-events: none;
+    z-index: 0;
+  }
 }
 
 .send-transaction {
@@ -863,12 +886,43 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
   height: 100%;
   box-sizing: border-box;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 88px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1;
+  animation: fadeInUp 300ms ease-out;
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+  }
 
   &__buttons {
     position: absolute;
     left: 0;
     bottom: 0;
-    padding: 0 32px 32px 32px;
+    padding: 16px 24px 24px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -876,12 +930,130 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
     width: 100%;
     box-sizing: border-box;
 
+    gap: 12px;
+    z-index: 10;
+
     &-cancel {
-      width: 170px;
+      flex: 1;
+      min-width: 0;
+
+      :deep(.base-button) {
+        border: 1.5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 200ms ease-in-out;
+
+        &:hover {
+          border-color: rgba(0, 0, 0, 0.2);
+          background: rgba(0, 0, 0, 0.02);
+        }
+      }
     }
 
     &-send {
-      width: 218px;
+      flex: 1.3;
+      min-width: 0;
+
+      :deep(.base-button) {
+        border-radius: 12px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(98, 126, 234, 0.3);
+        transition: all 200ms ease-in-out;
+
+        &:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(98, 126, 234, 0.4);
+        }
+
+        &:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
+        &:disabled {
+          background: #e2e8f0;
+          box-shadow: none;
+        }
+      }
+    }
+  }
+
+  &__loading {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    &-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    &-spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(98, 126, 234, 0.15);
+      border-top-color: #627eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    &-text {
+      font-size: 15px;
+      font-weight: 500;
+      color: @secondaryLabel;
+      margin: 0;
+      letter-spacing: 0.1px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  }
+
+  // Staggered animation for child elements
+  & > *:nth-child(1) {
+    animation-delay: 0ms;
+  }
+  & > *:nth-child(2) {
+    animation-delay: 30ms;
+  }
+  & > *:nth-child(3) {
+    animation-delay: 60ms;
+  }
+  & > *:nth-child(4) {
+    animation-delay: 90ms;
+  }
+  & > *:nth-child(5) {
+    animation-delay: 120ms;
+  }
+  & > *:nth-child(6) {
+    animation-delay: 150ms;
+  }
+  & > *:nth-child(7) {
+    animation-delay: 180ms;
+  }
+  & > *:nth-child(8) {
+    animation-delay: 210ms;
+  }
+
+  & > * {
+    animation: elementFadeIn 250ms ease-out backwards;
+  }
+
+  @keyframes elementFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 }

@@ -43,7 +43,6 @@ import immutableZkevmNode from './immutable-zkevm';
 import rariNode from './rari';
 import formaNode from './forma';
 import xlayerNode from './xlayer';
-import godwokenNode from './godwoken';
 import lineaNode from './linea';
 import mantaPacificNode from './manta-pacific';
 import modeNode from './mode';
@@ -53,7 +52,6 @@ import scrollNode from './scroll';
 import cotiTestnetNode from './coti-testnet';
 import hoodiNode from './hoodi';
 import fraxtalNode from './fraxtal';
-import _5ireNode from './5ire';
 import beraNode from './bera';
 import storyNode from './story';
 import gravityNode from './gravity';
@@ -125,7 +123,6 @@ export default {
   rari: rariNode,
   forma: formaNode,
   xlayer: xlayerNode,
-  godwoken: godwokenNode,
   linea: lineaNode,
   mantaPacific: mantaPacificNode,
   mode: modeNode,
@@ -136,7 +133,6 @@ export default {
   hoodi: hoodiNode,
   frax: fraxtalNode,
   taraxa: taraxa,
-  '5ire': _5ireNode,
   bera: beraNode,
   story: storyNode,
   gravity: gravityNode,
