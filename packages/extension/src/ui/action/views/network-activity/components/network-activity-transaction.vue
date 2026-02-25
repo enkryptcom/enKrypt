@@ -281,15 +281,28 @@ onMounted(() => {
 });
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .container-empty {
   display: contents;
 }
+
 .network-activity {
   &__transaction {
-    height: 64px;
-    padding: 0 4px;
+    min-height: 68px;
+    padding: 12px 16px;
     position: relative;
     box-sizing: border-box;
     display: flex;
@@ -298,12 +311,20 @@ onMounted(() => {
     flex-direction: row;
     text-decoration: none;
     cursor: pointer;
-    margin: 0 16px;
-    border-radius: 10px;
-    transition: background 300ms ease-in-out;
+    margin: 4px 16px;
+    border-radius: 12px;
+    transition: all 0.2s ease-in-out;
+    background: @white;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    animation: fadeInUp 0.3s ease-out;
+    animation-fill-mode: backwards;
 
     &:hover {
-      background: rgba(0, 0, 0, 0.04);
+      background: @white;
+      border-color: rgba(98, 126, 234, 0.2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      transform: translateY(-1px);
     }
 
     &-info {
@@ -311,22 +332,32 @@ onMounted(() => {
       justify-content: flex-start;
       align-items: center;
       flex-direction: row;
+      flex: 1;
+      min-width: 0;
 
       img {
-        max-width: 32px;
-        max-height: 32px;
-        margin-right: 16px;
-        border-radius: 100%;
+        width: 36px;
+        height: 36px;
+        margin-right: 12px;
+        border-radius: 50%;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        flex-shrink: 0;
+        object-fit: cover;
       }
 
       &-name {
+        flex: 1;
+        min-width: 0;
+
         h4 {
           font-style: normal;
-          font-weight: 400;
-          font-size: 16px;
-          line-height: 24px;
+          font-weight: 500;
+          font-size: 14px;
+          line-height: 20px;
           color: @primaryLabel;
-          margin: 0 0 1px 0;
+          margin: 0 0 2px 0;
+          font-family: 'SF Mono', 'Monaco', 'Roboto Mono', monospace;
+          letter-spacing: -0.3px;
         }
 
         p {
@@ -334,60 +365,69 @@ onMounted(() => {
           font-weight: 400;
           font-size: 12px;
           line-height: 16px;
-          letter-spacing: 0.5px;
+          letter-spacing: 0.2px;
           color: @secondaryLabel;
           margin: 0;
           display: flex;
           justify-content: flex-start;
           align-items: center;
           flex-direction: row;
+          gap: 4px;
 
           .error {
-            color: @error;
+            color: #dc2626;
+            font-weight: 500;
           }
           .dropped {
-            /* TODO: Consider different color */
+            color: @tertiaryLabel;
+            font-weight: 500;
           }
         }
       }
 
       &-crosschain-superscript {
         color: @secondaryLabel;
+        font-size: 10px;
       }
 
       &-status {
-        margin-right: 4px;
+        font-weight: 500;
       }
 
       &-chainid {
-        margin-left: 4px;
+        opacity: 0.7;
       }
     }
 
     &-amount {
       text-align: right;
+      flex-shrink: 0;
+      margin-left: 12px;
 
       h4 {
         font-style: normal;
-        font-weight: 500;
-        font-size: 16px;
-        line-height: 24px;
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 20px;
         text-align: right;
         color: @primaryLabel;
-        margin: 0 0 1px 0;
+        margin: 0 0 2px 0;
 
         span {
-          font-variant: small-caps;
+          font-weight: 500;
+          font-size: 12px;
+          color: @secondaryLabel;
+          margin-left: 3px;
         }
       }
 
       p {
         font-style: normal;
-        font-weight: 400;
+        font-weight: 500;
         font-size: 12px;
         line-height: 16px;
-        letter-spacing: 0.5px;
-        color: @secondaryLabel;
+        letter-spacing: 0.2px;
+        color: @tertiaryLabel;
         margin: 0;
       }
     }

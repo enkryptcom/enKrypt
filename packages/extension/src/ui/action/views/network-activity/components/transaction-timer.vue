@@ -31,30 +31,40 @@ const updateTimer = () => {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .status-timer {
-  display: inline-block;
-  font-size: 0;
-  display: flex;
+  display: inline-flex;
   justify-content: flex-start;
   align-items: center;
   flex-direction: row;
+  gap: 4px;
+  padding: 2px 8px 2px 6px;
+  background: rgba(34, 197, 94, 0.1);
+  border-radius: 10px;
 
   &__spiner {
-    width: 16px;
-    height: 16px;
-    margin-left: 2px;
+    width: 14px;
+    height: 14px;
   }
 
   span {
     font-style: normal;
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 16px;
-    letter-spacing: 0.5px;
-    color: @success;
+    font-weight: 600;
+    font-size: 11px;
+    line-height: 14px;
+    letter-spacing: 0.3px;
+    color: #16a34a;
   }
 }
 </style>

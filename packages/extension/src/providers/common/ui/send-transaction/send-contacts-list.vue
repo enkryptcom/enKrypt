@@ -202,16 +202,16 @@ const pasteFromClipboard = () => {
 
   &__wrap {
     position: absolute;
-    width: 396px;
+    width: calc(100% - 48px);
     height: auto;
     max-height: 530px;
-    left: 32px;
+    left: 24px;
     top: 221px;
-    background: #ffffff;
+    background: @white;
     box-shadow:
-      0px 3px 6px rgba(0, 0, 0, 0.039),
-      0px 7px 24px rgba(0, 0, 0, 0.19);
-    border-radius: 12px;
+      0px 8px 24px rgba(0, 0, 0, 0.12),
+      0px 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
     z-index: 103;
     overflow: hidden;
     padding: 16px 0 8px 0;
@@ -219,12 +219,15 @@ const pasteFromClipboard = () => {
     opacity: 0;
     visibility: hidden;
     transition:
-      opacity 0.3s,
-      visibility 0s ease-in-out 0.3s;
+      opacity 200ms ease-out,
+      transform 200ms ease-out,
+      visibility 0s ease-in-out 200ms;
+    transform: translateY(-8px);
 
     &.show {
       opacity: 1;
       visibility: visible;
+      transform: translateY(0);
       transition-delay: 0s;
     }
 
@@ -242,13 +245,13 @@ const pasteFromClipboard = () => {
 
   h3 {
     font-style: normal;
-    font-weight: 500;
-    font-size: 12px;
-    line-height: 16px;
-    letter-spacing: 2px;
+    font-weight: 600;
+    font-size: 11px;
+    line-height: 14px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
     color: @secondaryLabel;
-    margin: 24px 0 0 16px;
+    margin: 20px 0 8px 16px;
   }
 
   &__list {
@@ -261,41 +264,46 @@ const pasteFromClipboard = () => {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
 
     a {
       font-style: normal;
       font-weight: 500;
       font-size: 12px;
       line-height: 32px;
-      letter-spacing: 0.8px;
+      letter-spacing: 0.5px;
 
       &:first-child {
-        width: 144px;
-        height: 32px;
+        flex: 1;
+        height: 36px;
       }
     }
 
     &-paste {
       display: flex;
       flex-direction: row;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
-      padding: 8px 12px 8px 8px;
-      background: rgba(0, 0, 0, 0.02);
-      border-radius: 8px;
+      padding: 8px 14px;
+      background: rgba(98, 126, 234, 0.08);
+      border-radius: 10px;
       font-style: normal;
-      font-weight: 500;
+      font-weight: 600;
       font-size: 12px;
       line-height: 16px !important;
-      letter-spacing: 0.8px;
-      color: @primaryLabel;
+      letter-spacing: 0.5px;
+      color: @primary;
       box-sizing: border-box;
-      width: 78px !important;
       cursor: pointer;
-      transition: background 300ms ease-in-out;
+      transition: all 200ms ease-in-out;
+      gap: 6px;
+
+      svg {
+        color: @primary;
+      }
 
       &:hover {
-        background: @black007;
+        background: rgba(98, 126, 234, 0.15);
       }
     }
   }
@@ -304,15 +312,20 @@ const pasteFromClipboard = () => {
     &-header {
       width: 100%;
       height: 56px;
-      background: @white;
+      background: linear-gradient(
+        135deg,
+        rgba(98, 126, 234, 0.08) 0%,
+        rgba(138, 100, 220, 0.05) 100%
+      );
       box-sizing: border-box;
-      padding: 14px 56px 14px 56px;
+      padding: 14px 56px;
       margin-bottom: 8px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 
       h4 {
         font-style: normal;
-        font-weight: bold;
-        font-size: 20px;
+        font-weight: 700;
+        font-size: 18px;
         line-height: 28px;
         margin: 0;
         color: @primaryLabel;
@@ -322,16 +335,17 @@ const pasteFromClipboard = () => {
 
     &-back {
       position: absolute;
-      top: 8px;
-      left: 0;
-      border-radius: 8px;
+      top: 10px;
+      left: 8px;
+      border-radius: 10px;
       cursor: pointer;
       padding: 8px;
       font-size: 0;
-      transition: background 300ms ease-in-out;
+      transition: all 200ms ease-in-out;
 
       &:hover {
-        background: @black007;
+        background: rgba(0, 0, 0, 0.06);
+        transform: translateX(-2px);
       }
     }
   }

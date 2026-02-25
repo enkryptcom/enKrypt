@@ -89,6 +89,27 @@ const model = defineModel<boolean>();
 <style lang="less" scoped>
 @import '@action/styles/theme.less';
 
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
 .send-process {
   width: 100%;
   height: 100%;
@@ -102,7 +123,8 @@ const model = defineModel<boolean>();
   &__container {
     width: 800px;
     height: 600px;
-    background: rgba(0, 0, 0, 0.32);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
     margin: 0;
     box-sizing: border-box;
     position: absolute;
@@ -117,41 +139,81 @@ const model = defineModel<boolean>();
     position: relative;
     background: @white;
     width: 320px;
-    box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
-    border-radius: 12px;
+    box-shadow:
+      0 12px 40px rgba(0, 0, 0, 0.2),
+      0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
     z-index: 102;
     overflow: hidden;
+    animation: fadeInScale 0.3s ease-out;
   }
 
   &__animation {
     width: 100%;
-    height: 128px;
+    height: 140px;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: row;
+    background: linear-gradient(
+      180deg,
+      rgba(98, 126, 234, 0.06) 0%,
+      transparent 100%
+    );
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 3px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(98, 126, 234, 0.3),
+        transparent
+      );
+      border-radius: 2px;
+    }
   }
 
   &__info {
     width: 100%;
-    height: 224px;
-    background-color: @lightBg;
-    padding: 4px 16px;
+    min-height: 200px;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 16px;
     box-sizing: border-box;
+    border-top: 1px solid rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
 
     &-arrow {
-      padding-left: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 8px 0;
+      opacity: 0.4;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
     }
   }
 
   &__loading {
-    width: 128px;
-    height: 128px;
+    width: 120px;
+    height: 120px;
+    animation: pulse 2s ease-in-out infinite;
   }
 
   &__done {
-    width: 128px;
-    height: 128px;
+    width: 120px;
+    height: 120px;
   }
 }
 </style>
