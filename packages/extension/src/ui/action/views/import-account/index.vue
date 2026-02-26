@@ -50,20 +50,6 @@
         @close="close"
         @back="startAction"
       />
-
-      <!-- Polkadot ecosystem  -->
-
-      <!-- <import-account-start-dot
-        v-if="isStart && isDot"
-        :to-select-account="selectAccountAction"
-        @close="close"
-      ></import-account-start-dot>
-
-      <import-account-select-account-dot
-        v-if="iSelectAccount && isDot"
-        @close="close"
-        @back="startAction"
-      ></import-account-select-account-dot> -->
     </div>
   </app-dialog>
 </template>
@@ -76,8 +62,6 @@ import ImportAccountKeystoreFile from './views/import-account-keystore-file.vue'
 import ImportAccountPassword from './views/import-account-password.vue';
 import ImportAccountImporting from './views/import-account-importing.vue';
 import ImportAccountPrivateKey from './views/import-account-private-key.vue';
-// import ImportAccountStartDot from "./views/import-account-start-dot.vue";
-// import ImportAccountSelectAccountDot from "./views/import-account-select-account-dot.vue";
 import { BaseNetwork } from '@/types/base-network';
 import { KeyPairAdd, SignerType } from '@enkryptcom/types';
 

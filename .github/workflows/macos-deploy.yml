@@ -1,0 +1,92 @@
+name: MacOS Safari Deploy
+
+on: [push]
+
+jobs:
+  buildApp:
+    name: safari build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup env
+        id: node-version
+        run: |
+          docker build -t enkrypt-build-container .
+          echo "NODE_VERSION=$(docker run --rm -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "node --version")" >> $GITHUB_OUTPUT
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+
+      - name: Cache yarn modules
+        uses: actions/cache@v4
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+
+      - name: yarn install
+        run: docker run --rm -v `pwd`:/home:rw --user "$(id -u):$(id -g)" enkrypt-build-container /bin/bash -c "yarn install --silent"
+
+      - name: build
+        run: |
+          mkdir release
+          docker run --rm --user "$(id -u):$(id -g)" -v `pwd`:/home:rw enkrypt-build-container /bin/bash -c "cd packages/extension && yarn build:all && yarn build:safari"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: safari-build-artifact
+          path: packages/extension/dist
+          retention-days: 1
+
+  deploy:
+    name: Deploying to appstore
+    needs: buildApp
+    runs-on: macOS-latest
+
+    steps:
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "latest-stable"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve saved safari build
+        uses: actions/download-artifact@v4
+        with:
+          name: safari-build-artifact
+          path: packages/extension/dist
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.0"
+          bundler-cache: true
+          working-directory: "macos/Enkrypt"
+      - name: Deploy via Fastlane
+        uses: maierj/fastlane-action@v3.0.0
+        with:
+          lane: "buildandrelease"
+          subdirectory: "macos/Enkrypt"
+        env:
+          APPLE_ID: "${{ secrets.OSX_APPLE_ID }}"
+          APP_ID: "${{ secrets.OSX_APP_ID }}"
+          FASTLANE_ITC_TEAM_ID: "${{ secrets.OSX_FASTLANE_ITC_TEAM_ID }}"
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: "${{ secrets.OSX_FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}"
+          ITC_TEAM_ID: "${{ secrets.OSX_FASTLANE_ITC_TEAM_ID }}"
+          INSTALLER_CERT: "${{ secrets.OSX_INSTALLER_CERT }}"
+          SAFARI_PROVISION: "${{ secrets.OSX_SAFARI_PROVISION }}"
+          EXTENSION_PROVISION: "${{ secrets.OSX_EXTENSION_PROVISION }}"
+          MATCH_GIT_URL: "${{ secrets.OSX_MATCH_GIT_URL }}"
+          MATCH_PASSWORD: "${{ secrets.OSX_MATCH_PASSWORD }}"
+          GIT_AUTHORIZATION: "${{ secrets.OSX_GIT_AUTHORIZATION }}"
+          API_KEY: "${{ secrets.OSX_API_KEY }}"
+          API_KEY_ID: "${{ secrets.OSX_API_KEY_ID }}"
+          API_ISSUER_ID: "${{ secrets.OSX_API_ISSUER_ID }}"
+
+      - name: Upload Enkrypt pkg
+        uses: actions/upload-artifact@v4
+        with:
+          name: safari-build-pkg
+          path: macos/Enkrypt/build/Enkrypt.pkg
+          retention-days: 1

@@ -2,6 +2,7 @@
   <div class="asset-detail__action">
     <div class="asset-detail__action-wrap">
       <button
+        v-if="!is_safari"
         class="asset-detail__action-item"
         @click="$emit('open:buyAction')"
       >
@@ -21,6 +22,7 @@
         <Send />Send
       </router-link>
       <router-link
+        v-if="!is_safari"
         class="asset-detail__action-item"
         :to="{
           name: 'swap',
@@ -42,6 +44,7 @@ import type { AssetsType } from '@/types/provider';
 import { useRoute } from 'vue-router';
 import { PropType } from 'vue';
 const route = useRoute();
+const is_safari = __IS_SAFARI__;
 
 defineEmits<{
   (e: 'toggle:deposit'): void;
