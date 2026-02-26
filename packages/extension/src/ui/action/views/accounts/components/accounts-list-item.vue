@@ -31,6 +31,7 @@
       v-if="openEdit"
       ref="dropdown"
       :deletable="deletable"
+      :exportable="exportable"
       v-bind="$attrs"
     />
   </div>
@@ -78,6 +79,7 @@ defineProps({
   active: Boolean,
   showEdit: Boolean,
   deletable: Boolean,
+  exportable: Boolean,
 });
 
 const toggleEdit = () => {

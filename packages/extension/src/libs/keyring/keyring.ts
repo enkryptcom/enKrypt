@@ -97,5 +97,8 @@ export class KeyRingBase {
   deleteAccount(address: string): Promise<void> {
     return this.#keyring.deleteAccount(address);
   }
+  getPrivateKey(options: SignOptions, password: string): Promise<string> {
+    return this.#keyring.getPrivateKey(options, password);
+  }
 }
 export default KeyRingBase;

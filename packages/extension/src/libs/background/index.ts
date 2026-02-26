@@ -25,6 +25,7 @@ import {
   sendToTab,
   newAccount,
   lock,
+  getPrivateKey,
 } from './internal';
 import { handlePersistentEvents } from './external';
 import SettingsState from '../settings-state';
@@ -186,6 +187,8 @@ class BackgroundHandler {
       case InternalMethods.getNewAccount:
       case InternalMethods.saveNewAccount:
         return newAccount(this.#keyring, message);
+      case InternalMethods.getPrivateKey:
+        return getPrivateKey(this.#keyring, message);
       default:
         return Promise.resolve({
           error: getCustomError(
