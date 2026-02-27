@@ -34,11 +34,11 @@
   "devDependencies": {
     "@polkadot/util-crypto": "^14.0.1",
     "@types/hdkey": "^2.1.0",
-    "@types/node": "^22.19.11",
+    "@types/node": "^22.19.13",
     "@types/varint": "^6.0.3",
-    "@typescript-eslint/eslint-plugin": "^8.56.0",
-    "@typescript-eslint/parser": "^8.56.0",
-    "eslint": "^9.39.2",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
+    "eslint": "^9.39.3",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-alias": "^1.1.2",
@@ -49,7 +49,7 @@
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "8.56.0",
+    "typescript-eslint": "8.56.1",
     "vitest": "^4.0.18"
   },
   "repository": {

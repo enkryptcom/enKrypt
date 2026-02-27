@@ -89,7 +89,7 @@ const FEE_CONFIGS: Partial<
     },
     [WalletIdentifier.mew]: {
       referrer: "0xb80a5ea0ec9732cc1875d088495df8c8782dd6b7",
-      fee: 0.025,
+      fee: 0.02,
     },
   },
   [ProviderName.zerox]: {
