@@ -2,6 +2,10 @@ import { defineManifest, ManifestV3Export } from '@crxjs/vite-plugin';
 import { chromeManifest } from './manifest.chrome';
 const safariManifest = {
   ...chromeManifest,
+  background: {
+    scripts: ['src/scripts/chrome/background.ts'],
+    type: 'module',
+  },
   action: {
     default_icon: {
       '16': 'assets/img/safari-icons/icon16.png',

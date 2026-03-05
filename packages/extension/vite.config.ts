@@ -83,7 +83,8 @@ export default defineConfig({
     transformManifest(),
     crx({
       manifest: getManifest(),
-      browser: BROWSER === 'firefox' ? 'firefox' : 'chrome',
+      browser:
+        BROWSER === 'firefox' || BROWSER === 'safari' ? 'firefox' : 'chrome',
       contentScripts: {
         injectCss: false,
       },
