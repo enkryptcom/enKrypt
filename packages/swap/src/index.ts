@@ -168,10 +168,16 @@ class Swap extends EventEmitter {
         ];
         break;
     }
-
+    const initFailed: string[] = [];
     await Promise.all(
-      this.providers.map((Provider) => Provider.init(this.tokenList.all)),
+      this.providers.map((Provider) => {
+        const initedProv = Provider.init(this.tokenList.all).catch(() => {
+          initFailed.push(Provider.name);
+        });
+        return initedProv;
+      }),
     );
+    this.providers = this.providers.filter((p) => !initFailed.includes(p.name));
     const allFromTokens: ProviderFromTokenResponse = {};
     [...this.providers].reverse().forEach((p) => {
       Object.assign(allFromTokens, p.getFromTokens());
