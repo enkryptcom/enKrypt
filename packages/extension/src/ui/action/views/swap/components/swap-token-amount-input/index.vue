@@ -74,9 +74,17 @@ const changeFocus = (newVal: boolean) => {
   box-sizing: border-box;
   border-radius: 10px;
   position: relative;
+  transition: all 200ms ease-in-out;
+  box-shadow: 0 2px 8px rgba(98, 126, 234, 0.06);
+
+  &:hover {
+    border-color: rgba(98, 126, 234, 0.25);
+    box-shadow: 0 2px 8px rgba(98, 126, 234, 0.08);
+  }
 
   &.focus {
     border: 1px solid @primary;
+    box-shadow: 0 0 0 3px rgba(98, 126, 234, 0.12);
   }
 
   &__max {
@@ -87,7 +95,7 @@ const changeFocus = (newVal: boolean) => {
     height: 24px;
     right: 18px;
     bottom: 30px;
-    background: rgba(0, 0, 0, 0.02);
+    background: linear-gradient(135deg, #627eea 0%, #8a64dc 100%);
     border-radius: 6px;
     cursor: pointer;
     font-style: normal;
@@ -96,7 +104,19 @@ const changeFocus = (newVal: boolean) => {
     line-height: 16px;
     letter-spacing: 0.8px;
     box-sizing: border-box;
-    color: @primaryLabel;
+    color: @white;
+    transition: all 200ms ease-in-out;
+    box-shadow: 0 2px 6px rgba(98, 126, 234, 0.3);
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(98, 126, 234, 0.4);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 4px rgba(98, 126, 234, 0.3);
+    }
   }
 
   &__fiat {

@@ -100,23 +100,28 @@ const changeFocus = (val: FocusEvent) => {
 .send-address-input {
   height: 64px;
   background: #ffffff;
-  margin: 12px 32px 8px 32px;
   box-sizing: border-box;
   border: 1px solid @gray02;
-  box-sizing: border-box;
   border-radius: 10px;
-  width: calc(~'100% - 64px');
+  width: 100%;
   padding: 16px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
   flex-direction: row;
   position: relative;
+  transition: all 200ms ease-in-out;
+  box-shadow: 0 2px 8px rgba(98, 126, 234, 0.06);
+
+  &:hover {
+    border-color: rgba(98, 126, 234, 0.25);
+    box-shadow: 0 2px 8px rgba(98, 126, 234, 0.08);
+  }
 
   &.focus {
     border: 2px solid @primary;
-    width: calc(~'100% - 62px');
-    margin: 12px 31px 8px 31px;
+    padding: 15px;
+    box-shadow: 0 0 0 3px rgba(98, 126, 234, 0.12);
   }
 
   &__avatar {
@@ -166,7 +171,14 @@ const changeFocus = (val: FocusEvent) => {
     cursor: pointer;
     padding: 4px;
     right: 8px;
-    top: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 6px;
+    transition: background 150ms ease-in-out;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
   }
 }
 </style>

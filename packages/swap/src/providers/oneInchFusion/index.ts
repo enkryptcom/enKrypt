@@ -74,7 +74,7 @@ class OneInchFusion extends ProviderWithRFQ {
     this.toTokens = {};
   }
 
-  init(tokenList: TokenType[]): Promise<void> {
+  async init(tokenList: TokenType[]): Promise<void> {
     if (!OneInchFusion.isSupported(this.network)) return;
     this.fusionSdk = new FusionSDK({
       network: Number(supportedNetworks[this.network].chainId),

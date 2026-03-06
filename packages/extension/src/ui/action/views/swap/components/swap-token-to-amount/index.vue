@@ -82,9 +82,17 @@ const tokenPrice = computed(() => {
   box-sizing: border-box;
   border-radius: 10px;
   position: relative;
+  transition: all 200ms ease-in-out;
+  box-shadow: 0 2px 8px rgba(98, 126, 234, 0.06);
+
+  &:hover {
+    border-color: rgba(98, 126, 234, 0.25);
+    box-shadow: 0 2px 8px rgba(98, 126, 234, 0.08);
+  }
 
   &.focus {
     border: 1px solid @primary;
+    box-shadow: 0 0 0 3px rgba(98, 126, 234, 0.12);
   }
 
   &__max {
