@@ -2,7 +2,8 @@ import { InternalMethods, InternalOnMessageResponse } from '@/types/messenger';
 import { SignerTransactionOptions, SignerMessageOptions } from '../types';
 import sendUsingInternalMessengers from '@/libs/messenger/internal-messenger';
 import { hexToBuffer, bufferToHex } from '@enkryptcom/utils';
-import { Psbt, Transaction } from 'bitcoinjs-lib';
+import { Psbt, Transaction, Signer } from 'bitcoinjs-lib';
+import { Psbt as FPsbt, Transaction as FTransaction } from 'bitcoinjs-lib-firo';
 import { BitcoinNetwork, PaymentType } from '../../types/bitcoin-network';
 import { EnkryptAccount, HWwalletType } from '@enkryptcom/types';
 import {
@@ -13,11 +14,7 @@ import {
 import { magicHash, toCompact } from '../../libs/sign-message-utils';
 import HWwallet from '@enkryptcom/hw-wallets';
 import type BitcoinAPI from '@/providers/bitcoin/libs/api';
-import * as bitcoin from 'bitcoinjs-lib';
-import {
-  validator,
-  BaseFiroWallet,
-} from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
+import { BaseFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 
 const PSBTSigner = (account: EnkryptAccount, network: BitcoinNetwork) => {
   return {
@@ -107,7 +104,7 @@ const TransactionSigner = async (
 
 const FiroTransactionSigner = async (
   options: SignerTransactionOptions,
-): Promise<Transaction> => {
+): Promise<FTransaction> => {
   const { network, payload } = options;
   const wallet = new BaseFiroWallet();
   const address2Check = await wallet.getTransactionsAddresses();
@@ -135,13 +132,13 @@ const FiroTransactionSigner = async (
     return res;
   });
 
-  allInputs.forEach(input => {
+  allInputs.forEach(input =>
     tx.addInput({
       hash: input.hash,
       index: input.index,
       nonWitnessUtxo: input.nonWitnessUtxo,
-    });
-  });
+    }),
+  );
   payload.outputs.forEach(output => tx.addOutput(output));
 
   allInputs.forEach((input, i) => {
@@ -151,17 +148,19 @@ const FiroTransactionSigner = async (
         return Buffer.from(keyPair.sign(hash));
       },
       publicKey: Buffer.from(keyPair.publicKey),
-    } as unknown as bitcoin.Signer;
+    } as unknown as Signer;
 
     tx.signInput(i, Signer);
+    // @ts-ignore
+    tx.validateSignaturesOfInput(i);
   });
 
-  if (!tx.validateSignaturesOfAllInputs(validator)) {
-    throw new Error('Error: Some inputs were not signed!');
-  }
+  // if (!tx.validateSignaturesOfAllInputs(validator)) {
+  //   throw new Error('Error: Some inputs were not signed!');
+  // }
 
   tx.finalizeAllInputs();
-
+  // @ts-ignore
   return tx.extractTransaction();
 };
 

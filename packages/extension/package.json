@@ -63,6 +63,7 @@
     "bignumber.js": "^9.3.1",
     "bip39": "^3.1.0",
     "bitcoinjs-lib": "^6.1.7",
+    "bitcoinjs-lib-firo": "git+https://github.com/blockstars-tech/bitcoinjs-lib#4b0c4322cb9f308cb84b2f655d16a9e9abc7b4e1",
     "bs58": "^6.0.0",
     "concurrently": "^9.2.1",
     "echarts": "^6.0.0",

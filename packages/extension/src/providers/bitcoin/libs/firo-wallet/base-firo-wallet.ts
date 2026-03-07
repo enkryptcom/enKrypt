@@ -245,9 +245,6 @@ export class BaseFiroWallet {
     const currentIndex = await this.getAddressIndex(currentAddress);
 
     if (currentIndex === -1) {
-      console.error(
-        `🚨 Current address not found in address2Check: ${currentAddress}`,
-      );
       return undefined;
     }
 

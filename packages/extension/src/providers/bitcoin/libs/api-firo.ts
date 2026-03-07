@@ -29,10 +29,10 @@ class API implements ProviderAPIInterface {
   async getRawTransaction(hash: string): Promise<string | null> {
     return fetch(`${this.node}/insight-api-zcoin/rawtx/${hash}`)
       .then(res => res.json())
-      .then((tx: { hex: string; error: unknown }) => {
-        if ((tx as any).error) return null;
-        if (!tx.hex) return null;
-        return `0x${tx.hex}`;
+      .then((tx: { rawtx: string; error: unknown }) => {
+        if (tx.error) return null;
+        if (!tx.rawtx) return null;
+        return tx.rawtx;
       });
   }
   async getTransactionStatus(hash: string): Promise<BTCRawInfo | null> {
