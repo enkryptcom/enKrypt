@@ -14,7 +14,6 @@ export interface SparkCoinValue {
   originalCoin: string[];
   metaData: number;
   tag: string;
-  deserializedCoinObj: number;
 }
 
 export const getSparkCoinInfo = async ({
@@ -29,6 +28,7 @@ export const getSparkCoinInfo = async ({
   let inputDataWithMetaObj;
   let identifiedCoinObj;
   let metadataObj;
+
   try {
     const serializedCoin = getSerializedCoin(
       coin[0],
@@ -115,49 +115,12 @@ export const getSparkCoinInfo = async ({
       throw new Error('Failed to identify coin.');
     }
 
-    // Example usage of `js_getIdentifiedCoinDiversifier`
-    // const diversifier = wasmModule.ccall(
-    //   'js_getIdentifiedCoinDiversifier',
-    //   'number',
-    //   ['number'],
-    //   [identifiedCoinObj],
-    // );
-
     const value = wasmModule.ccall(
       'js_getIdentifiedCoinValue',
       'number',
       ['number'],
       [identifiedCoinObj],
     );
-
-    // Example usage of `js_getIdentifiedCoinMemo`
-    // const memo = wasmModule.UTF8ToString(
-    //   wasmModule.ccall(
-    //     'js_getIdentifiedCoinMemo',
-    //     'number',
-    //     ['number'],
-    //     [identifiedCoinObj],
-    //   ),
-    // );
-    // console.log('Identified Coin Memo:', memo);
-
-    // Example usage of `js_getCSparkMintMetaHeight`
-    // const metaHeight = wasmModule.ccall(
-    //   'js_getCSparkMintMetaHeight',
-    //   'number',
-    //   ['number'],
-    //   [metadataObj],
-    // );
-    // console.log('Spark Mint Meta Height:', metaHeight);
-
-    // // Example usage of `js_getCSparkMintMetaId`
-    // const metaId = wasmModule.ccall(
-    //   'js_getCSparkMintMetaId',
-    //   'number',
-    //   ['number'],
-    //   [metadataObj],
-    // );
-    // console.log('Spark Mint Meta ID:', metaId);
 
     const metaIsUsed = wasmModule.ccall(
       'js_getCSparkMintMetaIsUsed',
@@ -166,99 +129,12 @@ export const getSparkCoinInfo = async ({
       [metadataObj],
     );
 
-    // Example usage of `js_getCSparkMintMetaMemo`
-    // const metaMemo = wasmModule.UTF8ToString(
-    //   wasmModule.ccall(
-    //     'js_getCSparkMintMetaMemo',
-    //     'number',
-    //     ['number'],
-    //     [metadataObj],
-    //   ),
-    // );
-    // console.log('Spark Mint Meta Memo:', metaMemo);
-
-    // Example usage of `js_getCSparkMintMetaDiversifier`
-    // const metaDiversifier = wasmModule.ccall(
-    //   'js_getCSparkMintMetaDiversifier',
-    //   'number',
-    //   ['number'],
-    //   [metadataObj],
-    // );
-    // console.log('Spark Mint Meta Diversifier:', metaDiversifier);
-
-    // Example usage of `js_getCSparkMintMetaValue`
-    // const metaValue = wasmModule.ccall(
-    //   'js_getCSparkMintMetaValue',
-    //   'number',
-    //   ['number'],
-    //   [metadataObj],
-    // );
-    // console.log('Spark Mint Meta Value:', metaValue);
-
-    // Example usage of `js_getCSparkMintMetaType`
-    // const metaType = wasmModule.ccall(
-    //   'js_getCSparkMintMetaType',
-    //   'number',
-    //   ['number'],
-    //   [metadataObj],
-    // );
-    // console.log('Spark Mint Meta Type:', metaType);
-    //
-    // // Example usage of `js_getCSparkMintMetaCoin`
-    // const metaCoinObj = wasmModule.ccall(
-    //   'js_getCSparkMintMetaCoin',
-    //   'number',
-    //   ['number'],
-    //   [metadataObj],
-    // );
-    // console.log('Spark Mint Meta Coin:', metaCoinObj);
-    //
-    // // Example usage of `js_getInputCoinDataCoverSetId`
-    // const inputCoverSetId = wasmModule.ccall(
-    //   'js_getInputCoinDataCoverSetId',
-    //   'number',
-    //   ['number'],
-    //   [inputDataObj],
-    // );
-    // console.log('Input Coin Data Cover Set ID:', inputCoverSetId);
-    //
-    // // Example usage of `js_getInputCoinDataIndex`
-    // const inputIndex = wasmModule.ccall(
-    //   'js_getInputCoinDataIndex',
-    //   'number',
-    //   ['number'],
-    //   [inputDataObj],
-    // );
-    // console.log('Input Coin Data Index:', inputIndex);
-    //
-    // // Example usage of `js_getInputCoinDataValue`
-    // const inputValue = wasmModule.ccall(
-    //   'js_getInputCoinDataValue',
-    //   'number',
-    //   ['number'],
-    //   [inputDataObj],
-    // );
-    // console.log('Input Coin Data Value:', inputValue);
-
-    // const savedOwnCoins = await db.readData('ownCoins');
-    // await db.saveData('', [
-    //   ...savedOwnCoins,
-    //   {
-    //     diversifier,
-    //     value,
-    //     memo,
-    //     metaHeight,
-    //     metaId,
-    //   },
-    // ]);
-
     return {
       value,
       isUsed: !!metaIsUsed,
       originalCoin: coin,
       metaData: metadataObj,
       tag: inputTagHex,
-      deserializedCoinObj,
     };
   } catch (e) {
     throw e;

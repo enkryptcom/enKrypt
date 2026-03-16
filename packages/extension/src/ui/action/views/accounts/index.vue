@@ -143,7 +143,7 @@ const props = defineProps({
     default: () => ({}),
   },
   accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
+    type: Object as PropType<p>,
     default: () => ({}),
   },
   showAccounts: Boolean,
