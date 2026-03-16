@@ -63,7 +63,11 @@
     </template>
 
     <template #button-right>
-      <base-button title="Update" :click="approve" />
+      <base-button
+        :title="isLoading ? 'Loading...' : 'Update'"
+        :click="approve"
+        :disabled="isLoading"
+      />
     </template>
   </common-popup>
 </template>
@@ -79,6 +83,9 @@ import { MetadataDef } from '@polkadot/extension-inject/types';
 import MetadataStorage from '@/providers/polkadot/libs/metadata-storage';
 import { ProviderRequestOptions } from '@/types/provider';
 import networks from '../networks';
+import { getAllNetworks } from '@/libs/utils/networks';
+import { SubstrateNetwork } from '../types/substrate-network';
+import { ApiPromise } from '@polkadot/api';
 
 const windowPromise = WindowPromiseHandler(0);
 
@@ -92,6 +99,7 @@ const Options = ref<ProviderRequestOptions>({
   tabId: 0,
 });
 const metadata = ref<MetadataDef | null>(null);
+const isLoading = ref(false);
 
 onBeforeMount(async () => {
   const { options, Request } = await windowPromise;
@@ -116,6 +124,38 @@ watch(metadata, () => {
   }
 });
 
+const validateMetadataAgainstApi = async (
+  meta: MetadataDef,
+): Promise<string | null> => {
+  const allNetworks = await getAllNetworks();
+  const targetNetwork = allNetworks.find(
+    network => (network as SubstrateNetwork).genesisHash === meta.genesisHash,
+  );
+  if (!targetNetwork) {
+    return null;
+  }
+  try {
+    const api = (await targetNetwork.api()).api as ApiPromise;
+    const onChainGenesisHash = api.genesisHash.toHex();
+    if (onChainGenesisHash !== meta.genesisHash) {
+      return `Genesis hash mismatch: expected ${onChainGenesisHash}, got ${meta.genesisHash}`;
+    }
+    const onChainSpecVersion = api.runtimeVersion.specVersion.toNumber();
+    if (meta.specVersion < onChainSpecVersion) {
+      return `Provided specVersion (${meta.specVersion}) is older than on-chain version (${onChainSpecVersion})`;
+    }
+    if (
+      meta.tokenDecimals !== undefined &&
+      meta.tokenDecimals !== targetNetwork.decimals
+    ) {
+      return `Token decimals mismatch: expected ${targetNetwork.decimals}, got ${meta.tokenDecimals}`;
+    }
+  } catch {
+    return 'Failed to connect to the network API for validation';
+  }
+  return null;
+};
+
 const approve = async () => {
   const { Resolve, Request } = await windowPromise;
   if (
@@ -127,12 +167,23 @@ const approve = async () => {
     return Resolve.value({ error: getCustomError('No params') });
   }
 
+  isLoading.value = true;
+
+  const validationError = await validateMetadataAgainstApi(metadata.value);
+  if (validationError) {
+    isLoading.value = false;
+    return Resolve.value({ error: getCustomError(validationError) });
+  }
+
   mstorage
     .addMetadata(metadata.value.genesisHash, JSON.stringify(metadata.value))
     .then(() => {
       Resolve.value({
         result: JSON.stringify(true),
       });
+    })
+    .finally(() => {
+      isLoading.value = false;
     });
 };
 const deny = async () => {
