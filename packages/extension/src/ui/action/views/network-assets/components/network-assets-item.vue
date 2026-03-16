@@ -289,8 +289,8 @@ const toggleDetail = () => {
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    margin: 0 8px;
-    min-width: 64px;
+    width: 80px;
+    flex-shrink: 0;
   }
 
   &__change-badge {
@@ -304,7 +304,6 @@ const toggleDetail = () => {
     letter-spacing: 0.02em;
 
     &.is-positive {
-      background: rgba(34, 197, 94, 0.1);
       color: #16a34a;
 
       svg {
@@ -314,7 +313,6 @@ const toggleDetail = () => {
     }
 
     &.is-negative {
-      background: rgba(239, 68, 68, 0.1);
       color: #dc2626;
 
       svg {
@@ -332,7 +330,7 @@ const toggleDetail = () => {
   // Value Section
   &__value {
     text-align: right;
-    min-width: 90px;
+    width: 90px;
     flex-shrink: 0;
   }
 

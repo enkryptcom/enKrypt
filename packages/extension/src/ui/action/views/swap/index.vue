@@ -897,11 +897,21 @@ const sendAction = async () => {
 .container {
   width: 100%;
   height: 600px;
-  background-color: @white;
-  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
   margin: 0;
   box-sizing: border-box;
   position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    pointer-events: none;
+    z-index: 0;
+  }
 }
 
 .swap {
@@ -909,44 +919,91 @@ const sendAction = async () => {
   height: 100%;
   box-sizing: border-box;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 88px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1;
+  animation: fadeInUp 300ms ease-out;
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+  }
 
   &__header {
     position: relative;
-    padding: 24px 72px 12px 32px;
+    padding: 20px 24px 16px 24px;
+    background: linear-gradient(
+      135deg,
+      rgba(98, 126, 234, 0.08) 0%,
+      rgba(138, 100, 220, 0.05) 100%
+    );
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 
     h3 {
       font-style: normal;
       font-weight: 700;
-      font-size: 24px;
+      font-size: 22px;
       line-height: 32px;
-      color: @primaryLabel;
       margin: 0;
+      background: linear-gradient(135deg, #627eea 0%, #8a64dc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
   }
 
   &__close {
     position: absolute;
-    top: 16px;
-    right: 16px;
-    border-radius: 8px;
+    top: 12px;
+    right: 12px;
+    border-radius: 10px;
     cursor: pointer;
     font-size: 0;
-    transition: background 300ms ease-in-out;
+    transition: all 200ms ease-in-out;
+    padding: 4px;
 
     &:hover {
       background: @black007;
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.95);
     }
   }
 
   &__wrap {
-    padding: 0 32px;
+    padding: 8px 24px 0;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     flex-direction: column;
     width: 100%;
     box-sizing: border-box;
-    height: calc(~'100% - 172px');
+    flex: 1;
+    min-height: 0;
   }
 
   &__arrows {
@@ -955,33 +1012,104 @@ const sendAction = async () => {
     font-size: 0;
     display: block;
     text-decoration: none;
+    transition: all 200ms ease-in-out;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
   }
 
   &__buttons {
     position: absolute;
     left: 0;
     bottom: 0;
-    padding: 28px;
+    padding: 16px 24px 24px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-direction: row;
     width: 100%;
     box-sizing: border-box;
-    background-color: @white;
+    gap: 12px;
+    z-index: 10;
 
     &-cancel {
-      width: 140px;
+      flex: 1;
+      min-width: 0;
+
+      :deep(.base-button) {
+        border: 1.5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 200ms ease-in-out;
+
+        &:hover {
+          border-color: rgba(0, 0, 0, 0.2);
+          background: rgba(0, 0, 0, 0.02);
+        }
+      }
     }
 
     &-send {
-      width: 248px;
+      flex: 1.3;
+      min-width: 0;
+
+      :deep(.base-button) {
+        border-radius: 12px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(98, 126, 234, 0.3);
+        transition: all 200ms ease-in-out;
+
+        &:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(98, 126, 234, 0.4);
+        }
+
+        &:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
+        &:disabled {
+          background: #e2e8f0;
+          box-shadow: none;
+        }
+      }
     }
   }
 
   .send-address-input {
     margin: 8px 0 8px 0;
     width: 100%;
+  }
+
+  // Staggered animation for child elements
+  & > *:nth-child(1) {
+    animation-delay: 0ms;
+  }
+  & > *:nth-child(2) {
+    animation-delay: 30ms;
+  }
+  & > *:nth-child(3) {
+    animation-delay: 60ms;
+  }
+
+  & > * {
+    animation: elementFadeIn 250ms ease-out backwards;
+  }
+
+  @keyframes elementFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 </style>

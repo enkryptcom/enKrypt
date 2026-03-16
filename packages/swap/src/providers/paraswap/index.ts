@@ -103,7 +103,7 @@ class ParaSwap extends ProviderClass {
     this.toTokens = {};
   }
 
-  init(tokenList: TokenType[]): Promise<void> {
+  async init(tokenList: TokenType[]): Promise<void> {
     if (!ParaSwap.isSupported(this.network)) return;
     tokenList.forEach((t) => {
       this.fromTokens[t.address] = t;
