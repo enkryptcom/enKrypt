@@ -111,7 +111,7 @@ const FiroTransactionSigner = async (
   const addressKeyPairMapping =
     await wallet.getAddressKeyPairMapping(address2Check);
 
-  const tx = new Psbt({
+  const tx = new FPsbt({
     network: network.networkInfo,
     maximumFeeRate: network.networkInfo.maxFeeRate,
   });
