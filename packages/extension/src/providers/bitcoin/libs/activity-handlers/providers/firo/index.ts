@@ -2,6 +2,7 @@ import MarketData from '@/libs/market-data';
 import { FiroTxType } from '@/providers/bitcoin/types';
 import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
 import { BaseNetwork } from '@/types/base-network';
+import BigNumber from 'bignumber.js';
 
 export default async (
   network: BaseNetwork,
@@ -59,6 +60,7 @@ export default async (
             value = Number(tx.vout[0].value);
           }
         }
+        const valueBn = new BigNumber(value.toString());
 
         const act: Activity = {
           from: tx.vin?.[0]?.addr,
@@ -80,7 +82,7 @@ export default async (
           },
           transactionHash: tx.txid,
           type: ActivityType.transaction,
-          value: (+value * 100000000).toString(),
+          value: valueBn.times(new BigNumber(1e8)).toString(),
           rawInfo: {
             blockNumber: tx.blockheight,
             fee: Number(tx?.fees),

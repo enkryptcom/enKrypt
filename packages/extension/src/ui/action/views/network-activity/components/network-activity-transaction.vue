@@ -71,10 +71,7 @@
           {{ !activity.isIncoming ? '-' : '' }}
           {{
             $filters.formatFloatingPointValue(
-              fromBase(
-                Math.round(Number(activity.value)).toString(),
-                activity.token.decimals,
-              ),
+              fromBase(activity.value, activity.token.decimals),
             ).value
           }}
           <span>{{ activity.token.symbol }}</span>
@@ -238,10 +235,7 @@ const transactionURL = computed(() => {
 
 const getFiatValue = computed(() => {
   return new BigNumber(props.activity.token.price || '0').times(
-    fromBase(
-      Math.round(Number(props.activity.value)).toString(),
-      props.activity.token.decimals,
-    ),
+    fromBase(props.activity.value, props.activity.token.decimals),
   );
 });
 
