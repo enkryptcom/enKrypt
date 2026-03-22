@@ -1,6 +1,7 @@
 import { ProviderAPIInterface } from '@/types/provider';
 import { BTCRawInfo } from '@/types/activity';
 import { ChronikClient } from 'chronik-client';
+import { WatchOnlyWallet } from 'ecash-wallet';
 import { getAddress } from '../types/ecash-network';
 import { ECashNetworkInfo, ChronikTx } from '../types/ecash-chronik';
 import { Script, Address } from 'ecash-lib';
@@ -32,7 +33,7 @@ export class ChronikAPI extends ProviderAPIInterface {
     return this.withErrorHandling(
       'init',
       async () => {
-        await this.chronik.blockchainInfo();
+        await this.chronik.chronikInfo();
       },
       () => {
         throw new Error('Failed to initialize Chronik API');
@@ -41,7 +42,7 @@ export class ChronikAPI extends ProviderAPIInterface {
   }
 
   private ensurePrefix(address: string): string {
-    if (address.startsWith('ecash:') || address.startsWith('ectest:')) {
+    if (address.includes(':')) {
       return address;
     }
     return `${this.networkInfo.cashAddrPrefix}:${address}`;
@@ -50,24 +51,15 @@ export class ChronikAPI extends ProviderAPIInterface {
   private async withErrorHandling<T>(
     method: string,
     operation: () => Promise<T>,
-    fallback: () => T,
+    fallback?: () => T | Promise<T>,
   ): Promise<T> {
     try {
       return await operation();
     } catch (error) {
-      console.error(`❌ [${method}] Error:`, error);
-      return fallback();
+      console.error(`[ChronikAPI:${method}]`, error);
+      if (fallback) return await fallback();
+      throw error;
     }
-  }
-
-  private calculateUTXOBalance(utxos: any[]): bigint {
-    return utxos.reduce((total, utxo) => {
-      if (!utxo.token) {
-        const value = BigInt((utxo as any).sats || utxo.value || 0);
-        return total + value;
-      }
-      return total;
-    }, BigInt(0));
   }
 
   async getBalance(pubkey: string): Promise<string> {
@@ -75,15 +67,9 @@ export class ChronikAPI extends ProviderAPIInterface {
       'getBalance',
       async () => {
         const address = getAddress(pubkey);
-
-        const addressWithPrefix = this.ensurePrefix(address);
-        const utxoResponse = await this.chronik
-          .address(addressWithPrefix)
-          .utxos();
-
-        const totalSatoshis = this.calculateUTXOBalance(utxoResponse.utxos);
-
-        return totalSatoshis.toString();
+        const wallet = WatchOnlyWallet.fromAddress(address, this.chronik);
+        await wallet.sync();
+        return wallet.balanceSats.toString();
       },
       () => '0',
     );
@@ -103,7 +89,7 @@ export class ChronikAPI extends ProviderAPIInterface {
     );
   }
 
-  async getTransactionHistory(address: string): Promise<any[]> {
+  async getTransactionHistory(address: string): Promise<ChronikTx[]> {
     return this.withErrorHandling(
       'getTransactionHistory',
       async () => {
@@ -122,23 +108,19 @@ export class ChronikAPI extends ProviderAPIInterface {
       async () => {
         const tx = await this.chronik.tx(hash);
 
-        if (!tx.block) {
-          return null; // Transaction is in mempool
-        }
-
         const rawInfo: BTCRawInfo = {
-          blockNumber: tx.block.height,
+          blockNumber: tx.block?.height ?? 0,
           fee: this.calculateFee(tx as any),
           transactionHash: tx.txid,
-          timestamp: tx.block.timestamp,
-          inputs: tx.inputs.map((input: any) => ({
-            address: this.scriptToAddress(input.outputScript || ''),
-            value: input.value || '0',
-            pkscript: input.outputScript || '',
+          timestamp: tx.block?.timestamp ?? Math.floor(Date.now() / 1000),
+          inputs: tx.inputs.map(input => ({
+            address: this.scriptToAddress(input.outputScript ?? ''),
+            value: Number(input.sats),
+            pkscript: input.outputScript ?? '',
           })),
-          outputs: tx.outputs.map((output: any) => ({
+          outputs: tx.outputs.map(output => ({
             address: this.scriptToAddress(output.outputScript),
-            value: output.value,
+            value: Number(output.sats),
             pkscript: output.outputScript,
           })),
         };
@@ -151,11 +133,11 @@ export class ChronikAPI extends ProviderAPIInterface {
 
   private calculateFee(tx: ChronikTx): number {
     const inputSum = tx.inputs.reduce(
-      (sum, input) => sum + BigInt(input.value || 0),
+      (sum, input) => sum + input.sats,
       BigInt(0),
     );
     const outputSum = tx.outputs.reduce(
-      (sum, output) => sum + BigInt(output.value || 0),
+      (sum, output) => sum + output.sats,
       BigInt(0),
     );
     return Number(inputSum - outputSum);
@@ -167,13 +149,15 @@ export class ChronikAPI extends ProviderAPIInterface {
     try {
       const scriptBytes = Buffer.from(scriptHex, 'hex');
       const script = new Script(scriptBytes);
-      const address = Address.fromScript(script);
-      const fullAddress = address.toString();
+      const fullAddress = Address.fromScript(
+        script,
+        this.networkInfo.cashAddrPrefix,
+      ).toString();
 
       return fullAddress.split(':')[1] || fullAddress;
     } catch (error) {
       console.error(
-        '[scriptToAddress] Invalid script:',
+        '[scriptToAddress] Could not derive address from script, only p2pkh and p2sh are supported:',
         scriptHex.slice(0, 20),
         error,
       );

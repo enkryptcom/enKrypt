@@ -18,7 +18,8 @@ export default (activityHandler: ActivityHandlerType): ActivityHandlerType => {
     };
 
     // Use shorter cache TTL for eCash due to faster finality
-    const cacheTTL = network.name === 'XEC' ? ECASH_CACHE_TTL : CACHE_TTL;
+    const isECash = network.name === 'XEC' || network.name === 'XECTest';
+    const cacheTTL = isECash ? ECASH_CACHE_TTL : CACHE_TTL;
 
     const [activities, cacheTime] = await Promise.all([
       activityState.getAllActivities(options),

@@ -18,6 +18,7 @@ export const chronikHandler: ActivityHandlerType = async (
   address,
 ): Promise<Activity[]> => {
   try {
+    const cashAddrPrefix = (network as any).cashAddrPrefix ?? 'ecash';
     const normalizedAddress = getAddressWithoutPrefix(address);
 
     const api = (await network.api()) as unknown as ChronikAPI;
@@ -44,24 +45,37 @@ export const chronikHandler: ActivityHandlerType = async (
     for (const tx of txHistory) {
       try {
         const isReceive = tx.outputs.some((output: any) => {
-          const outputAddress = scriptToAddress(output.outputScript);
+          const outputAddress = scriptToAddress(
+            output.outputScript,
+            cashAddrPrefix,
+          );
           return outputAddress === normalizedAddress;
         });
 
         const isSend = tx.inputs.some((input: any) => {
-          const inputAddress = scriptToAddress(input.outputScript);
+          const inputAddress = scriptToAddress(
+            input.outputScript ?? '',
+            cashAddrPrefix,
+          );
           return inputAddress === normalizedAddress;
         });
 
-        const value = isReceive
-          ? calculateTransactionValue(tx.outputs, normalizedAddress, true)
-          : calculateTransactionValue(tx.outputs, normalizedAddress, false);
+        const value =
+          isReceive || isSend
+            ? calculateTransactionValue(
+                tx.outputs,
+                normalizedAddress,
+                isReceive,
+                cashAddrPrefix,
+              )
+            : '0';
 
         const { fromAddress, toAddress } = getTransactionAddresses(
           tx,
           normalizedAddress,
           isReceive,
           isSend,
+          cashAddrPrefix,
         );
 
         const fee = isSend ? calculateOnchainTxFee(tx) : 0;
@@ -77,13 +91,13 @@ export const chronikHandler: ActivityHandlerType = async (
           blockNumber: tx.block?.height || 0,
           fee,
           transactionHash: tx.txid,
-          timestamp: tx.block?.timestamp || Math.floor(timestamp / 1000),
+          timestamp,
           inputs: tx.inputs.map((input: any) => ({
-            address: scriptToAddress(input.outputScript),
+            address: scriptToAddress(input.outputScript ?? '', cashAddrPrefix),
             value: Number(extractSats(input)),
           })),
           outputs: tx.outputs.map((output: any) => ({
-            address: scriptToAddress(output.outputScript),
+            address: scriptToAddress(output.outputScript, cashAddrPrefix),
             value: Number(extractSats(output)),
             pkscript: output.outputScript || '',
           })),
@@ -106,7 +120,7 @@ export const chronikHandler: ActivityHandlerType = async (
           type: ActivityType.transaction,
           value,
           transactionHash: tx.txid,
-          timestamp,
+          timestamp: timestamp * 1000,
           token: tokenInfo,
           rawInfo,
         };

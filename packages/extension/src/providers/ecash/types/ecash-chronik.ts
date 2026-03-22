@@ -20,13 +20,13 @@ export interface ChronikTx {
       outIdx: number;
     };
     inputScript: string;
-    outputScript: string;
-    value: string;
+    outputScript?: string;
+    sats: bigint;
     sequenceNo: number;
     token?: any;
   }>;
   outputs: Array<{
-    value: string;
+    sats: bigint;
     outputScript: string;
     token?: any;
     spentBy?: {
@@ -35,12 +35,13 @@ export interface ChronikTx {
     };
   }>;
   lockTime: number;
-  timeFirstSeen: string;
+  timeFirstSeen: number;
   size: number;
   isCoinbase: boolean;
+  isFinal?: boolean;
   block?: {
     height: number;
     hash: string;
-    timestamp: string;
+    timestamp: number;
   };
 }

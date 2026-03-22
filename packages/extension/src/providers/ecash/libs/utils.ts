@@ -12,18 +12,22 @@ export const isValidECashAddress = (address: string): boolean => {
 
 const scriptAddressCache = new Map<string, string>();
 
-export function scriptToAddress(script: string): string {
+export function scriptToAddress(
+  script: string,
+  cashAddrPrefix: string = 'ecash',
+): string {
   if (!script) return 'Unknown';
 
-  if (scriptAddressCache.has(script)) {
-    return scriptAddressCache.get(script)!;
+  const cacheKey = `${cashAddrPrefix}:${script}`;
+  if (scriptAddressCache.has(cacheKey)) {
+    return scriptAddressCache.get(cacheKey)!;
   }
 
   try {
-    const address = Address.fromScriptHex(script);
+    const address = Address.fromScriptHex(script, cashAddrPrefix);
     const addressWithoutPrefix = getAddressWithoutPrefix(address);
 
-    scriptAddressCache.set(script, addressWithoutPrefix);
+    scriptAddressCache.set(cacheKey, addressWithoutPrefix);
     return addressWithoutPrefix;
   } catch (error) {
     console.error('[scriptToAddress] Error:', error, script.slice(0, 20));
@@ -33,7 +37,7 @@ export function scriptToAddress(script: string): string {
         ? `${script.slice(0, 8)}...${script.slice(-8)}`
         : script;
 
-    scriptAddressCache.set(script, fallback);
+    scriptAddressCache.set(cacheKey, fallback);
     return fallback;
   }
 }
@@ -47,11 +51,9 @@ export function extractSats(item: any): string {
 }
 
 export function sumSatoshis(items: any[]): string {
-  return items.reduce((sum, item) => {
-    return toBN(sum)
-      .add(toBN(extractSats(item)))
-      .toString();
-  }, '0');
+  return items
+    .reduce((sum, item) => sum.add(toBN(extractSats(item))), toBN('0'))
+    .toString();
 }
 
 /**
@@ -59,24 +61,26 @@ export function sumSatoshis(items: any[]): string {
  * @param outputs - Array of transaction outputs
  * @param normalizedAddress - The address to check against
  * @param isReceive - true for received funds, false for sent funds
+ * @param cashAddrPrefix - The cash address prefix (default: 'ecash')
  */
 export function calculateTransactionValue(
   outputs: any[],
   normalizedAddress: string,
   isReceive: boolean,
+  cashAddrPrefix: string = 'ecash',
 ): string {
   return outputs
     .filter((output: any) => {
-      const outputAddress = scriptToAddress(output.outputScript);
+      const outputAddress = scriptToAddress(
+        output.outputScript,
+        cashAddrPrefix,
+      );
       return isReceive
         ? outputAddress === normalizedAddress
         : outputAddress !== normalizedAddress;
     })
-    .reduce((sum: string, output: any) => {
-      return toBN(sum)
-        .add(toBN(extractSats(output)))
-        .toString();
-    }, '0');
+    .reduce((sum, output) => sum.add(toBN(extractSats(output))), toBN('0'))
+    .toString();
 }
 
 export function calculateOnchainTxFee(tx: any): number {
@@ -90,23 +94,27 @@ export function getTransactionAddresses(
   normalizedAddress: string,
   isReceive: boolean,
   isSend: boolean,
+  cashAddrPrefix: string = 'ecash',
 ): { fromAddress: string; toAddress: string } {
   let fromAddress = 'Unknown';
   let toAddress = 'Unknown';
 
   if (isReceive) {
     fromAddress = tx.inputs[0]?.outputScript
-      ? scriptToAddress(tx.inputs[0].outputScript)
+      ? scriptToAddress(tx.inputs[0].outputScript, cashAddrPrefix)
       : 'Unknown';
     toAddress = normalizedAddress;
   } else if (isSend) {
     fromAddress = normalizedAddress;
     const recipientOutput = tx.outputs.find((output: any) => {
-      const outputAddress = scriptToAddress(output.outputScript);
+      const outputAddress = scriptToAddress(
+        output.outputScript,
+        cashAddrPrefix,
+      );
       return outputAddress !== normalizedAddress;
     });
     toAddress = recipientOutput
-      ? scriptToAddress(recipientOutput.outputScript)
+      ? scriptToAddress(recipientOutput.outputScript, cashAddrPrefix)
       : 'Unknown';
   }
 
@@ -115,16 +123,16 @@ export function getTransactionAddresses(
 
 export function getTransactionTimestamp(tx: any): number {
   if (tx.block?.timestamp) {
-    return tx.block.timestamp * 1000;
+    return tx.block.timestamp;
   }
   if (tx.timeFirstSeen) {
-    return parseInt(tx.timeFirstSeen) * 1000;
+    return Number(tx.timeFirstSeen);
   }
-  return Date.now();
+  return Math.floor(Date.now() / 1000);
 }
 
 export function getAddressWithoutPrefix(address: Address | string): string {
   const fullAddress =
     typeof address === 'string' ? address : address.toString();
-  return fullAddress.replace(/^ecash:/, '');
+  return fullAddress.replace(/^\w+:/, '');
 }

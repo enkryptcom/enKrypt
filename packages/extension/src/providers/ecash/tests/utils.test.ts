@@ -270,18 +270,18 @@ describe('ECash Utils Tests', () => {
   });
 
   describe('getTransactionTimestamp', () => {
-    it('should get timestamp from block', () => {
+    it('should get timestamp from block (in seconds)', () => {
       const tx = {
         block: { timestamp: 1640000000 },
       };
-      expect(getTransactionTimestamp(tx)).to.equal(1640000000000);
+      expect(getTransactionTimestamp(tx)).to.equal(1640000000);
     });
 
-    it('should get timestamp from timeFirstSeen', () => {
+    it('should get timestamp from timeFirstSeen (in seconds)', () => {
       const tx = {
         timeFirstSeen: '1640000000',
       };
-      expect(getTransactionTimestamp(tx)).to.equal(1640000000000);
+      expect(getTransactionTimestamp(tx)).to.equal(1640000000);
     });
 
     it('should prefer block timestamp over timeFirstSeen', () => {
@@ -289,14 +289,14 @@ describe('ECash Utils Tests', () => {
         block: { timestamp: 1640000000 },
         timeFirstSeen: '1630000000',
       };
-      expect(getTransactionTimestamp(tx)).to.equal(1640000000000);
+      expect(getTransactionTimestamp(tx)).to.equal(1640000000);
     });
 
-    it('should return current time for transaction without timestamp', () => {
+    it('should return current time in seconds for transaction without timestamp', () => {
       const tx = {};
       const timestamp = getTransactionTimestamp(tx);
-      const now = Date.now();
-      expect(timestamp).to.be.closeTo(now, 1000);
+      const nowSeconds = Math.floor(Date.now() / 1000);
+      expect(timestamp).to.be.closeTo(nowSeconds, 2);
     });
   });
 });

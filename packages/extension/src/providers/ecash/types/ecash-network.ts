@@ -6,7 +6,7 @@ import { ECashNetworkInfo } from '../types/ecash-chronik';
 import { NFTCollection } from '@/types/nft';
 import { Address } from 'ecash-lib';
 import * as bitcoin from 'bitcoinjs-lib';
-import { getAddressWithoutPrefix } from '../libs/utils';
+import { getAddressWithoutPrefix, isValidECashAddress } from '../libs/utils';
 
 export interface ECashNetworkOptions {
   name: NetworkNames;
@@ -35,8 +35,11 @@ export interface ECashNetworkOptions {
   cashAddrPrefix?: string;
 }
 
-export const getAddress = (pubkey: string): string => {
-  if (pubkey.length < 64) return pubkey;
+export const getAddress = (
+  pubkey: string,
+  cashAddrPrefix: string = 'ecash',
+): string => {
+  if (isValidECashAddress(pubkey)) return getAddressWithoutPrefix(pubkey);
 
   try {
     let cleanPubkey = pubkey;
@@ -48,13 +51,9 @@ export const getAddress = (pubkey: string): string => {
 
     const pubkeyHash = bitcoin.crypto.hash160(pubkeyBuffer);
 
-    const scriptHex = '76a914' + pubkeyHash.toString('hex') + '88ac';
+    const address = Address.p2pkh(pubkeyHash.toString('hex'), cashAddrPrefix);
 
-    const address = Address.fromScriptHex(scriptHex);
-
-    const addressWithoutPrefix = getAddressWithoutPrefix(address);
-
-    return addressWithoutPrefix;
+    return getAddressWithoutPrefix(address);
   } catch (error) {
     console.error('Error converting pubkey to cashaddr:', error);
     return pubkey;
