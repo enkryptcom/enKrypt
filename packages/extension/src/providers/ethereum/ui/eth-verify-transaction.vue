@@ -515,7 +515,7 @@ const toggleData = () => {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
 
 .provider-verify-transaction {

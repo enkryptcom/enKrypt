@@ -69,7 +69,7 @@ const FEE_CONFIGS: Partial<
     },
     [WalletIdentifier.mew]: {
       referrer: "0x87A265C93D2A92C6EEEC002283bEaEbb4564Fd20",
-      fee: 0.025,
+      fee: 0.00875,
     },
   },
   [ProviderName.oneInchFusion]: {
@@ -79,7 +79,7 @@ const FEE_CONFIGS: Partial<
     },
     [WalletIdentifier.mew]: {
       referrer: "0x8170c0Cd46694b2Cf943064f98D275F8152f9128",
-      fee: 250,
+      fee: 88,
     },
   },
   [ProviderName.paraswap]: {
@@ -89,7 +89,7 @@ const FEE_CONFIGS: Partial<
     },
     [WalletIdentifier.mew]: {
       referrer: "0xb80a5ea0ec9732cc1875d088495df8c8782dd6b7",
-      fee: 0.02,
+      fee: 0.00875,
     },
   },
   [ProviderName.zerox]: {
@@ -99,7 +99,7 @@ const FEE_CONFIGS: Partial<
     },
     [WalletIdentifier.mew]: {
       referrer: "0xD6135f846dbC86d34E69F138b86E87d3eF2A56D0",
-      fee: 0.025,
+      fee: 0.00875,
     },
   },
   [ProviderName.rango]: {
@@ -110,7 +110,7 @@ const FEE_CONFIGS: Partial<
     },
     [WalletIdentifier.mew]: {
       referrer: "0x48ae878bf9f752ee65679c017e32e4cafac51696",
-      fee: 0.025,
+      fee: 0.00875,
     },
   },
   // This address is the referral address created in the Jupiter fee dashboard
@@ -123,7 +123,7 @@ const FEE_CONFIGS: Partial<
     },
     [WalletIdentifier.mew]: {
       referrer: "CmrkoXWiTW37ZqUZcfJtxiKhy9eRMBQHq1nm8HpmRXH4",
-      fee: 0.03,
+      fee: 0.01,
     },
   },
   [ProviderName.okx]: {
@@ -133,7 +133,7 @@ const FEE_CONFIGS: Partial<
     },
     [WalletIdentifier.mew]: {
       referrer: "8GkSjqJUCzfLw96wKWMvTcLcbZsX7n69ZEQ3FE3KbPEq",
-      fee: 0.03,
+      fee: 0.01,
     },
   },
 };
