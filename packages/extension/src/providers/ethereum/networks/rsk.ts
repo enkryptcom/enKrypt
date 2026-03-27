@@ -9,6 +9,7 @@ import {
   isValidAddress,
 } from '@ethereumjs/util';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
+import NFTHandler from '@/libs/nft-handlers/blockscout';
 
 const rootstockOptions: EvmNetworkOptions = {
   name: NetworkNames.Rootstock,
@@ -26,6 +27,7 @@ const rootstockOptions: EvmNetworkOptions = {
   coingeckoID: CoingeckoPlatform.Rootstock,
   coingeckoPlatform: CoingeckoPlatform.Rootstock,
   activityHandler: wrapActivityHandler(EtherscanActivity),
+  NFTHandler,
   assetsInfoHandler,
 };
 
