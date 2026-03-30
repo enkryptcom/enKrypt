@@ -160,15 +160,16 @@ const sendAction = async () => {
     if (spendableUtxos.length === 0) throw new Error('No UTXOs available!');
 
     const amountToSendBN = new BigNumber(txData.toToken.amount);
-
     const mintTxData = await getMintTxData({
       wasmModule,
       address: txData.toAddress,
       amount: amountToSendBN.toString(),
       utxos: spendableUtxos.map(({ txid, vout }) => ({
-        txHash: Buffer.from(txid),
+        // txHash: Buffer.from(txid),
+        txHash: Buffer.from(txid, 'hex'),
         vout,
-        txHashLength: txid.length,
+        // txHashLength: txid.length,
+        txHashLength: Buffer.from(txid, 'hex').length,
       })),
     });
 
@@ -263,7 +264,6 @@ const sendAction = async () => {
     };
 
     const activityState = new ActivityState();
-
     const api = (await network.value.api()) as unknown as FiroAPI;
 
     api

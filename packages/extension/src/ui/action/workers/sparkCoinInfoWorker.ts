@@ -21,6 +21,7 @@ export interface CheckedCoinData {
   setId: number;
   tag: string;
   setHash: string;
+  indexInCoinList: number;
 }
 
 export interface OwnedCoinData {
@@ -55,6 +56,7 @@ export const removeDuplicates = (
 async function fetchAllCoinInfos(
   allSets: AnonymitySetModel[],
   lastSetId: number,
+  lastCoinIndex: number,
   fullViewKeyObj: number,
   incomingViewKeyObj: number,
   Module: WasmModule,
@@ -66,24 +68,27 @@ async function fetchAllCoinInfos(
     const slicedSets = allSets.slice(lastSetId);
 
     slicedSets.forEach((set, index) => {
-      set.coins.forEach(coin => {
+      for (const [coinIndex, coin] of set.coins.entries()) {
+        if (coinIndex <= lastCoinIndex) continue
+
         const promise = getSparkCoinInfo({
           coin,
           fullViewKeyObj,
           incomingViewKeyObj,
           wasmModule: Module,
-        }).then(async res => {
+        }).then(res => {
           finalResult.push({
             coin: res,
             setId: lastSetId + index + 1,
             tag: res.tag,
             setHash: set.setHash,
+            indexInCoinList: coinIndex,
           });
           return res;
         });
 
         allPromises.push(promise);
-      });
+      }
     });
 
     await Promise.allSettled(allPromises);
@@ -95,6 +100,16 @@ async function fetchAllCoinInfos(
       setHash: coinData.setHash,
       isUsed: false,
     }));
+
+    const lastCoin = finalResult.at(-1)
+
+    if (lastCoin) {
+      const lastCointSetIdAndIndex = `${lastCoin?.setId}_${lastCoin?.indexInCoinList}`;
+      await db.saveData(
+        DB_DATA_KEYS.lastCointSetIdAndIndex,
+        lastCointSetIdAndIndex,
+      );
+    }
 
     const savedMyCoins =
       (await db.readData<MyCoinModel[]>(DB_DATA_KEYS.myCoins)) || [];
@@ -139,18 +154,20 @@ addEventListener('message', async () => {
 
   const allSets = await getSetsFromDb();
 
-  const lastCheckedSetIndex =
-    (await db.readData<string>(DB_DATA_KEYS.lastCheckedSetIndex)) ?? 0;
+  const lastCointSetIdAndIndex =
+    (await db.readData<string>(DB_DATA_KEYS.lastCointSetIdAndIndex)) ?? '';
+
+  const [lastCheckedSetIndex, lastCheckedCoinIndex] = lastCointSetIdAndIndex.split("_");
+  console.log({ lastCheckedSetIndex, lastCheckedCoinIndex });
 
   const result = await fetchAllCoinInfos(
     allSets,
-    Number(lastCheckedSetIndex),
+    Number(lastCheckedSetIndex || 0),
+    Number(lastCheckedCoinIndex || 0),
     fullViewKeyObj,
     incomingViewKeyObj,
     Module,
   );
-
-  await db.saveData(DB_DATA_KEYS.lastCheckedSetIndex, allSets.length - 1);
 
   Module.ccall(
     'js_freeIncomingViewKey',

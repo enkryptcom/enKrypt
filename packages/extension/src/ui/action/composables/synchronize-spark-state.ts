@@ -13,7 +13,7 @@ let worker: Worker | null = null;
 
 export const useSynchronizeSparkState = (
   networkRef: Ref<BaseNetwork>,
-  onBalanceCalculated?: (balance: string) => void,
+  onBalanceCalculated?: () => void,
 ) => {
   const isCoinFetchPending = ref(false);
   const isTagFetchPending = ref(false);

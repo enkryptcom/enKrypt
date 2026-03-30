@@ -26,6 +26,16 @@ export const getMintTxData = async ({
     return;
   }
 
+  const getPointerHex = (pointer: number, byteLength = 64) => {
+    if (!pointer) {
+      return null;
+    }
+
+    return Array.from(wasmModule.HEAPU8.subarray(pointer, pointer + byteLength))
+      .map(byte => byte.toString(16).padStart(2, '0'))
+      .join('');
+  };
+
   const decodedAddressPtr = wasmModule.ccall(
     'js_decodeAddress',
     'number',
@@ -41,6 +51,82 @@ export const getMintTxData = async ({
     ['number', 'number', 'string'],
     [decodedAddressPtr, BigInt(amount), memo],
   );
+
+  const mintedCoinPtr = mintedCoinData
+    ? wasmModule.ccall(
+        'js_getCSparkMintMetaCoin',
+        'number',
+        ['number'],
+        [mintedCoinData],
+      )
+    : 0;
+
+  console.log('spark mint debug', {
+    decodedAddressPtr,
+    decodedAddressHex: getPointerHex(decodedAddressPtr),
+    decodedAddress: decodedAddressPtr
+      ? wasmModule.ccall(
+          'js_getAddress',
+          'string',
+          ['number', 'number'],
+          [decodedAddressPtr, BigInt(0)],
+        )
+      : null,
+    mintedCoinData: mintedCoinData
+      ? {
+          ptr: mintedCoinData,
+          rawHex: getPointerHex(mintedCoinData),
+          id: wasmModule.ccall(
+            'js_getCSparkMintMetaId',
+            'number',
+            ['number'],
+            [mintedCoinData],
+          ),
+          height: wasmModule.ccall(
+            'js_getCSparkMintMetaHeight',
+            'number',
+            ['number'],
+            [mintedCoinData],
+          ),
+          isUsed: Boolean(
+            wasmModule.ccall(
+              'js_getCSparkMintMetaIsUsed',
+              'number',
+              ['number'],
+              [mintedCoinData],
+            ),
+          ),
+          memo: wasmModule.ccall(
+            'js_getCSparkMintMetaMemo',
+            'string',
+            ['number'],
+            [mintedCoinData],
+          ),
+          value: wasmModule.ccall(
+            'js_getCSparkMintMetaValue',
+            'number',
+            ['number'],
+            [mintedCoinData],
+          ),
+          type: wasmModule.ccall(
+            'js_getCSparkMintMetaType',
+            'number',
+            ['number'],
+            [mintedCoinData],
+          ),
+          coinPtr: mintedCoinPtr,
+          coinHex: getPointerHex(mintedCoinPtr),
+          coinHash: mintedCoinPtr
+            ? wasmModule.ccall(
+                'js_getCoinHash',
+                'string',
+                ['number'],
+                [mintedCoinPtr],
+              )
+            : null,
+        }
+      : null,
+  });
 
   if (!mintedCoinData) {
     throw new Error(`Failed to create MintedCoinData`);

@@ -1,31 +1,69 @@
 <template>
   <div class="network-activity-total-wrapper">
-    <div
-      v-if="cryptoAmount == '~' && !assumedError"
-      class="network-activity__total"
-    >
-      <balance-loader class="network-activity__loader-one" />
-      <balance-loader class="network-activity__loader-two" />
-    </div>
-    <div v-else-if="assumedError" class="network-activity__total-error">
-      <h3>
-        <span>Loading balance error. Please try again later</span>
-      </h3>
-    </div>
-    <div v-else class="network-activity__total">
-      <h3>
+    <div v-if="!assumedError" class="network-activity__total">
+      <balance-loader
+        v-if="cryptoAmount == '~'"
+        class="network-activity__loader-one"
+      />
+      <h3 v-if="cryptoAmount != '~'">
         {{ cryptoAmount }} <span>{{ symbol }}</span>
       </h3>
-      <p v-if="network.name !== NetworkNames.Firo">
+      <p v-if="cryptoAmount != '~' && network.name !== NetworkNames.Firo">
         <span v-if="subnetwork !== ''">Chain {{ subnetwork }} &middot;</span>
         {{ $filters.parseCurrency(fiatAmount) }}
       </p>
-      <h6 v-if="!!sparkAccount && network.name === NetworkNames.Firo">
+
+      <balance-loader
+        v-if="
+          (isSparkBalanceFormattedPending || sparkBalanceFormatted === '-') &&
+          network.name === NetworkNames.Firo
+        "
+        class="network-activity__loader-one"
+      />
+      <h6
+        v-if="
+          !isSparkBalanceFormattedPending &&
+          sparkBalanceFormatted !== '-' &&
+          network.name === NetworkNames.Firo
+        "
+      >
         <span>{{ sparkBalanceFormatted }}</span>
         Private
         {{ symbol }}
       </h6>
     </div>
+    <div v-else class="network-activity__total-error">
+      <h3>
+        <span>Loading balance error. Please try again later</span>
+      </h3>
+    </div>
+
+    <!--    <div-->
+    <!--      v-if="cryptoAmount == '~' && !assumedError"-->
+    <!--      class="network-activity__total"-->
+    <!--    >-->
+    <!--      <balance-loader class="network-activity__loader-one" />-->
+    <!--      <balance-loader class="network-activity__loader-two" />-->
+    <!--    </div>-->
+    <!--    <div v-else-if="assumedError" class="network-activity__total-error">-->
+    <!--      <h3>-->
+    <!--        <span>Loading balance error. Please try again later</span>-->
+    <!--      </h3>-->
+    <!--    </div>-->
+    <!--    <div v-else class="network-activity__total">-->
+    <!--      <h3>-->
+    <!--        {{ cryptoAmount }} <span>{{ symbol }}</span>-->
+    <!--      </h3>-->
+    <!--      <p v-if="network.name !== NetworkNames.Firo">-->
+    <!--        <span v-if="subnetwork !== ''">Chain {{ subnetwork }} &middot;</span>-->
+    <!--        {{ $filters.parseCurrency(fiatAmount) }}-->
+    <!--      </p>-->
+    <!--      <h6 v-if="!!sparkAccount && network.name === NetworkNames.Firo">-->
+    <!--        <span>{{ sparkBalanceFormatted }}</span>-->
+    <!--        Private-->
+    <!--        {{ symbol }}-->
+    <!--      </h6>-->
+    <!--    </div>-->
     <button
       v-if="sparkAccount && network.name === NetworkNames.Firo"
       class="btn__anonymize"
@@ -58,6 +96,8 @@ import { AccountsHeaderData, SparkAccount } from '@action/types/account';
 import { NetworkNames } from '@enkryptcom/types';
 import SynchronizeState from '@action/views/network-activity/components/synchronize-state.vue';
 import Loader from '@action/icons/common/loader.vue';
+import useAsyncComputed from '@action/composables/async-computed';
+import { calculateCurrentSparkBalance } from '@/libs/utils/updateAndSync/calculateCurrentSparkBalance';
 
 const props = defineProps({
   cryptoAmount: {
@@ -126,11 +166,14 @@ const isSyncing = computed(() => {
   return props.isCoinSyncing || props.isTagSyncing;
 });
 
-const sparkBalanceFormatted = computed(() => {
-  const balance = props.sparkAccount?.sparkBalance?.availableBalance;
-  if (!balance) return '0';
-  return fromBase(String(balance), props.network.decimals ?? 8);
-});
+const {
+  value: sparkBalanceFormatted,
+  isPending: isSparkBalanceFormattedPending,
+} = useAsyncComputed(async () => {
+  const balance = await calculateCurrentSparkBalance();
+  if (balance === '0') return '0';
+  return fromBase(balance, props.network.decimals ?? 8);
+}, '-');
 
 const openAnonymizeFundsModal = () => {
   synchronizeState.value = true;

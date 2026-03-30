@@ -17,20 +17,25 @@ export const serializeMintContext = (
   const serialContextStream: Buffer[] = [];
 
   for (let i = 0; i < inputs.length; i++) {
-    const txHashBuffer = inputs[i].txHash.slice(0, inputs[i].txHashLength);
+    // const txHashBuffer = inputs[i].txHash.slice(0, inputs[i].txHashLength);
+
+    const txHashBuffer = Buffer.from(
+      inputs[i].txHash.slice(0, inputs[i].txHashLength),
+    ).reverse();
 
     // Manually serialize the input (txHash, vout, scriptSig, sequence)
     const voutBuffer = Buffer.alloc(4);
     voutBuffer.writeUInt32LE(inputs[i].vout, 0); // vout is an unsigned 32-bit integer
 
     const sequenceBuffer = Buffer.alloc(4);
-    sequenceBuffer.writeUInt32LE(0xffffffff - 1, 0); // Max sequence number - 1
+    sequenceBuffer.writeUInt32LE(0xffffffff, 0); // Max sequence number - 1
 
     // Serialize the input as a concatenation of txHash + vout + scriptSig + sequence
     const inputBuffer = Buffer.concat([
       txHashBuffer,
       voutBuffer,
-      Buffer.from([]),
+      // Buffer.from([]),
+      Buffer.from([0x00]),
       sequenceBuffer,
     ]);
 

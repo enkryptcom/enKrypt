@@ -149,8 +149,8 @@ import { useCurrencyStore, type Currency } from './views/settings/store';
 import { useRateStore } from './store/rate-store';
 import { isGeoRestricted, isWalletRestricted } from '@/libs/utils/screening';
 import { useUpdateActivityState } from '@action/composables/update-activity-state';
-import { partition } from '@action/utils/array-utils';
 import { getSparkAddress } from '@action/composables/get-spark-address';
+import { calculateCurrentSparkBalance } from '@/libs/utils/updateAndSync/calculateCurrentSparkBalance';
 
 const wallet = new BaseFiroWallet();
 const db = new IndexedDBHelper();
@@ -189,9 +189,11 @@ const isAddressRestricted = ref<{ isRestricted: boolean; address: string }>({
 });
 
 const { sparkUnusedTxDetails, isCoinFetchPending, isTagFetchPending } =
-  useSynchronizeSparkState(currentNetwork, sparkBalance => {
-    if (sparkBalance && accountHeaderData.value.sparkAccount) {
+  useSynchronizeSparkState(currentNetwork, async () => {
+    if (accountHeaderData.value.sparkAccount) {
       console.log('UPDATING BALANCE');
+
+      const sparkBalance = await calculateCurrentSparkBalance();
 
       accountHeaderData.value = {
         ...accountHeaderData.value,
@@ -363,9 +365,7 @@ const getSparkAccountState = async (network: BaseNetwork) => {
     const displayAddress = network.displayAddress(currentSelectedAddress);
     const defaultAddress = await wallet.getSparkAddressAsync(displayAddress);
     await db.waitInit();
-    const availableBalance = await db.readData<string>(
-      DB_DATA_KEYS.sparkBalance,
-    );
+    const availableBalance = await calculateCurrentSparkBalance();
     if (defaultAddress) {
       accountHeaderData.value.sparkAccount = {
         defaultAddress,
@@ -410,8 +410,7 @@ const setNetwork = async (network: BaseNetwork) => {
     );
 
     await db.waitInit();
-    const availableBalance =
-      (await db.readData<string>(DB_DATA_KEYS.sparkBalance)) || '0';
+    const availableBalance = await calculateCurrentSparkBalance();
 
     if (defaultAddress) {
       sparkAccount['defaultAddress'] = defaultAddress;

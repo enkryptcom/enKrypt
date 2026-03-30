@@ -155,9 +155,11 @@ const anonymizeFunds = async () => {
     address: props.sparkAccount.defaultAddress,
     amount: amountToSendBN.toString(),
     utxos: spendableUtxos.map(({ txid, vout }) => ({
-      txHash: Buffer.from(txid),
+      // txHash: Buffer.from(txid),
+      txHash: Buffer.from(txid, 'hex').reverse(),
       vout,
-      txHashLength: txid.length,
+      // txHashLength: txid.length,
+      txHashLength: Buffer.from(txid, 'hex').length,
     })),
   });
 

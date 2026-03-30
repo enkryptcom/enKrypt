@@ -80,6 +80,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { toBN } from 'web3-utils';
 import SendSparkAddressInput from '../components/send-spark-address-input.vue';
 import SendTokenSelect from '../components/send-token-select.vue';
+import { calculateCurrentSparkBalance } from '@/libs/utils/updateAndSync/calculateCurrentSparkBalance';
+import useAsyncComputed from '@action/composables/async-computed';
 
 const router = useRouter();
 const route = useRoute();
@@ -159,21 +161,21 @@ const sendAmount = computed(() => {
   return '0';
 });
 
-const nativeBalanceAfterTransaction = computed(() => {
+const { value: nativeBalanceAfterTransaction } = useAsyncComputed(async () => {
   if (availableAsset.value) {
-    return toBN(String(props.sparkAccount.sparkBalance.availableBalance)).sub(
+    const sparkBalance = await calculateCurrentSparkBalance();
+
+    return toBN(String(sparkBalance)).sub(
       toBN(toBase(sendAmount.value, props.network.decimals)),
     );
   }
   return toBN(0);
-});
+}, toBN(0));
 
-const assetMaxValue = computed(() => {
-  return fromBase(
-    String(props.sparkAccount.sparkBalance.availableBalance),
-    props.network.decimals,
-  );
-});
+const { value: assetMaxValue } = useAsyncComputed(async () => {
+  const sparkBalance = await calculateCurrentSparkBalance();
+  return fromBase(sparkBalance, props.network.decimals);
+}, '');
 
 const inputAmount = (inputAmount: string) => {
   if (inputAmount === '') {
@@ -225,10 +227,11 @@ const setAsset = async () => {
 
     availableAsset.value.price = (marketData[0]?.current_price ?? 0).toString();
   }
-  console.log(props.sparkAccount.sparkBalance.availableBalance);
-  availableAsset.value.balance = String(
-    props.sparkAccount.sparkBalance.availableBalance,
-  );
+  // availableAsset.value.balance = String(
+  //   props.sparkAccount.sparkBalance.availableBalance,
+  // );
+
+  availableAsset.value.balance = await calculateCurrentSparkBalance();
   availableAsset.value.name = 'Available Balance';
 };
 

@@ -1737,7 +1737,7 @@ __metadata:
     bignumber.js: "npm:^9.3.1"
     bip39: "npm:^3.1.0"
     bitcoinjs-lib: "npm:^6.1.7"
-    bitcoinjs-lib-firo: "git+https://github.com/blockstars-tech/bitcoinjs-lib#4b0c4322cb9f308cb84b2f655d16a9e9abc7b4e1"
+    bitcoinjs-lib-firo: "git+https://github.com/hakob91/bitcoinjs-lib.git#4b0c4322cb9f308cb84b2f655d16a9e9abc7b4e1"
     bs58: "npm:^6.0.0"
     concurrently: "npm:^9.2.1"
     cross-env: "npm:^10.1.0"
@@ -13916,9 +13916,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bitcoinjs-lib-firo@git+https://github.com/blockstars-tech/bitcoinjs-lib#4b0c4322cb9f308cb84b2f655d16a9e9abc7b4e1":
+"bitcoinjs-lib-firo@git+https://github.com/hakob91/bitcoinjs-lib.git#4b0c4322cb9f308cb84b2f655d16a9e9abc7b4e1":
   version: 5.2.0
-  resolution: "bitcoinjs-lib-firo@https://github.com/blockstars-tech/bitcoinjs-lib.git#commit=4b0c4322cb9f308cb84b2f655d16a9e9abc7b4e1"
+  resolution: "bitcoinjs-lib-firo@https://github.com/hakob91/bitcoinjs-lib.git#commit=4b0c4322cb9f308cb84b2f655d16a9e9abc7b4e1"
   dependencies:
     bech32: "npm:^2.0.0"
     bip174: "npm:^2.0.1"

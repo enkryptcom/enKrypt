@@ -11,9 +11,7 @@ import {
 } from '@action/workers/sparkCoinInfoWorker';
 import * as bitcoin from 'bitcoinjs-lib';
 import { isSparkAddress } from '@/providers/bitcoin/libs/utils';
-import {
-  getSerializedCoin,
-} from '@/libs/spark-handler/getSerializedCoin';
+import { getSerializedCoin } from '@/libs/spark-handler/getSerializedCoin';
 import {
   base64ToReversedHex,
   numberToReversedHex,
@@ -88,7 +86,10 @@ const buildFinalSparkSpendTransaction = ({
   });
 
   if (!isSparkTransaction) {
-    tx.addOutput(bitcoin.address.toOutputScript(to, networkInfo), requestedAmount);
+    tx.addOutput(
+      bitcoin.address.toOutputScript(to, networkInfo),
+      requestedAmount,
+    );
   }
 
   return (
@@ -182,7 +183,12 @@ export async function sendFromSparkAddress(
       Module._free(deserializedCoinObj);
     }
     if (result && result !== 0) {
-      Module.ccall('js_freeCreateSparkSpendTxResult', null, ['number'], [result]);
+      Module.ccall(
+        'js_freeCreateSparkSpendTxResult',
+        null,
+        ['number'],
+        [result],
+      );
     }
     if (coverSetData && coverSetData !== 0) {
       Module.ccall('js_freeCoverSetData', null, ['number'], [coverSetData]);
