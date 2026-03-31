@@ -1,6 +1,15 @@
 <template>
   <div class="container" :class="{ popup: isPopup }">
-    <div v-if="network" class="verify-transaction">
+    <div v-if="initError" class="verify-transaction__loading">
+      <p style="color: #c00; text-align: center; padding: 16px">
+        {{ initError }}
+      </p>
+      <div style="display: flex; justify-content: center; margin-top: 16px">
+        <base-button title="Go Back" :click="close" :gray="true" />
+      </div>
+    </div>
+
+    <div v-else-if="network && txData" class="verify-transaction">
       <custom-scrollbar
         ref="verifyScrollRef"
         class="verify-transaction__scroll-area"
@@ -66,7 +75,7 @@
     </div>
 
     <send-process
-      v-if="isProcessing"
+      v-if="isProcessing && txData && network"
       v-model="isProcessing"
       :is-nft="false"
       :to-address="txData.toAddress"
@@ -79,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref, ComponentPublicInstance } from 'vue';
+import { onBeforeMount, ref, computed, ComponentPublicInstance } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import CloseIcon from '@action/icons/common/close-icon.vue';
 import BaseButton from '@action/components/base-button/index.vue';
@@ -102,6 +111,7 @@ import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
 import sendUsingInternalMessengers from '@/libs/messenger/internal-messenger';
 import { InternalMethods } from '@/types/messenger';
+import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
 
 const POPUP_CLOSE_DELAY = 4500;
 const WINDOW_CLOSE_DELAY = 1500;
@@ -109,39 +119,74 @@ const WINDOW_CLOSE_DELAY = 1500;
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
 const router = useRouter();
-const selectedNetwork: string = route.query.id as string;
 
-const txData: VerifyTransactionParams = JSON.parse(
-  Buffer.from(route.query.txData as string, 'base64').toString('utf8'),
-);
+const selectedNetwork = ref<string>('');
+const txData = ref<VerifyTransactionParams | null>(null);
 
 const isProcessing = ref(false);
-const network = ref<ECashNetwork>();
+const network = ref<ECashNetwork | null>(null);
 const isSendDone = ref(false);
-const account = ref<EnkryptAccount>();
+const account = ref<EnkryptAccount | undefined>(undefined);
 const isPopup: boolean = getCurrentContext() === 'new-window';
 const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const isWindowPopup = ref(false);
 const errorMsg = ref('');
+const initError = ref('');
 
 defineExpose({ verifyScrollRef });
 
-import { computed } from 'vue';
-
 const displayFromAddress = computed(() => {
-  if (!network.value) return '';
-  return network.value.displayAddress(txData.fromAddress);
+  if (!network.value || !txData.value) return '';
+  return network.value.displayAddress(txData.value.fromAddress);
 });
 
 const isInPopupContext = computed(() => getCurrentContext() === 'popup');
 
 onBeforeMount(async () => {
-  network.value = (await getNetworkByName(selectedNetwork)!) as ECashNetwork;
-  if (network.value) {
-    trackSendEvents(SendEventType.SendVerify, { network: network.value.name });
+  try {
+    const rawId = route.query.id;
+    const rawTxData = route.query.txData;
+
+    if (!rawId || typeof rawId !== 'string') {
+      throw new Error('Missing or invalid network id in route.');
+    }
+    if (!rawTxData || typeof rawTxData !== 'string') {
+      throw new Error('Missing or invalid transaction data in route.');
+    }
+
+    selectedNetwork.value = rawId;
+    txData.value = JSON.parse(
+      Buffer.from(rawTxData, 'base64').toString('utf8'),
+    ) as VerifyTransactionParams;
+  } catch (e: any) {
+    initError.value = `Could not load transaction data: ${e.message}`;
+    return;
   }
-  account.value = await KeyRing.getAccount(txData.fromAddress);
-  isWindowPopup.value = account.value.isHardware;
+
+  try {
+    const resolvedNetwork = await getNetworkByName(selectedNetwork.value);
+    if (!resolvedNetwork) {
+      throw new Error(`Unknown network: "${selectedNetwork.value}"`);
+    }
+    network.value = resolvedNetwork as ECashNetwork;
+    trackSendEvents(SendEventType.SendVerify, { network: network.value.name });
+  } catch (e: any) {
+    initError.value = `Could not load network: ${e.message}`;
+    return;
+  }
+
+  try {
+    const resolvedAccount = await KeyRing.getAccount(txData.value!.fromAddress);
+    if (!resolvedAccount) {
+      throw new Error(
+        `Account not found for address: ${txData.value!.fromAddress}`,
+      );
+    }
+    account.value = resolvedAccount;
+    isWindowPopup.value = resolvedAccount.isHardware;
+  } catch (e: any) {
+    initError.value = `Could not load account: ${e.message}`;
+  }
 });
 
 const close = () => {
@@ -155,7 +200,6 @@ const close = () => {
 const closeAfterSend = (delay: number) => {
   setTimeout(() => {
     isProcessing.value = false;
-
     if (isInPopupContext.value) {
       router.go(-2);
     } else {
@@ -166,25 +210,25 @@ const closeAfterSend = (delay: number) => {
 
 const createTxActivity = (): Activity => ({
   from: displayFromAddress.value,
-  to: txData.toAddress,
-  isIncoming: txData.fromAddress === txData.toAddress,
+  to: txData.value!.toAddress,
+  isIncoming: txData.value!.fromAddress === txData.value!.toAddress,
   network: network.value!.name,
   status: ActivityStatus.pending,
   timestamp: new Date().getTime(),
   token: {
-    decimals: txData.toToken.decimals,
-    icon: txData.toToken.icon,
-    name: txData.toToken.name,
-    symbol: txData.toToken.symbol,
-    price: txData.toToken.price,
+    decimals: txData.value!.toToken.decimals,
+    icon: txData.value!.toToken.icon,
+    name: txData.value!.toToken.name,
+    symbol: txData.value!.toToken.symbol,
+    price: txData.value!.toToken.price,
   },
   type: ActivityType.transaction,
-  value: txData.toToken.amount,
+  value: txData.value!.toToken.amount,
   transactionHash: '',
 });
 
 const sendAction = async () => {
-  if (!network.value || !account.value) return;
+  if (!network.value || !account.value || !txData.value) return;
 
   isProcessing.value = true;
   trackSendEvents(SendEventType.SendApprove, {
@@ -196,8 +240,8 @@ const sendAction = async () => {
 
   try {
     const signParams: any = {
-      toAddress: txData.toAddress,
-      amount: txData.toToken.amount,
+      toAddress: txData.value.toAddress,
+      amount: txData.value.toToken.amount,
       account: account.value,
       networkName: network.value.name,
     };
@@ -213,25 +257,22 @@ const sendAction = async () => {
 
     const { txid } = JSON.parse(result.result!);
 
+    const recentlySentAddresses = new RecentlySentAddressesState();
+    await recentlySentAddresses.addRecentlySentAddress(
+      network.value,
+      txData.value.toAddress,
+    );
+
     trackSendEvents(SendEventType.SendComplete, {
       network: network.value.name,
     });
 
-    activityState.addActivities(
-      [
-        {
-          ...txActivity,
-          transactionHash: txid,
-        },
-      ],
-      {
-        address: displayFromAddress.value,
-        network: network.value.name,
-      },
-    );
+    activityState.addActivities([{ ...txActivity, transactionHash: txid }], {
+      address: displayFromAddress.value,
+      network: network.value.name,
+    });
 
     isSendDone.value = true;
-
     const delay = isInPopupContext.value
       ? POPUP_CLOSE_DELAY
       : WINDOW_CLOSE_DELAY;
@@ -244,7 +285,7 @@ const sendAction = async () => {
 
     txActivity.status = ActivityStatus.failed;
     activityState.addActivities([txActivity], {
-      address: txData.fromAddress,
+      address: txData.value.fromAddress,
       network: network.value.name,
     });
 

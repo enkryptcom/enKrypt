@@ -51,8 +51,8 @@
 
       <send-fee-select
         :in-swap="false"
-        :selected-fee="selectedFee"
-        :fee="gasCostValues[selectedFee]"
+        :selected-fee="GasPriceTypes.REGULAR"
+        :fee="gasCostValues[GasPriceTypes.REGULAR]"
       />
 
       <send-alert
@@ -111,7 +111,6 @@ import { isValidECashAddress } from '@/providers/ecash/libs/utils';
 import { VerifyTransactionParams } from '@/providers/bitcoin/ui/types';
 import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
-import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
 import ChronikAPI from '@/providers/ecash/libs/api-chronik';
 import {
   calculateTransactionFee,
@@ -164,7 +163,6 @@ const amountInBase = computed(() =>
 );
 
 const isMaxSelected = ref<boolean>(false);
-const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const addressFrom = ref<string>(
   props.accountInfo.selectedAccount?.address ?? '',
@@ -187,7 +185,9 @@ const belowDust = computed(() => {
   );
 });
 
-const currentGasFee = computed(() => gasCostValues.value[selectedFee.value]);
+const currentGasFee = computed(
+  () => gasCostValues.value[GasPriceTypes.REGULAR],
+);
 
 const isBalanceZero = computed(() => {
   return UTXOBalance.value.isZero();
@@ -257,7 +257,13 @@ const sendButtonTitle = computed(() => {
 const isInputsValid = computed<boolean>(() => {
   if (isCalculatingMax.value) return false;
 
-  if (!isValidECashAddress(addressTo.value)) return false;
+  if (
+    !isValidECashAddress(
+      addressTo.value,
+      props.network.cashAddrPrefix ?? 'ecash',
+    )
+  )
+    return false;
   if (!isValidDecimals(sendAmount.value, selectedAsset.value.decimals!))
     return false;
 
@@ -375,14 +381,7 @@ const inputAmount = (inputAmount: string) => {
   amount.value = inputAmountBn.lt(0) ? '0' : inputAmount;
 };
 
-const recentlySentAddresses = new RecentlySentAddressesState();
-
 const sendAction = async () => {
-  await recentlySentAddresses.addRecentlySentAddress(
-    props.network,
-    addressTo.value,
-  );
-
   const keyring = new PublicKeyRing();
   const fromAccountInfo = await keyring.getAccount(addressFrom.value);
 
@@ -409,7 +408,7 @@ const sendAction = async () => {
     fromAddress: fromAccountInfo.address,
     fromAddressName: fromAccountInfo.name,
     gasFee: currentGasFee.value,
-    gasPriceType: selectedFee.value,
+    gasPriceType: GasPriceTypes.REGULAR,
     toAddress: addressTo.value,
   };
 

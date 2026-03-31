@@ -35,7 +35,7 @@ const props = defineProps({
   },
   network: {
     type: Object as PropType<ECashNetwork>,
-    default: () => ({}),
+    required: true,
   },
   from: {
     type: Boolean,
@@ -60,7 +60,10 @@ const xecAddress = computed(() => {
 });
 
 const isAddressValid = computed(() => {
-  return isValidECashAddress(xecAddress.value);
+  return isValidECashAddress(
+    xecAddress.value,
+    props.network.cashAddrPrefix ?? 'ecash',
+  );
 });
 
 const address = computed({
