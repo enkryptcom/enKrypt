@@ -39,26 +39,27 @@ export const parseCurrency = (value: string | number): string => {
 
   const notation = BigNumber(finalValue).gt(999999) ? 'compact' : 'standard';
 
-  let minimumFractionDigits = 2;
-  let maximumFractionDigits = 2;
+  const decimalStr = new BigNumber(finalValue).toFixed();
+  const decimalPlaces = Math.min(
+    (decimalStr.split('.')[1] ?? '').replace(/0+$/, '').length,
+    8,
+  );
 
-  if (finalValue > 0 && finalValue < 0.01) {
-    minimumFractionDigits = 2;
-    maximumFractionDigits = 8;
-  } else if (finalValue >= 0.01 && finalValue < 1) {
-    minimumFractionDigits = 2;
-    maximumFractionDigits = 4;
-  }
+  const minimumFractionDigits = 2;
+  const maximumFractionDigits = Math.max(2, decimalPlaces);
 
-  const formatted = new Intl.NumberFormat(locale, {
+  const formatter = new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: currency,
     notation,
     minimumFractionDigits,
     maximumFractionDigits,
-  }).format(finalValue);
+  });
 
-  return `${amount.lt(0.0000001) && amount.gt(0) ? '< ' : ''}${formatted}`;
+  const formatted = formatter.format(finalValue);
+  const zeroFormatted = formatter.format(0);
+
+  return `${finalValue > 0 && formatted === zeroFormatted ? '< ' : ''}${formatted}`;
 };
 
 export const truncate = (value: string, length: number): string => {

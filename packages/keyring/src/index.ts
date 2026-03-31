@@ -426,7 +426,13 @@ class KeyRing {
       );
     }
 
-    return hexToBuffer(keypair.privateKey);
+    const privKeyHex = keypair.privateKey;
+    assert(
+      /^(0x)?[0-9a-fA-F]{64}$/.test(privKeyHex),
+      "Invalid private key format: expected 32-byte hex string",
+    );
+
+    return hexToBuffer(privKeyHex);
   }
 }
 

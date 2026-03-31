@@ -108,6 +108,15 @@ class BackgroundHandler {
         error: JSON.stringify(getCustomError('Enkrypt: not implemented')),
       };
     }
+    if (_provider === ProviderName.ecash) {
+      return {
+        error: JSON.stringify(
+          getCustomError(
+            'Enkrypt: eCash does not support external requests in this wallet',
+          ),
+        ),
+      };
+    }
     if (this.#geoRestricted !== undefined && this.#geoRestricted) {
       return {
         error: JSON.stringify(

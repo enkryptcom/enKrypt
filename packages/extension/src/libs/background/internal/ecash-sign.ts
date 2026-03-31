@@ -38,10 +38,6 @@ const ecashSign = async (
     return { error: getCustomError('ecash-sign: missing required parameters') };
   }
 
-  if (!isValidECashAddress(params.toAddress)) {
-    return { error: getCustomError('ecash-sign: invalid destination address') };
-  }
-
   if (keyring.isLocked()) {
     return { error: getCustomError('ecash-sign: keyring is locked') };
   }
@@ -66,9 +62,14 @@ const ecashSign = async (
       return { error: getCustomError('ecash-sign: unknown network') };
     }
 
-    privateKeyBuffer = await keyring.getPrivateKeyForECash(
-      params.account,
-    );
+    const cashAddrPrefix = (network as any).cashAddrPrefix ?? 'ecash';
+    if (!isValidECashAddress(params.toAddress, cashAddrPrefix)) {
+      return {
+        error: getCustomError('ecash-sign: invalid destination address'),
+      };
+    }
+
+    privateKeyBuffer = await keyring.getPrivateKeyForECash(params.account);
     pkBytes = new Uint8Array(privateKeyBuffer);
     const chronik = new ChronikClient([network.node]);
     const wallet = Wallet.fromSk(pkBytes, chronik);
@@ -97,8 +98,10 @@ const ecashSign = async (
         result.errors?.length ? result.errors.join(', ') : 'Broadcast failed',
       );
     }
-
-    const txid = result.broadcasted[0] || '';
+    const txid = result.broadcasted[0];
+    if (!txid) {
+      throw new Error('Broadcast succeeded but no txid returned');
+    }
     return { result: JSON.stringify({ txid }) };
   } catch (e: any) {
     console.error('[ecash-sign] Error:', e);
