@@ -66,7 +66,9 @@ export class ChronikAPI extends ProviderAPIInterface {
     return this.withErrorHandling(
       'getBalance',
       async () => {
-        const address = getAddress(pubkey);
+        const address = this.ensurePrefix(
+          getAddress(pubkey, this.networkInfo.cashAddrPrefix),
+        );
         const wallet = WatchOnlyWallet.fromAddress(address, this.chronik);
         await wallet.sync();
         return wallet.balanceSats.toString();

@@ -1,4 +1,3 @@
-import { getAddressWithoutPrefix } from '@/providers/ecash/libs/utils';
 import ActivityState from '.';
 import { ActivityHandlerType } from './types';
 
@@ -9,11 +8,8 @@ export default (activityHandler: ActivityHandlerType): ActivityHandlerType => {
   const returnFunction: ActivityHandlerType = async (network, address) => {
     const activityState = new ActivityState();
 
-    const cacheAddress =
-      typeof address === 'string' ? getAddressWithoutPrefix(address) : address;
-
     const options = {
-      address: cacheAddress,
+      address: address,
       network: network.name,
     };
 
@@ -27,7 +23,7 @@ export default (activityHandler: ActivityHandlerType): ActivityHandlerType => {
     ]);
 
     if (cacheTime + cacheTTL < new Date().getTime()) {
-      const liveActivities = await activityHandler(network, cacheAddress);
+      const liveActivities = await activityHandler(network, address);
       if (!activities.length) {
         await activityState.addActivities(liveActivities, options);
         await activityState.setCacheTime(options);

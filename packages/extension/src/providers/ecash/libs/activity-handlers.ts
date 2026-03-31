@@ -64,7 +64,7 @@ export const chronikHandler: ActivityHandlerType = async (
           isReceive || isSend
             ? calculateTransactionValue(
                 tx.outputs,
-                normalizedAddress,
+                [normalizedAddress],
                 isReceive,
                 cashAddrPrefix,
               )
@@ -72,7 +72,7 @@ export const chronikHandler: ActivityHandlerType = async (
 
         const { fromAddress, toAddress } = getTransactionAddresses(
           tx,
-          normalizedAddress,
+          [normalizedAddress],
           isReceive,
           isSend,
           cashAddrPrefix,
