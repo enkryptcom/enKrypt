@@ -13,14 +13,30 @@ import {
 
 describe('ECash Utils Tests', () => {
   describe('isValidECashAddress', () => {
-    it('should validate correct eCash address', () => {
+    it('should validate correct eCash address with prefix', () => {
       const validAddress = 'ecash:qq42tdgdvx5np0pgpjd9x9jupkaugmdw7sjp5dqa63';
       expect(isValidECashAddress(validAddress)).toBe(true);
     });
 
-    it('should validate correct eCash address without prefix', () => {
+    it('should validate correct eCash address without prefix (default ecash)', () => {
       const validAddress = 'qq42tdgdvx5np0pgpjd9x9jupkaugmdw7sjp5dqa63';
       expect(isValidECashAddress(validAddress)).toBe(true);
+    });
+
+    it('should validate correct ectest address without prefix', () => {
+      const validAddress = 'qz5fdmzx8cdqspevemxe20z94y6689zhdqm5xdfvsm';
+      expect(isValidECashAddress(validAddress, 'ectest')).toBe(true);
+    });
+
+    it('should reject ecash address when ectest prefix is expected', () => {
+      const validEcashAddress =
+        'ecash:qq42tdgdvx5np0pgpjd9x9jupkaugmdw7sjp5dqa63';
+      expect(isValidECashAddress(validEcashAddress, 'ectest')).toBe(false);
+    });
+
+    it('should reject ectest address when ecash prefix is expected', () => {
+      const ectestAddress = 'ectest:qq42tdgdvx5np0pgpjd9x9jupkaugmdw7sjp5dqa63';
+      expect(isValidECashAddress(ectestAddress, 'ecash')).toBe(false);
     });
 
     it('should reject invalid eCash address', () => {
@@ -30,6 +46,12 @@ describe('ECash Utils Tests', () => {
 
     it('should reject empty string', () => {
       expect(isValidECashAddress('')).toBe(false);
+    });
+
+    it('should use ecash as default prefix', () => {
+      const validAddress = 'ecash:qq42tdgdvx5np0pgpjd9x9jupkaugmdw7sjp5dqa63';
+      expect(isValidECashAddress(validAddress)).toBe(true);
+      expect(isValidECashAddress(validAddress, 'ecash')).toBe(true);
     });
   });
 
@@ -124,7 +146,11 @@ describe('ECash Utils Tests', () => {
         },
       ];
       const normalizedAddress = scriptToAddress(outputs[0].outputScript);
-      const value = calculateTransactionValue(outputs, normalizedAddress, true);
+      const value = calculateTransactionValue(
+        outputs,
+        [normalizedAddress],
+        true,
+      );
       expect(value).to.equal('1000');
     });
 
@@ -142,7 +168,7 @@ describe('ECash Utils Tests', () => {
       const normalizedAddress = scriptToAddress(outputs[0].outputScript);
       const value = calculateTransactionValue(
         outputs,
-        normalizedAddress,
+        [normalizedAddress],
         false,
       );
       expect(value).to.equal('2000');
@@ -157,7 +183,7 @@ describe('ECash Utils Tests', () => {
       ];
       const value = calculateTransactionValue(
         outputs,
-        'nonexistent_address',
+        ['nonexistent_address'],
         true,
       );
       expect(value).to.equal('0');
@@ -207,15 +233,16 @@ describe('ECash Utils Tests', () => {
         ],
         outputs: [
           {
-            outputScript: '76a914b9b67dd5f6b3f3b4f7c8d9e0f1a2b3c4d5e6f788ac',
+            outputScript: '76a9142aa5b50d61a930bc280c9a53165c0dbbc46daef488ac',
             sats: 1000,
           },
         ],
       };
+      // The owned address matches the output script above
       const normalizedAddress = 'qq42tdgdvx5np0pgpjd9x9jupkaugmdw7sjp5dqa63';
       const { fromAddress, toAddress } = getTransactionAddresses(
         tx,
-        normalizedAddress,
+        [normalizedAddress],
         true,
         false,
       );
@@ -232,19 +259,20 @@ describe('ECash Utils Tests', () => {
         ],
         outputs: [
           {
-            outputScript: '76a914b9b67dd5f6b3f3b4f7c8d9e0f1a2b3c4d5e6f788ac',
+            outputScript: '76a9142aa5b50d61a930bc280c9a53165c0dbbc46daef488ac',
             sats: 1000,
           },
           {
-            outputScript: '76a914c0c78ee6f7c4f4c5f8d9e0f1a2b3c4d5e6f788ac',
+            outputScript: '76a914b9b67dd5f6b3f3b4f7c8d9e0f1a2b3c4d5e6f788ac',
             sats: 2000,
           },
         ],
       };
-      const normalizedAddress = scriptToAddress(tx.outputs[0].outputScript);
+      // owned address is the first output (change), recipient is the second
+      const normalizedAddress = 'qq42tdgdvx5np0pgpjd9x9jupkaugmdw7sjp5dqa63';
       const { fromAddress, toAddress } = getTransactionAddresses(
         tx,
-        normalizedAddress,
+        [normalizedAddress],
         false,
         true,
       );
@@ -260,7 +288,7 @@ describe('ECash Utils Tests', () => {
       };
       const { fromAddress, toAddress } = getTransactionAddresses(
         tx,
-        'someaddress',
+        ['someaddress'],
         false,
         false,
       );

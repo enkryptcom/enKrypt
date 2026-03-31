@@ -59,7 +59,15 @@ export const calculateTransactionFee = (
         if (bSats.lt(aSats)) return -1;
         return 0;
       });
-
+    if (nonTokenUTXOs.length === 0) {
+      console.warn(
+        '⚠️ [calculateTransactionFee] No spendable XEC UTXOs available',
+      );
+      return {
+        feeInXEC: fromBase(fallbackByteSize.toString(), networkDecimals),
+        txSize: fallbackByteSize,
+      };
+    }
     const result = calculateNativeXECFee(
       sendAmount,
       nonTokenUTXOs,
@@ -146,30 +154,17 @@ export const buildGasCostValues = (
 ): GasFeeType => {
   const feeUSD = new BigNumber(feeInXEC).times(assetPrice || '0').toString();
 
+  const entry = {
+    nativeValue: feeInXEC,
+    fiatValue: feeUSD,
+    nativeSymbol: currencyName,
+    fiatSymbol: 'USD',
+  };
+
   return {
-    [GasPriceTypes.ECONOMY]: {
-      nativeValue: new BigNumber(feeInXEC).times(0.8).toString(),
-      fiatValue: new BigNumber(feeUSD).times(0.8).toString(),
-      nativeSymbol: currencyName,
-      fiatSymbol: 'USD',
-    },
-    [GasPriceTypes.REGULAR]: {
-      nativeValue: feeInXEC,
-      fiatValue: feeUSD,
-      nativeSymbol: currencyName,
-      fiatSymbol: 'USD',
-    },
-    [GasPriceTypes.FAST]: {
-      nativeValue: new BigNumber(feeInXEC).times(1.2).toString(),
-      fiatValue: new BigNumber(feeUSD).times(1.2).toString(),
-      nativeSymbol: currencyName,
-      fiatSymbol: 'USD',
-    },
-    [GasPriceTypes.FASTEST]: {
-      nativeValue: new BigNumber(feeInXEC).times(1.5).toString(),
-      fiatValue: new BigNumber(feeUSD).times(1.5).toString(),
-      nativeSymbol: currencyName,
-      fiatSymbol: 'USD',
-    },
+    [GasPriceTypes.ECONOMY]: entry,
+    [GasPriceTypes.REGULAR]: entry,
+    [GasPriceTypes.FAST]: entry,
+    [GasPriceTypes.FASTEST]: entry,
   };
 };

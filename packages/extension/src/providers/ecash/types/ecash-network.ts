@@ -39,7 +39,8 @@ export const getAddress = (
   pubkey: string,
   cashAddrPrefix: string = 'ecash',
 ): string => {
-  if (isValidECashAddress(pubkey)) return getAddressWithoutPrefix(pubkey);
+  if (isValidECashAddress(pubkey, cashAddrPrefix))
+    return getAddressWithoutPrefix(pubkey);
 
   try {
     let cleanPubkey = pubkey;
@@ -56,6 +57,6 @@ export const getAddress = (
     return getAddressWithoutPrefix(address);
   } catch (error) {
     console.error('Error converting pubkey to cashaddr:', error);
-    return pubkey;
+    return '';
   }
 };

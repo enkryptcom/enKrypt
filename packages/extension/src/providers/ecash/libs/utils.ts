@@ -1,10 +1,15 @@
 import { Address } from 'ecash-lib';
 import { toBN } from 'web3-utils';
 
-export const isValidECashAddress = (address: string): boolean => {
+export const isValidECashAddress = (
+  address: string,
+  cashAddrPrefix: string = 'ecash',
+): boolean => {
   try {
     const addr = Address.parse(address);
-    return Boolean(addr);
+    if (addr.prefix !== cashAddrPrefix) return false;
+    if (!addr.hash || addr.hash.length === 0) return false;
+    return true;
   } catch {
     return false;
   }
@@ -65,10 +70,11 @@ export function sumSatoshis(items: any[]): string {
  */
 export function calculateTransactionValue(
   outputs: any[],
-  normalizedAddress: string,
+  ownedAddresses: string[],
   isReceive: boolean,
   cashAddrPrefix: string = 'ecash',
 ): string {
+  const ownedSet = new Set(ownedAddresses);
   return outputs
     .filter((output: any) => {
       const outputAddress = scriptToAddress(
@@ -76,8 +82,8 @@ export function calculateTransactionValue(
         cashAddrPrefix,
       );
       return isReceive
-        ? outputAddress === normalizedAddress
-        : outputAddress !== normalizedAddress;
+        ? ownedSet.has(outputAddress)
+        : !ownedSet.has(outputAddress);
     })
     .reduce((sum, output) => sum.add(toBN(extractSats(output))), toBN('0'))
     .toString();
@@ -91,27 +97,40 @@ export function calculateOnchainTxFee(tx: any): number {
 
 export function getTransactionAddresses(
   tx: any,
-  normalizedAddress: string,
+  ownedAddresses: string[],
   isReceive: boolean,
   isSend: boolean,
   cashAddrPrefix: string = 'ecash',
 ): { fromAddress: string; toAddress: string } {
   let fromAddress = 'Unknown';
   let toAddress = 'Unknown';
+  const ownedSet = new Set(ownedAddresses);
 
   if (isReceive) {
+    // From: first input (external sender)
     fromAddress = tx.inputs[0]?.outputScript
       ? scriptToAddress(tx.inputs[0].outputScript, cashAddrPrefix)
       : 'Unknown';
-    toAddress = normalizedAddress;
+    // To: first owned address that received funds
+    const receivingOutput = tx.outputs.find((output: any) => {
+      const outputAddress = scriptToAddress(
+        output.outputScript,
+        cashAddrPrefix,
+      );
+      return ownedSet.has(outputAddress);
+    });
+    toAddress = receivingOutput
+      ? scriptToAddress(receivingOutput.outputScript, cashAddrPrefix)
+      : (ownedAddresses[0] ?? 'Unknown');
   } else if (isSend) {
-    fromAddress = normalizedAddress;
+    fromAddress = ownedAddresses[0] ?? 'Unknown';
+    // To: first EXTERNAL output (not owned = recipient, not change)
     const recipientOutput = tx.outputs.find((output: any) => {
       const outputAddress = scriptToAddress(
         output.outputScript,
         cashAddrPrefix,
       );
-      return outputAddress !== normalizedAddress;
+      return !ownedSet.has(outputAddress);
     });
     toAddress = recipientOutput
       ? scriptToAddress(recipientOutput.outputScript, cashAddrPrefix)
