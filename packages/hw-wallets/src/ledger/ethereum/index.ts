@@ -1,6 +1,6 @@
 import type Transport from "@ledgerhq/hw-transport";
 import webUsbTransport from "@ledgerhq/hw-transport-webusb";
-import ledgerService from "@ledgerhq/hw-app-eth/lib/services/ledger";
+import { ledgerService } from "@ledgerhq/hw-app-eth";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import EthApp from "@ledgerhq/hw-app-eth";
 import { toRpcSig, publicToAddress } from "@ethereumjs/util";

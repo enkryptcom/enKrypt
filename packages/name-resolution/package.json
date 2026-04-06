@@ -22,10 +22,10 @@
     "node": ">=14.15.0"
   },
   "devDependencies": {
-    "@types/node": "^22.19.13",
-    "@typescript-eslint/eslint-plugin": "^8.56.1",
-    "@typescript-eslint/parser": "^8.56.1",
-    "eslint": "^9.39.3",
+    "@types/node": "^22.19.15",
+    "@typescript-eslint/eslint-plugin": "^8.58.0",
+    "@typescript-eslint/parser": "^8.58.0",
+    "eslint": "^9.39.4",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-alias": "^1.1.2",
@@ -36,9 +36,9 @@
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "8.56.1",
-    "viem": "^2.46.3",
-    "vitest": "^4.0.18"
+    "typescript-eslint": "8.58.0",
+    "viem": "^2.47.6",
+    "vitest": "^4.1.2"
   },
   "repository": {
     "type": "git",
@@ -48,7 +48,7 @@
   "author": "kvhnuke",
   "license": "MIT",
   "dependencies": {
-    "@bonfida/spl-name-service": "3.0.19",
+    "@bonfida/spl-name-service": "3.0.20",
     "@ensdomains/address-encoder": "^1.1.4",
     "@unstoppabledomains/resolution": "^9.3.3",
     "@web3-name-sdk/core": "0.4.2",

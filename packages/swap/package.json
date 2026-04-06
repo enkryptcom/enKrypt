@@ -22,8 +22,8 @@
     "node": ">=14.15.0"
   },
   "dependencies": {
-    "@1inch/fusion-sdk": "^2.4.6",
-    "@1inch/limit-order-sdk": "^5.2.3",
+    "@1inch/fusion-sdk": "^2.4.7",
+    "@1inch/limit-order-sdk": "^5.2.4",
     "@enkryptcom/types": "workspace:^",
     "@enkryptcom/utils": "workspace:^",
     "@solana/spl-token": "^0.4.14",
@@ -32,19 +32,19 @@
     "eventemitter3": "^5.0.4",
     "isomorphic-ws": "^5.0.0",
     "json-rpc-2.0": "^1.7.1",
-    "lodash": "^4.17.23",
-    "rango-sdk-basic": "^0.1.73",
+    "lodash": "^4.18.0",
+    "rango-sdk-basic": "^0.1.74",
     "reconnecting-websocket": "^4.4.0",
     "uuid": "^13.0.0",
     "web3-eth": "^1.10.4",
     "web3-utils": "^1.10.4",
-    "ws": "^8.19.0"
+    "ws": "^8.20.0"
   },
   "devDependencies": {
-    "@types/node": "^22.19.13",
-    "@typescript-eslint/eslint-plugin": "^8.56.1",
-    "@typescript-eslint/parser": "^8.56.1",
-    "eslint": "^9.39.3",
+    "@types/node": "^22.19.15",
+    "@typescript-eslint/eslint-plugin": "^8.58.0",
+    "@typescript-eslint/parser": "^8.58.0",
+    "eslint": "^9.39.4",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-alias": "^1.1.2",
@@ -55,8 +55,8 @@
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "8.56.1",
-    "vitest": "^4.0.18"
+    "typescript-eslint": "8.58.0",
+    "vitest": "^4.1.2"
   },
   "repository": {
     "type": "git",
