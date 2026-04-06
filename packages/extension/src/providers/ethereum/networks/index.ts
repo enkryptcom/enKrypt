@@ -58,7 +58,6 @@ import gravityNode from './gravity';
 import unichainNode from './unichain';
 import abstractNode from './abstract';
 import inkNode from './inkonchain';
-import taraxa from './taraxa';
 import coti from './coti';
 import cytonicTestnetNode from './cytonic-testnet';
 import unitZero from './unitzero';
@@ -132,7 +131,6 @@ export default {
   cotiTestnetNode: cotiTestnetNode,
   hoodi: hoodiNode,
   frax: fraxtalNode,
-  taraxa: taraxa,
   bera: beraNode,
   story: storyNode,
   gravity: gravityNode,
