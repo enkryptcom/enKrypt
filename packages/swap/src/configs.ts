@@ -74,11 +74,11 @@ const FEE_CONFIGS: Partial<
   },
   [ProviderName.oneInchFusion]: {
     [WalletIdentifier.enkrypt]: {
-      referrer: "0x551d9d8eb02e1c713009da8f7c194870d651054a",
+      referrer: "0xd982B8eF012A7FEadA16589bcd1f3581e200af02",
       fee: 88,
     },
     [WalletIdentifier.mew]: {
-      referrer: "0x87A265C93D2A92C6EEEC002283bEaEbb4564Fd20",
+      referrer: "0x8170c0Cd46694b2Cf943064f98D275F8152f9128",
       fee: 250,
     },
   },
@@ -162,6 +162,9 @@ const TOKEN_LISTS: {
   [NetworkNames.Telos]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/${SupportedNetworkName.Telos}.json`,
 };
 
+const RWA_FILTER_LIST =
+  "https://raw.githubusercontent.com/enkryptcom/dynamic-data/refs/heads/main/configs/filtered-rwa-addresses.json";
+const IP_COMPLY_URL = "https://partners.mewapi.io/o/ipcomply";
 /**
  * ```sh
  * curl -sL https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/changelly.json | jq . -C | less -R
@@ -198,4 +201,6 @@ export {
   TOP_TOKEN_INFO_LIST,
   DEFAULT_SLIPPAGE,
   PROVIDER_INFO,
+  RWA_FILTER_LIST,
+  IP_COMPLY_URL,
 };

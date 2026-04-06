@@ -24,6 +24,9 @@ const defaultSettings = {
     randomUserID: '',
     isMetricsEnabled: true,
   },
+  currencySettingsState: {
+    value: '',
+  },
   manifestVersion: 3,
 };
 const providerSendMessage = async (

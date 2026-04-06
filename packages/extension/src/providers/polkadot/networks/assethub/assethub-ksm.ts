@@ -23,7 +23,7 @@ const assetHubOptions: SubstrateNetworkOptions = {
   icon,
   decimals: 12,
   prefix: 2,
-  node: 'wss://kusama-asset-hub-rpc.polkadot.io/',
+  node: 'wss://asset-hub-kusama-rpc.n.dwellir.com/',
   coingeckoID: 'kusama',
   genesisHash:
     '0x48239ef607d7928874027a43a67689209727dfb3d3dc5e5b03a39bdc2eda771a',

@@ -100,7 +100,7 @@ function getValueColor(value: ValueTypes): string {
     .is(v => v === 'boolean', then('var(--jtv-boolean-color)'))
     .is(v => v === 'object', then('var(--jtv-null-color)'))
     .is(v => v === 'undefined', then('var(--jtv-null-color)'))
-    .default(then('var(--jtv-valueKey-color)'));
+    .otherwise(then('var(--jtv-valueKey-color)'));
 }
 
 const classes = computed((): unknown => {

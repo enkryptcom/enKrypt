@@ -63,7 +63,7 @@ defineProps({
 });
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
 
 .verify-transaction-account {
@@ -73,23 +73,32 @@ defineProps({
   align-items: center;
   flex-direction: row;
   width: 100%;
-  padding: 12px 16px;
+  padding: 14px 16px;
   box-sizing: border-box;
-  border-bottom: 1px solid @gray02;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  transition: background 150ms ease-in-out;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.01);
+  }
 
   &__img {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     margin-right: 12px;
-    border-radius: 100%;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   }
 
   &__name {
+    flex: 1;
+    min-width: 0;
+
     h4 {
       font-style: normal;
-      font-weight: 400;
-      font-size: 16px;
-      line-height: 24px;
+      font-weight: 600;
+      font-size: 15px;
+      line-height: 20px;
       color: @primaryLabel;
       margin: 0;
       word-break: break-all;
@@ -97,11 +106,13 @@ defineProps({
 
     p {
       font-style: normal;
-      font-weight: 400;
-      font-size: 12px;
-      line-height: 16px;
+      font-weight: 500;
+      font-size: 11px;
+      line-height: 14px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
       color: @secondaryLabel;
-      margin: 0;
+      margin: 0 0 2px 0;
     }
 
     h6 {
@@ -109,8 +120,9 @@ defineProps({
       font-weight: 400;
       font-size: 12px;
       line-height: 16px;
-      color: @secondaryLabel;
-      margin: 0;
+      color: @tertiaryLabel;
+      margin: 2px 0 0 0;
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
     }
   }
 }

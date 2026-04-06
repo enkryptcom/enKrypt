@@ -47,7 +47,7 @@ import { OKXQuoteResponse, OKXSwapResponse, OKXTokenInfo } from "./types";
 const logger = new DebugLogger("swap:okx");
 const DEFAULT_TOKEN_ACCOUNT_RENT_EXEMPTION = 2039280;
 const SOL_NATIVE_ADDRESS = "11111111111111111111111111111111";
-const OKX_API_URL = "https://partners.mewapi.io/okxswapv5";
+const OKX_API_URL = "https://partners.mewapi.io/okxswapv6";
 const OKX_TOKENS_URL = "/all-tokens";
 const OKX_QUOTE_URL = "/quote";
 const OKX_SWAP_URL = "/swap";
@@ -482,7 +482,7 @@ export class OKX extends ProviderClass {
   private async getOKXTokens(): Promise<OKXTokenInfo[]> {
     return retryRequest(async () => {
       const params = {
-        chainId: "501", // Solana Chain ID
+        chainIndex: "501", // Solana Chain ID
       };
 
       const requestPath = OKX_TOKENS_URL;
@@ -526,7 +526,7 @@ export class OKX extends ProviderClass {
       const { srcMint, dstMint, amount } = params;
 
       const quoteParams: Record<string, string> = {
-        chainId: "501", // Solana Chain ID
+        chainIndex: "501", // Solana Chain ID
         fromTokenAddress: srcMint.toBase58(),
         toTokenAddress: dstMint.toBase58(),
         amount: amount.toString(10),
@@ -729,12 +729,12 @@ export class OKX extends ProviderClass {
     // Build swap parameters with required and optional fields
     const swapParams: Record<string, string> = {
       // Required parameters
-      chainId: "501", // Solana Chain ID - required for swap API
+      chainIndex: "501", // Solana Chain ID - required for swap API
       amount: options.amount.toString(10),
       fromTokenAddress: swapSrcTokenAddress,
       toTokenAddress: swapDstTokenAddress,
       userWalletAddress: options.fromAddress,
-      slippage: parseFloat(meta.slippage || DEFAULT_SLIPPAGE).toString(),
+      slippagePercent: parseFloat(meta.slippage || DEFAULT_SLIPPAGE).toString(),
       swapMode: "exactIn",
 
       // Solana-required parameters

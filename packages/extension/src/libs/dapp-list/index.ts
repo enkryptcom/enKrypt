@@ -25,10 +25,6 @@ const lists: Partial<Record<NetworkNames, string>> = {
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/astr.json',
   [NetworkNames.AstarEVM]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/astr.json',
-  [NetworkNames.Shiden]:
-    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/sdn.json',
-  [NetworkNames.ShidenEVM]:
-    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/sdn.json',
   [NetworkNames.Okc]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/okc.json',
   [NetworkNames.Optimism]:
@@ -67,8 +63,6 @@ const lists: Partial<Record<NetworkNames, string>> = {
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/nova.json',
   [NetworkNames.Forma]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/forma.json',
-  [NetworkNames.Godwoken]:
-    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/godwoken.json',
   [NetworkNames.ImmutableZkevm]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/imx.json',
   [NetworkNames.MantaPacific]:

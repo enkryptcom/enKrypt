@@ -13,6 +13,7 @@ import Sparkline from '@/libs/sparkline';
 import { NATIVE_TOKEN_ADDRESS } from '../../libs/common';
 import { Erc20Token, Erc20TokenOptions } from '../../types/erc20-token';
 import icon from '../icons/skl-fuel.webp';
+import { NetworkEndpoints } from '../../libs/activity-handlers/providers/etherscan/configs';
 
 const DEFAULT_DECIMALS = 18;
 
@@ -229,7 +230,9 @@ export function createSkaleEvmNetwork(
     coingeckoID: 'skale',
     coingeckoPlatform: CoingeckoPlatform.SKALE,
     assetsInfoHandler: getAssetHandler(assets),
-    activityHandler: wrapActivityHandler(EtherscanActivity),
+    activityHandler: NetworkEndpoints[params.name]
+      ? wrapActivityHandler(EtherscanActivity)
+      : wrapActivityHandler(() => Promise.resolve([])),
     customTokens: true,
   } as EvmNetworkOptions);
 }

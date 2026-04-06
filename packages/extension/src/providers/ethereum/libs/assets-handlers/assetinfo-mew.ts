@@ -54,10 +54,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'mobm',
     cgPlatform: CoingeckoPlatform.Moonbeam,
   },
-  [NetworkNames.ShidenEVM]: {
-    tbName: 'sdn',
-    cgPlatform: CoingeckoPlatform.Shiden,
-  },
   [NetworkNames.Rootstock]: {
     cgPlatform: CoingeckoPlatform.Rootstock,
     bsEndpoint: true,
@@ -142,10 +138,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
   [NetworkNames.Degen]: {
     tbName: 'degen',
     cgPlatform: CoingeckoPlatform.Degen,
-  },
-  [NetworkNames.Godwoken]: {
-    tbName: 'ckb',
-    cgPlatform: CoingeckoPlatform.Godwoken,
   },
   [NetworkNames.Linea]: {
     tbName: 'linea',

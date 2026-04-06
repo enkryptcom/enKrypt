@@ -7,7 +7,6 @@ import moonbeamNode from './glmr';
 import moonriverNode from './movr';
 import karuraEvmNode from './karura';
 import okcNode from './okc';
-import shidenEvmNode from './sdn';
 import astarEvmNode from './astr';
 import optimismNode from './op';
 import rootstockNode from './rsk';
@@ -44,7 +43,6 @@ import immutableZkevmNode from './immutable-zkevm';
 import rariNode from './rari';
 import formaNode from './forma';
 import xlayerNode from './xlayer';
-import godwokenNode from './godwoken';
 import lineaNode from './linea';
 import mantaPacificNode from './manta-pacific';
 import modeNode from './mode';
@@ -53,9 +51,7 @@ import palmNode from './palm';
 import scrollNode from './scroll';
 import cotiTestnetNode from './coti-testnet';
 import hoodiNode from './hoodi';
-import bitrockNode from './bitrock';
 import fraxtalNode from './fraxtal';
-import _5ireNode from './5ire';
 import beraNode from './bera';
 import storyNode from './story';
 import gravityNode from './gravity';
@@ -86,7 +82,6 @@ export default {
   moonriver: moonriverNode,
   karuraEvm: karuraEvmNode,
   okc: okcNode,
-  shidenEvm: shidenEvmNode,
   astarEvm: astarEvmNode,
   op: optimismNode,
   rootstock: rootstockNode,
@@ -128,7 +123,6 @@ export default {
   rari: rariNode,
   forma: formaNode,
   xlayer: xlayerNode,
-  godwoken: godwokenNode,
   linea: lineaNode,
   mantaPacific: mantaPacificNode,
   mode: modeNode,
@@ -137,10 +131,8 @@ export default {
   scroll: scrollNode,
   cotiTestnetNode: cotiTestnetNode,
   hoodi: hoodiNode,
-  bitrock: bitrockNode,
   frax: fraxtalNode,
   taraxa: taraxa,
-  '5ire': _5ireNode,
   bera: beraNode,
   story: storyNode,
   gravity: gravityNode,

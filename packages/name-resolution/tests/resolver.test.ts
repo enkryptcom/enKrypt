@@ -16,7 +16,7 @@ describe("Name Resolver resolving", () => {
       },
     });
     let address = await resolver.resolveAddress("test.eth", "ETH");
-    expect(address).to.be.eq("0xeefB13C7D42eFCc655E528dA6d6F7bBcf9A2251d");
+    expect(address).to.be.eq("0x54fd548fFD6Ff54943d6863F1d485Cc2Fb495574");
     address = await resolver.resolveAddress("brad.crypto", "ETH");
     expect(address).to.be.eq("0x8aaD44321A86b170879d7A244c1e8d360c99DdA8");
     address = await resolver.resolveAddress("spaceid.arb", "ARB1");

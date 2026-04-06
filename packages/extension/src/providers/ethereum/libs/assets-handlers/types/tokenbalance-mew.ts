@@ -34,7 +34,6 @@ export type SupportedNetworkNames =
   | NetworkNames.Optimism
   | NetworkNames.Moonriver
   | NetworkNames.Moonbeam
-  | NetworkNames.ShidenEVM
   | NetworkNames.Rootstock
   | NetworkNames.Arbitrum
   | NetworkNames.ArbitrumNova
@@ -56,7 +55,6 @@ export type SupportedNetworkNames =
   | NetworkNames.Degen
   | NetworkNames.Blast
   | NetworkNames.Solana
-  | NetworkNames.Godwoken
   | NetworkNames.Linea
   | NetworkNames.MantaPacific
   | NetworkNames.Mode

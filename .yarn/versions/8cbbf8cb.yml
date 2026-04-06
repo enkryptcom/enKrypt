@@ -1,6 +1,0 @@
-undecided:
-  - enkrypt
-  - "@enkryptcom/hw-wallets"
-  - "@enkryptcom/keyring"
-  - "@enkryptcom/name-resolution"
-  - "@enkryptcom/signer-ethereum"
