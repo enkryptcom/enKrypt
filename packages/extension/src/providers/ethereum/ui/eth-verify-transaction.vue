@@ -380,6 +380,7 @@ onBeforeMount(async () => {
       selectedFee.value = GasPriceTypes.REGULAR;
     })
     .catch(e => {
+      console.log(e);
       errorMsg.value = e.message;
     })
     .finally(() => {
