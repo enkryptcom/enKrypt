@@ -8,7 +8,6 @@ import bncNode from './bifrost/polkadot';
 import bncKusamaNode from './bifrost/kusama';
 import uniqueNode from './unique/unique';
 import penNode from './pendulum/pendulum';
-import ampeNode from './pendulum/amplitude';
 import varaNode from './vara';
 import {
   assethubDOT as assetHubDotNode,
@@ -26,7 +25,6 @@ export default {
   bifrostKusama: bncKusamaNode,
   unique: uniqueNode,
   pendulum: penNode,
-  amplitude: ampeNode,
   vara: varaNode,
   assetHubDOT: assetHubDotNode,
   assetHubKSM: assetHubKsmNode,

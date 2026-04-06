@@ -46,7 +46,6 @@ export enum NetworkNames {
   Shibarium = "SHIB",
   Unique = "UNQ",
   Pendulum = "pendulum",
-  Amplitude = "amplitude",
   Vara = "VARA",
   Base = "BASE",
   Celo = "CELO",
