@@ -11,7 +11,6 @@ import astarEvmNode from './astr';
 import optimismNode from './op';
 import rootstockNode from './rsk';
 import rootstockTestnetNode from './rsk-testnet';
-import edgeEvmNode from './edg';
 import zkSepoliaNode from './zksepolia';
 import vicNode from './vic';
 import zkSyncNode from './zksync';
@@ -85,7 +84,6 @@ export default {
   op: optimismNode,
   rootstock: rootstockNode,
   rootstockTestnet: rootstockTestnetNode,
-  edgeEvm: edgeEvmNode,
   zkSepolia: zkSepoliaNode,
   vic: vicNode,
   zkSync: zkSyncNode,

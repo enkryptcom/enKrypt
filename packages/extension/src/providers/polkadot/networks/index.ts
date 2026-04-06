@@ -6,7 +6,6 @@ import wndNode from './westend';
 import astrNode from './astar/astar';
 import bncNode from './bifrost/polkadot';
 import bncKusamaNode from './bifrost/kusama';
-import edgNode from './edgeware';
 import uniqueNode from './unique/unique';
 import penNode from './pendulum/pendulum';
 import ampeNode from './pendulum/amplitude';
@@ -25,7 +24,6 @@ export default {
   astar: astrNode,
   bifrost: bncNode,
   bifrostKusama: bncKusamaNode,
-  edgeware: edgNode,
   unique: uniqueNode,
   pendulum: penNode,
   amplitude: ampeNode,
