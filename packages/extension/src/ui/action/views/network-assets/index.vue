@@ -35,7 +35,7 @@ import NetworkAssetsLoading from './components/network-assets-loading.vue';
 import NetworkAssetsError from './components/network-assets-error.vue';
 import HeliosWarningBanner from './components/helios-warning-banner.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
-import { computed, onMounted, type PropType, ref, toRef, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, type PropType, ref, toRef, watch } from 'vue';
 import type { AssetsType } from '@/types/provider';
 import type { AccountsHeaderData } from '../../types/account';
 import accountInfoComposable from '@action/composables/account-info';
@@ -72,13 +72,25 @@ const isFetchError = ref(false);
 const heliosWarning = ref<HeliosWarningInfo | null>(null);
 const heliosBannerDismissed = ref(false);
 
+// --- Helios poll helpers ---
+const heliosPollId = ref<number | null>(null);
+
+function clearHeliosPoll(): void {
+  if (heliosPollId.value !== null) {
+    window.clearInterval(heliosPollId.value);
+    heliosPollId.value = null;
+  }
+}
+// --------------------------
+
 const { cryptoAmount, fiatAmount, tokenPrice, priceChangePercentage, sparkline } = accountInfoComposable(toRef(props, 'network'), toRef(props, 'accountInfo'));
 const selected: string = route.params.id as string;
 
 function scheduleHeliosResultCheck(snapshotAssets: AssetsType[]): void {
+  clearHeliosPoll();
   const MAX_ATTEMPTS = 15;
   let attempts = 0;
-  const interval = setInterval(() => {
+  heliosPollId.value = window.setInterval(() => {
     attempts++;
     for (const asset of snapshotAssets) {
       const v = asset.heliosVerification;
@@ -89,11 +101,11 @@ function scheduleHeliosResultCheck(snapshotAssets: AssetsType[]): void {
           rpcBalance: asset.balance,
           provenBalance: v.provenBalance ?? '0x0',
         };
-        clearInterval(interval);
+        clearHeliosPoll();
         return;
       }
     }
-    if (attempts >= MAX_ATTEMPTS) clearInterval(interval);
+    if (attempts >= MAX_ATTEMPTS) clearHeliosPoll();
   }, 2000);
 }
 
@@ -103,25 +115,32 @@ const updateAssets = () => {
   assets.value = [];
   heliosWarning.value = null;
   heliosBannerDismissed.value = false;
-  const currentNetwork = selectedNetworkName.value;
-  if (props.accountInfo.selectedAccount?.address) {
+  const requestKey = `${selectedNetworkName.value}:${selectedSubnetwork.value}:${selectedAddress.value}`;
+  const address = props.accountInfo.selectedAccount?.address;
+  if (!address) {
+    isLoading.value = false;
+    return;
+  }
+  
     props.network
-      .getAllTokenInfo(props.accountInfo.selectedAccount?.address || '')
+      .getAllTokenInfo(address)
       .then(_assets => {
-        if (selectedNetworkName.value !== currentNetwork) return;
+        const activeKey = `${selectedNetworkName.value}:${selectedSubnetwork.value}:${selectedAddress.value}`;
+        if (activeKey !== requestKey) return;
         assets.value = _assets;
         isLoading.value = false;
         scheduleHeliosResultCheck(_assets);
       })
       .catch(e => {
         console.error(e);
-        if (selectedNetworkName.value !== currentNetwork) return;
+        const activeKey = `${selectedNetworkName.value}:${selectedSubnetwork.value}:${selectedAddress.value}`;
+        if (activeKey !== requestKey) return;
         isFetchError.value = true;
         isLoading.value = false;
         assets.value = [];
       });
   }
-};
+
 
 const selectedAddress = computed(() => props.accountInfo.selectedAccount?.address || '');
 const selectedNetworkName = computed(() => props.network.name);
@@ -133,9 +152,12 @@ const isEvmNetwork = computed(() => props.network.provider === ProviderName.ethe
 const isMassaNetwork = computed(() => props.network.provider === ProviderName.massa);
 
 watch([selectedAddress, selectedNetworkName, selectedSubnetwork], () => {
+  clearHeliosPoll();
   resetHelios();
   updateAssets();
 });
+
+onBeforeUnmount(clearHeliosPoll);
 
 onMounted(async () => {
   updateAssets();

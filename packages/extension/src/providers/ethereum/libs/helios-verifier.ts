@@ -1,3 +1,10 @@
+/**
+ * helios-verifier.ts
+ *
+ * Experimental light-client verification layer using Helios (@a16z/helios).
+ * Only active on Ethereum mainnet (chainId 0x1).
+ */
+
 export interface VerificationResult {
   verified: boolean;
   tampered: boolean;
@@ -7,26 +14,70 @@ export interface VerificationResult {
 
 const SKIP: VerificationResult = { verified: false, tampered: false, message: '' };
 const MAINNET_CHAIN_ID = '0x1';
+const DEFAULT_CONSENSUS_RPC = 'https://ethereum.operationsolarstorm.org';
+const CHECKPOINT_FETCH_TIMEOUT_MS = 5_000;
 
-// DEMO MODE: simulate Helios detecting a lying RPC
-let heliosProvider: any = {
-  waitSynced: () => Promise.resolve(),
-  request: async (args: any) => {
-    if (args.method === 'eth_call') {
-      return '0x0000000000000000000000000000000000000000000000000000000000000001';
-    }
-    return '0x0';
-  }
-};
+let heliosProvider: any = null;
 let initInProgress = false;
-let isSynced = true;
+let isSynced = false;
+let currentExecutionRpc = '';
 
-export async function initHelios(executionRpc: string, consensusRpc?: string): Promise<void> {
-  return;
+async function fetchFreshCheckpoint(consensusRpc: string): Promise<string | undefined> {
+  const url = `${consensusRpc.replace(/\/$/, '')}/eth/v1/beacon/headers/finalized`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), CHECKPOINT_FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    if (!res.ok) return undefined;
+    const json = (await res.json()) as { data?: { root?: string } };
+    const root = json?.data?.root;
+    if (typeof root === 'string' && root.startsWith('0x')) return root;
+    return undefined;
+  } catch {
+    return undefined;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export async function initHelios(
+  executionRpc: string,
+  consensusRpc: string = DEFAULT_CONSENSUS_RPC,
+): Promise<void> {
+  if (initInProgress) return;
+  if (heliosProvider && currentExecutionRpc === executionRpc) return;
+  initInProgress = true;
+  heliosProvider = null;
+  isSynced = false;
+  currentExecutionRpc = executionRpc;
+  try {
+    const checkpoint = await fetchFreshCheckpoint(consensusRpc);
+    const { createHeliosProvider } = await import('@a16z/helios');
+    const config: Record<string, string> = {
+      executionRpc,
+      consensusRpc,
+      network: 'mainnet',
+    };
+    if (checkpoint) config['checkpoint'] = checkpoint;
+    heliosProvider = await createHeliosProvider(config, 'ethereum');
+    heliosProvider
+      .waitSynced()
+      .then(() => { isSynced = true; console.log('[helios-verifier] synced and ready'); })
+      .catch((err: unknown) => { console.warn('[helios-verifier] sync failed:', err); resetHelios(); });
+  } catch (err) {
+    console.warn('[helios-verifier] failed to initialise:', err);
+    heliosProvider = null;
+    currentExecutionRpc = '';
+  } finally {
+    initInProgress = false;
+  }
 }
 
 export function resetHelios(): void {
-  return;
+  heliosProvider = null;
+  isSynced = false;
+  initInProgress = false;
+  currentExecutionRpc = '';
 }
 
 function encodeBalanceOf(address: string): string {
@@ -47,10 +98,9 @@ export async function verifyErc20Balance(
   chainId: string,
   executionRpc: string,
 ): Promise<VerificationResult> {
-  console.log('[helios-verifier] chainId check:', chainId, MAINNET_CHAIN_ID);
   if (chainId.toLowerCase() !== MAINNET_CHAIN_ID) return SKIP;
+  if (!heliosProvider && !initInProgress) void initHelios(executionRpc);
   if (!isSynced || !heliosProvider) return SKIP;
-
   let heliosBalanceHex: string;
   try {
     heliosBalanceHex = (await heliosProvider.request({
@@ -58,25 +108,19 @@ export async function verifyErc20Balance(
       params: [{ to: contractAddress, data: encodeBalanceOf(walletAddress) }, 'latest'],
     })) as string;
   } catch (err) {
-    console.warn('[helios-verifier] eth_call via Helios failed:', err);
+    console.warn('[helios-verifier] eth_call failed:', err);
     return SKIP;
   }
-
   const rpcValue = decodeUint256(rpcBalance);
   const heliosValue = decodeUint256(heliosBalanceHex);
-
-  console.log('[helios-verifier] rpcValue:', rpcValue.toString(), 'heliosValue:', heliosValue.toString());
-
   if (rpcValue === heliosValue) {
     return { verified: true, tampered: false, message: 'Balance verified by Helios light client.', provenBalance: heliosBalanceHex };
   }
-
-  console.error('[helios-verifier] MISMATCH DETECTED - RPC is lying!');
-
+  console.error(`[helios-verifier] MISMATCH: RPC=${rpcValue} Helios=${heliosValue}`);
   return {
     verified: false,
     tampered: true,
-    message: `Your RPC provider returned a balance of ${rpcValue.toString()} but the Helios light client cryptographically proved the real on-chain balance is ${heliosValue.toString()}. Your RPC provider may be lying. Consider switching to a trusted provider.`,
+    message: `Your RPC provider returned ${rpcValue.toString()} but Helios proved the real balance is ${heliosValue.toString()}. Your RPC provider may be lying.`,
     provenBalance: heliosBalanceHex,
   };
 }
