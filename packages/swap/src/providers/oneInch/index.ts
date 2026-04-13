@@ -106,7 +106,7 @@ class OneInch extends ProviderClass {
     this.toTokens = {};
   }
 
-  init(tokenList: TokenType[]): Promise<void> {
+  async init(tokenList: TokenType[]): Promise<void> {
     if (!OneInch.isSupported(this.network)) return;
     tokenList.forEach((t) => {
       this.fromTokens[t.address] = t;

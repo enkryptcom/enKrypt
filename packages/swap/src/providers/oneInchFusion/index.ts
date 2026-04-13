@@ -30,6 +30,7 @@ import {
   SwapType,
   TokenType,
   TransactionStatus,
+  WalletIdentifier,
 } from "../../types";
 import {
   DEFAULT_SLIPPAGE,
@@ -73,7 +74,7 @@ class OneInchFusion extends ProviderWithRFQ {
     this.toTokens = {};
   }
 
-  init(tokenList: TokenType[]): Promise<void> {
+  async init(tokenList: TokenType[]): Promise<void> {
     if (!OneInchFusion.isSupported(this.network)) return;
     this.fusionSdk = new FusionSDK({
       network: Number(supportedNetworks[this.network].chainId),
@@ -147,7 +148,10 @@ class OneInchFusion extends ProviderWithRFQ {
       isPermit2: false,
     };
     if (feeConfig) {
-      quoteParams.source = meta.walletIdentifier;
+      quoteParams.source =
+        meta.walletIdentifier === WalletIdentifier.mew
+          ? "myetherwallet"
+          : meta.walletIdentifier;
       quoteParams.integratorFee = {
         receiver: new Address(feeConfig.referrer),
         value: new Bps(BigInt(feeConfig.fee)),

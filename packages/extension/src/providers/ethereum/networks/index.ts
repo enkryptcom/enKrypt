@@ -11,7 +11,6 @@ import astarEvmNode from './astr';
 import optimismNode from './op';
 import rootstockNode from './rsk';
 import rootstockTestnetNode from './rsk-testnet';
-import edgeEvmNode from './edg';
 import zkSepoliaNode from './zksepolia';
 import vicNode from './vic';
 import zkSyncNode from './zksync';
@@ -58,7 +57,6 @@ import gravityNode from './gravity';
 import unichainNode from './unichain';
 import abstractNode from './abstract';
 import inkNode from './inkonchain';
-import taraxa from './taraxa';
 import coti from './coti';
 import cytonicTestnetNode from './cytonic-testnet';
 import unitZero from './unitzero';
@@ -86,7 +84,6 @@ export default {
   op: optimismNode,
   rootstock: rootstockNode,
   rootstockTestnet: rootstockTestnetNode,
-  edgeEvm: edgeEvmNode,
   zkSepolia: zkSepoliaNode,
   vic: vicNode,
   zkSync: zkSyncNode,
@@ -132,7 +129,6 @@ export default {
   cotiTestnetNode: cotiTestnetNode,
   hoodi: hoodiNode,
   frax: fraxtalNode,
-  taraxa: taraxa,
   bera: beraNode,
   story: storyNode,
   gravity: gravityNode,
