@@ -3,7 +3,7 @@
     <div class="network-assets__header__token">
       <p>Token</p>
     </div>
-    <div>
+    <div class="network-assets__header__last24h">
       <p>Last 24h</p>
     </div>
     <div class="network-assets__header__price">
@@ -18,10 +18,10 @@
 @import '@action/styles/theme.less';
 .network-assets {
   &__header {
-    padding: 10px 20px 2px 20px;
+    padding: 10px 24px 2px 24px;
     position: relative;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: end;
     flex-direction: row;
     p {
@@ -34,14 +34,24 @@
       margin: 0;
     }
     &__token {
-      width: 196px;
+      flex: 1;
+      min-width: 0;
       p {
-        padding-left: 48px;
+        padding-left: 52px;
+      }
+    }
+
+    &__last24h {
+      width: 80px;
+      flex-shrink: 0;
+      p {
+        text-align: center;
       }
     }
 
     &__price {
-      width: 162px;
+      width: 90px;
+      flex-shrink: 0;
       p {
         text-align: end;
       }

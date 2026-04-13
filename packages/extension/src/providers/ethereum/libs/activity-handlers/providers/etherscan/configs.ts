@@ -9,7 +9,6 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.KaruraEVM]: 'https://blockscout.karura.network/api?',
   [NetworkNames.AstarEVM]: 'https://blockscout.com/astar/api?',
   [NetworkNames.Optimism]: 'https://api.etherscan.io/v2/api?chainid=10&',
-  [NetworkNames.EdgeEVM]: 'https://edgscan.live/api?',
   [NetworkNames.Rootstock]: 'https://blockscout.com/rsk/mainnet/api?',
   [NetworkNames.RootstockTestnet]:
     'https://rootstock-testnet.blockscout.com/api?',

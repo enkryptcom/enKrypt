@@ -1,74 +1,27 @@
 <template>
   <div>
     <div class="container">
-      <custom-scrollbar
-        class="network-assets__scroll-area"
-        :settings="scrollSettings({ suppressScrollX: true })"
-      >
+      <custom-scrollbar class="network-assets__scroll-area" :settings="scrollSettings({ suppressScrollX: true })">
         <div v-if="!!selected" class="network-assets">
-          <network-activity-total
-            :crypto-amount="cryptoAmount"
-            :fiat-amount="fiatAmount"
-            :token-price="tokenPrice"
-            :price-change-percentage="priceChangePercentage"
-            :sparkline="sparkline"
-            :symbol="network.currencyName"
-            :subnetwork="props.subnetwork"
-          />
-
-          <!-- Banners -->
-          <network-assets-solana-staking-banner
-            v-if="isSolanaStakingBanner && selectedNetworkName == 'SOLANA'"
-            @close="closeSolanaStakingBanner"
-          />
-
+          <network-activity-total :crypto-amount="cryptoAmount" :fiat-amount="fiatAmount" :token-price="tokenPrice" :price-change-percentage="priceChangePercentage" :sparkline="sparkline" :symbol="network.currencyName" :subnetwork="props.subnetwork" />
+          <network-assets-solana-staking-banner v-if="isSolanaStakingBanner && selectedNetworkName == 'SOLANA'" @close="closeSolanaStakingBanner" />
+          <helios-warning-banner v-if="heliosWarning && !heliosBannerDismissed" :show="!!heliosWarning" :token-symbol="heliosWarning.tokenSymbol" :token-decimals="heliosWarning.tokenDecimals" :rpc-balance="heliosWarning.rpcBalance" :proven-balance="heliosWarning.provenBalance" @dismiss="heliosBannerDismissed = true" />
           <network-activity-action v-bind="$attrs" />
           <network-assets-header v-if="!isLoading && assets.length > 0" />
-          <network-assets-error
-            v-if="isFetchError"
-            :update-assets="updateAssets"
-          />
-          <network-assets-item
-            v-for="(item, index) in assets"
-            :key="index"
-            :token="item"
-            :network="network"
-            @update:tokens="updateAssets"
-            v-bind="$attrs"
-          />
-          <div
-            v-show="network.customTokens && assets.length !== 0"
-            class="network-assets__add-token"
-          >
+          <network-assets-error v-if="isFetchError" :update-assets="updateAssets" />
+          <network-assets-item v-for="(item, index) in assets" :key="index" :token="item" :network="network" @update:tokens="updateAssets" v-bind="$attrs" />
+          <div v-show="network.customTokens && assets.length !== 0" class="network-assets__add-token">
             <div class="network-assets__add-token-button">
-              <base-button
-                title="Add custom token"
-                :click="toggleShowAddCustomTokens"
-                :no-background="true"
-              />
+              <base-button title="Add custom token" :click="toggleShowAddCustomTokens" :no-background="true" />
             </div>
           </div>
         </div>
       </custom-scrollbar>
-
       <network-assets-loading v-if="isLoading" />
-
-      <deposit
-        v-if="!!props.accountInfo.selectedAccount"
-        :account="props.accountInfo.selectedAccount"
-        :show-deposit="showDeposit"
-        :network="network"
-        @toggle:deposit="toggleDeposit"
-      />
+      <deposit v-if="!!props.accountInfo.selectedAccount" :account="props.accountInfo.selectedAccount" :show-deposit="showDeposit" :network="network" @toggle:deposit="toggleDeposit" />
     </div>
-    <!-- prettier-ignore -->
-    <custom-evm-token v-if="showAddCustomTokens && isEvmNetwork" :address="props.accountInfo.selectedAccount?.address!"
-      :network="(props.network as EvmNetwork)" @update:token-added="addCustomAsset"
-      @update:close="toggleShowAddCustomTokens"></custom-evm-token>
-    <!-- prettier-ignore -->
-    <custom-massa-token v-if="showAddCustomTokens && isMassaNetwork" :address="props.accountInfo.selectedAccount?.address!"
-      :network="props.network" @update:token-added="addCustomAsset"
-      @update:close="toggleShowAddCustomTokens"></custom-massa-token>
+    <custom-evm-token v-if="showAddCustomTokens && isEvmNetwork" :address="props.accountInfo.selectedAccount?.address!" :network="(props.network as EvmNetwork)" @update:token-added="addCustomAsset" @update:close="toggleShowAddCustomTokens"></custom-evm-token>
+    <custom-massa-token v-if="showAddCustomTokens && isMassaNetwork" :address="props.accountInfo.selectedAccount?.address!" :network="props.network" @update:token-added="addCustomAsset" @update:close="toggleShowAddCustomTokens"></custom-massa-token>
   </div>
 </template>
 
@@ -80,6 +33,7 @@ import NetworkAssetsItem from './components/network-assets-item.vue';
 import NetworkAssetsHeader from './components/network-assets-header.vue';
 import NetworkAssetsLoading from './components/network-assets-loading.vue';
 import NetworkAssetsError from './components/network-assets-error.vue';
+import HeliosWarningBanner from './components/helios-warning-banner.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import { computed, onMounted, type PropType, ref, toRef, watch } from 'vue';
 import type { AssetsType } from '@/types/provider';
@@ -95,41 +49,60 @@ import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 import { ProviderName } from '@/types/provider';
 import NetworkAssetsSolanaStakingBanner from './components/network-assets-solana-staking-banner.vue';
 import BannersState from '@/libs/banners-state';
+import { resetHelios } from '@/providers/ethereum/libs/helios-verifier';
+
+interface HeliosWarningInfo {
+  tokenSymbol: string;
+  tokenDecimals: number;
+  rpcBalance: string;
+  provenBalance: string;
+}
 
 const showDeposit = ref(false);
-
 const route = useRoute();
 const props = defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
-  subnetwork: {
-    type: String,
-    default: '',
-  },
-  accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
-    default: () => ({}),
-  },
+  network: { type: Object as PropType<BaseNetwork>, default: () => ({}) },
+  subnetwork: { type: String, default: '' },
+  accountInfo: { type: Object as PropType<AccountsHeaderData>, default: () => ({}) },
 });
+
 const assets = ref<AssetsType[]>([]);
 const isLoading = ref(false);
 const isFetchError = ref(false);
+const heliosWarning = ref<HeliosWarningInfo | null>(null);
+const heliosBannerDismissed = ref(false);
 
-const {
-  cryptoAmount,
-  fiatAmount,
-  tokenPrice,
-  priceChangePercentage,
-  sparkline,
-} = accountInfoComposable(toRef(props, 'network'), toRef(props, 'accountInfo'));
+const { cryptoAmount, fiatAmount, tokenPrice, priceChangePercentage, sparkline } = accountInfoComposable(toRef(props, 'network'), toRef(props, 'accountInfo'));
 const selected: string = route.params.id as string;
+
+function scheduleHeliosResultCheck(snapshotAssets: AssetsType[]): void {
+  const MAX_ATTEMPTS = 15;
+  let attempts = 0;
+  const interval = setInterval(() => {
+    attempts++;
+    for (const asset of snapshotAssets) {
+      const v = asset.heliosVerification;
+      if (v?.tampered && asset.contract && asset.balance) {
+        heliosWarning.value = {
+          tokenSymbol: asset.symbol,
+          tokenDecimals: asset.decimals,
+          rpcBalance: asset.balance,
+          provenBalance: v.provenBalance ?? '0x0',
+        };
+        clearInterval(interval);
+        return;
+      }
+    }
+    if (attempts >= MAX_ATTEMPTS) clearInterval(interval);
+  }, 2000);
+}
 
 const updateAssets = () => {
   isFetchError.value = false;
   isLoading.value = true;
   assets.value = [];
+  heliosWarning.value = null;
+  heliosBannerDismissed.value = false;
   const currentNetwork = selectedNetworkName.value;
   if (props.accountInfo.selectedAccount?.address) {
     props.network
@@ -138,6 +111,7 @@ const updateAssets = () => {
         if (selectedNetworkName.value !== currentNetwork) return;
         assets.value = _assets;
         isLoading.value = false;
+        scheduleHeliosResultCheck(_assets);
       })
       .catch(e => {
         console.error(e);
@@ -148,25 +122,21 @@ const updateAssets = () => {
       });
   }
 };
-const selectedAddress = computed(
-  () => props.accountInfo.selectedAccount?.address || '',
-);
+
+const selectedAddress = computed(() => props.accountInfo.selectedAccount?.address || '');
 const selectedNetworkName = computed(() => props.network.name);
 const selectedSubnetwork = computed(() => props.subnetwork);
 const showAddCustomTokens = ref(false);
-
 const isSolanaStakingBanner = ref(false);
 const bannersState = new BannersState();
+const isEvmNetwork = computed(() => props.network.provider === ProviderName.ethereum);
+const isMassaNetwork = computed(() => props.network.provider === ProviderName.massa);
 
-// Network type checks
-const isEvmNetwork = computed(
-  () => props.network.provider === ProviderName.ethereum,
-);
-const isMassaNetwork = computed(
-  () => props.network.provider === ProviderName.massa,
-);
+watch([selectedAddress, selectedNetworkName, selectedSubnetwork], () => {
+  resetHelios();
+  updateAssets();
+});
 
-watch([selectedAddress, selectedNetworkName, selectedSubnetwork], updateAssets);
 onMounted(async () => {
   updateAssets();
   if (await bannersState.showNetworkAssetsSolanaStakingBanner()) {
@@ -174,33 +144,12 @@ onMounted(async () => {
   }
 });
 
-const toggleDeposit = () => {
-  showDeposit.value = !showDeposit.value;
-};
-
-const toggleShowAddCustomTokens = () => {
-  showAddCustomTokens.value = !showAddCustomTokens.value;
-};
-
+const toggleDeposit = () => { showDeposit.value = !showDeposit.value; };
+const toggleShowAddCustomTokens = () => { showAddCustomTokens.value = !showAddCustomTokens.value; };
 const addCustomAsset = (asset: AssetsType) => {
-  const existingAsset = assets.value.find(a => {
-    if (
-      a.contract &&
-      asset.contract &&
-      a.contract.toLowerCase() === asset.contract.toLowerCase()
-    ) {
-      return true;
-    }
-
-    return false;
-  });
-
-  if (!existingAsset) {
-    // refetches assets to update the custom token
-    updateAssets();
-  }
+  const existingAsset = assets.value.find(a => a.contract && asset.contract && a.contract.toLowerCase() === asset.contract.toLowerCase());
+  if (!existingAsset) updateAssets();
 };
-
 const closeSolanaStakingBanner = () => {
   isSolanaStakingBanner.value = false;
   bannersState.hideNetworkAssetsSolanaStakingBanner();
@@ -210,58 +159,13 @@ const closeSolanaStakingBanner = () => {
 <style lang="less" scoped>
 @import '@action/styles/theme.less';
 @import '@action/styles/custom-scroll.less';
-
-.container {
-  width: 100%;
-  height: 600px;
-  background-color: @white;
-  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16);
-  margin: 0;
-  padding-top: 0;
-  box-sizing: border-box;
-
-  .deposit {
-    left: 0;
-  }
-}
-
-.network-assets {
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-
-  &__scroll-area {
-    position: relative;
-    margin: auto;
-    width: 100%;
-    height: 100%;
-    max-height: 530px;
-    margin: 0;
-    padding: 68px 0 68px 0 !important;
-    box-sizing: border-box;
-
-    &.ps--active-y {
-      padding-right: 0;
-    }
-  }
-
-  &__add-token {
-    position: relative;
-    margin: 0px 12px 0px 166px;
-    z-index: 0;
-
-    &-button {
-      width: 156px;
-    }
-  }
+.container { width: 100%; height: 600px; background-color: @white; box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.16); margin: 0; padding-top: 0; box-sizing: border-box; .deposit { left: 0; } }
+.network-assets { width: 100%; height: 100%; box-sizing: border-box;
+  &__scroll-area { position: relative; margin: auto; width: 100%; height: 100%; max-height: 530px; margin: 0; padding: 68px 0 68px 0 !important; box-sizing: border-box; &.ps--active-y { padding-right: 0; } }
+  &__add-token { position: relative; margin: 0px 12px 0px 166px; z-index: 0; &-button { width: 156px; } }
 }
 </style>
 
 <style lang="less">
-.network-assets__scroll-area {
-  .ps__rail-y {
-    right: 3px !important;
-    margin: 59px 0 !important;
-  }
-}
+.network-assets__scroll-area { .ps__rail-y { right: 3px !important; margin: 59px 0 !important; } }
 </style>
