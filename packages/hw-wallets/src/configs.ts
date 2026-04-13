@@ -17,7 +17,6 @@ const ledgerAppNames = {
   [NetworkNames.Kusama]: "Kusama",
   [NetworkNames.Polkadot]: "Polkadot",
   [NetworkNames.Karura]: "Karura",
-  [NetworkNames.Edgeware]: "Edgeware",
   [NetworkNames.Bitcoin]: "Bitcoin",
   [NetworkNames.Litecoin]: "Litecoin",
   [NetworkNames.Dogecoin]: "Dogecoin",
