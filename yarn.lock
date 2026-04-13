@@ -72,9 +72,34 @@ __metadata:
   version: 0.11.1
   resolution: "@a16z/helios@npm:0.11.1"
   dependencies:
+    "@1inch/byte-utils": "npm:3.0.0"
+    ethers: "npm:6.13.5"
+  peerDependencies:
+    assert: ^2.0.0
+    axios: ">=1 <2"
+  peerDependenciesMeta:
+    assert:
+      optional: true
+    axios:
+      optional: true
+  checksum: 10/af71246377bfa3f2e60d755ae049691efc80fef59d9d6517b6f300a9e1202294f70a8023bb3559be74ecbfd705c871a74c55f5c71e8ec4b26c695446bb2862fa
+  languageName: node
+  linkType: hard
+
+"@a16z/helios@npm:^0.11.1":
+  version: 0.11.1
+  resolution: "@a16z/helios@npm:0.11.1"
+  dependencies:
     eventemitter3: "npm:^5.0.1"
     uuid: "npm:^11.0.5"
   checksum: 10/d77ad728fc4968ad5019ddbf3c01f6a56a1373fb05cc5d22a1f84975316855768a0e5a9bf85d4fd4d86dec7857ad274ba4f010ecde0dc56e6bbed032e180879b
+  languageName: node
+  linkType: hard
+
+"@acemir/cssom@npm:^0.9.28":
+  version: 0.9.28
+  resolution: "@acemir/cssom@npm:0.9.28"
+  checksum: 10/429faa2af7bffdcf3311e984f6b8ced77bf58d936e0e9a22c2fc892a84e54d2c8cbd71ae3a979ef54241509ac7c866cb880d919e3e713e64c865a1cd4ede3a1f
   languageName: node
   linkType: hard
 
