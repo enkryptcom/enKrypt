@@ -51,10 +51,14 @@ defineProps({
   position: relative;
   cursor: pointer;
   text-decoration: none;
-  transition: background 300ms ease-in-out;
+  transition: all 200ms ease-in-out;
 
   &:hover {
-    background: @black007;
+    background: rgba(98, 126, 234, 0.04);
+  }
+
+  &:active {
+    transform: scale(0.995);
   }
 
   &__image {
@@ -108,7 +112,24 @@ defineProps({
     font-size: 0;
     padding: 4px;
     right: 8px;
-    top: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 6px;
+    transition: all 200ms ease-in-out;
+    background: rgba(0, 0, 0, 0.04);
+
+    svg {
+      opacity: 0.6;
+      transition: opacity 150ms ease-in-out;
+    }
+  }
+
+  &:hover &__arrow {
+    background: rgba(98, 126, 234, 0.1);
+
+    svg {
+      opacity: 1;
+    }
   }
 }
 </style>

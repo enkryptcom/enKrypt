@@ -93,7 +93,7 @@ class ZeroX extends ProviderClass {
     this.toTokens = {};
   }
 
-  init(tokenList: TokenType[]): Promise<void> {
+  async init(tokenList: TokenType[]): Promise<void> {
     if (!ZeroX.isSupported(this.network)) return;
     tokenList.forEach((t) => {
       this.fromTokens[t.address] = t;
