@@ -45,10 +45,12 @@ export class Erc20Token extends BaseToken {
       });
 
     if (chainId) {
+      // blockTag is 'latest' because the web3 contract call does not expose
       verifyErc20Balance(
         this.contract,
         address.toLowerCase(),
         balance,
+        'latest',
         chainId,
         api.node,
       )
