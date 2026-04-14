@@ -156,6 +156,13 @@ export class ECashNetwork extends BaseNetwork {
         currentPrice,
       );
 
+      const marketEntry = marketData[0];
+      const sparkline = marketEntry?.sparkline_in_24h?.price
+        ? new Sparkline(marketEntry.sparkline_in_24h.price, 25).dataValues
+        : '';
+      const priceChangePercentage =
+        marketEntry?.price_change_percentage_24h_in_currency ?? 0;
+
       const nativeAsset: AssetsType = {
         balance: balanceInSatoshis,
         balancef: formatFloatingPointValue(userBalance).value,
@@ -171,12 +178,8 @@ export class ECashNetwork extends BaseNetwork {
             : currentPrice.toFixed(2),
         contract: '',
         decimals: this.decimals,
-        sparkline: marketData.length
-          ? new Sparkline(marketData[0]!.sparkline_in_24h.price, 25).dataValues
-          : '',
-        priceChangePercentage: marketData.length
-          ? marketData[0]!.price_change_percentage_24h_in_currency
-          : 0,
+        sparkline,
+        priceChangePercentage,
       };
 
       const allAssets: AssetsType[] = [nativeAsset];
