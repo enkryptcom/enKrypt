@@ -227,4 +227,5 @@ export interface AssetsType {
   sparkline: string;
   priceChangePercentage: number;
   baseToken?: BaseToken;
+  heliosVerification?: import('@/providers/ethereum/libs/helios-verifier').VerificationResult;
 }

@@ -113,6 +113,7 @@ export class EvmNetwork extends BaseNetwork {
       const bTokenOptions: Erc20TokenOptions = {
         decimals: token.decimals,
         icon: token.icon,
+        heliosVerification: token.heliosVerification,
         name: token.name,
         symbol: token.symbol,
         balance: token.balance,
@@ -163,7 +164,7 @@ export class EvmNetwork extends BaseNetwork {
 
       await Promise.all(
         this.assets.map(token =>
-          token.getLatestUserBalance(api as API, address).then(balance => {
+          token.getLatestUserBalance(api as API, address, this.chainID).then(balance => {
             token.balance = balance;
           }),
         ),
@@ -175,6 +176,7 @@ export class EvmNetwork extends BaseNetwork {
             name: token.name,
             symbol: token.symbol,
             icon: token.icon,
+        heliosVerification: token.heliosVerification,
             balance: token.balance!,
             balancef: formatFloatingPointValue(
               fromBase(token.balance!, token.decimals),
@@ -228,7 +230,7 @@ export class EvmNetwork extends BaseNetwork {
       });
 
     const balancePromises = customTokens.map(token =>
-      token.getLatestUserBalance(api as API, address),
+      token.getLatestUserBalance(api as API, address, this.chainID),
     );
 
     await Promise.all(balancePromises);
@@ -255,6 +257,7 @@ export class EvmNetwork extends BaseNetwork {
         sparkline: '',
         priceChangePercentage: 0,
         icon: token.icon,
+        heliosVerification: token.heliosVerification,
       };
 
       const marketInfo = marketInfos[token.contract.toLowerCase()];
