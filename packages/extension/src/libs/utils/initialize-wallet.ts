@@ -2,6 +2,7 @@ import KeyRing from '@/libs/keyring/keyring';
 import EthereumNetworks from '@/providers/ethereum/networks';
 import PolkadotNetworks from '@/providers/polkadot/networks';
 import BitcoinNetworks from '@/providers/bitcoin/networks';
+import ECashNetworks from '@/providers/ecash/networks';
 import SolanaNetworks from '@/providers/solana/networks';
 import KadenaNetworks from '@/providers/kadena/networks';
 import MassaNetworks from '@/providers/massa/networks';
@@ -11,6 +12,9 @@ import BackupState from '../backup-state';
 export const initAccounts = async (keyring: KeyRing) => {
   const secp256k1btc = (
     await getAccountsByNetworkName(NetworkNames.Bitcoin)
+  ).filter(acc => !acc.isTestWallet);
+  const ecashAccounts = (
+    await getAccountsByNetworkName(NetworkNames.ECash)
   ).filter(acc => !acc.isTestWallet);
   const secp256k1 = (
     await getAccountsByNetworkName(NetworkNames.Ethereum)
@@ -46,6 +50,13 @@ export const initAccounts = async (keyring: KeyRing) => {
       basePath: BitcoinNetworks.bitcoin.basePath,
       name: 'Bitcoin Account 1',
       signerType: BitcoinNetworks.bitcoin.signer[0],
+      walletType: WalletType.mnemonic,
+    });
+  if (ecashAccounts.length == 0)
+    await keyring.saveNewAccount({
+      basePath: ECashNetworks[NetworkNames.ECash].basePath,
+      name: 'eCash Account 1',
+      signerType: ECashNetworks[NetworkNames.ECash].signer[0],
       walletType: WalletType.mnemonic,
     });
   if (ed25519kda.length == 0)

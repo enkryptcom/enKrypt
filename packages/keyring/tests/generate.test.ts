@@ -382,4 +382,58 @@ describe("Keyring create tests", () => {
       expect(deletedAccount).equals(undefined);
     },
   );
+
+  it(
+    "keyring should generate secp256k1ecash keys",
+    { timeout: 20_000 },
+    async () => {
+      const memStorage = new MemoryStorage();
+      const storage = new Storage("keyring", { storage: memStorage });
+      const keyring = new KeyRing(storage);
+      await keyring.init(password, { mnemonic: MNEMONIC });
+      const keyAdd: KeyRecordAdd = {
+        basePath: "m/44'/1899'/0'/0",
+        signerType: SignerType.secp256k1ecash,
+        walletType: WalletType.mnemonic,
+        name: "ecash-account",
+      };
+      await keyring.unlockMnemonic(password);
+      const pair = await keyring.createKey(keyAdd);
+
+      expect(pair.signerType).equals(SignerType.secp256k1ecash);
+      expect(pair.pathIndex).equals(0);
+      expect(pair.address).equals(
+        "0x031c6d8a90254cc6dda7012c184bcde32e8d53f6fd6c882b2b12bd3fca1bd7372f",
+      );
+    },
+  );
+
+  it(
+    "keyring should generate secp256k1ecash keys with extra word",
+    { timeout: 20_000 },
+    async () => {
+      const memStorage = new MemoryStorage();
+      const storage = new Storage("keyring", { storage: memStorage });
+      const keyring = new KeyRing(storage);
+      await keyring.init(password, {
+        mnemonic: MNEMONIC,
+        extraWord: EXTRA_WORD,
+      });
+      const keyAdd: KeyRecordAdd = {
+        basePath: "m/44'/1899'/0'/0",
+        signerType: SignerType.secp256k1ecash,
+        walletType: WalletType.mnemonic,
+        name: "ecash-account",
+      };
+      await keyring.unlockMnemonic(password);
+      const pair = await keyring.createKey(keyAdd);
+
+      expect(pair.signerType).equals(SignerType.secp256k1ecash);
+      expect(pair.pathIndex).equals(0);
+      expect(pair.address).equals(
+        "0x0269a09af1fd626ae396ee7b546e76d145bd39924dbe51c0161153361daa729387",
+      );
+      keyring.lock();
+    },
+  );
 });

@@ -1,18 +1,28 @@
 import ActivityState from '.';
 import { ActivityHandlerType } from './types';
-const CACHE_TTL = 1000 * 60 * 5; // 5 mins
+
+const CACHE_TTL = 1000 * 60 * 5;
+const ECASH_CACHE_TTL = 1000 * 3;
+
 export default (activityHandler: ActivityHandlerType): ActivityHandlerType => {
   const returnFunction: ActivityHandlerType = async (network, address) => {
     const activityState = new ActivityState();
+
     const options = {
       address: address,
       network: network.name,
     };
+
+    // Use shorter cache TTL for eCash due to faster finality
+    const isECash = network.name === 'XEC' || network.name === 'XECTest';
+    const cacheTTL = isECash ? ECASH_CACHE_TTL : CACHE_TTL;
+
     const [activities, cacheTime] = await Promise.all([
       activityState.getAllActivities(options),
       activityState.getCacheTime(options),
     ]);
-    if (cacheTime + CACHE_TTL < new Date().getTime()) {
+
+    if (cacheTime + cacheTTL < new Date().getTime()) {
       const liveActivities = await activityHandler(network, address);
       if (!activities.length) {
         await activityState.addActivities(liveActivities, options);

@@ -25,6 +25,7 @@ import {
   sendToTab,
   newAccount,
   lock,
+  ecashSign,
 } from './internal';
 import { handlePersistentEvents } from './external';
 import SettingsState from '../settings-state';
@@ -51,6 +52,7 @@ class BackgroundHandler {
       [ProviderName.kadena]: {},
       [ProviderName.solana]: {},
       [ProviderName.massa]: {},
+      [ProviderName.ecash]: {},
     };
     this.#providers = Providers;
     this.#geoRestricted = undefined;
@@ -104,6 +106,15 @@ class BackgroundHandler {
       }
       return {
         error: JSON.stringify(getCustomError('Enkrypt: not implemented')),
+      };
+    }
+    if (_provider === ProviderName.ecash) {
+      return {
+        error: JSON.stringify(
+          getCustomError(
+            'Enkrypt: eCash does not support external requests in this wallet',
+          ),
+        ),
       };
     }
     if (this.#geoRestricted !== undefined && this.#geoRestricted) {
@@ -186,6 +197,8 @@ class BackgroundHandler {
       case InternalMethods.getNewAccount:
       case InternalMethods.saveNewAccount:
         return newAccount(this.#keyring, message);
+      case InternalMethods.ecashSign:
+        return ecashSign(this.#keyring, message);
       default:
         return Promise.resolve({
           error: getCustomError(

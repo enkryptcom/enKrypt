@@ -9,6 +9,7 @@ import { Activity } from './activity';
 import { BaseToken } from './base-token';
 import { BNType } from '@/providers/common/types';
 import MassaAPI from '../providers/massa/libs/api';
+import ChronikAPI from '@/providers/ecash/libs/api-chronik';
 
 export interface SubNetworkOptions {
   id: string;
@@ -40,7 +41,8 @@ export interface BaseNetworkOptions {
     | Promise<BitcoinAPI>
     | Promise<KadenaAPI>
     | Promise<SolanaAPI>
-    | Promise<MassaAPI>;
+    | Promise<MassaAPI>
+    | Promise<ChronikAPI>;
   customTokens?: boolean;
 }
 
@@ -83,7 +85,8 @@ export abstract class BaseNetwork {
     | Promise<BitcoinAPI>
     | Promise<KadenaAPI>
     | Promise<SolanaAPI>
-    | Promise<MassaAPI>;
+    | Promise<MassaAPI>
+    | Promise<ChronikAPI>;
   public customTokens: boolean;
 
   constructor(options: BaseNetworkOptions) {

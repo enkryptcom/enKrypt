@@ -10,6 +10,7 @@
 import SendTransactionSubstrate from '@/providers/polkadot/ui/send-transaction/index.vue';
 import SendTransactionEVM from '@/providers/ethereum/ui/send-transaction/index.vue';
 import SendTransactionBTC from '@/providers/bitcoin/ui/send-transaction/index.vue';
+import SendTransactionECash from '@/providers/ecash/ui/send-transaction/index.vue';
 import SendTransactionKadena from '@/providers/kadena/ui/send-transaction/index.vue';
 import SendTransactionSolana from '@/providers/solana/ui/send-transaction/index.vue';
 import SendTransactionMassa from '@/providers/massa/ui/send-transaction/index.vue';
@@ -24,6 +25,7 @@ const sendLayouts: Record<ProviderName, any> = {
   [ProviderName.ethereum]: SendTransactionEVM,
   [ProviderName.polkadot]: SendTransactionSubstrate,
   [ProviderName.bitcoin]: SendTransactionBTC,
+  [ProviderName.ecash]: SendTransactionECash,
   [ProviderName.kadena]: SendTransactionKadena,
   [ProviderName.solana]: SendTransactionSolana,
   [ProviderName.massa]: SendTransactionMassa,
