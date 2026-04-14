@@ -30,6 +30,8 @@ const ecashSign = async (
   const params = message.params[0] as ECashSignParams;
 
   if (
+    !params ||
+    typeof params !== 'object' ||
     !params.toAddress ||
     !params.amount ||
     !params.account ||
