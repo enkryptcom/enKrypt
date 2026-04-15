@@ -186,8 +186,8 @@ class LedgerBitcoin implements HWWalletProvider {
         transactionOptions.psbtTx.txInputs[idx].index,
         transactionOptions.psbtTx.data.inputs[idx].witnessScript
           ? transactionOptions.psbtTx.data.inputs[idx].witnessScript.toString(
-              "hex",
-            )
+            "hex",
+          )
           : undefined,
         undefined,
       ]),
@@ -218,7 +218,7 @@ class LedgerBitcoin implements HWWalletProvider {
 
   close(): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    return this.transport.close().catch(() => {});
+    return this.transport.close().catch(() => { });
   }
 
   isConnected(networkName: NetworkNames): Promise<boolean> {

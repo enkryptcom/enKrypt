@@ -170,7 +170,7 @@ class LedgerEthereum implements HWWalletProvider {
 
   close(): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    return this.transport.close().catch(() => {});
+    return this.transport.close().catch(() => { });
   }
 
   isConnected(networkName: NetworkNames): Promise<boolean> {

@@ -14,17 +14,21 @@ import {
   SignTransactionRequest,
   SignTypedMessageRequest,
 } from "../../types";
-import { supportedPaths } from "./configs";
+import { networkBasedSupportedPaths } from "./configs";
 import getTrezorConnect from "../trezorConnect";
 
 class TrezorEthereum implements HWWalletProvider {
   network: NetworkNames;
   TrezorConnect: TrezorConnect;
   HDNodes: Record<string, HDKey>;
+  isExtension: boolean;
 
   constructor(network: NetworkNames) {
     this.network = network;
     this.HDNodes = {};
+    this.isExtension = !!(
+      chrome && chrome.runtime && chrome.runtime.getPlatformInfo
+    );
   }
 
   async init(): Promise<boolean> {
@@ -33,7 +37,7 @@ class TrezorEthereum implements HWWalletProvider {
   }
 
   async getAddress(options: getAddressRequest): Promise<AddressResponse> {
-    if (!supportedPaths[this.network])
+    if (this.isExtension && !networkBasedSupportedPaths[this.network])
       return Promise.reject(new Error("trezor-ethereum: Invalid network name"));
 
     if (!this.HDNodes[options.pathType.basePath]) {
@@ -61,7 +65,7 @@ class TrezorEthereum implements HWWalletProvider {
   }
 
   getSupportedPaths(): PathType[] {
-    return supportedPaths[this.network];
+    return networkBasedSupportedPaths[this.network];
   }
 
   close(): Promise<void> {
@@ -151,7 +155,7 @@ class TrezorEthereum implements HWWalletProvider {
   }
 
   static getSupportedNetworks(): NetworkNames[] {
-    return Object.keys(supportedPaths) as NetworkNames[];
+    return Object.keys(networkBasedSupportedPaths) as NetworkNames[];
   }
 
   static getCapabilities(): string[] {

@@ -37,7 +37,7 @@ class HWwalletManager {
         LedgerEthereum,
         LedgerSubstrate,
         LedgerBitcoin,
-        LedgerSolana,
+        LedgerSolana
       ],
       [HWwalletType.trezor]: [TrezorEthereum, TrezorBitcoin, TrezorSolana],
     };

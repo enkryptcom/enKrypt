@@ -83,6 +83,20 @@ class PublicKeyRing {
         isHardware: false,
         isTestWallet: true,
       };
+      allKeys[
+        'bc1qwgpekhhfekclmp58kyzmlsdzey948d4395nvs8'
+      ] = {
+        address:
+          'bc1qwgpekhhfekclmp58kyzmlsdzey948d4395nvs8',
+        basePath: "m/49'/2'/0'/1",
+        name: 'fake btc account #1',
+        pathIndex: 0,
+        publicKey: '0x0',
+        signerType: SignerType.secp256k1btc,
+        walletType: WalletType.mnemonic,
+        isHardware: false,
+        isTestWallet: true,
+      };
       allKeys['77hREDDaAiimedtD9bR1JDMgYLW3AA5yPvD91pvrueRp'] = {
         address: '77hREDDaAiimedtD9bR1JDMgYLW3AA5yPvD91pvrueRp',
         basePath: "m/44'/501'/0'/1",
