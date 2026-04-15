@@ -15,7 +15,7 @@ const shibOptions: EvmNetworkOptions = {
   isTestNetwork: false,
   currencyName: 'BONE',
   currencyNameLong: 'BONE',
-  node: 'https://www.shibrpc.com',
+  node: 'https://rpc.shibarium.shib.io',
   icon,
   coingeckoID: 'bone-shibaswap',
   assetsInfoHandler,

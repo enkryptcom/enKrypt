@@ -11,7 +11,7 @@ interface TokenBalanceType {
 
 interface TokenResponseItem {
   token: {
-    address: string;
+    address_hash: string;
     decimals: string;
     name: string;
     symbol: string;
@@ -57,12 +57,12 @@ const getBlockscoutBalances = (
         ? tokenResponse.items
             .filter(
               item =>
-                item?.token?.address &&
-                typeof item.token.address === 'string' &&
+                item?.token?.address_hash &&
+                typeof item.token.address_hash === 'string' &&
                 item.value !== undefined,
             )
             .map(item => ({
-              token: item.token.address.toLowerCase(),
+              token: item.token.address_hash.toLowerCase(),
               quantity: item.value,
             }))
         : [];

@@ -1,7 +1,6 @@
-// import type Transport from "@ledgerhq/hw-transport";
-// import webUsbTransport from "@ledgerhq/hw-transport-webusb";
-// import bleTransport from '@ledgerhq/hw-transport-web-ble';
-import ledgerService from "@ledgerhq/hw-app-eth/lib/services/ledger";
+import type Transport from "@ledgerhq/hw-transport";
+import webUsbTransport from "@ledgerhq/hw-transport-webusb";
+import { ledgerService } from "@ledgerhq/hw-app-eth";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import EthApp from "@ledgerhq/hw-app-eth";
 import { toRpcSig, publicToAddress } from "@ethereumjs/util";
@@ -21,18 +20,35 @@ import {
 } from "../../types";
 import { supportedPaths } from "./configs";
 import ConnectToLedger from "../ledgerConnect";
-import LedgerInit from "../ledgerInitializer";
 
-class LedgerEthereum extends LedgerInit implements HWWalletProvider {
+class LedgerEthereum implements HWWalletProvider {
+  transport: Transport | null;
+
   network: NetworkNames;
 
   HDNodes: Record<string, HDKey>;
 
   constructor(network: NetworkNames) {
-    super()
     this.transport = null;
     this.network = network;
     this.HDNodes = {};
+  }
+
+  async init(): Promise<boolean> {
+    if (!this.transport) {
+      const support = await webUsbTransport.isSupported();
+      if (support) {
+        this.transport = await webUsbTransport.openConnected().then((res) => {
+          if (!res) return webUsbTransport.create();
+          return res;
+        });
+      } else {
+        return Promise.reject(
+          new Error("ledger-ethereum: webusb is not supported"),
+        );
+      }
+    }
+    return true;
   }
 
   async getAddress(options: getAddressRequest): Promise<AddressResponse> {

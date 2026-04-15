@@ -122,13 +122,3 @@ class HWwalletManager {
 export default HWwalletManager;
 
 export { ledgerAppNames };
-
-export type {
-  AddressResponse,
-  getAddressRequest,
-  HWWalletProvider,
-  isConnectedRequest,
-  PathType,
-  SignMessageRequest,
-  SignTransactionRequest,
-}

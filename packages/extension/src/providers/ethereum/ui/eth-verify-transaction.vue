@@ -380,6 +380,7 @@ onBeforeMount(async () => {
       selectedFee.value = GasPriceTypes.REGULAR;
     })
     .catch(e => {
+      console.log(e);
       errorMsg.value = e.message;
     })
     .finally(() => {
@@ -515,7 +516,7 @@ const toggleData = () => {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
 
 .provider-verify-transaction {

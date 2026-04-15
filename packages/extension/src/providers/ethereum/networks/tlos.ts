@@ -2,10 +2,9 @@ import icon from './icons/telos.webp';
 import { CoingeckoPlatform, NetworkNames } from '@enkryptcom/types';
 import { EvmNetwork, EvmNetworkOptions } from '../types/evm-network';
 import assetsInfoHandler from '@/providers/ethereum/libs/assets-handlers/assetinfo-mew';
-import { TelosActivity } from '../libs/activity-handlers';
 import wrapActivityHandler from '@/libs/activity-state/wrap-activity-handler';
 
-const ethOptions: EvmNetworkOptions = {
+const telosOptions: EvmNetworkOptions = {
   name: NetworkNames.Telos,
   name_long: 'Telos EVM',
   homePage: 'https://www.telos.net',
@@ -20,9 +19,9 @@ const ethOptions: EvmNetworkOptions = {
   coingeckoID: 'telos',
   coingeckoPlatform: CoingeckoPlatform.Telos,
   assetsInfoHandler,
-  activityHandler: wrapActivityHandler(TelosActivity),
+  activityHandler: wrapActivityHandler(() => Promise.resolve([])),
 };
 
-const eth = new EvmNetwork(ethOptions);
+const tlos = new EvmNetwork(telosOptions);
 
-export default eth;
+export default tlos;

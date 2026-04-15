@@ -1,3 +1,5 @@
+import type Transport from "@ledgerhq/hw-transport";
+import webUsbTransport from "@ledgerhq/hw-transport-webusb";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
 import { ExtrinsicPayload } from "@polkadot/types/interfaces";
 import { u8aToBuffer } from "@polkadot/util";
@@ -13,14 +15,13 @@ import {
 import { bip32ToAddressNList } from "./utils";
 import { supportedPaths } from "./configs";
 import ConnectToLedger from "../ledgerConnect";
-import LedgerInit from "../ledgerInitializer";
 
-class LedgerSubstrate extends LedgerInit implements HWWalletProvider {
+class LedgerSubstrate implements HWWalletProvider {
+  transport: Transport | null;
 
   network: NetworkNames;
 
   constructor(network: NetworkNames) {
-    super();
     this.transport = null;
     this.network = network;
   }
@@ -33,6 +34,20 @@ class LedgerSubstrate extends LedgerInit implements HWWalletProvider {
     );
     if (pathValues.length < 3)
       throw new Error("ledger-substrate: Invalid path");
+  }
+
+  async init(): Promise<boolean> {
+    if (!this.transport) {
+      const support = await webUsbTransport.isSupported();
+      if (support) {
+        this.transport = await webUsbTransport.create();
+      } else {
+        return Promise.reject(
+          new Error("ledger-substrate: webusb is not supported"),
+        );
+      }
+    }
+    return true;
   }
 
   async getAddress(options: getAddressRequest): Promise<AddressResponse> {

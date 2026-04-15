@@ -1,3 +1,5 @@
+import type Transport from "@ledgerhq/hw-transport";
+import webUsbTransport from "@ledgerhq/hw-transport-webusb";
 import bs58 from "bs58";
 import { AppClient, DefaultWalletPolicy } from "ledger-bitcoin";
 import { HWwalletCapabilities, NetworkNames } from "@enkryptcom/types";
@@ -23,9 +25,9 @@ import {
 } from "../../types";
 import { supportedPaths } from "./configs";
 import ConnectToLedger from "../ledgerConnect";
-import LedgerInit from "../ledgerInitializer";
 
-class LedgerBitcoin extends LedgerInit implements HWWalletProvider {
+class LedgerBitcoin implements HWWalletProvider {
+  transport: Transport | null;
 
   network: NetworkNames;
 
@@ -34,13 +36,30 @@ class LedgerBitcoin extends LedgerInit implements HWWalletProvider {
   isSegwit: boolean;
 
   constructor(network: NetworkNames) {
-    super()
+    this.transport = null;
     this.network = network;
     this.HDNodes = {};
     this.isSegwit = !!(
       this.network === NetworkNames.Bitcoin ||
-      this.network === NetworkNames.Litecoin || this.network === NetworkNames.BitcoinTest
+      this.network === NetworkNames.Litecoin
     );
+  }
+
+  async init(): Promise<boolean> {
+    if (!this.transport) {
+      const support = await webUsbTransport.isSupported();
+      if (support) {
+        this.transport = await webUsbTransport.openConnected().then((res) => {
+          if (!res) return webUsbTransport.create();
+          return res;
+        });
+      } else {
+        return Promise.reject(
+          new Error("ledger-bitcoin: webusb is not supported"),
+        );
+      }
+    }
+    return true;
   }
 
   async getAddress(options: getAddressRequest): Promise<AddressResponse> {
@@ -162,18 +181,16 @@ class LedgerBitcoin extends LedgerInit implements HWWalletProvider {
       };
     });
     const txArg: CreateTransactionArg = {
-      inputs: transactionOptions.rawTxs.map((rTx, idx) => {
-        return [
-          connection.splitTransaction(rTx.replace("0x", ""), true),
-          transactionOptions.psbtTx.txInputs[idx].index,
-          transactionOptions.psbtTx.data.inputs[idx].witnessScript
-            ? transactionOptions.psbtTx.data.inputs[idx].witnessScript.toString(
-              "hex",
-            )
-            : undefined,
-          undefined,
-        ]
-      }),
+      inputs: transactionOptions.rawTxs.map((rTx, idx) => [
+        connection.splitTransaction(rTx.replace("0x", ""), true),
+        transactionOptions.psbtTx.txInputs[idx].index,
+        transactionOptions.psbtTx.data.inputs[idx].witnessScript
+          ? transactionOptions.psbtTx.data.inputs[idx].witnessScript.toString(
+            "hex",
+          )
+          : undefined,
+        undefined,
+      ]),
       associatedKeysets: transactionOptions.rawTxs.map(() =>
         options.pathType.path.replace(`{index}`, options.pathIndex),
       ),

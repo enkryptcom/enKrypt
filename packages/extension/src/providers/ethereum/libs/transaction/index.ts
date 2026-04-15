@@ -165,6 +165,11 @@ class Transaction {
         formattedFeeHistory,
         options.gasPriceType,
       );
+      if (this.tx.accessList) {
+        this.tx.accessList.forEach(al => {
+          if (!al.storageKeys) al.storageKeys = [];
+        });
+      }
       const gasLimit =
         this.tx.gasLimit ||
         (numberToHex(await this.estimateGas()) as `0x${string}`);
@@ -193,6 +198,7 @@ class Transaction {
         chainId: BigInt(this.tx.chainId),
         defaultHardfork: Hardfork.London,
       });
+      console.log(feeMarketTx);
       let finalizedTransaction = FeeMarketEIP1559Transaction.fromTxData(
         feeMarketTx as FinalizedFeeMarketEthereumTransaction,
         {
