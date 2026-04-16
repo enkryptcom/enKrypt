@@ -49,75 +49,110 @@ defineEmits<{
 }>();
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 .network-activity {
   &__action {
-    padding: 4px 16px 8px 16px;
+    padding: 4px 20px 12px 20px;
     box-sizing: border-box;
+    animation: fadeInUp 0.3s ease-out;
+    animation-delay: 50ms;
+    animation-fill-mode: backwards;
 
     &-wrap {
       width: 100%;
       height: 72px;
-      left: 12px;
-      top: 0px;
-      border-radius: 12px;
+      border-radius: 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-direction: row;
       gap: 8px;
-      button {
+      background: @white;
+      padding: 6px;
+      box-sizing: border-box;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+
+      button,
+      a {
         color: inherit;
         font: inherit;
         cursor: pointer;
         outline: inherit;
-        border: inherit;
+        border: none;
+        background: transparent;
       }
     }
+
     &-item {
-      background: @primary007;
-      display: block;
+      background: rgba(0, 0, 0, 0.03);
+      display: flex;
       text-align: center;
       text-decoration: none;
       font-style: normal;
-      font-weight: 400;
+      font-weight: 500;
       font-size: 12px;
       line-height: 16px;
-      text-align: center;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
       color: @primaryLabel;
       cursor: pointer;
-      height: 72px;
-      display: flex;
+      height: 60px;
       justify-content: center;
       align-items: center;
       flex-direction: column;
       flex: 1;
-      min-width: 100px;
+      min-width: 0;
       max-width: 100%;
-      transition: background 300ms ease-in-out;
-      border-radius: 12px;
+      transition: all 0.2s ease-in-out;
+      border-radius: 10px;
+      border: none;
 
       &:hover {
-        background: @black004;
+        background: rgba(98, 126, 234, 0.1);
+      }
+
+      &:active {
+        background: rgba(98, 126, 234, 0.15);
       }
 
       svg {
-        margin-bottom: 0;
-        margin-bottom: 2px;
+        margin-bottom: 4px;
+        opacity: 0.85;
       }
+
       &:focus {
-        outline: -webkit-focus-ring-color auto 1px !important;
-        outline-offset: 2px !important;
+        outline: none;
+      }
+
+      // Reset any router-link active styles
+      &.router-link-active,
+      &.router-link-exact-active {
+        background: rgba(0, 0, 0, 0.03);
+
+        &:hover {
+          background: rgba(98, 126, 234, 0.1);
+        }
       }
     }
+
     &-divider {
       height: 48px;
       width: 1px;
-      background: @darkBg;
-      margin: 0 4px 0 4px;
+      background: rgba(0, 0, 0, 0.08);
+      margin: 0 4px;
     }
   }
 }

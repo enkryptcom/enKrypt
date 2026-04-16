@@ -2,7 +2,13 @@ import { merge } from "lodash";
 import EventEmitter from "eventemitter3";
 import type Web3Eth from "web3-eth";
 import type { Connection as Web3Solana } from "@solana/web3.js";
-import { TOKEN_LISTS, TOP_TOKEN_INFO_LIST, PROVIDER_INFO } from "./configs";
+import {
+  TOKEN_LISTS,
+  TOP_TOKEN_INFO_LIST,
+  PROVIDER_INFO,
+  RWA_FILTER_LIST,
+  IP_COMPLY_URL,
+} from "./configs";
 import OneInch from "./providers/oneInch";
 import OneInchFusion from "./providers/oneInchFusion";
 import Paraswap from "./providers/paraswap";
@@ -73,6 +79,8 @@ class Swap extends EventEmitter {
 
   private walletId: WalletIdentifier;
 
+  private rwaFilterList: string[];
+
   constructor(options: SwapOptions) {
     super();
     this.network = options.network;
@@ -101,6 +109,7 @@ class Swap extends EventEmitter {
       top: [],
       trending: [],
     };
+    this.rwaFilterList = [];
     this.initPromise = this.init();
   }
 
@@ -115,6 +124,27 @@ class Swap extends EventEmitter {
       res.json(),
     );
 
+    if (this.walletId === WalletIdentifier.enkrypt) {
+      this.rwaFilterList = await fetch(IP_COMPLY_URL).then(async (res) => {
+        if (res.ok) {
+          const json = await res.json();
+          if (json.isRWARestricted) {
+            return fetch(RWA_FILTER_LIST).then((res) => res.json());
+          }
+        }
+        return [];
+      });
+    }
+
+    this.tokenList.all = this.tokenList.all.filter(
+      (t) => !this.rwaFilterList.includes(t.address),
+    );
+    this.tokenList.top = this.tokenList.top.filter(
+      (t) => !this.rwaFilterList.includes(t.address),
+    );
+    this.tokenList.trending = this.tokenList.trending.filter(
+      (t) => !this.rwaFilterList.includes(t.address),
+    );
     // TODO: use network type instead?
     switch (this.network) {
       case SupportedNetworkName.Solana:
@@ -138,10 +168,16 @@ class Swap extends EventEmitter {
         ];
         break;
     }
-
+    const initFailed: string[] = [];
     await Promise.all(
-      this.providers.map((Provider) => Provider.init(this.tokenList.all)),
+      this.providers.map((Provider) => {
+        const initedProv = Provider.init(this.tokenList.all).catch(() => {
+          initFailed.push(Provider.name);
+        });
+        return initedProv;
+      }),
     );
+    this.providers = this.providers.filter((p) => !initFailed.includes(p.name));
     const allFromTokens: ProviderFromTokenResponse = {};
     [...this.providers].reverse().forEach((p) => {
       Object.assign(allFromTokens, p.getFromTokens());

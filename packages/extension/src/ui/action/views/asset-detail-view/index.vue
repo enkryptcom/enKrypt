@@ -1,68 +1,94 @@
 <template>
   <app-dialog v-model="model" width="360px" is-centered @close:dialog="close">
     <div class="asset-detail-view__wrap">
-      <div class="asset-detail-view__token-info">
-        <img :src="token.icon" />
-
-        <div class="asset-detail-view__token-info-name">
-          <h4 v-if="token.name.length <= 16">{{ token.name }}</h4>
-          <tooltip v-else :text="token.name"
-            ><h4>{{ `${token.name.slice(0, 12)}...` }}</h4></tooltip
+      <!-- Token Header -->
+      <div class="asset-detail-view__header">
+        <div class="asset-detail-view__token-icon">
+          <img :src="token.icon" />
+        </div>
+        <div class="asset-detail-view__token-meta">
+          <h3
+            v-if="token.name.length <= 20"
+            class="asset-detail-view__token-name"
           >
-          <p>{{ token.symbol.toLowerCase() }}</p>
+            {{ token.name }}
+          </h3>
+          <tooltip v-else :text="token.name">
+            <h3 class="asset-detail-view__token-name">
+              {{ `${token.name.slice(0, 17)}...` }}
+            </h3>
+          </tooltip>
+          <span class="asset-detail-view__token-symbol">{{
+            token.symbol
+          }}</span>
         </div>
       </div>
 
+      <!-- Price & Chart Section -->
       <div
         v-if="token.priceChangePercentage !== 0"
-        class="asset-detail-view__token-sparkline"
+        class="asset-detail-view__chart-section"
       >
-        <v-chart class="chart-large" :option="option" />
-
-        <div
-          v-if="token.priceChangePercentage !== 0"
-          class="asset-detail-view__token-sparkline-price"
-        >
-          <h4>{{ $filters.parseCurrency(token.valuef) }}</h4>
-          <p
+        <v-chart class="asset-detail-view__chart" :option="option" />
+        <div class="asset-detail-view__price-info">
+          <h4 class="asset-detail-view__current-price">
+            {{ $filters.parseCurrency(token.valuef) }}
+          </h4>
+          <div
+            class="asset-detail-view__change-badge"
             :class="{
-              down: token.priceChangePercentage < 0,
-              up: token.priceChangePercentage >= 0,
+              'is-negative': token.priceChangePercentage < 0,
+              'is-positive': token.priceChangePercentage >= 0,
             }"
           >
             <sparkline-up v-if="token.priceChangePercentage >= 0" />
             <sparkline-down v-if="token.priceChangePercentage < 0" />
-
-            {{ token.priceChangePercentage.toFixed(2) }}%
-            <span class="asset-detail-view__last-24">Last 24h</span>
-          </p>
+            <span>{{ Math.abs(token.priceChangePercentage).toFixed(2) }}%</span>
+          </div>
+          <span class="asset-detail-view__timeframe">24h</span>
         </div>
       </div>
 
-      <div class="asset-detail-view__token-divider" />
-
-      <div class="asset-detail-view__token-balance" v-if="!isCustomToken">
-        <h6>Balance</h6>
-        <h4>
-          {{ token.balancef }} <span>{{ token.symbol.toLowerCase() }}</span>
-        </h4>
-        <p>{{ $filters.parseCurrency(token.balanceUSDf) }}</p>
+      <!-- Balance Card -->
+      <div class="asset-detail-view__balance-card" v-if="!isCustomToken">
+        <div class="asset-detail-view__balance-header">
+          <span class="asset-detail-view__balance-label">Your Balance</span>
+        </div>
+        <div class="asset-detail-view__balance-amount">
+          <span class="asset-detail-view__balance-value">{{
+            token.balancef
+          }}</span>
+          <span class="asset-detail-view__balance-symbol">{{
+            token.symbol
+          }}</span>
+        </div>
+        <p class="asset-detail-view__balance-usd">
+          ≈ {{ $filters.parseCurrency(token.balanceUSDf) }}
+        </p>
       </div>
+
+      <!-- Actions -->
       <asset-detail-action
         @open:buy-action="openBuySell"
         :token="token"
         v-if="!isCustomToken"
       />
-      <div class="asset-detail-view__token-divider" v-if="isCustomToken" />
-      <div class="asset-detail-view__action" v-if="isCustomToken">
-        <base-button
-          title="Delete custom token"
-          :red="true"
-          :click="removeToken"
-        />
-        <span class="label"
-          >*Deleting custom token deletes it for the whole network.</span
-        >
+
+      <!-- Custom Token Delete -->
+      <div class="asset-detail-view__custom-action" v-if="isCustomToken">
+        <div class="asset-detail-view__custom-warning">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span>Deleting removes this token for the entire network.</span>
+        </div>
+        <base-button title="Delete Token" :red="true" :click="removeToken" />
       </div>
     </div>
   </app-dialog>
@@ -99,10 +125,10 @@ const props = defineProps({
 });
 use([SVGRenderer, LineChart, TooltipComponent, GridComponent]);
 const option = ref({
-  width: 128,
-  height: 128,
-  color: [props.token.priceChangePercentage >= 0 ? '#80FFA5' : '#e01f43'],
-  grid: { show: false, left: 0, top: 0 },
+  width: 140,
+  height: 80,
+  color: [props.token.priceChangePercentage >= 0 ? '#22c55e' : '#ef4444'],
+  grid: { show: false, left: 0, top: 5, right: 0, bottom: 5 },
   xAxis: [
     {
       show: false,
@@ -128,7 +154,11 @@ const option = ref({
       type: 'line',
       smooth: true,
       lineStyle: {
-        width: 3,
+        width: 2.5,
+      },
+      areaStyle: {
+        opacity: 0.15,
+        color: props.token.priceChangePercentage >= 0 ? '#22c55e' : '#ef4444',
       },
       showSymbol: false,
       emphasis: {
@@ -158,149 +188,218 @@ const model = defineModel<boolean>();
 
 <style lang="less">
 @import '@action/styles/theme.less';
-.chart-large {
-  height: 128px;
-  width: 128px;
-}
+
 .asset-detail-view {
-  width: 100%;
-  height: auto;
-  box-sizing: border-box;
-
-  &__last-24 {
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 16px;
-    letter-spacing: 0.5px;
-    color: @grayPrimary;
-  }
-
   &__wrap {
-    padding: 24px;
+    padding: 20px;
   }
 
-  &__token {
-    &-info {
-      display: flex;
-      box-sizing: border-box;
-      justify-content: flex-start;
-      align-items: center;
-      flex-direction: row;
+  // Token Header
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
 
-      img {
-        width: 48px;
-        height: 48px;
-        box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
-        border-radius: 100%;
-        margin-right: 16px;
-        object-fit: contain;
-      }
+  &__token-icon {
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
 
-      &-name {
-        h4 {
-          font-style: normal;
-          font-weight: 500;
-          font-size: 16px;
-          line-height: 24px;
-          text-align: center;
-          color: @primaryLabel;
-          margin: 0;
-        }
-
-        p {
-          font-style: normal;
-          font-weight: 400;
-          font-size: 12px;
-          line-height: 16px;
-          letter-spacing: 0.5px;
-          color: @secondaryLabel;
-          margin: 0;
-          text-transform: uppercase;
-        }
-      }
-    }
-    &-sparkline {
-      display: flex;
-      box-sizing: border-box;
-      justify-content: flex-start;
-      align-items: center;
-      flex-direction: row;
-      margin-top: 16px;
-
-      img {
-        width: 48px;
-        margin-right: 16px;
-      }
-
-      &-price {
-        padding-left: 50px;
-        h4 {
-          font-style: normal;
-          font-weight: 700;
-          font-size: 16px;
-          line-height: 24px;
-          text-align: center;
-          color: @primaryLabel;
-          margin: 0;
-        }
-        p {
-          font-style: normal;
-          font-weight: 400;
-          font-size: 12px;
-          line-height: 16px;
-          letter-spacing: 0.5px;
-          margin: 0;
-        }
-      }
-    }
-    &-divider {
-      margin: 24px 0 24px -24px;
-      height: 1px;
-      width: calc(~'100% + 48px');
-      background: @gray02;
-    }
-    &-balance {
-      margin: 0 0 16px 0;
-
-      h6 {
-        font-style: normal;
-        font-weight: 700;
-        font-size: 16px;
-        line-height: 20px;
-        letter-spacing: 0.15px;
-        color: @primaryLabel;
-        margin: 0;
-      }
-      h4 {
-        font-style: normal;
-        font-weight: 700;
-        font-size: 24px;
-        line-height: 32px;
-        color: @primaryLabel;
-        margin: 0;
-
-        span {
-          font-variant: small-caps;
-        }
-      }
-      p {
-        font-style: normal;
-        font-weight: 400;
-        font-size: 16px;
-        line-height: 24px;
-        margin: 0;
-        color: @secondaryLabel;
-      }
+    img {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      object-fit: contain;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      background: @white;
     }
   }
-  &__action {
-    margin: 0 0 -12px -12px;
-    width: calc(~'100% + 24px');
-    text-align: center;
 
-    .label {
+  &__token-meta {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__token-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: @primaryLabel;
+    margin: 0 0 2px 0;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__token-symbol {
+    font-size: 13px;
+    font-weight: 500;
+    color: @secondaryLabel;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  // Chart Section
+  &__chart-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: linear-gradient(
+      135deg,
+      rgba(117, 89, 209, 0.04) 0%,
+      rgba(117, 89, 209, 0.02) 100%
+    );
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+
+  &__chart {
+    width: 140px;
+    height: 80px;
+    flex-shrink: 0;
+  }
+
+  &__price-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  &__current-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: @primaryLabel;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  &__change-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    &.is-positive {
+      background: rgba(34, 197, 94, 0.12);
+      color: #16a34a;
+    }
+
+    &.is-negative {
+      background: rgba(239, 68, 68, 0.12);
+      color: #dc2626;
+    }
+  }
+
+  &__timeframe {
+    font-size: 11px;
+    font-weight: 500;
+    color: @tertiaryLabel;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  // Balance Card
+  &__balance-card {
+    background: @lightBg;
+    border: 1px solid @gray01;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  &__balance-header {
+    margin-bottom: 8px;
+  }
+
+  &__balance-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: @secondaryLabel;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__balance-amount {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  &__balance-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: @primaryLabel;
+    line-height: 1.2;
+  }
+
+  &__balance-symbol {
+    font-size: 16px;
+    font-weight: 600;
+    color: @secondaryLabel;
+    text-transform: uppercase;
+  }
+
+  &__balance-usd {
+    font-size: 15px;
+    font-weight: 500;
+    color: @tertiaryLabel;
+    margin: 0;
+  }
+
+  // Custom Token Action
+  &__custom-action {
+    margin-top: 8px;
+  }
+
+  &__custom-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.15);
+    border-radius: 10px;
+    margin-bottom: 16px;
+
+    svg {
+      flex-shrink: 0;
+      color: #d97706;
+      margin-top: 1px;
+    }
+
+    span {
+      font-size: 13px;
       color: @secondaryLabel;
+      line-height: 1.4;
     }
   }
+}
+
+// Legacy compatibility
+.chart-large {
+  height: 80px;
+  width: 140px;
+}
+
+.down {
+  color: @error;
+}
+
+.up {
+  color: @success;
 }
 </style>

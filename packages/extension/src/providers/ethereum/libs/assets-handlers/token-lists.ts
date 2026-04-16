@@ -16,7 +16,6 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Ethereum]: `https://tokens.coingecko.com/${CoingeckoPlatform.Ethereum}/all.json`,
   [NetworkNames.Fantom]: `https://tokens.coingecko.com/${CoingeckoPlatform.Fantom}/all.json`,
   [NetworkNames.Gnosis]: `https://tokens.coingecko.com/${CoingeckoPlatform.Gnosis}/all.json`,
-  [NetworkNames.Godwoken]: `https://tokens.coingecko.com/${CoingeckoPlatform.Godwoken}/all.json`,
   [NetworkNames.ImmutableZkevm]: `https://tokens.coingecko.com/${CoingeckoPlatform.ImmutableZkevm}/all.json`,
   [NetworkNames.Kaia]: `https://tokens.coingecko.com/${CoingeckoPlatform.Kaia}/all.json`,
   [NetworkNames.Linea]: `https://tokens.coingecko.com/${CoingeckoPlatform.Linea}/all.json`,

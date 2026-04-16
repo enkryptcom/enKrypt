@@ -11,6 +11,9 @@
             :isTagSyncing="props.isTagSyncing"
             :crypto-amount="cryptoAmount"
             :fiat-amount="fiatAmount"
+            :token-price="tokenPrice"
+            :price-change-percentage="priceChangePercentage"
+            :sparkline="sparkline"
             :symbol="network.currencyName"
             :subnetwork="props.subnetwork"
             :network="props.network as BitcoinNetwork"
@@ -130,14 +133,17 @@ const assets = ref<AssetsType[]>([]);
 const isLoading = ref(false);
 const isFetchError = ref(false);
 
+const {
+  cryptoAmount,
+  fiatAmount,
+  tokenPrice,
+  priceChangePercentage,
+  sparkline,
+} = accountInfoComposable(toRef(props, 'network'), toRef(props, 'accountInfo'));
 const emits = defineEmits<{
   (e: 'update:spark-state-changed', network: BaseNetwork): void;
 }>();
 
-const { cryptoAmount, fiatAmount } = accountInfoComposable(
-  toRef(props, 'network'),
-  toRef(props, 'accountInfo'),
-);
 const selected: string = route.params.id as string;
 
 const updateAssets = () => {

@@ -17,4 +17,5 @@ declare let __BUILD_TIME__: string;
 interface Window {
   // Declare your custom global variable here
   readonly __PACKAGE_VERSION__: string;
+  enkrypt: any;
 }

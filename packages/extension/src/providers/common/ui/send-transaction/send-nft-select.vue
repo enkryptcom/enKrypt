@@ -57,19 +57,18 @@ defineProps({
 });
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
 
 .send-nft-select {
-  height: 64px;
-  background: #ffffff;
-  margin: 0 32px 0 32px;
+  height: 60px;
+  background: @white;
+  margin: 0 24px 0 24px;
   box-sizing: border-box;
-  border: 1px solid @gray02;
-  box-sizing: border-box;
-  border-radius: 10px;
-  width: calc(~'100% - 64px');
-  padding: 16px;
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  width: calc(~'100% - 48px');
+  padding: 12px 16px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -77,35 +76,58 @@ defineProps({
   position: relative;
   cursor: pointer;
   text-decoration: none;
+  transition: all 200ms ease-in-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+
+  &:hover {
+    border-color: rgba(138, 100, 220, 0.3);
+    background: rgba(138, 100, 220, 0.02);
+    box-shadow: 0 2px 8px rgba(138, 100, 220, 0.08);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
 
   &__wrap {
     margin-bottom: 8px;
   }
 
   &__image {
-    background: @buttonBg;
-    box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
-    border-radius: 8px;
-    width: 32px;
-    height: 32px;
+    background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    border-radius: 10px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
     overflow: hidden;
     margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     img {
       width: 100%;
       height: 100%;
+      object-fit: cover;
     }
   }
 
   &__info {
+    flex: 1;
+    min-width: 0;
+
     h5 {
       font-style: normal;
-      font-weight: 400;
-      font-size: 16px;
-      line-height: 24px;
+      font-weight: 600;
+      font-size: 15px;
+      line-height: 20px;
       color: @primaryLabel;
-      width: 290px;
-      margin: 0 0 1px 0;
+      margin: 0 0 2px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     p {
@@ -113,46 +135,67 @@ defineProps({
       font-weight: 400;
       font-size: 12px;
       line-height: 16px;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.2px;
       color: @secondaryLabel;
       margin: 0;
-      width: 290px;
-
-      span {
-        font-variant: small-caps;
-      }
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 
   &__arrow {
     position: absolute;
     font-size: 0;
-    padding: 4px;
-    right: 8px;
-    top: 16px;
+    padding: 6px;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 8px;
+    transition: all 200ms ease-in-out;
+    background: rgba(0, 0, 0, 0.04);
+
+    svg {
+      opacity: 0.6;
+      transition: opacity 150ms ease-in-out;
+    }
+  }
+
+  &:hover &__arrow {
+    background: rgba(138, 100, 220, 0.1);
+
+    svg {
+      opacity: 1;
+    }
   }
 
   &__view {
-    width: 82px;
-    max-height: 82px;
-    filter: drop-shadow(0px 0.25px 1px rgba(0, 0, 0, 0.039))
-      drop-shadow(0px 0.85px 3px rgba(0, 0, 0, 0.19));
-    border-radius: 12px;
+    width: 88px;
+    max-height: 88px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    border-radius: 14px;
     display: block;
-    margin: 16px 0 16px 48px;
+    margin: 12px 0 12px 40px;
     float: left;
+    object-fit: cover;
   }
+
   &__text {
     float: right;
     max-width: 200px;
-    margin-right: 60px;
-    margin-top: 40px;
-    padding-right: 10px;
-    padding-left: 10px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    background: #f2f4f7;
-    border-radius: 6px;
+    margin-right: 40px;
+    margin-top: 36px;
+    padding: 10px 14px;
+    background: linear-gradient(
+      135deg,
+      rgba(239, 68, 68, 0.08) 0%,
+      rgba(220, 38, 38, 0.05) 100%
+    );
+    border: 1px solid rgba(239, 68, 68, 0.15);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: @error;
   }
 }
 </style>

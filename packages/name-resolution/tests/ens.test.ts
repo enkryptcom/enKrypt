@@ -9,7 +9,7 @@ describe("ENS Name resolving", () => {
     });
     await resolver.init();
     let address = await resolver.resolveAddress("test.eth", "ETH");
-    expect(address).to.be.eq("0xeefB13C7D42eFCc655E528dA6d6F7bBcf9A2251d");
+    expect(address).to.be.eq("0x54fd548fFD6Ff54943d6863F1d485Cc2Fb495574");
     address = await resolver.resolveAddress("1.offchainexample.eth", "ETH");
     expect(address).to.be.eq("0x41563129cDbbD0c5D3e1c86cf9563926b243834d");
   });

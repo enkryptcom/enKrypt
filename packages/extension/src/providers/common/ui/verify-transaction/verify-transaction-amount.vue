@@ -28,7 +28,7 @@ defineProps({
 });
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import '@action/styles/theme.less';
 
 .verify-transaction-amount {
@@ -38,49 +38,54 @@ defineProps({
   align-items: center;
   flex-direction: row;
   width: 100%;
-  padding: 12px 16px;
+  padding: 14px 16px;
   box-sizing: border-box;
-  border-bottom: 1px solid @gray02;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(34, 197, 94, 0.03);
 
   img {
-    width: 32px;
-    border-radius: 100%;
+    width: 36px;
+    border-radius: 10px;
     margin-right: 12px;
-    height: 32px;
-    box-shadow: inset 0px 0px 1px rgba(0, 0, 0, 0.16);
+    height: 36px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   }
 
   &__info {
     h4 {
       font-style: normal;
-      font-weight: 400;
+      font-weight: 700;
       font-size: 16px;
-      line-height: 24px;
+      line-height: 22px;
       color: @primaryLabel;
       margin: 0;
       word-break: break-all;
 
       span {
         font-variant: small-caps;
+        font-weight: 500;
+        color: @secondaryLabel;
       }
     }
 
     p {
       font-style: normal;
-      font-weight: 400;
-      font-size: 12px;
-      line-height: 16px;
+      font-weight: 500;
+      font-size: 11px;
+      line-height: 14px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
       color: @secondaryLabel;
-      margin: 0;
+      margin: 0 0 2px 0;
     }
 
     h6 {
       font-style: normal;
-      font-weight: 400;
-      font-size: 12px;
-      line-height: 16px;
-      color: @secondaryLabel;
-      margin: 0;
+      font-weight: 500;
+      font-size: 13px;
+      line-height: 18px;
+      color: #16a34a;
+      margin: 2px 0 0 0;
     }
   }
 }

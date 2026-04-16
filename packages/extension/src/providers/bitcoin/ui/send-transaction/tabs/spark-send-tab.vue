@@ -11,13 +11,11 @@
 
     <send-token-select
       v-if="isSendToken"
-      class="no-margin"
       :token="availableAsset"
     />
 
     <send-input-amount
       v-if="isSendToken"
-      class="no-margin"
       :amount="amount"
       :fiat-value="availableAsset.price"
       :has-enough-balance="!nativeBalanceAfterTransaction.isNeg()"
@@ -109,6 +107,10 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits<{
+  (e: 'update:isLoadingAssets', value: boolean): void;
+}>();
+
 const loadingAvailableAsset = new BTCToken({
   icon: props.network.icon,
   symbol: 'Firo',
@@ -126,6 +128,7 @@ const isMaxSelected = ref<boolean>(false);
 
 onMounted(async () => {
   trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
+  emit('update:isLoadingAssets', false);
   setAsset();
 });
 
@@ -260,29 +263,64 @@ const close = () => {
 .form__container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-
-  .no-margin {
-    margin: 0 auto !important;
-  }
 
   .send-transaction {
     &__buttons {
-      padding: 0 32px 32px 32px;
-      margin-top: 20px;
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      padding: 16px 24px 24px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-direction: row;
       width: 100%;
       box-sizing: border-box;
+      gap: 12px;
+      z-index: 10;
+      background: @white;
 
       &-cancel {
-        width: 170px;
+        flex: 1;
+        min-width: 0;
+
+        :deep(.base-button) {
+          border: 1.5px solid rgba(0, 0, 0, 0.1);
+          border-radius: 12px;
+          font-weight: 600;
+          transition: all 200ms ease-in-out;
+
+          &:hover {
+            border-color: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.02);
+          }
+        }
       }
 
       &-send {
-        width: 218px;
+        flex: 1.3;
+        min-width: 0;
+
+        :deep(.base-button) {
+          border-radius: 12px;
+          font-weight: 600;
+          box-shadow: 0 4px 12px rgba(98, 126, 234, 0.3);
+          transition: all 200ms ease-in-out;
+
+          &:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(98, 126, 234, 0.4);
+          }
+
+          &:active:not(:disabled) {
+            transform: translateY(0);
+          }
+
+          &:disabled {
+            background: #e2e8f0;
+            box-shadow: none;
+          }
+        }
       }
     }
   }

@@ -21,9 +21,8 @@
     />
 
     <send-spark-address-input
-      v-if="network.name === 'Firo'"
+      v-if="network.name === NetworkNames.Firo"
       ref="addressInputTo"
-      class="no-margin"
       title="To address"
       :value="addressTo"
       :network="network as BitcoinNetwork"
@@ -31,7 +30,7 @@
       @toggle:show-contacts="toggleSelectContactTo"
     />
     <send-address-input
-      v-if="network.name !== 'Firo'"
+      v-if="network.name !== NetworkNames.Firo"
       ref="addressInputTo"
       title="To address"
       :value="addressTo"
@@ -46,11 +45,28 @@
       :address="addressTo"
       :network="network"
       @selected:account="selectAccountTo"
-      @update:paste-from-clipboard="addressInputTo.pasteFromClipboard()"
+      @update:paste-from-clipboard="
+        () => {
+          addressInputTo.pasteFromClipboard();
+          toggleSelectContactTo(false);
+        }
+      "
       @close="toggleSelectContactTo"
     />
 
-    <send-token-select v-if="isSendToken" :token="selectedAsset" />
+    <send-token-select
+      v-if="isSendToken"
+      :token="selectedAsset"
+      @update:toggle-token-select="toggleSelectToken"
+    />
+
+    <assets-select-list
+      v-model="isOpenSelectToken"
+      :is-send="true"
+      :assets="accountAssets"
+      :is-loading="props.isLoadingAssets"
+      @update:select-asset="selectToken"
+    />
 
     <send-nft-select
       v-if="!isSendToken"
@@ -71,6 +87,7 @@
     <send-input-amount
       v-if="isSendToken"
       :amount="amount"
+      :show-max="showMax"
       :fiat-value="selectedAsset.price"
       :has-enough-balance="!nativeBalanceAfterTransaction.isNeg()"
       @update:input-amount="inputAmount"
@@ -84,6 +101,7 @@
     />
 
     <transaction-fee-view
+      v-model="isOpenSelectFee"
       :fees="gasCostValues"
       :selected="selectedFee"
       :is-header="true"
@@ -141,8 +159,8 @@ import {
 } from '@/libs/utils/number-formatter';
 import BitcoinAPI from '@/providers/bitcoin/libs/api';
 import {
-  getTxInfo as getBTCTxInfo,
   getGasCostValues,
+  getTxInfo as getBTCTxInfo,
   isAddress,
   isSparkAddress,
 } from '@/providers/bitcoin/libs/utils';
@@ -158,6 +176,7 @@ import SendFeeSelect from '@/providers/common/ui/send-transaction/send-fee-selec
 import SendFromContactsList from '@/providers/common/ui/send-transaction/send-from-contacts-list.vue';
 import SendInputAmount from '@/providers/common/ui/send-transaction/send-input-amount.vue';
 import SendNftSelect from '@/providers/common/ui/send-transaction/send-nft-select.vue';
+import AssetsSelectList from '@action/views/assets-select-list/index.vue';
 import { NFTItem, NFTItemWithCollectionName, NFTType } from '@/types/nft';
 import { ProviderName } from '@/types/provider';
 import { routes as RouterNames } from '@/ui/action/router';
@@ -166,7 +185,7 @@ import BaseButton from '@action/components/base-button/index.vue';
 import TransactionFeeView from '@action/views/transaction-fee/index.vue';
 import { fromBase, isValidDecimals, toBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
-import { computed, onMounted, PropType, ref, watch } from 'vue';
+import { computed, onMounted, PropType, ref, watch, Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { toBN } from 'web3-utils';
 import Browser from 'webextension-polyfill';
@@ -176,6 +195,7 @@ import SendAddressInput from '../components/send-address-input.vue';
 import SendSparkAddressInput from '../components/send-spark-address-input.vue';
 import SendTokenSelect from '../components/send-token-select.vue';
 import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
+import { NetworkNames } from '@enkryptcom/types/dist';
 
 const route = useRoute();
 const router = useRouter();
@@ -193,6 +213,9 @@ const props = defineProps({
     type: Boolean,
     default: () => false,
   },
+  isLoadingAssets: {
+    type: Boolean,
+  },
 });
 const loadingAsset = new BTCToken({
   icon: props.network.icon,
@@ -203,15 +226,21 @@ const loadingAsset = new BTCToken({
   decimals: props.network.decimals,
 });
 
+const emit = defineEmits<{
+  (e: 'update:isLoadingAssets', value: boolean): void;
+}>();
+
 const addressInputTo = ref();
 const selected: string = route.params.id as string;
 const paramNFTData: NFTItem = JSON.parse(
   route.params.tokenData ? (route.params.tokenData as string) : '{}',
 ) as NFTItem;
 const selectedAsset = ref<BTCToken>(loadingAsset);
+const accountAssets = ref<BTCToken[]>([]);
 const amount = ref<string>('');
 const accountUTXOs = ref<HaskoinUnspentType[]>([]);
 const isOpenSelectNft = ref(false);
+const isOpenSelectToken = ref(false);
 
 const sendAmount = computed(() => {
   if (amount.value && amount.value !== '') return amount.value;
@@ -225,7 +254,10 @@ const addressFrom = ref<string>(
   props.accountInfo.selectedAccount?.address ?? '',
 );
 const addressTo = ref<string>('');
-const isLoadingAssets = ref(true);
+
+const showMax = computed(() => {
+  return true;
+});
 
 onMounted(async () => {
   trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
@@ -287,11 +319,21 @@ const updateUTXOs = async () => {
 
 const fetchAssets = () => {
   selectedAsset.value = loadingAsset;
-  isLoadingAssets.value = true;
+  emit('update:isLoadingAssets', true);
   return props.network.getAllTokens(addressFrom.value).then(allAssets => {
+    accountAssets.value = allAssets as BTCToken[];
     selectedAsset.value = allAssets[0] as BTCToken;
-    isLoadingAssets.value = false;
+    emit('update:isLoadingAssets', false);
   });
+};
+
+const toggleSelectToken = () => {
+  isOpenSelectToken.value = !isOpenSelectToken.value;
+};
+
+const selectToken = (token: BTCToken) => {
+  selectedAsset.value = token;
+  isOpenSelectToken.value = false;
 };
 
 const sendButtonTitle = computed(() => {
@@ -587,11 +629,6 @@ const sendAction = async () => {
 .form__container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-
-  .no-margin {
-    margin: 0 auto !important;
-  }
 
   &-send-input {
     display: flex;
@@ -639,21 +676,61 @@ const sendAction = async () => {
 
 .send-transaction {
   &__buttons {
-    padding: 0 32px 32px 32px;
-    margin-top: 20px;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    padding: 16px 24px 24px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-direction: row;
     width: 100%;
     box-sizing: border-box;
+    gap: 12px;
+    z-index: 10;
+    background: @white;
 
     &-cancel {
-      width: 170px;
+      flex: 1;
+      min-width: 0;
+
+      :deep(.base-button) {
+        border: 1.5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 200ms ease-in-out;
+
+        &:hover {
+          border-color: rgba(0, 0, 0, 0.2);
+          background: rgba(0, 0, 0, 0.02);
+        }
+      }
     }
 
     &-send {
-      width: 218px;
+      flex: 1.3;
+      min-width: 0;
+
+      :deep(.base-button) {
+        border-radius: 12px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(98, 126, 234, 0.3);
+        transition: all 200ms ease-in-out;
+
+        &:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(98, 126, 234, 0.4);
+        }
+
+        &:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
+        &:disabled {
+          background: #e2e8f0;
+          box-shadow: none;
+        }
+      }
     }
   }
 }
