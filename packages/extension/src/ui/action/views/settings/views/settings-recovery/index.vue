@@ -67,7 +67,7 @@ const secondSet = computed(() => {
 });
 
 const hasExtraWord = computed(() => {
-  return props.mnemonic.extraWord !== '';
+  return props.mnemonic.extraWord && props.mnemonic.extraWord !== '';
 });
 </script>
 
