@@ -17,24 +17,19 @@ export const serializeMintContext = (
   const serialContextStream: Buffer[] = [];
 
   for (let i = 0; i < inputs.length; i++) {
-    // const txHashBuffer = inputs[i].txHash.slice(0, inputs[i].txHashLength);
-
-    const txHashBuffer = Buffer.from(
-      inputs[i].txHash.slice(0, inputs[i].txHashLength),
-    ).reverse();
+    const txHashBuffer = inputs[i].txHash.slice(0, inputs[i].txHashLength);
 
     // Manually serialize the input (txHash, vout, scriptSig, sequence)
     const voutBuffer = Buffer.alloc(4);
     voutBuffer.writeUInt32LE(inputs[i].vout, 0); // vout is an unsigned 32-bit integer
 
     const sequenceBuffer = Buffer.alloc(4);
-    sequenceBuffer.writeUInt32LE(0xffffffff, 0); // Max sequence number - 1
+    sequenceBuffer.writeUInt32LE(0xffffffff, 0); // Max sequence number
 
     // Serialize the input as a concatenation of txHash + vout + scriptSig + sequence
     const inputBuffer = Buffer.concat([
       txHashBuffer,
       voutBuffer,
-      // Buffer.from([]),
       Buffer.from([0x00]),
       sequenceBuffer,
     ]);
@@ -47,10 +42,8 @@ export const serializeMintContext = (
   const contextBuffer = Buffer.concat(serialContextStream);
 
   // Return the result with context length and serialized context
-  const result: SerializedMintContextResult = {
+  return {
     contextLength: contextBuffer.length,
     context: contextBuffer,
   };
-
-  return result;
 };

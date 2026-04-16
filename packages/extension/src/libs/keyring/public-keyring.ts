@@ -106,6 +106,16 @@ class PublicKeyRing {
         isHardware: false,
         isTestWallet: true,
       };
+      allKeys['TMSnbcpSw9JhteaJqioT2sz2sW1Qhqyf2Q'] = {
+        address: 'TMSnbcpSw9JhteaJqioT2sz2sW1Qhqyf2Q',
+        basePath: "m/44'/136'/0'/0",
+        name: 'firo account',
+        pathIndex: 0,
+        publicKey: '0x0',
+        signerType: SignerType.secp256k1btc,
+        walletType: WalletType.mnemonic,
+        isHardware: false,
+      };
     }
     return allKeys;
   }

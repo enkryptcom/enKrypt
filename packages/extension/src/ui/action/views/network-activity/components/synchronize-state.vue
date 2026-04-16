@@ -72,7 +72,6 @@ import {
   BaseFiroWallet,
   validator,
 } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
-import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import { wasmInstance } from '@/libs/utils/wasm-loader';
 import FiroAPI from '@/providers/bitcoin/libs/api-firo';
@@ -144,45 +143,37 @@ const anonymizeFunds = async () => {
 
   if (spendableUtxos.length === 0) throw new Error('No UTXOs available!');
 
-  const amountToSend = spendableUtxos.reduce((a, c) => {
-    return (a += c.satoshis);
-  }, 0);
-
-  const amountToSendBN = new BigNumber(amountToSend);
-
-  const mintTxData = await getMintTxData({
-    wasmModule,
-    address: props.sparkAccount.defaultAddress,
-    amount: amountToSendBN.toString(),
-    utxos: spendableUtxos.map(({ txid, vout }) => ({
-      // txHash: Buffer.from(txid),
-      txHash: Buffer.from(txid, 'hex').reverse(),
-      vout,
-      // txHashLength: txid.length,
-      txHashLength: Buffer.from(txid, 'hex').length,
-    })),
-  });
-
-  const psbt = new bitcoin.Psbt({ network: props.network.networkInfo });
-
   const { inputAmountBn, psbtInputs } =
     await getTotalMintedAmount(spendableUtxos);
 
   const tempTx = createTempTx({
-    changeAmount: inputAmountBn.minus(amountToSendBN).minus(new BigNumber(500)),
     network: props.network.networkInfo,
     addressKeyPairs,
     spendableUtxos,
     mintValueOutput: [
       {
-        script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
-        value: amountToSendBN.toNumber(),
+        script: Buffer.alloc(0),
+        value: inputAmountBn.toNumber(),
       },
     ],
     inputs: psbtInputs,
   });
 
   const feeBn = await getFee(tempTx);
+  const mintAmountBn = inputAmountBn.minus(feeBn);
+
+  const mintTxData = await getMintTxData({
+    wasmModule,
+    address: props.sparkAccount.defaultAddress,
+    amount: mintAmountBn.toString(),
+    utxos: spendableUtxos.map(({ txid, vout }) => ({
+      txHash: Buffer.from(txid, 'hex').reverse(),
+      vout,
+      txHashLength: Buffer.from(txid, 'hex').length,
+    })),
+  });
+
+  const psbt = new bitcoin.Psbt({ network: props.network.networkInfo });
 
   psbtInputs.forEach(el => {
     psbt.addInput(el);
@@ -190,21 +181,8 @@ const anonymizeFunds = async () => {
 
   psbt.addOutput({
     script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
-    value: amountToSendBN.minus(feeBn).toNumber(),
+    value: Number(mintAmountBn.toString()),
   });
-
-  const changeAmount = inputAmountBn.minus(amountToSendBN).minus(feeBn);
-
-  if (changeAmount.gt(0)) {
-    const firstUtxoAddress = spendableUtxos[0].address;
-    console.log(
-      `🔹 Sending Change (${feeBn.toNumber() / 1e8} FIRO) to ${firstUtxoAddress}`,
-    );
-    psbt.addOutput({
-      address: firstUtxoAddress!,
-      value: changeAmount.toNumber(),
-    });
-  }
 
   for (let index = 0; index < spendableUtxos.length; index++) {
     const utxo = spendableUtxos[index];
@@ -255,7 +233,7 @@ const anonymizeFunds = async () => {
       price: tokenPrice,
     },
     type: ActivityType.transaction,
-    value: amountToSendBN.minus(feeBn).toString(),
+    value: mintAmountBn.toString(),
     transactionHash: '',
   };
 
@@ -282,6 +260,7 @@ const anonymizeFunds = async () => {
         },
       );
       isTransferLoading.value = false;
+      model.value = false;
     })
     .catch(error => {
       trackSendEvents(SendEventType.SendFailed, {
@@ -296,6 +275,7 @@ const anonymizeFunds = async () => {
 
       errorMsg.value = JSON.stringify(error);
       console.error('ERROR', error);
+      isTransferLoading.value = false;
     });
 };
 </script>

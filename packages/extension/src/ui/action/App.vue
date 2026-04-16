@@ -406,7 +406,7 @@ const setNetwork = async (network: BaseNetwork) => {
 
     const defaultAddress = await getSparkAddress(
       network,
-      selectedAccount.address,
+      selectedAccount?.address,
     );
 
     await db.waitInit();

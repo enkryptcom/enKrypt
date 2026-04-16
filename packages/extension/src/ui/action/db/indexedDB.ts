@@ -1,13 +1,11 @@
-import {
-  AnonymitySetModel,
-} from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
+import { AnonymitySetModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
 
 export const DB_DATA_KEYS = {
   sets: 'sets',
   myCoins: 'myCoins',
   usedCoinsTags: 'usedCoinsTags',
   sparkBalance: 'sparkBalance',
-  lastCointSetIdAndIndex: 'lastCointSetIdAndIndex',
+  lastCheckedSetIndex: 'lastCheckedSetIndex',
 } as const;
 
 export class IndexedDBHelper {

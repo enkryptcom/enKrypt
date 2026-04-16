@@ -2,7 +2,6 @@ import { ref, watch, Ref } from 'vue';
 import { NetworkNames } from '@enkryptcom/types';
 import { startCoinSetSync } from '@/libs/utils/updateAndSync/updateCoinSet';
 import { appendCoinSetUpdates } from '@/libs/utils/updateAndSync/handleCoinSetUpdates';
-import { startTagSetSync } from '@/libs/utils/updateAndSync/updateTagsSet';
 import { BaseNetwork } from '@/types/base-network';
 import {
   markCoinsAsUsed,
@@ -22,8 +21,9 @@ export const useSynchronizeSparkState = (
   const isWorkerRunning = ref(false);
   const pendingWorkerRun = ref(false);
 
-  const coinFetchDone = ref(false);
-  const tagFetchDone = ref(false);
+  const coinSyncFinished = ref(false);
+  const tagSyncFinished = ref(false);
+  const workerFinished = ref(false);
 
   const sparkUnusedTxDetails = ref<SparkUnusedTxDetails[]>([]);
 
@@ -34,7 +34,7 @@ export const useSynchronizeSparkState = (
     isWorkerRunning.value = false;
 
     if (pendingWorkerRun.value) {
-      console.log('[synchronizeWorker] restarting postponed run');
+      pendingWorkerRun.value = false;
       synchronizeWorker();
     }
   };
@@ -51,13 +51,11 @@ export const useSynchronizeSparkState = (
       { type: 'module' },
     );
 
-    console.log('%c[synchronizeWorker] Worker initialized', 'color: green');
-
     isWorkerRunning.value = true;
     pendingWorkerRun.value = false;
 
     worker.onmessage = () => {
-      coinFetchDone.value = true;
+      workerFinished.value = true;
       cleanupAndMaybeRestart();
     };
 
@@ -78,26 +76,21 @@ export const useSynchronizeSparkState = (
 
       const stopCoinSetSyncFn = startCoinSetSync({
         onUpdate: async updates => {
-          console.log(
-            '%c[synchronize] Coin set updates received',
-            'color: blue',
-            updates,
-          );
+          isCoinFetchPending.value = true;
+          isTagFetchPending.value = true;
           await appendCoinSetUpdates(updates);
           synchronizeWorker();
+          coinSyncFinished.value = true;
+          tagSyncFinished.value = true;
         },
         onComplete: () => {
           synchronizeWorker();
+          coinSyncFinished.value = true;
+          tagSyncFinished.value = true;
         },
       });
 
-      const stopSyncTagSetFn = startTagSetSync({
-        onComplete: () => {
-          tagFetchDone.value = true;
-        },
-      });
-
-      return { stopCoinSetSyncFn, stopSyncTagSetFn };
+      return { stopCoinSetSyncFn };
     } catch (err: any) {
       error.value = err;
       console.error('Syncing error:', err);
@@ -110,15 +103,10 @@ export const useSynchronizeSparkState = (
       const stopFns = await synchronize();
 
       if (stopFns) {
-        const { stopSyncTagSetFn, stopCoinSetSyncFn } = stopFns;
+        const { stopCoinSetSyncFn } = stopFns;
 
         onCleanup(() => {
-          console.log(
-            '%c[Network Change] Stopping previous sync processes',
-            'color: orange',
-          );
           stopCoinSetSyncFn();
-          stopSyncTagSetFn();
           isCoinFetchPending.value = false;
           isTagFetchPending.value = false;
         });
@@ -128,18 +116,25 @@ export const useSynchronizeSparkState = (
   );
 
   watch(
-    () => [coinFetchDone.value, tagFetchDone.value],
-    async ([updatedCoinFetchDone, updatedTagFetchDone]) => {
-      if (updatedCoinFetchDone) {
+    () => [
+      coinSyncFinished.value,
+      tagSyncFinished.value,
+      workerFinished.value,
+      pendingWorkerRun.value,
+    ],
+    async ([coinDone, tagDone, workerDone, pendingWorker]) => {
+      if (coinDone && workerDone) {
         isCoinFetchPending.value = false;
+        coinSyncFinished.value = false;
       }
-      if (updatedTagFetchDone) {
+      if (tagDone) {
         isTagFetchPending.value = false;
+        tagSyncFinished.value = false;
       }
 
-      if (updatedCoinFetchDone && updatedTagFetchDone) {
-        coinFetchDone.value = false;
-        tagFetchDone.value = false;
+      console.log({ coinDone, tagDone, workerDone });
+      if (workerDone && !pendingWorker) {
+        workerFinished.value = false;
         sparkUnusedTxDetails.value = await markCoinsAsUsed(onBalanceCalculated);
       }
     },

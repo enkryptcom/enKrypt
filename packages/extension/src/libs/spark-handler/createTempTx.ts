@@ -5,7 +5,7 @@ import { ECPairInterface } from 'ecpair';
 
 interface CreateTempTxArgs {
   network: bitcoin.networks.Network;
-  changeAmount: BigNumber;
+  changeAmount?: BigNumber;
   mintValueOutput: {
     script: Buffer<ArrayBuffer>;
     value: number;
@@ -50,7 +50,7 @@ export const createTempTx = ({
     });
   });
 
-  if (changeAmount.gt(0)) {
+  if (changeAmount && changeAmount.gt(0)) {
     const firstUtxoAddress = spendableUtxos[0].address;
 
     tx.addOutput({

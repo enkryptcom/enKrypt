@@ -3,6 +3,7 @@ import { BaseFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/base-firo-w
 import type { AnonymitySetMetaModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
 import { differenceSets } from '@action/utils/set-utils';
 import { getSetsFromDb } from '@/libs/utils/updateAndSync/getSetsFromDb';
+import { syncTagsOnce } from '@/libs/utils/updateAndSync/updateTagsSet';
 
 export type StoredAnonymitySet = {
   coins: string[][];
@@ -27,7 +28,7 @@ export type CoinSetUpdateResult = {
 
 export type CoinSetSyncOptions = {
   intervalMs?: number;
-  onUpdate?: (results: CoinSetUpdateResult[]) => void;
+  onUpdate?: (results: CoinSetUpdateResult[]) => void | Promise<void>;
   onMyCoinDetected?: (result: CoinSetUpdateResult) => void;
   onError?: (error: unknown) => void;
   onComplete?: () => void;
@@ -105,9 +106,8 @@ export const syncCoinSetsOnce = async (): Promise<CoinSetUpdateResult[]> => {
     wallet.getAllSparkAnonymitySetMeta(),
     getSetsFromDb(),
     getMyCoinHashes(),
+    syncTagsOnce(),
   ]);
-
-  console.log('======>>> syncCoinSetsOnce:remoteMetas', remoteMetas);
 
   if (!Array.isArray(remoteMetas) || remoteMetas.length === 0) {
     return [];
@@ -210,7 +210,7 @@ export const startCoinSetSync = (options?: CoinSetSyncOptions) => {
       const updates = await syncCoinSetsOnce();
 
       if (updates.length) {
-        options?.onUpdate?.(updates);
+        await options?.onUpdate?.(updates);
 
         updates
           .filter(update => update.containsMyCoins)
@@ -220,8 +220,6 @@ export const startCoinSetSync = (options?: CoinSetSyncOptions) => {
       fireCompleteOnce();
     } catch (error) {
       options?.onError?.(error);
-
-      fireCompleteOnce();
     } finally {
       isRunning = false;
       scheduleNext();

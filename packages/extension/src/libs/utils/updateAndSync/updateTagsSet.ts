@@ -15,17 +15,18 @@ export type TagsSyncOptions = {
 const wallet = new BaseFiroWallet();
 const db = new IndexedDBHelper();
 
-const syncTagsOnce = async (): Promise<SetsUpdateResult> => {
+export const syncTagsOnce = async (): Promise<SetsUpdateResult> => {
   try {
     const localTags = await db.readData<{
       tags: string[];
       txHashes: string[][];
     }>(DB_DATA_KEYS.usedCoinsTags);
 
-    const txHashes = await wallet.getUsedCoinsTagsTxHashes(0);
-    const coinTags = await wallet.getUsedSparkCoinsTags(0);
+    const [txHashes, coinTags] = await Promise.all([
+      wallet.getUsedCoinsTagsTxHashes(0),
+      wallet.getUsedSparkCoinsTags(0),
+    ]);
 
-    // Prevent sending updates if there are no new tags
     if (
       coinTags.tags.length === localTags?.tags?.length &&
       txHashes.tagsandtxids.length === localTags?.txHashes?.length
@@ -75,7 +76,6 @@ export const startTagSetSync = (options?: TagsSyncOptions) => {
 
       if (updates?.tags?.length) {
         options?.onUpdate?.(updates);
-      } else {
       }
 
       fireCompleteOnce();

@@ -40,8 +40,6 @@ export const markCoinsAsUsed = async (
 
   const unusedCoins = updatedCoins.filter(el => !el.isUsed);
 
-  console.log('>>>>>> unusedCoins', unusedCoins);
-
   const mintIds = unusedCoins.map(unusedCoin => unusedCoin.coin[1]);
 
   const txIdsDecoded = mintIds
@@ -90,9 +88,6 @@ export const markCoinsAsUsed = async (
       .filter((tx): tx is SparkUnusedTxDetails => tx !== null);
   }
 
-  console.log('===>>>Spark Unused TX Details:', unusedTxDetails);
-
-
   if (onBalanceCalculated) {
     try {
       onBalanceCalculated();
@@ -101,9 +96,7 @@ export const markCoinsAsUsed = async (
     }
   }
 
-  await Promise.all([
-    db.saveData(DB_DATA_KEYS.myCoins, updatedCoins),
-  ]);
+  await Promise.all([db.saveData(DB_DATA_KEYS.myCoins, updatedCoins)]);
 
   return unusedTxDetails;
 };
