@@ -9,6 +9,8 @@ vi.mock('@/providers/bitcoin/libs/firo-wallet/firo-wallet', () => ({
   FiroWallet: vi.fn(),
 }));
 
+vi.mock('@/providers/bitcoin/libs/firo-wallet/base-firo-wallet', () => ({}));
+
 const pubkey =
   '0x021aa21d5f77b1be591d0a0a847cb7412a344f4e768b93d55b3eeab3b7e8a4a252';
 describe('Should derive proper bitcoin addresses', () => {
