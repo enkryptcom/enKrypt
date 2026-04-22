@@ -26,14 +26,33 @@ export const getMintTxData = async ({
     return;
   }
 
-  const getPointerHex = (pointer: number, byteLength = 64) => {
-    if (!pointer) {
-      return null;
-    }
+  let mintedCoinData = 0;
+  let outputsPointerArray = 0;
+  let serialContextPointer = 0;
+  let recipientsVectorPtr = 0;
 
-    return Array.from(wasmModule.HEAPU8.subarray(pointer, pointer + byteLength))
-      .map(byte => byte.toString(16).padStart(2, '0'))
-      .join('');
+  const freeAll = () => {
+    if (recipientsVectorPtr) {
+      wasmModule.ccall(
+        'js_freeRecipientVector',
+        null,
+        ['number'],
+        [recipientsVectorPtr],
+      );
+    }
+    if (serialContextPointer) wasmModule._free(serialContextPointer);
+    if (outputsPointerArray) wasmModule._free(outputsPointerArray);
+    if (mintedCoinData) {
+      wasmModule.ccall(
+        'js_freeCSparkMintMeta',
+        null,
+        ['number'],
+        [mintedCoinData],
+      );
+    }
+    if (decodedAddressPtr) {
+      wasmModule.ccall('js_freeAddress', null, ['number'], [decodedAddressPtr]);
+    }
   };
 
   const decodedAddressPtr = wasmModule.ccall(
@@ -45,150 +64,77 @@ export const getMintTxData = async ({
 
   const outputsArray = [];
 
-  const mintedCoinData = wasmModule.ccall(
-    'js_createMintedCoinData',
-    'number',
-    ['number', 'number', 'string'],
-    [decodedAddressPtr, BigInt(amount), memo],
-  );
+  try {
+    mintedCoinData = wasmModule.ccall(
+      'js_createMintedCoinData',
+      'number',
+      ['number', 'number', 'string'],
+      [decodedAddressPtr, BigInt(amount), memo],
+    );
 
-  const mintedCoinPtr = mintedCoinData
-    ? wasmModule.ccall(
-        'js_getCSparkMintMetaCoin',
-        'number',
-        ['number'],
-        [mintedCoinData],
-      )
-    : 0;
+    if (!mintedCoinData) {
+      throw new Error(`Failed to create MintedCoinData`);
+    }
+    outputsArray.push(mintedCoinData);
 
-  console.log('spark mint debug', {
-    decodedAddressPtr,
-    decodedAddressHex: getPointerHex(decodedAddressPtr),
-    decodedAddress: decodedAddressPtr
-      ? wasmModule.ccall(
-          'js_getAddress',
-          'string',
-          ['number', 'number'],
-          [decodedAddressPtr, BigInt(0)],
-        )
-      : null,
-    mintedCoinData: mintedCoinData
-      ? {
-          ptr: mintedCoinData,
-          rawHex: getPointerHex(mintedCoinData),
-          id: wasmModule.ccall(
-            'js_getCSparkMintMetaId',
-            'number',
-            ['number'],
-            [mintedCoinData],
-          ),
-          height: wasmModule.ccall(
-            'js_getCSparkMintMetaHeight',
-            'number',
-            ['number'],
-            [mintedCoinData],
-          ),
-          isUsed: Boolean(
-            wasmModule.ccall(
-              'js_getCSparkMintMetaIsUsed',
-              'number',
-              ['number'],
-              [mintedCoinData],
-            ),
-          ),
-          memo: wasmModule.ccall(
-            'js_getCSparkMintMetaMemo',
-            'string',
-            ['number'],
-            [mintedCoinData],
-          ),
-          value: wasmModule.ccall(
-            'js_getCSparkMintMetaValue',
-            'number',
-            ['number'],
-            [mintedCoinData],
-          ),
-          type: wasmModule.ccall(
-            'js_getCSparkMintMetaType',
-            'number',
-            ['number'],
-            [mintedCoinData],
-          ),
-          coinPtr: mintedCoinPtr,
-          coinHex: getPointerHex(mintedCoinPtr),
-          coinHash: mintedCoinPtr
-            ? wasmModule.ccall(
-                'js_getCoinHash',
-                'string',
-                ['number'],
-                [mintedCoinPtr],
-              )
-            : null,
-        }
-      : null,
-  });
+    const pointerSize = 4;
+    outputsPointerArray = wasmModule._malloc(pointerSize);
 
-  if (!mintedCoinData) {
-    throw new Error(`Failed to create MintedCoinData`);
-  }
-  outputsArray.push(mintedCoinData);
+    outputsArray.forEach((outputPointer, index) => {
+      wasmModule.HEAP32[(outputsPointerArray >> 2) + index] = outputPointer;
+    });
 
-  const pointerSize = 4;
-  const outputsPointerArray = wasmModule._malloc(pointerSize);
+    const { context: serialContext } = serializeMintContext(utxos);
 
-  outputsArray.forEach((outputPointer, index) => {
-    wasmModule.HEAP32[(outputsPointerArray >> 2) + index] = outputPointer;
-  });
+    serialContextPointer = wasmModule._malloc(serialContext.length);
+    wasmModule.HEAPU8.set(serialContext, serialContextPointer);
 
-  const { context: serialContext } = serializeMintContext(utxos);
+    recipientsVectorPtr = wasmModule._js_createSparkMintRecipients(
+      outputsPointerArray,
+      1,
+      serialContextPointer,
+      serialContext.length,
+      1,
+    );
 
-  const serialContextPointer = wasmModule._malloc(serialContext.length);
-  wasmModule.HEAPU8.set(serialContext, serialContextPointer);
-
-  const recipientsVectorPtr = wasmModule._js_createSparkMintRecipients(
-    outputsPointerArray,
-    1,
-    serialContextPointer,
-    serialContext.length,
-    1,
-  );
-
-  if (!recipientsVectorPtr) {
-    throw new Error('Failed to call `js_createSparkMintRecipients`.');
-  }
-
-  const recipientsLength =
-    wasmModule._js_getRecipientVectorLength(recipientsVectorPtr);
-
-  const recipientsOutput = [];
-
-  for (let i = 0; i < recipientsLength; i++) {
-    const recipientPtr = wasmModule._js_getRecipientAt(recipientsVectorPtr, i);
-
-    const scriptPubKeySize =
-      wasmModule._js_getRecipientScriptPubKeySize(recipientPtr);
-    const scriptPubKeyPointer =
-      wasmModule._js_getRecipientScriptPubKey(recipientPtr);
-    const scriptPubKey = new Uint8Array(scriptPubKeySize);
-    for (let j = 0; j < scriptPubKeySize; j++) {
-      scriptPubKey[j] = wasmModule.HEAPU8[scriptPubKeyPointer + j];
+    if (!recipientsVectorPtr) {
+      throw new Error('Failed to call `js_createSparkMintRecipients`.');
     }
 
-    const amount = wasmModule._js_getRecipientAmount(recipientPtr);
-    const subtractFeeFlag =
-      wasmModule._js_getRecipientSubtractFeeFromAmountFlag(recipientPtr);
+    const recipientsLength =
+      wasmModule._js_getRecipientVectorLength(recipientsVectorPtr);
 
-    recipientsOutput.push({
-      scriptPubKey: Array.from(scriptPubKey)
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join(''),
-      amount,
-      subtractFeeFlag,
-    });
+    const recipientsOutput = [];
+
+    for (let i = 0; i < recipientsLength; i++) {
+      const recipientPtr = wasmModule._js_getRecipientAt(recipientsVectorPtr, i);
+
+      const scriptPubKeySize =
+        wasmModule._js_getRecipientScriptPubKeySize(recipientPtr);
+      const scriptPubKeyPointer =
+        wasmModule._js_getRecipientScriptPubKey(recipientPtr);
+      const scriptPubKey = new Uint8Array(scriptPubKeySize);
+      for (let j = 0; j < scriptPubKeySize; j++) {
+        scriptPubKey[j] = wasmModule.HEAPU8[scriptPubKeyPointer + j];
+      }
+
+      const amount = wasmModule._js_getRecipientAmount(recipientPtr);
+      const subtractFeeFlag =
+        wasmModule._js_getRecipientSubtractFeeFromAmountFlag(recipientPtr);
+
+      recipientsOutput.push({
+        scriptPubKey: Array.from(scriptPubKey)
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join(''),
+        amount,
+        subtractFeeFlag,
+      });
+    }
+
+    return recipientsOutput;
+  } catch (e) {
+    throw e;
+  } finally {
+    freeAll();
   }
-
-  wasmModule._free(outputsPointerArray);
-  wasmModule._free(serialContextPointer);
-
-  return recipientsOutput;
 };

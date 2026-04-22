@@ -28,18 +28,20 @@ export const getSparkCoinInfo = async ({
   let inputDataWithMetaObj;
   let identifiedCoinObj;
   let metadataObj;
+  let serializedCoinPointer;
+  let serialContextPointer;
 
   try {
     const serializedCoin = getSerializedCoin(
       coin[0],
     ) as unknown as ArrayLike<number>;
-    const serializedCoinPointer = wasmModule._malloc(serializedCoin.length);
+    serializedCoinPointer = wasmModule._malloc(serializedCoin.length);
     wasmModule.HEAPU8.set(serializedCoin, serializedCoinPointer);
 
     const serialContext = getSerializedCoin(
       coin[2],
     ) as unknown as ArrayLike<number>;
-    const serialContextPointer = wasmModule._malloc(serializedCoin.length);
+    serialContextPointer = wasmModule._malloc(serializedCoin.length);
     wasmModule.HEAPU8.set(serialContext, serialContextPointer);
 
     deserializedCoinObj = wasmModule.ccall(
@@ -139,6 +141,8 @@ export const getSparkCoinInfo = async ({
   } catch (e) {
     throw e;
   } finally {
+    if (serialContextPointer) wasmModule._free(serialContextPointer);
+    if (serializedCoinPointer) wasmModule._free(serializedCoinPointer);
     if (!keepMemory) {
       wasmModule.ccall('js_freeCoin', null, ['number'], [deserializedCoinObj]);
       wasmModule.ccall(
