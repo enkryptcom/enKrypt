@@ -1,62 +1,113 @@
+packages/extension/src/ui/action/views/network-activity/components/network-activity-total.vue
+
 <template>
-  <div
-    v-if="cryptoAmount == '~' && !assumedError"
-    class="network-activity__total"
-  >
-    <div>
-      <balance-loader class="network-activity__loader-one" />
-      <balance-loader class="network-activity__loader-two" />
+  <div class="network-activity-total-wrapper">
+    <div
+      v-if="cryptoAmount == '~' && !assumedError"
+      class="network-activity__total"
+    >
+      <div>
+        <balance-loader class="network-activity__loader-one" />
+        <balance-loader
+          v-if="
+            (isSparkBalanceFormattedPending || sparkBalanceFormatted === '-') &&
+            network.name === NetworkNames.Firo
+          "
+          class="network-activity__loader-one"
+        />
+
+        <balance-loader class="network-activity__loader-two" />
+      </div>
     </div>
-  </div>
-  <div v-else-if="assumedError" class="network-activity__total-error">
-    <h3>
-      <span>Loading balance error. Please try again later</span>
-    </h3>
-  </div>
-  <div v-else class="network-activity__total">
-    <div class="network-activity__total-info">
+    <div v-else-if="assumedError" class="network-activity__total-error">
       <h3>
-        {{ cryptoAmount }} <span>{{ symbol }}</span>
+        <span>Loading balance error. Please try again later</span>
       </h3>
-      <p>
-        <span v-if="subnetwork !== ''">Chain {{ subnetwork }} &middot;</span>
-        {{ $filters.parseCurrency(fiatAmount) }}
-      </p>
+    </div>
+    <div v-else class="network-activity__total">
+      <div class="network-activity__total-info">
+        <h3>
+          {{ cryptoAmount }} <span>{{ symbol }}</span>
+        </h3>
+        <h6
+          v-if="
+            !isSparkBalanceFormattedPending &&
+            sparkBalanceFormatted !== '-' &&
+            network.name === NetworkNames.Firo
+          "
+        >
+          {{ sparkBalanceFormatted }}
+          <span>Private {{ symbol }}</span>
+        </h6>
+
+        <p v-if="network.name !== NetworkNames.Firo">
+          <span v-if="subnetwork !== ''">Chain {{ subnetwork }} &middot;</span>
+          {{ $filters.parseCurrency(fiatAmount) }}
+        </p>
+      </div>
+
+      <div v-if="tokenPrice !== '0.00'" class="network-activity__total-market">
+        <div class="network-activity__total-market-header">
+          <p>Price</p>
+          <span
+            v-if="priceChangePercentage !== 0"
+            :class="{
+              'network-activity__total-price-change': true,
+              'is-positive': priceChangePercentage > 0,
+              'is-negative': priceChangePercentage < 0,
+            }"
+          >
+            {{ priceChangePercentage > 0 ? '+' : ''
+            }}{{ priceChangePercentage.toFixed(2) }}%
+          </span>
+        </div>
+        <h4>{{ $filters.parseCurrency(tokenPrice) }}</h4>
+        <div v-if="sparkline !== ''" class="network-activity__total-chart">
+          <v-chart :option="chartOption" />
+        </div>
+      </div>
     </div>
 
-    <div v-if="tokenPrice !== '0.00'" class="network-activity__total-market">
-      <div class="network-activity__total-market-header">
-        <p>Price</p>
-        <span
-          v-if="priceChangePercentage !== 0"
-          :class="{
-            'network-activity__total-price-change': true,
-            'is-positive': priceChangePercentage > 0,
-            'is-negative': priceChangePercentage < 0,
-          }"
-        >
-          {{ priceChangePercentage > 0 ? '+' : ''
-          }}{{ priceChangePercentage.toFixed(2) }}%
-        </span>
-      </div>
-      <h4>{{ $filters.parseCurrency(tokenPrice) }}</h4>
-      <div v-if="sparkline !== ''" class="network-activity__total-chart">
-        <v-chart :option="chartOption" />
-      </div>
-    </div>
+    <button
+      v-if="sparkAccount && network.name === NetworkNames.Firo"
+      class="btn__anonymize"
+      @click="openAnonymizeFundsModal()"
+    >
+      <loader v-show="isSyncing" class="btn__anonymize__loading" />
+      <span v-if="!isSyncing">Synchronized</span>
+      <span v-else>Synchronizing...</span>
+    </button>
+
+    <synchronize-state
+      v-if="synchronizeState && network.name === NetworkNames.Firo"
+      v-model="synchronizeState"
+      :isCoinSyncing="isCoinSyncing"
+      :isTagSyncing="isTagSyncing"
+      :network="network"
+      :account-info="accountInfo"
+      :spark-account="sparkAccount"
+      :crypto-amount="cryptoAmount"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
-import { onBeforeMount, ref, watchEffect, computed } from 'vue';
 import { use } from 'echarts/core';
 import { SVGRenderer } from 'echarts/renderers';
 import { LineChart } from 'echarts/charts';
 import { GridComponent } from 'echarts/components';
 import VChart from 'vue-echarts';
-
 use([SVGRenderer, LineChart, GridComponent]);
+import { fromBase } from '@enkryptcom/utils';
+import { computed, onBeforeMount, PropType, ref, watchEffect } from 'vue';
+import { AccountsHeaderData, SparkAccount } from '@action/types/account';
+import { NetworkNames } from '@enkryptcom/types';
+import SynchronizeState from '@action/views/network-activity/components/synchronize-state.vue';
+import Loader from '@action/icons/common/loader.vue';
+import useAsyncComputed from '@action/composables/async-computed';
+import { calculateCurrentSparkBalance } from '@/libs/utils/updateAndSync/calculateCurrentSparkBalance';
 
 const props = defineProps({
   cryptoAmount: {
@@ -87,10 +138,33 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  network: {
+    type: Object as PropType<BitcoinNetwork>,
+    default: () => ({}),
+  },
+  isCoinSyncing: {
+    type: Boolean,
+    default: false,
+  },
+  isTagSyncing: {
+    type: Boolean,
+    default: false,
+  },
+  sparkAccount: {
+    type: Object as PropType<SparkAccount | null>,
+    default: () => {
+      return {};
+    },
+  },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
 });
 
 let timer: NodeJS.Timeout | null = null;
 const assumedError = ref(false);
+const synchronizeState = ref(false);
 
 const chartOption = computed(() => ({
   width: 90,
@@ -147,6 +221,23 @@ onBeforeMount(() => {
     clearTimeout(timer);
   }
 });
+
+const isSyncing = computed(() => {
+  return props.isCoinSyncing || props.isTagSyncing;
+});
+
+const {
+  value: sparkBalanceFormatted,
+  isPending: isSparkBalanceFormattedPending,
+} = useAsyncComputed(async () => {
+  const balance = await calculateCurrentSparkBalance();
+  if (balance === '0') return '0';
+  return fromBase(balance, props.network.decimals ?? 8);
+}, '-');
+
+const openAnonymizeFundsModal = () => {
+  synchronizeState.value = true;
+};
 </script>
 
 <style lang="less" scoped>
@@ -163,10 +254,47 @@ onBeforeMount(() => {
   }
 }
 
+.network-activity-total-wrapper {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  margin: 0 24px 16px 24px;
+  gap: 10px;
+}
+
+.btn__anonymize {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  outline: none;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid @darkBg;
+  background: @buttonBg;
+  transition: all 300ms ease-in-out;
+
+  &__loading {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    background: @darkBg;
+    border: 1px solid @orange01;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    color: @black07;
+    background: @gray01;
+    border: 1px solid @gray01;
+  }
+}
+
 .network-activity {
   &__total-error {
     padding: 16px 24px;
-    margin: 0 24px 16px 24px;
     background: rgba(239, 68, 68, 0.08);
     border: 1.5px solid rgba(239, 68, 68, 0.2);
     border-radius: 16px;
@@ -187,7 +315,6 @@ onBeforeMount(() => {
 
   &__total {
     padding: 20px;
-    margin: 0 24px 16px 24px;
     background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
     border-radius: 16px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
@@ -225,6 +352,7 @@ onBeforeMount(() => {
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      color: @primaryLabel;
       margin: 0;
       position: relative;
       z-index: 1;
@@ -240,6 +368,18 @@ onBeforeMount(() => {
         );
         -webkit-background-clip: text;
         background-clip: text;
+      }
+    }
+
+    h6 {
+      font-size: 14px;
+      line-height: 20px;
+      color: @secondaryLabel;
+      font-weight: 400;
+      margin: 0;
+
+      span {
+        font-size: 14px;
       }
     }
 
