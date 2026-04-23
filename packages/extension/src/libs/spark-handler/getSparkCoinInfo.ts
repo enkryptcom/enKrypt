@@ -41,7 +41,7 @@ export const getSparkCoinInfo = async ({
     const serialContext = getSerializedCoin(
       coin[2],
     ) as unknown as ArrayLike<number>;
-    serialContextPointer = wasmModule._malloc(serializedCoin.length);
+    serialContextPointer = wasmModule._malloc(serialContext.length);
     wasmModule.HEAPU8.set(serialContext, serialContextPointer);
 
     deserializedCoinObj = wasmModule.ccall(
