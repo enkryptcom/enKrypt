@@ -313,6 +313,7 @@ const formatPercentageValue = (
   _value: BigNumber | string | number,
 ): FormattedValue => {
   /* Strip '%' if necessary */
+  // @ts-ignore
   const value = new BigNumber(_value.toString().replaceAll('%', ''));
   const unit = FormattedNumberUnit.PERCENT;
   /**

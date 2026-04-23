@@ -121,6 +121,7 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 - Unit Zero Testnet
 - Nibiru
 - Nibiru Testnet
+- Firo
 - More coming soon!
 
 Looking to add your project? [Contact us!](https://mewwallet.typeform.com/enkrypt-inquiry?typeform-source=www.enkrypt.com)

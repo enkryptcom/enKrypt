@@ -1,0 +1,328 @@
+<template>
+  <div class="form__container">
+    <send-spark-address-input
+      ref="addressInputTo"
+      class="no-margin"
+      title="To address"
+      :value="addressTo"
+      :network="network as BitcoinNetwork"
+      @update:input-address="inputAddressTo"
+    />
+
+    <send-token-select
+      v-if="isSendToken"
+      :token="availableAsset"
+    />
+
+    <send-input-amount
+      v-if="isSendToken"
+      :amount="amount"
+      :fiat-value="availableAsset.price"
+      :has-enough-balance="!nativeBalanceAfterTransaction.isNeg()"
+      @update:input-amount="inputAmount"
+      @update:input-set-max="setMaxValue"
+    />
+
+    <send-alert
+      v-show="
+        nativeBalanceAfterTransaction.isNeg() ||
+        (Number(sendAmount) < (props.network as BitcoinNetwork).dust &&
+          Number(sendAmount) > 0)
+      "
+      :is-balance-zero="Number(amount) === 0"
+      :native-symbol="network.name"
+      :price="availableAsset.price || '0'"
+      :native-value="
+        fromBase(
+          nativeBalanceAfterTransaction.abs().toString(),
+          network.decimals,
+        )
+      "
+      :decimals="network.decimals"
+      :below-dust="Number(sendAmount) < (props.network as BitcoinNetwork).dust"
+      :dust="(props.network as BitcoinNetwork).dust.toString()"
+      :not-enough="nativeBalanceAfterTransaction.isNeg()"
+    />
+
+    <div class="send-transaction__buttons">
+      <div class="send-transaction__buttons-cancel">
+        <base-button title="Cancel" :click="close" :no-background="true" />
+      </div>
+      <div class="send-transaction__buttons-send">
+        <base-button
+          title="Send"
+          :click="sendAction"
+          :disabled="!isInputsValid"
+        />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import MarketData from '@/libs/market-data';
+import { trackSendEvents } from '@/libs/metrics';
+import { SendEventType } from '@/libs/metrics/types';
+import { isAddress, isSparkAddress } from '@/providers/bitcoin/libs/utils';
+import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
+import { BTCToken } from '@/providers/bitcoin/types/btc-token';
+import SendAlert from '@/providers/bitcoin/ui/send-transaction/components/send-alert.vue';
+import SendInputAmount from '@/providers/common/ui/send-transaction/send-input-amount.vue';
+import { routes as RouterNames } from '@/ui/action/router';
+import { AccountsHeaderData, SparkAccount } from '@/ui/action/types/account';
+import BaseButton from '@action/components/base-button/index.vue';
+import { fromBase, isValidDecimals, toBase } from '@enkryptcom/utils';
+import BigNumber from 'bignumber.js';
+import { computed, onMounted, PropType, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { toBN } from 'web3-utils';
+import SendSparkAddressInput from '../components/send-spark-address-input.vue';
+import SendTokenSelect from '../components/send-token-select.vue';
+import { calculateCurrentSparkBalance } from '@/libs/utils/updateAndSync/calculateCurrentSparkBalance';
+import useAsyncComputed from '@action/composables/async-computed';
+
+const router = useRouter();
+const route = useRoute();
+
+const selected: string = route.params.id as string;
+
+const props = defineProps({
+  network: {
+    type: Object as PropType<BitcoinNetwork>,
+    default: () => ({}),
+  },
+  accountInfo: {
+    type: Object as PropType<AccountsHeaderData>,
+    default: () => ({}),
+  },
+  sparkAccount: {
+    type: Object as PropType<SparkAccount>,
+    default: () => {
+      return {};
+    },
+  },
+  isSendToken: {
+    type: Boolean,
+    default: () => false,
+  },
+});
+
+const emit = defineEmits<{
+  (e: 'update:isLoadingAssets', value: boolean): void;
+}>();
+
+const loadingAvailableAsset = new BTCToken({
+  icon: props.network.icon,
+  symbol: 'Firo',
+  balance: '0',
+  price: '0',
+  name: 'Firo',
+  decimals: props.network.decimals,
+  coingeckoID: 'zcoin',
+});
+
+const addressTo = ref<string>('');
+const availableAsset = ref<BTCToken>(loadingAvailableAsset);
+const amount = ref<string>('');
+const isMaxSelected = ref<boolean>(false);
+
+onMounted(async () => {
+  trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
+  emit('update:isLoadingAssets', false);
+  setAsset();
+});
+
+const isInputsValid = computed<boolean>(() => {
+  if (
+    !isSparkAddress(addressTo.value) &&
+    !isAddress(addressTo.value, props.network.networkInfo)
+  )
+    return false;
+
+  if (
+    props.isSendToken &&
+    !isValidDecimals(sendAmount.value, props.network.decimals!)
+  ) {
+    return false;
+  }
+  // if (
+  //   Number(sendAmount.value) < (props.network as BitcoinNetwork).dust &&
+  //   props.isSendToken
+  // )
+  //   return false;
+  // if (
+  //   new BigNumber(sendAmount.value).gt(
+  //     new BigNumber(props.sparkAccount.sparkBalance.availableBalance),
+  //   )
+  // )
+  //   return false;
+  return true;
+});
+
+const sendAmount = computed(() => {
+  if (amount.value && amount.value !== '') return amount.value;
+  return '0';
+});
+
+const { value: nativeBalanceAfterTransaction } = useAsyncComputed(async () => {
+  if (availableAsset.value) {
+    const sparkBalance = await calculateCurrentSparkBalance();
+
+    return toBN(String(sparkBalance)).sub(
+      toBN(toBase(sendAmount.value, props.network.decimals)),
+    );
+  }
+  return toBN(0);
+}, toBN(0));
+
+const { value: assetMaxValue } = useAsyncComputed(async () => {
+  const sparkBalance = await calculateCurrentSparkBalance();
+  return fromBase(sparkBalance, props.network.decimals);
+}, '');
+
+const inputAmount = (inputAmount: string) => {
+  if (inputAmount === '') {
+    inputAmount = '0';
+  }
+  const inputAmountBn = new BigNumber(inputAmount);
+  isMaxSelected.value = false;
+  amount.value = inputAmountBn.lt(0) ? '0' : inputAmountBn.toString();
+};
+
+const sendAction = async () => {
+  const fromAccountAddress = props.sparkAccount.defaultAddress;
+
+  const toAmount = toBN(toBase(sendAmount.value, props.network.decimals));
+
+  router.push({
+    name: RouterNames.verifySendFromSpark.name,
+    query: {
+      id: selected,
+      txData: Buffer.from(
+        JSON.stringify({
+          toToken: {
+            amount: toAmount.toString(),
+            decimals: availableAsset.value.decimals!,
+            icon: availableAsset.value.icon as string,
+            symbol: availableAsset.value.symbol,
+            valueUSD: new BigNumber(availableAsset.value.price || '0')
+              .times(sendAmount.value)
+              .toString(),
+            name: availableAsset.value.name,
+            price: availableAsset.value.price || '0',
+          },
+          fromAddress: fromAccountAddress,
+          fromAddressName: 'Spark Account',
+          toAddress: addressTo.value,
+        }),
+        'utf8',
+      ).toString('base64'),
+    },
+  });
+};
+
+const setAsset = async () => {
+  if (availableAsset.value.coingeckoID) {
+    const market = new MarketData();
+    const marketData = await market.getMarketData([
+      availableAsset.value.coingeckoID,
+    ]);
+
+    availableAsset.value.price = (marketData[0]?.current_price ?? 0).toString();
+  }
+  // availableAsset.value.balance = String(
+  //   props.sparkAccount.sparkBalance.availableBalance,
+  // );
+
+  availableAsset.value.balance = await calculateCurrentSparkBalance();
+  availableAsset.value.name = 'Available Balance';
+};
+
+const setMaxValue = () => {
+  isMaxSelected.value = true;
+  amount.value =
+    parseFloat(assetMaxValue.value) < 0 ? '0' : assetMaxValue.value;
+};
+
+const inputAddressTo = (address: string) => {
+  addressTo.value = address;
+};
+
+const close = () => {
+  trackSendEvents(SendEventType.SendDecline, {
+    network: props.network.name,
+  });
+  router.go(-1);
+};
+</script>
+
+<style lang="less" scoped>
+@import '@action/styles/theme.less';
+@import '@action/styles/custom-scroll.less';
+
+.form__container {
+  display: flex;
+  flex-direction: column;
+
+  .send-transaction {
+    &__buttons {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      padding: 16px 24px 24px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-direction: row;
+      width: 100%;
+      box-sizing: border-box;
+      gap: 12px;
+      z-index: 10;
+      background: @white;
+
+      &-cancel {
+        flex: 1;
+        min-width: 0;
+
+        :deep(.base-button) {
+          border: 1.5px solid rgba(0, 0, 0, 0.1);
+          border-radius: 12px;
+          font-weight: 600;
+          transition: all 200ms ease-in-out;
+
+          &:hover {
+            border-color: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.02);
+          }
+        }
+      }
+
+      &-send {
+        flex: 1.3;
+        min-width: 0;
+
+        :deep(.base-button) {
+          border-radius: 12px;
+          font-weight: 600;
+          box-shadow: 0 4px 12px rgba(98, 126, 234, 0.3);
+          transition: all 200ms ease-in-out;
+
+          &:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(98, 126, 234, 0.4);
+          }
+
+          &:active:not(:disabled) {
+            transform: translateY(0);
+          }
+
+          &:disabled {
+            background: #e2e8f0;
+            box-shadow: none;
+          }
+        }
+      }
+    }
+  }
+}
+</style>
