@@ -130,6 +130,7 @@ export enum ProviderName {
   rango = "rango",
   jupiter = "jupiter",
   okx = "okx",
+  lifi = "lifi",
 }
 
 // eslint-disable-next-line no-shadow
@@ -142,6 +143,7 @@ export enum ProviderNameProper {
   rango = "Rango",
   jupiter = "Jupiter",
   okx = "Okx",
+  lifi = "LI.FI",
 }
 
 // eslint-disable-next-line no-shadow
