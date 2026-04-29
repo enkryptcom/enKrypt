@@ -57,6 +57,7 @@ import { sortByRank, sortNativeToFront } from "./utils/common";
 import SwapToken from "./swapToken";
 import { Jupiter } from "./providers/jupiter";
 import { OKX } from "./providers/okx";
+import LiFi from "./providers/lifi";
 
 class Swap extends EventEmitter {
   network: SupportedNetworkName;
@@ -154,6 +155,7 @@ class Swap extends EventEmitter {
           new Rango(this.api as Web3Solana, this.network),
           new Changelly(this.api, this.network),
           new OKX(this.api as Web3Solana, this.network),
+          new LiFi(this.api as Web3Eth, this.network),
         ];
         break;
       default:
@@ -165,6 +167,7 @@ class Swap extends EventEmitter {
           new Changelly(this.api, this.network),
           new ZeroX(this.api as Web3Eth, this.network),
           new Rango(this.api as Web3Eth, this.network),
+          new LiFi(this.api as Web3Eth, this.network),
         ];
         break;
     }

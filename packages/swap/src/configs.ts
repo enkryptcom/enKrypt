@@ -14,6 +14,7 @@ import changellyIcon from "./common/icons/changelly-logo.png";
 import jupiterIcon from "./common/icons/jupiter-logo.png";
 import okxIcon from "./common/icons/okx-logo.png";
 import rangoIcon from "./common/icons/rango-logo.png";
+import lifiIcon from "./common/icons/li.fi.png";
 
 export type SwapFeeConfig = {
   referrer: string;
@@ -56,6 +57,10 @@ const PROVIDER_INFO: Record<
   [ProviderName.changelly]: {
     name: ProviderNameProper.changelly,
     icon: changellyIcon,
+  },
+  [ProviderName.lifi]: {
+    name: ProviderNameProper.lifi,
+    icon: lifiIcon,
   },
 };
 
@@ -136,6 +141,13 @@ const FEE_CONFIGS: Partial<
       fee: 0.01,
     },
   },
+  // Add this address in https://portal.li.fi/integrations to collect fees
+  [ProviderName.lifi]: {
+    [WalletIdentifier.enkrypt]: {
+      referrer: "0x8f1c0185bb6276638774b9e94985d69d3cdb444a",
+      fee: 0.002,
+    },
+  },
 };
 
 const TOKEN_LISTS: {
@@ -188,6 +200,10 @@ const GAS_LIMITS = {
   Wrap: numberToHex(70000),
 };
 const NATIVE_TOKEN_ADDRESS = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+const NATIVE_TOKEN_ADDRESS_SOLANA = "11111111111111111111111111111111";
+
+// li.fi integrator Id defined in https://portal.li.fi/integrations
+const LIFI_INTEGRATOR_ID = "encrypt-wallet";
 
 /** 0.5% (unit: 0-100 percentage) */
 const DEFAULT_SLIPPAGE = "0.5";
@@ -196,6 +212,8 @@ export {
   FEE_CONFIGS,
   GAS_LIMITS,
   NATIVE_TOKEN_ADDRESS,
+  NATIVE_TOKEN_ADDRESS_SOLANA,
+  LIFI_INTEGRATOR_ID,
   TOKEN_LISTS,
   CHANGELLY_LIST,
   TOP_TOKEN_INFO_LIST,
