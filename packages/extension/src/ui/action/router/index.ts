@@ -9,6 +9,8 @@ import Intro from '@action/views/intro/index.vue';
 import Swap from '@action/views/swap/index.vue';
 import SwapBestOffer from '@action/views/swap/views/swap-best-offer/index.vue';
 import VerifyTransaction from '@action/views/verify-transaction/index.vue';
+import VerifySendToSparkTransaction from '@action/views/verify-send-to-spark-transaction/index.vue';
+import VerifySendFromSparkTransaction from '@action/views/verify-send-from-spark-transaction/index.vue';
 import SendTransaction from '@action/views/send-transaction/index.vue';
 
 const routes = {
@@ -67,6 +69,20 @@ const routes = {
       view: VerifyTransaction,
     },
     name: 'verify-transaction',
+  },
+  verifySendToSpark: {
+    path: '/verify-send-to-spark-transaction/:id?',
+    components: {
+      view: VerifySendToSparkTransaction,
+    },
+    name: 'verify-send-to-spark',
+  },
+  verifySendFromSpark: {
+    path: '/verify-send-from-spark-transaction/:id?',
+    components: {
+      view: VerifySendFromSparkTransaction,
+    },
+    name: 'verify-send-from-spark',
   },
   swap: {
     path: '/swap/:id?',

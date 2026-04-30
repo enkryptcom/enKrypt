@@ -1,6 +1,27 @@
 import { describe, it, expect } from "vitest";
 import SIDResolver from "../src/sid";
 
+// uncomment the following lines to mock the SDKs if needed to pass the tests
+// vi.mock("@web3-name-sdk/core", () => ({
+//     createWeb3Name: () => ({
+//       getDomainName: vi.fn().mockResolvedValue(null),
+//       getAddress: vi.fn().mockResolvedValue(null),
+//     }),
+//   }));
+//
+// vi.mock("@web3-name-sdk/core/solName", () => ({
+//     createSolName: () => ({
+//       getDomainName: vi.fn().mockResolvedValue(null),
+//       getAddress: vi.fn().mockResolvedValue(null),
+//     }),
+//   }));
+//
+// vi.mock("@web3-name-sdk/core/paymentIdName", () => ({
+//     createPaymentIdName: () => ({
+//       getAddress: vi.fn().mockResolvedValue(null),
+//     }),
+//   }));
+
 describe.skip("SID Name resolving", () => {
   // the tests container
   it("it should properly resolve address", { timeout: 10_000 }, async () => {

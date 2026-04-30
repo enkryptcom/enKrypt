@@ -102,6 +102,7 @@ enum ActivityStatus {
 }
 
 enum ActivityType {
+  spark_transaction = 'spark_transaction',
   transaction = 'transaction',
   swap = 'swap',
 }
