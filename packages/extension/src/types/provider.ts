@@ -219,6 +219,7 @@ export interface AssetsType {
   icon: string;
   balance: string;
   balancef: string;
+  balanceTotal?: string;
   balanceUSD: number;
   balanceUSDf: string;
   value: string;
