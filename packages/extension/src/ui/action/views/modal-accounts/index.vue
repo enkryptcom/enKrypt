@@ -26,6 +26,7 @@
           :active="true"
           :identicon-element="network.identicon"
           :show-edit="showEdit"
+          :network="network"
         />
       </custom-scrollbar>
     </div>

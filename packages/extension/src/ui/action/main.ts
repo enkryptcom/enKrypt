@@ -1,3 +1,4 @@
+import { firoElectrum } from '@/providers/bitcoin/libs/electrum-client/electrum-client';
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
@@ -14,7 +15,13 @@ if (import.meta.env.DEV) {
 const app = createApp(App);
 const pinia = createPinia();
 
-app.use(router).use(Vue3Lottie, { name: 'vue3lottie' }).use(pinia);
+app.onUnmount(() => {
+  firoElectrum.disconnect();
+});
 
-app.config.globalProperties.$filters = filters;
-app.mount('#app');
+firoElectrum.connectMain().then(() => {
+  app.use(router).use(Vue3Lottie, { name: 'vue3lottie' }).use(pinia);
+
+  app.config.globalProperties.$filters = filters;
+  app.mount('#app');
+});

@@ -47,6 +47,9 @@ import BaseButton from '@action/components/base-button/index.vue';
 import BaseInput from '@action/components/base-input/index.vue';
 import KeyRingBase from '@/libs/keyring/keyring';
 import openOnboard from '@/libs/utils/open-onboard';
+import { IndexedDBHelper } from '@action/db/indexedDB';
+
+const db = new IndexedDBHelper();
 
 const emit = defineEmits<{
   (e: 'action:lock'): void;
@@ -67,6 +70,7 @@ const resetAction = async () => {
   isProcessing.value = true;
   const keyring = new KeyRingBase();
   await keyring.reset();
+  await db.resetDB();
   emit('action:lock');
   openOnboard().then(() => {
     window.close();

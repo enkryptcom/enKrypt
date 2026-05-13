@@ -1,8 +1,9 @@
 import {
-  SignerType,
-  Errors,
-  WalletType,
   EnkryptAccount,
+  Errors,
+  SignerType,
+  SignOptions,
+  WalletType,
 } from '@enkryptcom/types';
 import { KeyRingBase } from './keyring';
 
@@ -105,6 +106,16 @@ class PublicKeyRing {
         isHardware: false,
         isTestWallet: true,
       };
+      allKeys['TMSnbcpSw9JhteaJqioT2sz2sW1Qhqyf2Q'] = {
+        address: 'TMSnbcpSw9JhteaJqioT2sz2sW1Qhqyf2Q',
+        basePath: "m/44'/136'/0'/0",
+        name: 'firo account',
+        pathIndex: 0,
+        publicKey: '0x0',
+        signerType: SignerType.secp256k1btc,
+        walletType: WalletType.mnemonic,
+        isHardware: false,
+      };
     }
     return allKeys;
   }
@@ -144,6 +155,14 @@ class PublicKeyRing {
     }
 
     return alreadyExists;
+  }
+
+  async getPrivateKey(seed: Buffer) {
+    return this.#keyring.getPrivateKey(seed);
+  }
+
+  getSavedMnemonic(password: string) {
+    return this.#keyring.getSavedMnemonic(password);
   }
 }
 export default PublicKeyRing;

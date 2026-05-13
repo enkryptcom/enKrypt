@@ -1,3 +1,4 @@
 import haskoinHandler from './providers/haskoin';
 import ssHandler from './providers/ss';
-export { haskoinHandler, ssHandler };
+import firoHandler from './providers/firo';
+export { haskoinHandler, ssHandler, firoHandler };

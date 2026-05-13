@@ -23,6 +23,7 @@ import { MassaSigner } from "@enkryptcom/signer-massa";
 import assert from "assert";
 import configs from "./configs";
 import { pathParser } from "./utils";
+import * as bip32 from "bip32";
 
 class KeyRing {
   #storage: Storage;
@@ -196,6 +197,26 @@ class KeyRing {
       (await this.#storage.get(configs.STORAGE_KEYS.PATH_INDEXES)) || {};
     pathIndexes[keyRecord.basePath] = keyRecord.pathIndex;
     await this.#storage.set(configs.STORAGE_KEYS.PATH_INDEXES, pathIndexes);
+  }
+
+  async getPrivateKey(seed: Buffer) {
+    const basePath = "m/44'/136'/0'/6/1";
+
+    const root = bip32.fromSeed(seed);
+    const child = root.derivePath(basePath);
+
+    const privateKey = child!.privateKey!.toString("hex");
+
+    return { pk: privateKey };
+  }
+
+  async getSavedMnemonic(password: string) {
+    const encrypted = await this.#storage.get(
+      configs.STORAGE_KEYS.ENCRYPTED_MNEMONIC,
+    );
+    assert(encrypted, Errors.KeyringErrors.NotInitialized);
+    const decryptedEntropy = await decrypt(encrypted, password);
+    return entropyToMnemonic(decryptedEntropy);
   }
 
   async sign(msgHash: string, options: SignOptions): Promise<string> {

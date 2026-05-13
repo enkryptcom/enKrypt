@@ -38,8 +38,7 @@ export interface EthereumTransaction {
   type?: `0x${string}`;
 }
 
-export interface FinalizedLegacyEthereumTransaction
-  extends EthereumTransaction {
+export interface FinalizedLegacyEthereumTransaction extends EthereumTransaction {
   data: `0x${string}`;
   gasLimit: `0x${string}`;
   gasPrice: `0x${string}`;
@@ -47,8 +46,10 @@ export interface FinalizedLegacyEthereumTransaction
   to: `0x${string}` | undefined;
   value: `0x${string}`;
 }
-export interface FinalizedFeeMarketEthereumTransaction
-  extends Omit<EthereumTransaction, 'gasPrice'> {
+export interface FinalizedFeeMarketEthereumTransaction extends Omit<
+  EthereumTransaction,
+  'gasPrice'
+> {
   data: `0x${string}`;
   gasLimit: `0x${string}`;
   maxPriorityFeePerGas: `0x${string}`;

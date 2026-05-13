@@ -50,6 +50,9 @@ import AlertIcon from '@action/icons/send/alert-icon.vue';
 import BaseInput from '@action/components/base-input/index.vue';
 import KeyRingBase from '@/libs/keyring/keyring';
 import openOnboard from '@/libs/utils/open-onboard';
+import { IndexedDBHelper } from '@action/db/indexedDB';
+
+const db = new IndexedDBHelper();
 
 const reset = ref('');
 const isProcessing = ref(false);
@@ -69,6 +72,7 @@ const resetAction = async () => {
   isProcessing.value = true;
   const keyring = new KeyRingBase();
   await keyring.reset();
+  await db.resetDB();
   openOnboard();
 };
 </script>

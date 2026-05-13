@@ -8,9 +8,17 @@ export interface Account {
   primaryToken: Token;
 }
 
+export interface SparkAccount {
+  defaultAddress: string;
+  sparkBalance: {
+    availableBalance: string;
+  };
+}
+
 export interface AccountsHeaderData {
   selectedAccount: EnkryptAccount | null;
   activeAccounts: EnkryptAccount[];
   inactiveAccounts: EnkryptAccount[];
   activeBalances: string[];
+  sparkAccount: SparkAccount | null;
 }

@@ -3,7 +3,11 @@
     <a class="account__info" :class="{ active: active }" @click="showAccounts">
       <div class="account__info-images">
         <img
-          :src="network.identicon(address)"
+          :src="
+            network.identicon(
+              network.name === NetworkNames.Firo ? sparkAddress : address,
+            )
+          "
           class="account__info-images__identicon"
         />
         <img
@@ -15,7 +19,13 @@
 
       <div class="account__info-name">
         <p>{{ name }}</p>
-        <span>{{ $filters.replaceWithEllipsis(address, 6, 4) }}</span>
+        <span>{{
+          $filters.replaceWithEllipsis(
+            network.name === NetworkNames.Firo ? sparkAddress : address,
+            6,
+            4,
+          )
+        }}</span>
       </div>
       <switch-arrow />
     </a>
@@ -53,14 +63,20 @@
         </a>
       </tooltip>
 
-      <tooltip text="View on Blockchain Explorer">
+      <tooltip
+        text="View on Blockchain Explorer"
+        v-if="network.name !== NetworkNames.Firo"
+      >
         <a class="account__actions--copy" target="_blank" :href="externalLink">
           <icon-external />
         </a>
       </tooltip>
 
       <tooltip text="Copy address">
-        <a class="account__actions--copy" @click="copy(address)">
+        <a
+          class="account__actions--copy"
+          @click="copy(sparkAddress || address)"
+        >
           <icon-copy />
         </a>
       </tooltip>
@@ -95,6 +111,7 @@ import IconQr from '@action/icons/header/qr_icon.vue';
 import SwitchArrow from '@action/icons/header/switch_arrow.vue';
 import { PropType, computed, onMounted, ref, watch } from 'vue';
 import SubnetList from './subnet-list.vue';
+import { NetworkNames } from '@enkryptcom/types';
 
 const isCopied = ref(false);
 const domainState = new DomainState();
@@ -120,6 +137,10 @@ const props = defineProps({
     default: '',
   },
   address: {
+    type: String,
+    default: '',
+  },
+  sparkAddress: {
     type: String,
     default: '',
   },

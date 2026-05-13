@@ -1,16 +1,16 @@
+import { crx } from '@crxjs/vite-plugin';
+import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, type PluginOption } from 'vite';
-import vue from '@vitejs/plugin-vue';
-import { crx } from '@crxjs/vite-plugin';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import assetsRewritePlugin from './configs/vite/assets-rewrite';
+import transformCSInject from './configs/vite/transform-cs-inject';
+import transformManifest from './configs/vite/transform-manifest';
+import { version } from './package.json';
 import chromeManifest from './src/manifest/manifest.chrome';
 import firefoxManifest from './src/manifest/manifest.firefox';
 import operaManifest from './src/manifest/manifest.opera';
-import assetsRewritePlugin from './configs/vite/assets-rewrite';
-import transformManifest from './configs/vite/transform-manifest';
-import transformCSInject from './configs/vite/transform-cs-inject';
-import { version } from './package.json';
 
 const BROWSER = process.env.BROWSER;
 const firefoxChunking = (id: string) => {

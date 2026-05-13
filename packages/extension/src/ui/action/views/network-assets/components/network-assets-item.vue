@@ -16,7 +16,7 @@
             </h4>
           </tooltip>
           <p class="asset-item__balance">
-            {{ token.balancef }}
+            {{ token.balanceTotal || token.balancef }}
             <span v-if="token.symbol.length <= 6" class="asset-item__symbol">
               {{ token.symbol }}
             </span>
@@ -48,7 +48,7 @@
       <!-- Value -->
       <div class="asset-item__value">
         <h4 class="asset-item__usd">
-          {{ $filters.parseCurrency(token.balanceUSD) }}
+          {{ $filters.parseCurrency(displayBalanceUSD) }}
         </h4>
         <p class="asset-item__price">
           {{ $filters.parseCurrency(token.value) }}
@@ -167,6 +167,19 @@ const isCustomToken = computed(() => {
     token =>
       token.address.toLowerCase() === props.token.contract?.toLowerCase(),
   );
+});
+
+const displayBalanceUSD = computed(() => {
+  const hasExtraBalance = !!props.token.balanceTotal;
+  if (!hasExtraBalance) return props.token.balanceUSD;
+
+  const totalBalance = Number(props.token.balanceTotal);
+  const tokenPrice = Number(props.token.value);
+  if (!Number.isFinite(totalBalance) || !Number.isFinite(tokenPrice)) {
+    return props.token.balanceUSD;
+  }
+
+  return totalBalance * tokenPrice;
 });
 
 const emit = defineEmits<{
