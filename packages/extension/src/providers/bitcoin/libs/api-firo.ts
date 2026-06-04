@@ -33,7 +33,8 @@ class API implements ProviderAPIInterface {
         if (tx.error) return null;
         if (!tx.rawtx) return null;
         return tx.rawtx;
-      });
+      })
+      .catch(() => null);
   }
   async getTransactionStatus(hash: string): Promise<BTCRawInfo | null> {
     return fetch(`${this.node}/insight-api-zcoin/tx/${hash}`)
@@ -63,7 +64,8 @@ class API implements ProviderAPIInterface {
           timestamp: tx.time * 1000,
         };
         return rawInfo;
-      });
+      })
+      .catch(() => null);
   }
 
   async getBalance(pubkey: string): Promise<string> {

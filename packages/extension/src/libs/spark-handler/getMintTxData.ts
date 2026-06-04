@@ -96,6 +96,7 @@ export const getMintTxData = async ({
       serialContext.length,
       1,
     );
+    mintedCoinData = 0;
 
     if (!recipientsVectorPtr) {
       throw new Error('Failed to call `js_createSparkMintRecipients`.');
@@ -107,7 +108,10 @@ export const getMintTxData = async ({
     const recipientsOutput = [];
 
     for (let i = 0; i < recipientsLength; i++) {
-      const recipientPtr = wasmModule._js_getRecipientAt(recipientsVectorPtr, i);
+      const recipientPtr = wasmModule._js_getRecipientAt(
+        recipientsVectorPtr,
+        i,
+      );
 
       const scriptPubKeySize =
         wasmModule._js_getRecipientScriptPubKeySize(recipientPtr);

@@ -2,9 +2,9 @@ import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB';
 import { MyCoinModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
 import BigNumber from 'bignumber.js';
 
-const db = new IndexedDBHelper();
-
 export const calculateCurrentSparkBalance = async () => {
+  const db = new IndexedDBHelper();
+  await db.waitInit();
   const myCoins = await db.readData<MyCoinModel[]>(DB_DATA_KEYS.myCoins);
 
   if (!myCoins?.length) {

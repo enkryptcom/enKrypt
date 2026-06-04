@@ -99,7 +99,7 @@ export interface SSTxType {
   vin: {
     txid: string;
     addresses?: string[];
-    addr: string;
+    addr?: string;
     value: string;
   }[];
   vout: {
@@ -113,11 +113,12 @@ export interface SSTxType {
 
 export interface FiroTxType extends Omit<
   SSTxType,
-  'fee' | 'timestamp' | 'vout' | 'blockHeight'
+  'fee' | 'timestamp' | 'vout' | 'blockHeight' | 'vin'
 > {
   fees: number;
   time: number;
   blockheight: number;
+  vin: (Omit<SSTxType['vin'][number], 'addr'> & { addr: string })[];
   vout: {
     value: string;
     scriptPubKey: {
