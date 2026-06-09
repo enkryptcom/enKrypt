@@ -89,9 +89,11 @@ class BackgroundHandler {
         method === InternalMethods.newWindowUnload
       ) {
         this.#persistentEvents.deleteEvents(_tabid);
-        isGeoRestricted().then(restricted => {
-          this.#geoRestricted = restricted;
-        });
+        if (this.#geoRestricted === undefined) {
+          isGeoRestricted().then(restricted => {
+            this.#geoRestricted = restricted;
+          });
+        }
         return {
           result: JSON.stringify(true),
         };
