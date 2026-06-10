@@ -24,8 +24,8 @@ lane :prepare do
       platform: "macos",
       git_branch: "safari",
       git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"]),
-      readonly: true,
-      generate_apple_certs: false,
+      readonly: false,
+      generate_apple_certs: true,
       additional_cert_types:"mac_installer_distribution"
   )
 end
