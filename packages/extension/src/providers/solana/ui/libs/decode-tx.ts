@@ -56,6 +56,7 @@ export async function fetchRelevantAddresses(
   relevantIndexes: Set<number>,
 ): Promise<PublicKey[]> {
   const relevantAddresses: PublicKey[] = [];
+
   for (const key of lookupTableKeys) {
     const accountInfo = await solAPI.web3.getAccountInfo(key);
     if (
@@ -67,20 +68,25 @@ export async function fetchRelevantAddresses(
           accountInfo.data,
         );
         if (lookupTableAccount && lookupTableAccount.addresses) {
-          lookupTableAccount.addresses.forEach(async (address, index) => {
-            if (relevantIndexes.has(index)) {
-              const addressInfo = await solAPI.web3.getAccountInfo(address);
-              if (
-                (addressInfo?.owner.toBase58() ===
-                  TOKEN_PROGRAM_ID.toBase58() ||
-                  addressInfo?.owner.toBase58() ===
-                    TOKEN_2022_PROGRAM_ID.toBase58()) &&
-                addressInfo.data.length >= ACCOUNT_SIZE
-              ) {
-                relevantAddresses.push(address);
-              }
+          // FIX: awaited for-loop instead of forEach(async …)
+          for (
+            let index = 0;
+            index < lookupTableAccount.addresses.length;
+            index++
+          ) {
+            const address = lookupTableAccount.addresses[index];
+            if (!relevantIndexes.has(index)) continue;
+
+            const addressInfo = await solAPI.web3.getAccountInfo(address);
+            if (
+              (addressInfo?.owner.toBase58() === TOKEN_PROGRAM_ID.toBase58() ||
+                addressInfo?.owner.toBase58() ===
+                  TOKEN_2022_PROGRAM_ID.toBase58()) &&
+              addressInfo.data.length >= ACCOUNT_SIZE
+            ) {
+              relevantAddresses.push(address);
             }
-          });
+          }
         }
       } catch {
         console.error('Failed to deserialize address lookup table account');
