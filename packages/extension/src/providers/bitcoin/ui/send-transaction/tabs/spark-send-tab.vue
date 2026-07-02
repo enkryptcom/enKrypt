@@ -52,7 +52,9 @@
         <base-button
           title="Send"
           :click="sendAction"
-          :disabled="!isInputsValid"
+          :disabled="
+            !isInputsValid || isAddress(addressTo, network.networkInfo)
+          "
         />
       </div>
     </div>
@@ -73,7 +75,7 @@ import { AccountsHeaderData, SparkAccount } from '@/ui/action/types/account';
 import BaseButton from '@action/components/base-button/index.vue';
 import { fromBase, isValidDecimals, toBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
-import { computed, onMounted, PropType, ref } from 'vue';
+import { computed, onMounted, PropType, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { toBN } from 'web3-utils';
 import SendSparkAddressInput from '../components/send-spark-address-input.vue';
@@ -125,38 +127,22 @@ const addressTo = ref<string>('');
 const availableAsset = ref<BTCToken>(loadingAvailableAsset);
 const amount = ref<string>('');
 const isMaxSelected = ref<boolean>(false);
+const isValidAddress = ref<boolean>(false);
+
+watch(addressTo, async newAddress => {
+  if (!newAddress) {
+    isValidAddress.value = false;
+    return;
+  }
+  const sparkValid = await isSparkAddress(newAddress);
+  isValidAddress.value =
+    sparkValid || isAddress(newAddress, props.network.networkInfo);
+});
 
 onMounted(async () => {
   trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
   emit('update:isLoadingAssets', false);
   setAsset();
-});
-
-const isInputsValid = computed<boolean>(() => {
-  if (
-    !isSparkAddress(addressTo.value) &&
-    !isAddress(addressTo.value, props.network.networkInfo)
-  )
-    return false;
-
-  if (
-    props.isSendToken &&
-    !isValidDecimals(sendAmount.value, props.network.decimals!)
-  ) {
-    return false;
-  }
-  // if (
-  //   Number(sendAmount.value) < (props.network as BitcoinNetwork).dust &&
-  //   props.isSendToken
-  // )
-  //   return false;
-  // if (
-  //   new BigNumber(sendAmount.value).gt(
-  //     new BigNumber(props.sparkAccount.sparkBalance.availableBalance),
-  //   )
-  // )
-  //   return false;
-  return true;
 });
 
 const sendAmount = computed(() => {
@@ -179,6 +165,41 @@ const { value: assetMaxValue } = useAsyncComputed(async () => {
   const sparkBalance = await calculateCurrentSparkBalance();
   return fromBase(sparkBalance, props.network.decimals);
 }, '');
+
+const isInputsValid = computed<boolean>(() => {
+  if (!isValidAddress.value) return false;
+
+  if (
+    props.isSendToken &&
+    !isValidDecimals(sendAmount.value, props.network.decimals!)
+  ) {
+    return false;
+  }
+  if (
+    props.isSendToken &&
+    new BigNumber(sendAmount.value).lt(props.network.dust)
+  ) {
+    return false;
+  }
+
+  if (
+    props.sparkAccount?.sparkBalance?.availableBalance &&
+    new BigNumber(sendAmount.value).gt(
+      new BigNumber(
+        fromBase(
+          props.sparkAccount.sparkBalance.availableBalance,
+          props.network.decimals,
+        ),
+      ),
+    )
+  )
+    return false;
+  const sendAmountBigNumber = new BigNumber(sendAmount.value);
+  if (sendAmountBigNumber.isNaN()) return false;
+  if (sendAmountBigNumber.lte(0)) return false;
+  if (nativeBalanceAfterTransaction.value.isNeg()) return false;
+  return true;
+});
 
 const inputAmount = (inputAmount: string) => {
   if (inputAmount === '') {

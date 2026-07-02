@@ -25,6 +25,7 @@
             :key="index + `${forceUpdateVal}`"
             :activity="item"
             :network="props.network"
+            :spark-account="props.accountInfo.sparkAccount"
           />
         </div>
         <!-- <div class="network-activity__header">July</div>
