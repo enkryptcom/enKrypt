@@ -164,7 +164,7 @@ const TOKEN_LISTS: {
 
 const RWA_FILTER_LIST =
   "https://raw.githubusercontent.com/enkryptcom/dynamic-data/refs/heads/main/configs/filtered-rwa-addresses.json";
-const IP_COMPLY_URL = "https://partners.mewapi.io/o/ipcomply";
+const IP_COMPLY_URL = "https://partners.mewapi.io/o/ipcomply/enkryptswap";
 /**
  * ```sh
  * curl -sL https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/swaplists/changelly.json | jq . -C | less -R
