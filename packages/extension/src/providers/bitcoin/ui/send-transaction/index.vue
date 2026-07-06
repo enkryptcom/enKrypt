@@ -1,61 +1,66 @@
 <template>
   <div class="container">
-    <div v-if="isLoadingAssets" class="send-transaction__loading">
-      <div class="send-transaction__loading-content">
-        <div class="send-transaction__loading-spinner"></div>
-        <p class="send-transaction__loading-text">Loading...</p>
-      </div>
-    </div>
-
-    <div v-if="!!selected && !isLoadingAssets" class="send-transaction">
-      <send-header
-        :is-send-token="isSendToken"
-        :is-nft-available="!!network.NFTHandler"
-        @close="close"
-        @toggle-type="toggleSelector"
-      />
-
-      <div
-        v-if="!!accountInfo.sparkAccount && network.name === NetworkNames.Firo"
-        class="send-transaction__tabs"
-      >
-        <button
-          :class="
-            selectedSendTab === 'transparent' && 'send-transaction__tabs-active'
-          "
-          @click="setSelectedSendTab('transparent')"
-        >
-          Transparent address
-        </button>
-        <button
-          :class="
-            selectedSendTab === 'spark' && 'send-transaction__tabs-active'
-          "
-          @click="setSelectedSendTab('spark')"
-        >
-          Spark address
-        </button>
+    <div v-if="!!selected" class="send-transaction-wrapper">
+      <div v-if="isLoadingAssets" class="send-transaction__loading">
+        <div class="send-transaction__loading-content">
+          <div class="send-transaction__loading-spinner"></div>
+          <p class="send-transaction__loading-text">Loading...</p>
+        </div>
       </div>
 
-      <transparent-send-tab
-        v-show="selectedSendTab === 'transparent'"
-        :network="network"
-        :account-info="accountInfo"
-        :is-send-token="isSendToken"
-        v-model:isLoadingAssets="isLoadingAssets"
-        :updateIsLoadingAssets="updateIsLoadingAssets"
-      />
+      <div v-show="!isLoadingAssets" class="send-transaction">
+        <send-header
+          :is-send-token="isSendToken"
+          :is-nft-available="!!network.NFTHandler"
+          @close="close"
+          @toggle-type="toggleSelector"
+        />
 
-      <spark-send-tab
-        v-show="selectedSendTab === 'spark'"
-        v-if="!!accountInfo.sparkAccount"
-        :network="network"
-        :account-info="accountInfo"
-        :spark-account="accountInfo?.sparkAccount ?? null"
-        :is-send-token="isSendToken"
-        v-model:isLoadingAssets="isLoadingAssets"
-        :updateIsLoadingAssets="updateIsLoadingAssets"
-      />
+        <div
+          v-if="
+            !!accountInfo.sparkAccount && network.name === NetworkNames.Firo
+          "
+          class="send-transaction__tabs"
+        >
+          <button
+            :class="
+              selectedSendTab === 'transparent' &&
+              'send-transaction__tabs-active'
+            "
+            @click="setSelectedSendTab('transparent')"
+          >
+            Transparent address
+          </button>
+          <button
+            :class="
+              selectedSendTab === 'spark' && 'send-transaction__tabs-active'
+            "
+            @click="setSelectedSendTab('spark')"
+          >
+            Spark address
+          </button>
+        </div>
+
+        <transparent-send-tab
+          v-show="selectedSendTab === 'transparent'"
+          :network="network"
+          :account-info="accountInfo"
+          :is-send-token="isSendToken"
+          v-model:isLoadingAssets="isLoadingAssets"
+          :updateIsLoadingAssets="updateIsLoadingAssets"
+        />
+
+        <spark-send-tab
+          v-show="selectedSendTab === 'spark'"
+          v-if="!!accountInfo.sparkAccount"
+          :network="network"
+          :account-info="accountInfo"
+          :spark-account="accountInfo?.sparkAccount ?? null"
+          :is-send-token="isSendToken"
+          v-model:isLoadingAssets="isLoadingAssets"
+          :updateIsLoadingAssets="updateIsLoadingAssets"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -134,6 +139,12 @@ const toggleSelector = (isTokenSend: boolean) => {
     pointer-events: none;
     z-index: 0;
   }
+}
+
+.send-transaction-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 
 .send-transaction {

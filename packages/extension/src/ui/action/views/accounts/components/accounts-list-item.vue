@@ -4,7 +4,15 @@
     :class="{ disabled: !active }"
     @click="select(address)"
   >
-    <img :src="identiconElement(address)" />
+    <img
+      :src="
+        identiconElement(
+          network.name === NetworkNames.Firo && active && sparkDisplayAddress
+            ? sparkDisplayAddress
+            : address,
+        )
+      "
+    />
     <div class="accounts-item__info">
       <p class="accounts-item__info-name">
         {{ name }}

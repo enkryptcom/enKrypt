@@ -38,7 +38,9 @@ export const useUpdateActivityState = (
           [
             {
               network: network.name,
-              from: 'Hidden',
+              from:
+                accountHeaderData.value.sparkAccount?.defaultAddress ??
+                'Hidden',
               to: 'Hidden',
               isIncoming: false,
               status: ActivityStatus.success,

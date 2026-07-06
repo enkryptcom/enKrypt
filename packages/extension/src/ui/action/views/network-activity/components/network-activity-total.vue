@@ -40,10 +40,8 @@ packages/extension/src/ui/action/views/network-activity/components/network-activ
           <span>Private {{ symbol }}</span>
         </h6>
 
-        <p v-if="network.name !== NetworkNames.Firo">
-          <span v-if="subnetwork !== ''">Chain {{ subnetwork }} &middot;</span>
-          {{ $filters.parseCurrency(fiatAmount) }}
-        </p>
+        <span v-if="subnetwork !== ''">Chain {{ subnetwork }} &middot;</span>
+        {{ $filters.parseCurrency(totalFiatAmount) }}
       </div>
 
       <div v-if="tokenPrice !== '0.00'" class="network-activity__total-market">
@@ -101,6 +99,7 @@ import { GridComponent } from 'echarts/components';
 import VChart from 'vue-echarts';
 use([SVGRenderer, LineChart, GridComponent]);
 import { fromBase } from '@enkryptcom/utils';
+import BigNumber from 'bignumber.js';
 import { computed, onBeforeMount, PropType, ref, watchEffect } from 'vue';
 import { AccountsHeaderData, SparkAccount } from '@action/types/account';
 import { NetworkNames } from '@enkryptcom/types';
@@ -232,8 +231,20 @@ const {
 } = useAsyncComputed(async () => {
   const balance = await calculateCurrentSparkBalance();
   if (balance === '0') return '0';
-  return fromBase(balance, props.network.decimals ?? 8);
+  const decimalValue = fromBase(balance, props.network.decimals ?? 8);
+  return new BigNumber(decimalValue).toFormat(5);
 }, '-');
+
+const totalFiatAmount = computed(() => {
+  const transparentFiat = parseFloat(props.fiatAmount) || 0;
+  if (props.network.name === NetworkNames.Firo) {
+    const sparkVal = parseFloat(sparkBalanceFormatted.value) || 0;
+    const price = parseFloat(props.tokenPrice) || 0;
+    const sparkFiat = sparkVal * price;
+    return transparentFiat + sparkFiat;
+  }
+  return transparentFiat;
+});
 
 const openAnonymizeFundsModal = () => {
   synchronizeState.value = true;
@@ -294,6 +305,8 @@ const openAnonymizeFundsModal = () => {
 
 .network-activity {
   &__total-error {
+    width: 100%;
+    box-sizing: border-box;
     padding: 16px 24px;
     background: rgba(239, 68, 68, 0.08);
     border: 1.5px solid rgba(239, 68, 68, 0.2);
@@ -314,6 +327,8 @@ const openAnonymizeFundsModal = () => {
   }
 
   &__total {
+    width: 100%;
+    box-sizing: border-box;
     padding: 20px;
     background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
     border-radius: 16px;

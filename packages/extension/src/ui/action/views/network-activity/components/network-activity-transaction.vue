@@ -117,6 +117,7 @@
           {{
             $filters.formatFloatingPointValue(
               fromBase(activity.value, activity.token.decimals),
+              network.name,
             ).value
           }}
           <span>{{ $filters.truncate(activity.token.symbol, 40) }}</span>
@@ -141,7 +142,10 @@
       class="network-activity__transaction"
     >
       <div class="network-activity__transaction-info">
-        <img :src="activity.from" @error="imageLoadError" />
+        <img
+          :src="network.identicon(sparkTransactionIdenticonAddress)"
+          @error="imageLoadError"
+        />
 
         <div class="network-activity__transaction-info-name">
           <h4>Spark spend</h4>
@@ -195,6 +199,7 @@ import { getNetworkByName } from '@/libs/utils/networks';
 import BigNumber from 'bignumber.js';
 import { imageLoadError } from '@/ui/action/utils/misc';
 import { isSparkAddress } from '@/providers/bitcoin/libs/utils';
+import { SparkAccount } from '@action/types/account';
 import useAsyncComputed from '@action/composables/async-computed';
 
 const props = defineProps({
@@ -205,6 +210,10 @@ const props = defineProps({
   network: {
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
+  },
+  sparkAccount: {
+    type: Object as PropType<SparkAccount | null>,
+    default: null,
   },
 });
 
@@ -231,6 +240,14 @@ const transactionURL = computed(() => {
     '[[txHash]]',
     props.activity.transactionHash,
   );
+});
+
+const sparkTransactionIdenticonAddress = computed(() => {
+  if (props.activity.from && props.activity.from !== 'Hidden') {
+    return props.activity.from;
+  }
+
+  return props.sparkAccount?.defaultAddress ?? '';
 });
 
 const getFiatValue = computed(() => {

@@ -317,14 +317,24 @@ const updateUTXOs = async () => {
   });
 };
 
+const fetchAssetsRequestId = ref(0);
+
 const fetchAssets = () => {
+  const requestId = ++fetchAssetsRequestId.value;
   selectedAsset.value = loadingAsset;
   emit('update:isLoadingAssets', true);
-  return props.network.getAllTokens(addressFrom.value).then(allAssets => {
-    accountAssets.value = allAssets as BTCToken[];
-    selectedAsset.value = allAssets[0] as BTCToken;
-    emit('update:isLoadingAssets', false);
-  });
+  return props.network
+    .getAllTokens(addressFrom.value)
+    .then(allAssets => {
+      if (requestId !== fetchAssetsRequestId.value) return;
+      accountAssets.value = allAssets as BTCToken[];
+      selectedAsset.value = allAssets[0] as BTCToken;
+    })
+    .finally(() => {
+      if (requestId === fetchAssetsRequestId.value) {
+        emit('update:isLoadingAssets', false);
+      }
+    });
 };
 
 const toggleSelectToken = () => {
@@ -446,7 +456,6 @@ const toggleSelectContactTo = (open: boolean) => {
 const selectAccountFrom = (account: string) => {
   addressFrom.value = account;
   isOpenSelectContactFrom.value = false;
-  fetchAssets();
 };
 
 const selectAccountTo = (account: string) => {
