@@ -1,4 +1,4 @@
-import ElectrumClient from 'electrum-client-browser';
+import FiroElectrumClient from './firo-electrum-client';
 import {
   AnonymitySetMetaModel,
   FullTransactionModel,
@@ -52,7 +52,7 @@ function getRandomHardcodedPeer(): Peer {
 }
 
 export default class FiroElectrum {
-  mainClient?: ElectrumClient = undefined;
+  mainClient?: FiroElectrumClient = undefined;
   wasConnectedAtLeastOnce = false;
 
   async getCoinIDs(coinHashes: string[]) {
@@ -75,9 +75,9 @@ export default class FiroElectrum {
   async connectMain() {
     try {
       const peer = getRandomHardcodedPeer();
-      this.mainClient = new ElectrumClient(peer.host, 50004, 'wss');
+      this.mainClient = new FiroElectrumClient(peer.host, 50004, 'wss');
 
-      await this.mainClient.connect('electrum-client-browser', '1.4');
+      await this.mainClient.connect('enkrypt', '1.4');
 
       this.wasConnectedAtLeastOnce = true;
     } catch (e) {
