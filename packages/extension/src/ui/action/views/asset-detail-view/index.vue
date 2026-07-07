@@ -56,14 +56,21 @@
         </div>
         <div class="asset-detail-view__balance-amount">
           <span class="asset-detail-view__balance-value">{{
-            token.balancef
+            token.balanceTotal || token.balancef
           }}</span>
           <span class="asset-detail-view__balance-symbol">{{
             token.symbol
           }}</span>
         </div>
         <p class="asset-detail-view__balance-usd">
-          ≈ {{ $filters.parseCurrency(token.balanceUSDf) }}
+          ≈
+          {{
+            $filters.parseCurrency(
+              token.balanceTotal
+                ? Number(token.balanceTotal) * Number(token.valuef)
+                : token.balanceUSDf,
+            )
+          }}
         </p>
       </div>
 

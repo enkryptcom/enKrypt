@@ -4,14 +4,30 @@
     :class="{ disabled: !active }"
     @click="select(address)"
   >
-    <img :src="identiconElement(address)" />
+    <img
+      :src="
+        identiconElement(
+          network.name === NetworkNames.Firo && active && sparkDisplayAddress
+            ? sparkDisplayAddress
+            : address,
+        )
+      "
+    />
     <div class="accounts-item__info">
       <p class="accounts-item__info-name">
         {{ name }}
       </p>
       <p class="accounts-item__info-amount">
         {{ $filters.formatFloatingPointValue(amount).value }} {{ symbol }}
-        <span>{{ $filters.replaceWithEllipsis(address, 6, 4) }}</span>
+        <span>{{
+          $filters.replaceWithEllipsis(
+            network.name === NetworkNames.Firo && active
+              ? sparkDisplayAddress
+              : address,
+            6,
+            4,
+          )
+        }}</span>
       </p>
     </div>
     <done-icon
@@ -41,13 +57,16 @@ import DoneIcon from '@action/icons/common/done_icon.vue';
 import MoreIcon from '@action/icons/common/more-icon.vue';
 import AccountsListItemMenu from './accounts-list-item-menu.vue';
 import { PropType, ref } from 'vue';
-import { onClickOutside } from '@vueuse/core';
+import { computedAsync, onClickOutside } from '@vueuse/core';
+import { getSparkAddress } from '@action/composables/get-spark-address';
+import { BaseNetwork } from '@/types/base-network';
+import { NetworkNames } from '@enkryptcom/types/dist';
 
 const openEdit = ref(false);
 const dropdown = ref(null);
 const toggle = ref(null);
 
-defineProps({
+const props = defineProps({
   name: {
     type: String,
     default: '',
@@ -71,6 +90,10 @@ defineProps({
       return {};
     },
   },
+  network: {
+    type: Object as PropType<BaseNetwork>,
+    default: () => ({}),
+  },
   identiconElement: {
     type: Function as PropType<(address: string, options?: any) => string>,
     default: () => ({}),
@@ -78,6 +101,11 @@ defineProps({
   active: Boolean,
   showEdit: Boolean,
   deletable: Boolean,
+});
+
+const sparkDisplayAddress = computedAsync(async () => {
+  if (props.network.name !== NetworkNames.Firo) return null;
+  return await getSparkAddress(props.network, props.address);
 });
 
 const toggleEdit = () => {

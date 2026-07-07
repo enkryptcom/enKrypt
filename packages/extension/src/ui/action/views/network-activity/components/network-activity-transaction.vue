@@ -4,7 +4,11 @@
     class="container-empty"
   >
     <a
-      :href="transactionURL"
+      :class="{
+        'network-activity__activity-link-disabled':
+          !isPending && activityLinkDisabled,
+      }"
+      :href="!isPending && activityLinkDisabled ? undefined : transactionURL"
       target="_blank"
       class="network-activity__transaction"
     >
@@ -113,6 +117,7 @@
           {{
             $filters.formatFloatingPointValue(
               fromBase(activity.value, activity.token.decimals),
+              network.name,
             ).value
           }}
           <span>{{ $filters.truncate(activity.token.symbol, 40) }}</span>
@@ -122,6 +127,59 @@
         </p>
       </div>
     </section>
+  </section>
+  <section
+    v-if="activity.type === ActivityType.spark_transaction"
+    class="container-empty"
+  >
+    <a
+      :class="{
+        'network-activity__activity-link-disabled':
+          !isPending && activityLinkDisabled,
+      }"
+      :href="!isPending && activityLinkDisabled ? undefined : transactionURL"
+      target="_blank"
+      class="network-activity__transaction"
+    >
+      <div class="network-activity__transaction-info">
+        <img
+          :src="network.identicon(sparkTransactionIdenticonAddress)"
+          @error="imageLoadError"
+        />
+
+        <div class="network-activity__transaction-info-name">
+          <h4>Spark spend</h4>
+          <p>
+            <span
+              class="network-activity__transaction-info-status"
+              :class="{
+                error: activity.status === ActivityStatus.failed,
+                dropped: activity.status === ActivityStatus.dropped,
+              }"
+              >{{ status }}</span
+            >
+            <transaction-timer
+              v-if="activity.status === ActivityStatus.pending"
+              :date="activity.timestamp"
+            />
+            <span v-else-if="activity.timestamp !== 0">{{ date }}</span>
+            <span
+              v-if="network.subNetworks && activity.chainId !== undefined"
+              class="network-activity__transaction-info-chainid"
+              >{{ activity.isIncoming ? 'on' : 'from' }} chain
+              {{ activity.chainId }}</span
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="network-activity__transaction-amount">
+        <h4>
+          {{ activity.value }}
+          <span>{{ activity.token.symbol }}</span>
+        </h4>
+      </div>
+    </a>
   </section>
 </template>
 
@@ -140,6 +198,10 @@ import { fromBase } from '@enkryptcom/utils';
 import { getNetworkByName } from '@/libs/utils/networks';
 import BigNumber from 'bignumber.js';
 import { imageLoadError } from '@/ui/action/utils/misc';
+import { isSparkAddress } from '@/providers/bitcoin/libs/utils';
+import { SparkAccount } from '@action/types/account';
+import useAsyncComputed from '@action/composables/async-computed';
+
 const props = defineProps({
   activity: {
     type: Object as PropType<Activity>,
@@ -149,16 +211,43 @@ const props = defineProps({
     type: Object as PropType<BaseNetwork>,
     default: () => ({}),
   },
+  sparkAccount: {
+    type: Object as PropType<SparkAccount | null>,
+    default: null,
+  },
 });
 
 const status = ref('~');
 const date = ref('~');
 
+const { value: activityLinkDisabled, isPending } = useAsyncComputed(
+  async () => {
+    const isStatusFailed =
+      status.value === ActivityStatus.failed ||
+      status.value === ActivityStatus.dropped;
+
+    const [isFromSpark, isToSpark] = await Promise.all([
+      isSparkAddress(props.activity.from),
+      isSparkAddress(props.activity.to),
+    ]);
+
+    return isFromSpark && isToSpark && isStatusFailed;
+  },
+  false,
+);
 const transactionURL = computed(() => {
   return props.network.blockExplorerTX.replace(
     '[[txHash]]',
     props.activity.transactionHash,
   );
+});
+
+const sparkTransactionIdenticonAddress = computed(() => {
+  if (props.activity.from && props.activity.from !== 'Hidden') {
+    return props.activity.from;
+  }
+
+  return props.sparkAccount?.defaultAddress ?? '';
 });
 
 const getFiatValue = computed(() => {
@@ -224,7 +313,11 @@ let swapActivityDescriptionId: null | string = null;
 watch(
   () => props.activity,
   function (activity) {
-    if (activity.type !== ActivityType.swap) return;
+    if (
+      activity.type === ActivityType.transaction ||
+      activity.type === ActivityType.spark_transaction
+    )
+      return;
     const rawInfo = activity.rawInfo as SwapRawInfo;
     const data: SwapActivityDescriptionData = {
       fromNetworkName: activity.network,
@@ -300,6 +393,10 @@ onMounted(() => {
 }
 
 .network-activity {
+  &__activity-link-disabled {
+    cursor: not-allowed !important;
+  }
+
   &__transaction {
     min-height: 68px;
     padding: 12px 16px;

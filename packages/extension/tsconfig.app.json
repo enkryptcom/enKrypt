@@ -10,6 +10,8 @@
   ],
   "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {
+    "skipLibCheck": true,
+    "allowJs": true,
     "composite": true,
     "verbatimModuleSyntax": false,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",

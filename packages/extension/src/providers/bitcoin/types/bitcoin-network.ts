@@ -18,7 +18,36 @@ import { BTCToken } from './btc-token';
 import { GasPriceTypes } from '@/providers/common/types';
 import type HaskoinAPI from '@/providers/bitcoin/libs/api';
 import type SSAPI from '@/providers/bitcoin/libs/api-ss';
+import type FiroAPI from '@/providers/bitcoin/libs/api-firo';
 import { NFTCollection } from '@/types/nft';
+import { calculateCurrentSparkBalance } from '@/libs/utils/updateAndSync/calculateCurrentSparkBalance';
+
+type PrivateBalanceResolver = () => Promise<string>;
+
+const privateBalanceResolvers: Record<string, PrivateBalanceResolver> = {
+  FIRO: calculateCurrentSparkBalance,
+};
+
+const getFormattedBalanceTotal = async ({
+  networkName,
+  publicBalance,
+  decimals,
+}: {
+  networkName: string;
+  publicBalance: string;
+  decimals: number;
+}) => {
+  const resolvePrivateBalance = privateBalanceResolvers[networkName.toUpperCase()];
+  if (!resolvePrivateBalance) return '';
+
+  const privateBalance = await resolvePrivateBalance();
+  const privateBalanceFormatted = fromBase(privateBalance, decimals);
+  const totalBalance = new BigNumber(publicBalance)
+    .plus(privateBalanceFormatted)
+    .toString();
+
+  return formatFloatingPointValue(totalBalance).value;
+};
 
 export enum PaymentType {
   P2PKH = 'p2pkh',
@@ -49,11 +78,13 @@ export interface BitcoinNetworkOptions {
     network: BaseNetwork,
     address: string,
   ) => Promise<Activity[]>;
-  apiType: typeof HaskoinAPI | typeof SSAPI;
+  apiType: typeof HaskoinAPI | typeof SSAPI | typeof FiroAPI;
 }
 
 export const getAddress = (pubkey: string, network: BitcoinNetworkInfo) => {
-  if (pubkey.length < 64) return pubkey;
+  if (pubkey.length >= 144 || pubkey.length < 64) {
+    return pubkey;
+  }
   const { address } = payments[network.paymentType]({
     network,
     pubkey: hexToBuffer(pubkey),
@@ -124,6 +155,12 @@ export class BitcoinNetwork extends BaseNetwork {
     const usdBalance = new BigNumber(userBalance).times(
       marketData[0]?.current_price ?? 0,
     );
+    const balanceTotal = await getFormattedBalanceTotal({
+      networkName: this.currencyName,
+      publicBalance: userBalance,
+      decimals: this.decimals,
+    });
+
     const nativeAsset: AssetsType = {
       balance: balance,
       balancef: formatFloatingPointValue(userBalance).value,
@@ -134,6 +171,7 @@ export class BitcoinNetwork extends BaseNetwork {
       symbol: this.currencyName,
       value: marketData[0]?.current_price?.toString() ?? '0',
       valuef: marketData[0]?.current_price?.toString() ?? '0',
+      balanceTotal,
       contract: '',
       decimals: this.decimals,
       sparkline: marketData.length
