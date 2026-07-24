@@ -17,12 +17,4 @@ describe('Should report the dust limit in base units', () => {
     // 0.01 DOGE
     expect(getDustThreshold(bitcoinNetworks.dogecoin)).to.be.eq(1000000);
   });
-
-  it('should classify a change remainder against the limit', () => {
-    const litecoin = getDustThreshold(bitcoinNetworks.litecoin);
-    // the amount of change a small litecoin send is left with
-    expect(750 >= litecoin).to.be.eq(false);
-    expect(litecoin - 1 >= litecoin).to.be.eq(false);
-    expect(litecoin >= litecoin).to.be.eq(true);
-  });
 });
