@@ -1,6 +1,7 @@
 // https://github.com/jlopp/bitcoin-transaction-size-calculator/blob/master/index.html
 
 import { toBN } from 'web3-utils';
+import { address as BTCAddress } from 'bitcoinjs-lib';
 import { PaymentType } from '../../types/bitcoin-network';
 
 enum InputScriptType {
@@ -234,16 +235,52 @@ const calculateSize = (
     txWeight,
   };
 };
+/**
+ * Bucket an output address into the counter `calculateSize` uses for it.
+ *
+ * Only bech32/bech32m outputs are classified. Those are the ones whose size
+ * differs enough from the account's own output type to matter: a P2TR or P2WSH
+ * output is 43 vB against 31 vB for P2WPKH, which is the difference between a
+ * transaction relaying and being dropped for paying under the minimum fee rate.
+ * Anything else falls back to the account's own type, which is at most 3 vB out.
+ */
+const getOutputCounterForAddress = (
+  address: string,
+): keyof calcOutputType | undefined => {
+  let decoded: { version: number; data: Buffer };
+  try {
+    decoded = BTCAddress.fromBech32(address);
+  } catch {
+    return undefined;
+  }
+  if (decoded.version === 0) {
+    if (decoded.data.length === 20) return 'p2wpkh_output_count';
+    if (decoded.data.length === 32) return 'p2wsh_output_count';
+  } else if (decoded.version === 1 && decoded.data.length === 32) {
+    return 'p2tr_output_count';
+  }
+  return undefined;
+};
+
+/**
+ * `outputAddresses` describes the outputs that are already known, in order. Any
+ * output without a matching entry — the change output, or a recipient address
+ * that is still being typed — is sized as the account's own payment type.
+ */
 const calculateSizeBasedOnType = (
   numInputs: number,
   numOutputs: number,
   type: PaymentType,
+  outputAddresses: string[] = [],
 ): number => {
+  const defaultCounter: keyof calcOutputType =
+    type === PaymentType.P2PKH ? 'p2pkh_output_count' : 'p2wpkh_output_count';
   const output: calcOutputType = {};
-  if (type === PaymentType.P2PKH) {
-    output.p2pkh_output_count = numOutputs;
-  } else {
-    output.p2wpkh_output_count = numOutputs;
+  for (let i = 0; i < numOutputs; i++) {
+    const counter =
+      (outputAddresses[i] && getOutputCounterForAddress(outputAddresses[i])) ||
+      defaultCounter;
+    output[counter] = (output[counter] ?? 0) + 1;
   }
   const size = calculateSize(
     {
@@ -257,4 +294,9 @@ const calculateSizeBasedOnType = (
   );
   return type === PaymentType.P2PKH ? size.txBytes : size.txVBytes;
 };
-export { InputScriptType, calculateSize, calculateSizeBasedOnType };
+export {
+  InputScriptType,
+  calculateSize,
+  calculateSizeBasedOnType,
+  getOutputCounterForAddress,
+};

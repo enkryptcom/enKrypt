@@ -15,6 +15,7 @@ export const getBitcoinGasVals = async (
     tx.inputs.length,
     2,
     (network as BitcoinNetwork).networkInfo.paymentType,
+    tx.outputs.map(output => output.address),
   );
   return getGasCostValues(
     network as BitcoinNetwork,
