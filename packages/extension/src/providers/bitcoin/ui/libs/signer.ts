@@ -1,3 +1,4 @@
+import '../../libs/init-ecc';
 import { InternalMethods, InternalOnMessageResponse } from '@/types/messenger';
 import { SignerTransactionOptions, SignerMessageOptions } from '../types';
 import sendUsingInternalMessengers from '@/libs/messenger/internal-messenger';

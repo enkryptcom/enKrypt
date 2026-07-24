@@ -1,3 +1,4 @@
+import './init-ecc';
 import { BitcoinNetworkInfo, HaskoinUnspentType } from '../types';
 import { address as BTCAddress } from 'bitcoinjs-lib';
 import { GasPriceTypes } from '@/providers/common/types';

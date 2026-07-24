@@ -279,7 +279,7 @@ const nativeBalanceAfterTransaction = computed(() => {
 
 const setTransactionFees = (byteSize: number) => {
   const nativeVal = selectedAsset.value.price || '0';
-  getGasCostValues(
+  return getGasCostValues(
     props.network as BitcoinNetwork,
     byteSize,
     nativeVal,
@@ -294,16 +294,26 @@ const setBaseCosts = () => {
   });
 };
 
+/**
+ * The recipient output is sized from `addressTo` so that sending to an address
+ * type larger than our own — a taproot one, say — is not underpaid. The change
+ * output has no entry and is sized as our own payment type.
+ */
+const updateTransactionFees = () => {
+  const txSize = calculateSizeBasedOnType(
+    accountUTXOs.value.length + (isSendToken.value ? 0 : 1),
+    2,
+    (props.network as BitcoinNetwork).networkInfo.paymentType,
+    [addressTo.value],
+  );
+  return setTransactionFees(Math.ceil(txSize));
+};
+
 const updateUTXOs = async () => {
   const api = (await props.network.api()) as BitcoinAPI;
   return api.getUTXOs(addressFrom.value).then(utxos => {
     accountUTXOs.value = utxos;
-    const txSize = calculateSizeBasedOnType(
-      accountUTXOs.value.length + (isSendToken.value ? 0 : 1),
-      2,
-      (props.network as BitcoinNetwork).networkInfo.paymentType,
-    );
-    setTransactionFees(Math.ceil(txSize));
+    return updateTransactionFees();
   });
 };
 
@@ -367,6 +377,12 @@ watch([addressFrom], () => {
   if (addressFrom.value) {
     fetchAssets().then(setBaseCosts);
   }
+});
+
+watch([addressTo], () => {
+  updateTransactionFees().then(() => {
+    if (isMaxSelected.value) setMaxValue();
+  });
 });
 
 const isOpenSelectContactFrom = ref<boolean>(false);
