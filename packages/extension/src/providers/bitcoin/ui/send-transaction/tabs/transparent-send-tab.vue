@@ -29,15 +29,15 @@
       @update:input-address="inputAddressTo"
       @toggle:show-contacts="toggleSelectContactTo"
     />
-    <send-address-input
-      v-if="network.name !== NetworkNames.Firo"
-      ref="addressInputTo"
-      title="To address"
-      :value="addressTo"
-      :network="network as BitcoinNetwork"
-      @update:input-address="inputAddressTo"
-      @toggle:show-contacts="toggleSelectContactTo"
-    />
+    <!--    <send-address-input-->
+    <!--      v-if="network.name !== NetworkNames.Firo"-->
+    <!--      ref="addressInputTo"-->
+    <!--      title="To address"-->
+    <!--      :value="addressTo"-->
+    <!--      :network="network as BitcoinNetwork"-->
+    <!--      @update:input-address="inputAddressTo"-->
+    <!--      @toggle:show-contacts="toggleSelectContactTo"-->
+    <!--    />-->
 
     <send-contacts-list
       :show-accounts="isOpenSelectContactTo"
@@ -45,12 +45,7 @@
       :address="addressTo"
       :network="network"
       @selected:account="selectAccountTo"
-      @update:paste-from-clipboard="
-        () => {
-          addressInputTo.pasteFromClipboard();
-          toggleSelectContactTo(false);
-        }
-      "
+      @update:paste-from-clipboard="pasteToAddress"
       @close="toggleSelectContactTo"
     />
 
@@ -453,6 +448,13 @@ const toggleSelectContactTo = (open: boolean) => {
   isOpenSelectContactTo.value = open;
 };
 
+const pasteToAddress = async () => {
+  if (addressInputTo.value) {
+    await addressInputTo.value.pasteFromClipboard();
+  }
+  toggleSelectContactTo(false);
+};
+
 const selectAccountFrom = (account: string) => {
   addressFrom.value = account;
   isOpenSelectContactFrom.value = false;
@@ -638,6 +640,15 @@ const sendAction = async () => {
 .form__container {
   display: flex;
   flex-direction: column;
+  position: relative;
+
+  :deep(.send-from-contacts-list__wrap) {
+    top: 64px;
+  }
+
+  :deep(.send-contacts-list__wrap) {
+    top: 156px;
+  }
 
   &-send-input {
     display: flex;
