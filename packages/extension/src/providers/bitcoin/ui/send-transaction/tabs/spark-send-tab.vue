@@ -49,9 +49,7 @@
         <base-button
           title="Send"
           :click="sendAction"
-          :disabled="
-            !isInputsValid || !isAddress(addressTo, network.networkInfo)
-          "
+          :disabled="!isInputsValid"
         />
       </div>
     </div>
@@ -192,12 +190,7 @@ const isInputsValid = computed<boolean>(() => {
   ) {
     return false;
   }
-  if (
-    !isAddress(addressTo.value, props.network.networkInfo) ||
-    !isSparkAddress(addressTo.value)
-  ) {
-    return false;
-  }
+
   const sendAmountBigNumber = new BigNumber(sendAmount.value);
   if (sendAmountBigNumber.isNaN()) return false;
   if (sendAmountBigNumber.lte(0)) return false;

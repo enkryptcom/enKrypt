@@ -1,128 +1,132 @@
 <template>
-  <div class="form__container">
-    <send-address-input
-      ref="addressInputFrom"
-      :from="true"
-      :value="addressFrom"
-      :network="network as BitcoinNetwork"
-      :disable-direct-input="true"
-      @click="toggleSelectContactFrom(true)"
-      @update:input-address="inputAddressFrom"
-      @toggle:show-contacts="toggleSelectContactFrom"
-    />
+  <div>
+    <div class="form__container">
+      <send-address-input
+        ref="addressInputFrom"
+        :from="true"
+        :value="addressFrom"
+        :network="network as BitcoinNetwork"
+        :disable-direct-input="true"
+        @click="toggleSelectContactFrom(true)"
+        @update:input-address="inputAddressFrom"
+        @toggle:show-contacts="toggleSelectContactFrom"
+      />
 
-    <send-from-contacts-list
-      :show-accounts="isOpenSelectContactFrom"
-      :account-info="accountInfo"
-      :address="addressFrom"
-      :network="network"
-      @selected:account="selectAccountFrom"
-      @close="toggleSelectContactFrom"
-    />
+      <send-from-contacts-list
+        :show-accounts="isOpenSelectContactFrom"
+        :account-info="accountInfo"
+        :address="addressFrom"
+        :network="network"
+        @selected:account="selectAccountFrom"
+        @close="toggleSelectContactFrom"
+      />
 
-    <send-spark-address-input
-      v-if="network.name === NetworkNames.Firo"
-      ref="addressInputTo"
-      title="To address"
-      :value="addressTo"
-      :network="network as BitcoinNetwork"
-      @update:input-address="inputAddressTo"
-      @toggle:show-contacts="toggleSelectContactTo"
-    />
-    <!--    <send-address-input-->
-    <!--      v-if="network.name !== NetworkNames.Firo"-->
-    <!--      ref="addressInputTo"-->
-    <!--      title="To address"-->
-    <!--      :value="addressTo"-->
-    <!--      :network="network as BitcoinNetwork"-->
-    <!--      @update:input-address="inputAddressTo"-->
-    <!--      @toggle:show-contacts="toggleSelectContactTo"-->
-    <!--    />-->
+      <send-spark-address-input
+        v-if="network.name === NetworkNames.Firo"
+        ref="addressInputTo"
+        title="To address"
+        :value="addressTo"
+        :network="network as BitcoinNetwork"
+        @update:input-address="inputAddressTo"
+        @toggle:show-contacts="toggleSelectContactTo"
+      />
+      <!--    <send-address-input-->
+      <!--      v-if="network.name !== NetworkNames.Firo"-->
+      <!--      ref="addressInputTo"-->
+      <!--      title="To address"-->
+      <!--      :value="addressTo"-->
+      <!--      :network="network as BitcoinNetwork"-->
+      <!--      @update:input-address="inputAddressTo"-->
+      <!--      @toggle:show-contacts="toggleSelectContactTo"-->
+      <!--    />-->
 
-    <send-contacts-list
-      :show-accounts="isOpenSelectContactTo"
-      :account-info="accountInfo"
-      :address="addressTo"
-      :network="network"
-      @selected:account="selectAccountTo"
-      @update:paste-from-clipboard="pasteToAddress"
-      @close="toggleSelectContactTo"
-    />
+      <send-contacts-list
+        :show-accounts="isOpenSelectContactTo"
+        :account-info="accountInfo"
+        :address="addressTo"
+        :network="network"
+        @selected:account="selectAccountTo"
+        @update:paste-from-clipboard="pasteToAddress"
+        @close="toggleSelectContactTo"
+      />
 
-    <send-token-select
-      v-if="isSendToken"
-      :token="selectedAsset"
-      @update:toggle-token-select="toggleSelectToken"
-    />
+      <send-token-select
+        v-if="isSendToken"
+        :token="selectedAsset"
+        @update:toggle-token-select="toggleSelectToken"
+      />
 
-    <assets-select-list
-      v-model="isOpenSelectToken"
-      :is-send="true"
-      :assets="accountAssets"
-      :is-loading="props.isLoadingAssets"
-      @update:select-asset="selectToken"
-    />
+      <assets-select-list
+        v-model="isOpenSelectToken"
+        :is-send="true"
+        :assets="accountAssets"
+        :is-loading="props.isLoadingAssets"
+        @update:select-asset="selectToken"
+      />
 
-    <send-nft-select
-      v-if="!isSendToken"
-      :item="selectedNft"
-      :is-sending-disabled="false"
-      @toggle-select="toggleSelectNft"
-    />
+      <send-nft-select
+        v-if="!isSendToken"
+        :item="selectedNft"
+        :is-sending-disabled="false"
+        @toggle-select="toggleSelectNft"
+      />
 
-    <nft-select-list
-      v-if="!isSendToken"
-      v-model="isOpenSelectNft"
-      :address="addressFrom"
-      :network="network"
-      :selected-nft="paramNFTData"
-      @select-nft="selectNFT"
-    />
+      <nft-select-list
+        v-if="!isSendToken"
+        v-model="isOpenSelectNft"
+        :address="addressFrom"
+        :network="network"
+        :selected-nft="paramNFTData"
+        @select-nft="selectNFT"
+      />
 
-    <send-input-amount
-      v-if="isSendToken"
-      :amount="amount"
-      :show-max="showMax"
-      :fiat-value="selectedAsset.price"
-      :has-enough-balance="!nativeBalanceAfterTransaction.isNeg()"
-      @update:input-amount="inputAmount"
-      @update:input-set-max="setMaxValue"
-    />
-    <send-fee-select
-      :in-swap="false"
-      :selected="selectedFee"
-      :fee="gasCostValues[selectedFee]"
-      @open-popup="toggleSelectFee"
-    />
+      <send-input-amount
+        v-if="isSendToken"
+        :amount="amount"
+        :show-max="showMax"
+        :fiat-value="selectedAsset.price"
+        :has-enough-balance="!nativeBalanceAfterTransaction.isNeg()"
+        @update:input-amount="inputAmount"
+        @update:input-set-max="setMaxValue"
+      />
+      <send-fee-select
+        :in-swap="false"
+        :selected="selectedFee"
+        :fee="gasCostValues[selectedFee]"
+        @open-popup="toggleSelectFee"
+      />
 
-    <transaction-fee-view
-      v-model="isOpenSelectFee"
-      :fees="gasCostValues"
-      :selected="selectedFee"
-      :is-header="true"
-      @gas-type-changed="selectFee"
-    />
+      <transaction-fee-view
+        v-model="isOpenSelectFee"
+        :fees="gasCostValues"
+        :selected="selectedFee"
+        :is-header="true"
+        @gas-type-changed="selectFee"
+      />
 
-    <send-alert
-      v-show="
-        nativeBalanceAfterTransaction.isNeg() ||
-        (Number(sendAmount) < (props.network as BitcoinNetwork).dust &&
-          Number(sendAmount) > 0)
-      "
-      :native-symbol="network.name"
-      :price="selectedAsset.price || '0'"
-      :is-balance-zero="UTXOBalance.isZero()"
-      :native-value="
-        fromBase(
-          nativeBalanceAfterTransaction.abs().toString(),
-          network.decimals,
-        )
-      "
-      :decimals="network.decimals"
-      :below-dust="Number(sendAmount) < (props.network as BitcoinNetwork).dust"
-      :dust="(props.network as BitcoinNetwork).dust.toString()"
-      :not-enough="nativeBalanceAfterTransaction.isNeg()"
-    />
+      <send-alert
+        v-show="
+          nativeBalanceAfterTransaction.isNeg() ||
+          (Number(sendAmount) < (props.network as BitcoinNetwork).dust &&
+            Number(sendAmount) > 0)
+        "
+        :native-symbol="network.name"
+        :price="selectedAsset.price || '0'"
+        :is-balance-zero="UTXOBalance.isZero()"
+        :native-value="
+          fromBase(
+            nativeBalanceAfterTransaction.abs().toString(),
+            network.decimals,
+          )
+        "
+        :decimals="network.decimals"
+        :below-dust="
+          Number(sendAmount) < (props.network as BitcoinNetwork).dust
+        "
+        :dust="(props.network as BitcoinNetwork).dust.toString()"
+        :not-enough="nativeBalanceAfterTransaction.isNeg()"
+      />
+    </div>
 
     <div class="send-transaction__buttons">
       <div class="send-transaction__buttons-cancel">
