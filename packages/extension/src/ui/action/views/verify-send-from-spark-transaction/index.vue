@@ -179,7 +179,9 @@ const sendAction = async () => {
             },
           ],
           {
-            address: network.value.displayAddress(txData.fromAddress),
+            address: network.value.displayAddress(
+              txData.accountAddress || txData.fromAddress,
+            ),
             network: network.value.name,
           },
         );
@@ -205,7 +207,9 @@ const sendAction = async () => {
         });
         txActivity.status = ActivityStatus.failed;
         activityState.addActivities([txActivity], {
-          address: txData.fromAddress,
+          address: network.value.displayAddress(
+            txData.accountAddress || txData.fromAddress,
+          ),
           network: network.value.name,
         });
 
