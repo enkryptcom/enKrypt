@@ -19,6 +19,8 @@ import {
 import { LOCK_TIME, SPARK_TX_TYPE } from '@/libs/spark-handler/constants';
 import { intersectSets } from '@action/utils/set-utils';
 import { createTempFromSparkTx } from '@/libs/spark-handler/createTempFromSparkTx';
+import { getActivePendingSpentTags } from '@/libs/utils/updateAndSync/markCoinsAsPendingSpent';
+import { createAsyncLock } from '@/libs/utils/async-mutex';
 import BigNumber from 'bignumber.js';
 
 type SpendCoin = {
@@ -26,7 +28,15 @@ type SpendCoin = {
   setId: number;
   metadata: number;
   value: number;
+  tag: string;
 };
+
+export type SendFromSparkAddressResult = {
+  hex: string;
+  selectedTags: string[];
+};
+
+export const sparkSendLock = createAsyncLock();
 
 const getRequestedAmount = (amount: string) =>
   new BigNumber(amount)
@@ -104,7 +114,7 @@ export async function sendFromSparkAddress(
   networkInfo: bitcoin.Network,
   to: string,
   amount: string,
-): Promise<string | undefined> {
+): Promise<SendFromSparkAddressResult | undefined> {
   let spendKeyObj = 0;
   let fullViewKeyObj = 0;
   let incomingViewKeyObj = 0;
@@ -203,7 +213,11 @@ export async function sendFromSparkAddress(
   const usedCoinsTags = await db.readData<{ tags: string[] }>(
     DB_DATA_KEYS.usedCoinsTags,
   );
-  const coinsTagsSet = new Set(usedCoinsTags?.tags ?? []);
+  const pendingSpentTags = await getActivePendingSpentTags();
+  const coinsTagsSet = new Set([
+    ...(usedCoinsTags?.tags ?? []),
+    ...pendingSpentTags.map(entry => entry.tag),
+  ]);
   const myCoinsTagsSet = new Set((ownedCoins ?? []).map(coin => coin.tag));
 
   const usedMyCoinsTagsSet = intersectSets(coinsTagsSet, myCoinsTagsSet);
@@ -290,6 +304,7 @@ export async function sendFromSparkAddress(
             setId: ownedCoin.setId,
             metadata: data.metaData,
             value: Number(data.value),
+            tag: ownedCoin.tag,
           });
         }
       })
@@ -599,5 +614,8 @@ export async function sendFromSparkAddress(
     serializedSpendSize,
   });
   cleanup();
-  return finalTx;
+  return {
+    hex: finalTx,
+    selectedTags: selectedSpendCoins.map(coin => coin.tag),
+  };
 }

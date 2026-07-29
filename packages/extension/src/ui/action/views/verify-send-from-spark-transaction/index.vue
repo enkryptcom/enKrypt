@@ -85,7 +85,8 @@ import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
 import { VerifyTransactionParams } from '@/providers/bitcoin/ui/types';
-import { sendFromSparkAddress } from '@/libs/spark-handler';
+import { sendFromSparkAddress, sparkSendLock } from '@/libs/spark-handler';
+import { markCoinsAsPendingSpent } from '@/libs/utils/updateAndSync/markCoinsAsPendingSpent';
 import { fromBase } from '@enkryptcom/utils';
 import { BaseNetwork } from '@/types/base-network';
 import FiroAPI from '@/providers/bitcoin/libs/api-firo';
@@ -153,21 +154,26 @@ const sendAction = async () => {
 
     const api = (await network.value.api()) as unknown as FiroAPI;
 
-    const rawTx = await sendFromSparkAddress(
-      network.value.networkInfo,
-      txData.toAddress,
-      fromBase(txData.toToken.amount, txData.toToken.decimals).toString(),
-    );
+    await sparkSendLock.run(async () => {
+      const result = await sendFromSparkAddress(
+        network.value.networkInfo,
+        txData.toAddress,
+        fromBase(txData.toToken.amount, txData.toToken.decimals).toString(),
+      );
 
-    console.log('rawTx in vue', rawTx?.slice(0, 14));
+      if (!result) {
+        throw new Error('Transaction data is undefined');
+      }
 
-    if (!rawTx) {
-      throw new Error('Transaction data is undefined');
-    }
+      const { hex: rawTx, selectedTags } = result;
 
-    api
-      .broadcastTx(rawTx)
-      .then(({ txid }) => {
+      console.log('rawTx in vue', rawTx?.slice(0, 14));
+
+      try {
+        const { txid } = await api.broadcastTx(rawTx);
+
+        await markCoinsAsPendingSpent(selectedTags, txid);
+
         trackSendEvents(SendEventType.SendComplete, {
           network: network.value.name,
         });
@@ -199,8 +205,7 @@ const sendAction = async () => {
           }, 1500);
         }
         emits('update:spark-state-changed', network.value);
-      })
-      .catch(error => {
+      } catch (error: any) {
         trackSendEvents(SendEventType.SendFailed, {
           network: network.value.name,
           error: error.message,
@@ -216,7 +221,8 @@ const sendAction = async () => {
         isProcessing.value = false;
         errorMsg.value = JSON.stringify(error);
         console.error('ERROR', error);
-      });
+      }
+    });
   } catch (error: any) {
     trackSendEvents(SendEventType.SendFailed, {
       network: network.value.name,

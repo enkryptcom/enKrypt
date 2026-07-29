@@ -5,6 +5,7 @@ import {
 } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
 import { base64ToReversedHex } from '@/libs/spark-handler/utils';
 import { firoElectrum } from '@/providers/bitcoin/libs/electrum-client/electrum-client';
+import { getActivePendingSpentTags } from '@/libs/utils/updateAndSync/markCoinsAsPendingSpent';
 
 export type SparkUnusedTxDetails = FullTransactionModel & { value: number };
 
@@ -20,6 +21,15 @@ export const markCoinsAsUsed = async (
     txHashes: [string, string][];
   }>(DB_DATA_KEYS.usedCoinsTags);
   const coinsTagsSet = new Set(usedCoinsTags?.tags ?? []);
+
+  const activePendingSpentTags = await getActivePendingSpentTags();
+  const reconciledPendingSpentTags = activePendingSpentTags.filter(
+    entry => !coinsTagsSet.has(entry.tag),
+  );
+  await db.saveData(
+    DB_DATA_KEYS.pendingSpentCoinsTags,
+    reconciledPendingSpentTags,
+  );
 
   const myCoins = await db.readData<MyCoinModel[]>(DB_DATA_KEYS.myCoins);
 

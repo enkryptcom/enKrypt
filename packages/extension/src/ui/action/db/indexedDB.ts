@@ -6,6 +6,7 @@ export const DB_DATA_KEYS = {
   usedCoinsTags: 'usedCoinsTags',
   sparkBalance: 'sparkBalance',
   lastCheckedSetIndex: 'lastCheckedSetIndex',
+  pendingSpentCoinsTags: 'pendingSpentCoinsTags',
 } as const;
 
 export class IndexedDBHelper {
