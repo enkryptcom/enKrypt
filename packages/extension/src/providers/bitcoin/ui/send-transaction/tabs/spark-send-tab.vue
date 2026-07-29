@@ -137,7 +137,7 @@ watch(addressTo, async newAddress => {
 onMounted(async () => {
   trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
   emit('update:isLoadingAssets', false);
-  setAsset();
+  setAssetPrice();
 });
 
 const sendAmount = computed(() => {
@@ -146,6 +146,7 @@ const sendAmount = computed(() => {
 });
 
 const { value: nativeBalanceAfterTransaction } = useAsyncComputed(async () => {
+  void props.sparkAccount?.sparkBalance?.availableBalance;
   if (availableAsset.value) {
     const sparkBalance = await calculateCurrentSparkBalance();
 
@@ -157,9 +158,18 @@ const { value: nativeBalanceAfterTransaction } = useAsyncComputed(async () => {
 }, toBN(0));
 
 const { value: assetMaxValue } = useAsyncComputed(async () => {
+  void props.sparkAccount?.sparkBalance?.availableBalance;
   const sparkBalance = await calculateCurrentSparkBalance();
   return fromBase(sparkBalance, props.network.decimals);
 }, '');
+
+watch(
+  () => props.sparkAccount?.sparkBalance?.availableBalance,
+  async () => {
+    availableAsset.value.balance = await calculateCurrentSparkBalance();
+  },
+  { immediate: true },
+);
 
 const isInputsValid = computed<boolean>(() => {
   if (!isValidAddress.value) return false;
@@ -240,7 +250,7 @@ const sendAction = async () => {
   });
 };
 
-const setAsset = async () => {
+const setAssetPrice = async () => {
   if (availableAsset.value.coingeckoID) {
     const market = new MarketData();
     const marketData = await market.getMarketData([
@@ -249,11 +259,6 @@ const setAsset = async () => {
 
     availableAsset.value.price = (marketData[0]?.current_price ?? 0).toString();
   }
-  // availableAsset.value.balance = String(
-  //   props.sparkAccount.sparkBalance.availableBalance,
-  // );
-
-  availableAsset.value.balance = await calculateCurrentSparkBalance();
   availableAsset.value.name = 'Available Balance';
 };
 

@@ -88,6 +88,8 @@ export const markCoinsAsUsed = async (
       .filter((tx): tx is SparkUnusedTxDetails => tx !== null);
   }
 
+  await db.saveData(DB_DATA_KEYS.myCoins, updatedCoins);
+
   if (onBalanceCalculated) {
     try {
       onBalanceCalculated();
@@ -95,8 +97,6 @@ export const markCoinsAsUsed = async (
       console.error('Error in onBalanceCalculated callback:', err);
     }
   }
-
-  await Promise.all([db.saveData(DB_DATA_KEYS.myCoins, updatedCoins)]);
 
   return unusedTxDetails;
 };

@@ -229,6 +229,7 @@ const {
   value: sparkBalanceFormatted,
   isPending: isSparkBalanceFormattedPending,
 } = useAsyncComputed(async () => {
+  void props.sparkAccount?.sparkBalance?.availableBalance;
   const balance = await calculateCurrentSparkBalance();
   if (balance === '0') return '0';
   const decimalValue = fromBase(balance, props.network.decimals ?? 8);
