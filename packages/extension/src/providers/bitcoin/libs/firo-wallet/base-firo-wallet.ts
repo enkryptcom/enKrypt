@@ -190,7 +190,10 @@ export class BaseFiroWallet {
   async getPublicBalance(): Promise<BigNumber> {
     const address2Check = await this.getTransactionsAddresses();
 
-    const utxos = await firoElectrum.multiGetUnspentTransactions(address2Check);
+    const utxos = await firoElectrum.multiGetUnspentTransactions(
+      address2Check,
+      false,
+    );
     const spendable = utxos.filter(el => el.confirmations > 0);
 
     let balanceSat = 0;

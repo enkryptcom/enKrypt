@@ -9,6 +9,7 @@ class API implements ProviderAPIInterface {
   node: string;
   networkInfo: BitcoinNetworkInfo;
   #wallet: BaseFiroWallet;
+  #balancePromise: Promise<string> | null = null;
 
   constructor(node: string, networkInfo: BitcoinNetworkInfo) {
     this.node = node;
@@ -68,11 +69,24 @@ class API implements ProviderAPIInterface {
       .catch(() => null);
   }
 
-  async getBalance(pubkey: string): Promise<string> {
-    return this.#wallet
+  async getBalance(): Promise<string> {
+    if (this.#balancePromise) return this.#balancePromise;
+    this.#balancePromise = this.#wallet
       .getPublicBalance()
+      .catch(async err => {
+        console.error('Firo getBalance failed, retrying once:', err);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return this.#wallet.getPublicBalance();
+      })
       .then(balance => balance.toString())
-      .catch(() => '0');
+      .catch(err => {
+        console.error('Firo getBalance failed after retry:', err);
+        return '0';
+      })
+      .finally(() => {
+        this.#balancePromise = null;
+      });
+    return this.#balancePromise;
   }
 
   async broadcastTx(rawtx: string): Promise<{ txid: string }> {

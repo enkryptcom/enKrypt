@@ -145,7 +145,9 @@ export class BitcoinNetwork extends BaseNetwork {
   }
 
   public async getAllTokenInfo(pubkey: string): Promise<AssetsType[]> {
-    const balance = await (await this.api()).getBalance(pubkey);
+    const api = await this.api();
+    const balance = await api.getBalance(pubkey);
+
     let marketData: (CoinGeckoTokenMarket | null)[] = [];
     if (this.coingeckoID) {
       const market = new MarketData();

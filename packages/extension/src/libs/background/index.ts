@@ -177,7 +177,7 @@ class BackgroundHandler {
       case InternalMethods.unlock:
         const password = message?.params?.[0] as string;
         const mnemonic = await this.#keyring.getSavedMnemonic(password);
-        this.#wallet.setSecret(mnemonic);
+        await this.#wallet.setSecret(mnemonic);
         return unlock(this.#keyring, message);
       case InternalMethods.lock:
         return lock(this.#keyring);
