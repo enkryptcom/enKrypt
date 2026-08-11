@@ -4,6 +4,7 @@ import { UnspentTxOutputModel } from '@/providers/bitcoin/libs/electrum-client/a
 import { ECPairInterface } from 'ecpair';
 
 type SpendableUtxo = Omit<UnspentTxOutputModel, 'raw'> & {
+  raw?: string;
   keyPair: ECPairInterface;
 };
 
@@ -12,7 +13,7 @@ export const getTotalMintedAmount = async (spendableUtxos: SpendableUtxo[]) => {
   const psbtInputs = [];
 
   for (const utxo of spendableUtxos) {
-    const txRaw = await firoElectrum.getTxRaw(utxo.txid);
+    const txRaw = utxo.raw ?? (await firoElectrum.getTxRaw(utxo.txid));
 
     psbtInputs.push({
       hash: utxo.txid,

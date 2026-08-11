@@ -112,7 +112,7 @@
         "
         :native-symbol="network.name"
         :price="selectedAsset.price || '0'"
-        :is-balance-zero="UTXOBalance.isZero()"
+        :is-balance-zero="nativeBalance.isZero()"
         :native-value="
           fromBase(
             nativeBalanceAfterTransaction.abs().toString(),
@@ -140,7 +140,7 @@
               ? sendSparkAction
               : sendAction
           "
-          :disabled="!isInputsValid"
+          :disabled="!isInputsValid || isUtxosLoading"
         />
       </div>
     </div>
@@ -184,7 +184,7 @@ import BaseButton from '@action/components/base-button/index.vue';
 import TransactionFeeView from '@action/views/transaction-fee/index.vue';
 import { fromBase, isValidDecimals, toBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
-import { computed, onMounted, PropType, ref, watch, Ref } from 'vue';
+import { computed, onMounted, PropType, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { toBN } from 'web3-utils';
 import Browser from 'webextension-polyfill';
@@ -247,6 +247,7 @@ const sendAmount = computed(() => {
 });
 
 const isMaxSelected = ref<boolean>(false);
+const isUtxosLoading = ref<boolean>(true);
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const addressFrom = ref<string>(
@@ -260,7 +261,7 @@ const showMax = computed(() => {
 
 onMounted(async () => {
   trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
-  fetchAssets().then(setBaseCosts);
+  setBaseCosts();
 });
 
 const nativeBalanceAfterTransaction = computed(() => {
@@ -272,7 +273,7 @@ const nativeBalanceAfterTransaction = computed(() => {
     selectedAsset.value &&
     isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
   ) {
-    return UTXOBalance.value.sub(
+    return nativeBalance.value.sub(
       toBN(toBase(sendAmount.value ?? '0', selectedAsset.value.decimals!)).add(
         toBN(
           toBase(
@@ -286,34 +287,40 @@ const nativeBalanceAfterTransaction = computed(() => {
   return toBN(0);
 });
 
-const setTransactionFees = (byteSize: number) => {
+const setTransactionFees = async (byteSize: number) => {
   const nativeVal = selectedAsset.value.price || '0';
-  getGasCostValues(
+  gasCostValues.value = await getGasCostValues(
     props.network as BitcoinNetwork,
     byteSize,
     nativeVal,
     props.network.decimals,
     props.network.currencyName,
-  ).then(val => (gasCostValues.value = val));
+  );
 };
 
-const setBaseCosts = () => {
-  updateUTXOs().then(() => {
-    if (isMaxSelected.value) setMaxValue();
-  });
-};
-
-const updateUTXOs = async () => {
-  const api = (await props.network.api()) as BitcoinAPI;
-  return api.getUTXOs(addressFrom.value).then(utxos => {
-    accountUTXOs.value = utxos;
+const setBaseCosts = async () => {
+  isUtxosLoading.value = true;
+  try {
+    await Promise.all([fetchAssets(), updateUTXOs()]);
     const txSize = calculateSizeBasedOnType(
       accountUTXOs.value.length + (props.isSendToken ? 0 : 1),
       2,
       (props.network as BitcoinNetwork).networkInfo.paymentType,
     );
-    setTransactionFees(Math.ceil(txSize));
-  });
+    await setTransactionFees(Math.ceil(txSize));
+  } finally {
+    isUtxosLoading.value = false;
+  }
+  if (isMaxSelected.value) setMaxValue();
+};
+
+watch(gasCostValues, () => {
+  if (isMaxSelected.value) setMaxValue();
+});
+
+const updateUTXOs = async () => {
+  const api = (await props.network.api()) as BitcoinAPI;
+  accountUTXOs.value = await api.getUTXOs(addressFrom.value);
 };
 
 const fetchAssetsRequestId = ref(0);
@@ -353,6 +360,7 @@ const sendButtonTitle = computed(() => {
       formatFloatingPointValue(sendAmount.value).value +
       ' ' +
       selectedAsset.value?.symbol!.toUpperCase();
+  if (isUtxosLoading.value) title = 'Loading UTXOBalance...';
   return title;
 });
 
@@ -385,7 +393,7 @@ const isInputsValid = computed<boolean>(() => {
 
 watch([addressFrom], () => {
   if (addressFrom.value) {
-    fetchAssets().then(setBaseCosts);
+    setBaseCosts();
   }
 });
 
@@ -415,9 +423,13 @@ const UTXOBalance = computed(() => {
   return toBN(accountUTXOs.value.reduce((a, c) => a + c.value, 0));
 });
 
+const nativeBalance = computed(() => {
+  return toBN(selectedAsset.value.balance || '0');
+});
+
 const assetMaxValue = computed(() => {
   return fromBase(
-    UTXOBalance.value
+    nativeBalance.value
       .sub(
         toBN(
           toBase(

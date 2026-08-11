@@ -1,12 +1,12 @@
-import { SATOSHI } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
-import { firoElectrum } from '@/providers/bitcoin/libs/electrum-client/electrum-client';
+
+/** Matches the flat REGULAR sat/byte rate used for regular Firo transparent
+ * sends (see feeHandler in networks/firo.ts) — firoElectrum.estimateFee()
+ * has been observed to return wildly inflated rates (100x+ the node's own
+ * relayfee), so it isn't used here. */
+const SAT_PER_BYTE = 10;
 
 export const getFee = async (tempTx: bitcoin.Transaction) => {
-  const feeRate = (await firoElectrum.estimateFee(2)) as number;
-
-  return new BigNumber(feeRate)
-    .times(Math.ceil(tempTx.virtualSize() / 1000))
-    .times(SATOSHI);
+  return new BigNumber(SAT_PER_BYTE).times(tempTx.virtualSize());
 };

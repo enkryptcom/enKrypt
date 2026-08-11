@@ -81,10 +81,7 @@ import { getMintTxData } from '@/libs/spark-handler/getMintTxData';
 import { getTotalMintedAmount } from '@/libs/spark-handler/getTotalMintedAmount';
 import { DEFAULT_BTC_NETWORK, getNetworkByName } from '@/libs/utils/networks';
 import FiroAPI from '@/providers/bitcoin/libs/api-firo';
-import {
-  validator,
-  BaseFiroWallet,
-} from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
+import { validator } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import { isAddress } from '@/providers/bitcoin/libs/utils';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { VerifyTransactionParams } from '@/providers/bitcoin/ui/types';
@@ -104,8 +101,6 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { ComponentPublicInstance, onBeforeMount, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { wasmInstance } from '@/libs/utils/wasm-loader';
-
-const wallet = new BaseFiroWallet();
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -152,10 +147,10 @@ const sendAction = async () => {
 
     const wasmModule = await wasmInstance.getInstance();
 
-    const address2Check = await wallet.getTransactionsAddresses();
+    const api = (await network.value.api()) as unknown as FiroAPI;
 
     const { spendableUtxos, addressKeyPairs } =
-      await wallet.getSpendableUtxos(address2Check);
+      await api.getSpendableUtxosWithKeyPairs();
 
     if (spendableUtxos.length === 0) throw new Error('No UTXOs available!');
 
@@ -201,8 +196,16 @@ const sendAction = async () => {
       psbt.addInput(el);
     });
 
-    if (inputAmountBn.lt(amountToSendBN.plus(feeBn)))
+    if (inputAmountBn.lt(amountToSendBN.plus(feeBn))) {
+      console.error('❌ Not enough balance!', {
+        utxoCount: spendableUtxos.length,
+        inputAmountBn: inputAmountBn.toString(),
+        amountToSendBN: amountToSendBN.toString(),
+        feeBn: feeBn.toString(),
+        shortfall: amountToSendBN.plus(feeBn).minus(inputAmountBn).toString(),
+      });
       throw new Error('❌ Not enough balance!');
+    }
 
     psbt.addOutput({
       script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
@@ -263,8 +266,6 @@ const sendAction = async () => {
     };
 
     const activityState = new ActivityState();
-
-    const api = (await network.value.api()) as unknown as FiroAPI;
 
     api
       .broadcastTx(rawTx)
