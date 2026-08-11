@@ -16,6 +16,7 @@
       :amount="amount"
       :fiat-value="availableAsset.price"
       :has-enough-balance="!nativeBalanceAfterTransaction.isNeg()"
+      @paste="onAmountPaste"
       @update:input-amount="inputAmount"
       @update:input-set-max="setMaxValue"
     />
@@ -215,6 +216,16 @@ const inputAmount = (inputAmount: string) => {
   const inputAmountBn = new BigNumber(inputAmount);
   isMaxSelected.value = false;
   amount.value = inputAmountBn.lt(0) ? '0' : inputAmountBn.toString();
+};
+
+const onAmountPaste = ($event: ClipboardEvent) => {
+  const pasted = $event.clipboardData?.getData('text') ?? '';
+  const target = $event.target as HTMLInputElement;
+  const newValue =
+    target.value.slice(0, target.selectionStart ?? target.value.length) +
+    pasted +
+    target.value.slice(target.selectionEnd ?? target.value.length);
+  if (!/^\d*\.?\d*$/.test(newValue)) $event.preventDefault();
 };
 
 const sendAction = async () => {

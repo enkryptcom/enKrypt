@@ -32,6 +32,9 @@
           />
           <verify-transaction-amount :token="txData.toToken" />
           <verify-transaction-fee :fee="txData.gasFee" />
+          <p v-if="errorMsg" class="verify-transaction__error">
+            {{ errorMsg }}
+          </p>
         </div>
       </custom-scrollbar>
 
@@ -138,9 +141,13 @@ const close = () => {
   }
 };
 
+const getErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
+
 const sendAction = async () => {
   try {
     isProcessing.value = true;
+    errorMsg.value = '';
     trackSendEvents(SendEventType.SendApprove, {
       network: network.value.name,
     });
@@ -310,7 +317,7 @@ const sendAction = async () => {
         });
 
         isProcessing.value = false;
-        errorMsg.value = JSON.stringify(error);
+        errorMsg.value = getErrorMessage(error);
         console.error('ERROR', error);
       });
   } catch (e: any) {
@@ -320,7 +327,7 @@ const sendAction = async () => {
     });
 
     isProcessing.value = false;
-    errorMsg.value = JSON.stringify(e);
+    errorMsg.value = getErrorMessage(e);
     console.error('ERROR', e);
   }
 };
@@ -412,6 +419,18 @@ const isHasScroll = () => {
       margin: 0;
       margin-bottom: 56px;
     }
+  }
+
+  &__error {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+    color: @error;
+    margin: 0;
+    padding: 12px 16px;
+    word-break: break-word;
   }
 
   &__buttons {

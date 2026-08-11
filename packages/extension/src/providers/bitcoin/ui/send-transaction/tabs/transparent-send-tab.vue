@@ -86,6 +86,7 @@
         :show-max="showMax"
         :fiat-value="selectedAsset.price"
         :has-enough-balance="!nativeBalanceAfterTransaction.isNeg()"
+        @paste="onAmountPaste"
         @update:input-amount="inputAmount"
         @update:input-set-max="setMaxValue"
       />
@@ -364,10 +365,21 @@ const sendButtonTitle = computed(() => {
   return title;
 });
 
+const isSparkAddressTo = ref<boolean>(false);
+watch(addressTo, async newAddress => {
+  if (!newAddress) {
+    isSparkAddressTo.value = false;
+    return;
+  }
+  const valid = await isSparkAddress(newAddress);
+  if (addressTo.value === newAddress) isSparkAddressTo.value = valid;
+});
+
 const isInputsValid = computed<boolean>(() => {
   if (
-    !isSparkAddress(addressTo.value) &&
-    !isAddress(addressTo.value, (props.network as BitcoinNetwork).networkInfo)
+    !addressTo.value ||
+    (!isSparkAddressTo.value &&
+      !isAddress(addressTo.value, (props.network as BitcoinNetwork).networkInfo))
   )
     return false;
   if (
@@ -488,6 +500,17 @@ const inputAmount = (inputAmount: string) => {
   const inputAmountBn = new BigNumber(inputAmount);
   isMaxSelected.value = false;
   amount.value = inputAmountBn.lt(0) ? '0' : inputAmount;
+};
+
+const onAmountPaste = ($event: ClipboardEvent) => {
+  if (props.network.name !== NetworkNames.Firo) return;
+  const pasted = $event.clipboardData?.getData('text') ?? '';
+  const target = $event.target as HTMLInputElement;
+  const newValue =
+    target.value.slice(0, target.selectionStart ?? target.value.length) +
+    pasted +
+    target.value.slice(target.selectionEnd ?? target.value.length);
+  if (!/^\d*\.?\d*$/.test(newValue)) $event.preventDefault();
 };
 
 const toggleSelectFee = () => {
