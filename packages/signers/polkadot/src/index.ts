@@ -112,7 +112,7 @@ export class PolkadotSigner implements SignerInterface {
           secp256k1Sign(msgHashBuffer, pair, "blake2", options.onlyJS),
         );
         assert(
-          this.verify(
+          await this.verify(
             bufferToHex(msgHashBuffer),
             bufferToHex(sig),
             bufferToHex(pair.publicKey),
@@ -123,7 +123,7 @@ export class PolkadotSigner implements SignerInterface {
       case SignerType.ed25519:
         sig = Buffer.from(ed25519Sign(msgHashBuffer, pair, options.onlyJS));
         assert(
-          this.verify(
+          await this.verify(
             bufferToHex(msgHashBuffer),
             bufferToHex(sig),
             bufferToHex(pair.publicKey),
@@ -134,7 +134,7 @@ export class PolkadotSigner implements SignerInterface {
       case SignerType.sr25519:
         sig = Buffer.from(sr25519Sign(msgHashBuffer, pair));
         assert(
-          this.verify(
+          await this.verify(
             bufferToHex(msgHashBuffer),
             bufferToHex(sig),
             bufferToHex(pair.publicKey),
