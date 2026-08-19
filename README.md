@@ -70,7 +70,6 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 - Kadena
 - Karura
 - Karura EVM
-- Klaytn
 - Kusama
 - Linea
 - Litecoin
