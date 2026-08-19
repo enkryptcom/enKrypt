@@ -10,8 +10,6 @@ const supportedPaths = {
   [NetworkNames.EthereumClassic]: [bip44Paths.ethereumClassic],
   [NetworkNames.Rootstock]: [bip44Paths.rootstock],
   [NetworkNames.MaticZK]: DEFAULT_PATHS,
-  [NetworkNames.Moonbeam]: DEFAULT_PATHS,
-  [NetworkNames.Moonriver]: DEFAULT_PATHS,
   [NetworkNames.Optimism]: DEFAULT_PATHS,
   [NetworkNames.Sepolia]: [bip44Paths.ethereumTestnetLedger, ...DEFAULT_PATHS],
   [NetworkNames.Okc]: DEFAULT_PATHS,

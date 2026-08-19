@@ -137,17 +137,6 @@ const NetworkDetails: Record<SupportedNetworkName, NetworkInfo> = {
     signerType: [SignerType.secp256k1],
     type: NetworkType.EVM,
   },
-  [SupportedNetworkName.Moonbeam]: {
-    id: SupportedNetworkName.Moonbeam,
-    cgId: "moonbeam",
-    decimals: 18,
-    logoURI: "https://assets.coingecko.com/coins/images/22459/thumb/glmr.png",
-    name: "Moonbeam",
-    symbol: "GLMR",
-    rank: 11,
-    signerType: [SignerType.secp256k1],
-    type: NetworkType.EVM,
-  },
   [SupportedNetworkName.Kusama]: {
     id: SupportedNetworkName.Kusama,
     decimals: 12,

@@ -11,7 +11,6 @@ export interface CoingeckPlatforms {
   'binance-smart-chain'?: string;
   gochain?: string;
   'polygon-pos'?: string;
-  moonbeam?: string;
   rootstock?: string;
 }
 export interface CoinGeckoToken {

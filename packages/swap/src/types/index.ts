@@ -20,7 +20,6 @@ export enum SupportedNetworkName {
   Kusama = NetworkNames.Kusama,
   Bitcoin = NetworkNames.Bitcoin,
   EthereumClassic = NetworkNames.EthereumClassic,
-  Moonbeam = NetworkNames.Moonbeam,
   Arbitrum = NetworkNames.Arbitrum,
   Gnosis = NetworkNames.Gnosis,
   Avalanche = NetworkNames.Avalanche,

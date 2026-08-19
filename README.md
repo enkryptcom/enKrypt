@@ -75,8 +75,6 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 - Litecoin
 - Manta Pacific
 - Mode
-- Moonbeam
-- Moonriver
 - OKX Chain
 - Ontology EVM
 - Opal

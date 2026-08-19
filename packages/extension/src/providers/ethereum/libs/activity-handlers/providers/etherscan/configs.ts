@@ -4,8 +4,6 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Ethereum]: 'https://eth.blockscout.com/api?',
   [NetworkNames.Binance]: 'https://api.etherscan.io/v2/api?chainid=56&',
   [NetworkNames.Matic]: 'https://polygon.blockscout.com/api?',
-  [NetworkNames.Moonbeam]: 'https://api.etherscan.io/v2/api?chainid=1284&',
-  [NetworkNames.Moonriver]: 'https://api.etherscan.io/v2/api?chainid=1285&',
   [NetworkNames.KaruraEVM]: 'https://blockscout.karura.network/api?',
   [NetworkNames.AstarEVM]: 'https://blockscout.com/astar/api?',
   [NetworkNames.Optimism]: 'https://api.etherscan.io/v2/api?chainid=10&',

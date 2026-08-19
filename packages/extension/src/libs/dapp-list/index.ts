@@ -17,10 +17,6 @@ const lists: Partial<Record<NetworkNames, string>> = {
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/aca.json',
   [NetworkNames.Karura]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/kar.json',
-  [NetworkNames.Moonbeam]:
-    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/glmr.json',
-  [NetworkNames.Moonriver]:
-    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/movr.json',
   [NetworkNames.Astar]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/astr.json',
   [NetworkNames.AstarEVM]:

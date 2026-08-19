@@ -17,8 +17,6 @@ const supportedPaths = {
     bip44Paths.ethereumClassicLedger,
     bip44Paths.ethereumClassicLedgerLive,
   ],
-  [NetworkNames.Moonbeam]: DEFAULT_PATHS,
-  [NetworkNames.Moonriver]: DEFAULT_PATHS,
   [NetworkNames.Avalanche]: DEFAULT_PATHS,
   [NetworkNames.Optimism]: DEFAULT_PATHS,
   [NetworkNames.Sepolia]: [bip44Paths.ethereumTestnetLedger, ...DEFAULT_PATHS],

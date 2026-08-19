@@ -22,8 +22,6 @@ const TokenList: Record<SupportedNetworkNames, string> = {
   [NetworkNames.Matic]: `https://tokens.coingecko.com/${CoingeckoPlatform.Matic}/all.json`,
   [NetworkNames.MaticZK]: `https://tokens.coingecko.com/${CoingeckoPlatform.MaticZK}/all.json`,
   [NetworkNames.Mode]: `https://tokens.coingecko.com/${CoingeckoPlatform.Mode}/all.json`,
-  [NetworkNames.Moonbeam]: `https://tokens.coingecko.com/${CoingeckoPlatform.Moonbeam}/all.json`,
-  [NetworkNames.Moonriver]: `https://tokens.coingecko.com/${CoingeckoPlatform.Moonriver}/all.json`,
   [NetworkNames.OpBNB]: `https://tokens.coingecko.com/${CoingeckoPlatform.OpBNB}/all.json`,
   [NetworkNames.Optimism]: `https://tokens.coingecko.com/${CoingeckoPlatform.Optimism}/all.json`,
   [NetworkNames.Rari]: `https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/tokenlists/rari.json`,

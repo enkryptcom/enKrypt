@@ -32,8 +32,6 @@ export type SupportedNetworkNames =
   | NetworkNames.Matic
   | NetworkNames.AstarEVM
   | NetworkNames.Optimism
-  | NetworkNames.Moonriver
-  | NetworkNames.Moonbeam
   | NetworkNames.Rootstock
   | NetworkNames.Arbitrum
   | NetworkNames.ArbitrumNova

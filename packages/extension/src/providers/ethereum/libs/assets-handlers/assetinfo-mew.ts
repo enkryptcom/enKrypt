@@ -46,14 +46,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'op',
     cgPlatform: CoingeckoPlatform.Optimism,
   },
-  [NetworkNames.Moonriver]: {
-    tbName: 'movr',
-    cgPlatform: CoingeckoPlatform.Moonriver,
-  },
-  [NetworkNames.Moonbeam]: {
-    tbName: 'mobm',
-    cgPlatform: CoingeckoPlatform.Moonbeam,
-  },
   [NetworkNames.Rootstock]: {
     cgPlatform: CoingeckoPlatform.Rootstock,
     bsEndpoint: true,

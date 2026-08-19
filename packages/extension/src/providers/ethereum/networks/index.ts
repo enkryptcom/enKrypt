@@ -3,8 +3,6 @@ import etcNode from './etc';
 import maticNode from './matic';
 import maticZkNode from './maticzk';
 import bscNode from './bsc';
-import moonbeamNode from './glmr';
-import moonriverNode from './movr';
 import karuraEvmNode from './karura';
 import okcNode from './okc';
 import astarEvmNode from './astr';
@@ -74,8 +72,6 @@ export default {
   matic: maticNode,
   maticzk: maticZkNode,
   bsc: bscNode,
-  moonbeam: moonbeamNode,
-  moonriver: moonriverNode,
   karuraEvm: karuraEvmNode,
   okc: okcNode,
   astarEvm: astarEvmNode,
