@@ -16,7 +16,6 @@ import vicNode from './vic';
 import zkSyncNode from './zksync';
 import arbNode from './arb';
 import arbNovaNode from './arb-nova';
-import * as skale from './skale';
 import ontEVMNode from './ontevm';
 import gnoNode from './gno';
 import avaxNode from './avax';
@@ -87,14 +86,6 @@ export default {
   zkSepolia: zkSepoliaNode,
   vic: vicNode,
   zkSync: zkSyncNode,
-  skaleEuropa: skale.europaNode,
-  skaleBlockBrawlers: skale.blockBrawlersNode,
-  skaleCalypso: skale.calypsoNode,
-  skaleCryptoBlades: skale.cryptoBladesNode,
-  skaleCryptoColosseum: skale.cryptoColosseumNode,
-  skaleExorde: skale.exordeNode,
-  skaleNebula: skale.nebulaNode,
-  skaleTitan: skale.titanNode,
   ontEVM: ontEVMNode,
   arbitrum: arbNode,
   arbitrumNova: arbNovaNode,

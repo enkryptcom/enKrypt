@@ -12,20 +12,6 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Rootstock]: 'https://blockscout.com/rsk/mainnet/api?',
   [NetworkNames.RootstockTestnet]:
     'https://rootstock-testnet.blockscout.com/api?',
-  [NetworkNames.SkaleBlockBrawlers]:
-    'https://frayed-decent-antares.explorer.mainnet.skalenodes.com/api?',
-  [NetworkNames.SkaleCalypso]:
-    'https://honorable-steel-rasalhague.explorer.mainnet.skalenodes.com/api?',
-  [NetworkNames.SkaleCryptoBlades]:
-    'https://affectionate-immediate-pollux.explorer.mainnet.skalenodes.com/api?',
-  [NetworkNames.SkaleCryptoColosseum]:
-    'https://haunting-devoted-deneb.explorer.mainnet.skalenodes.com/api?',
-  [NetworkNames.SkaleEuropa]:
-    'https://elated-tan-skat.explorer.mainnet.skalenodes.com/api?',
-  [NetworkNames.SkaleNebula]:
-    'https://green-giddy-denebola.explorer.mainnet.skalenodes.com/api?',
-  [NetworkNames.SkaleTitan]:
-    'https://parallel-stormy-spica.explorer.mainnet.skalenodes.com/api?',
   [NetworkNames.ZkSync]: 'https://block-explorer-api.mainnet.zksync.io/api?',
   [NetworkNames.Arbitrum]: 'https://api.etherscan.io/v2/api?chainid=42161&',
   [NetworkNames.ArbitrumNova]: 'https://api.etherscan.io/v2/api?chainid=42170&',
