@@ -31,7 +31,6 @@ const NetworkEndpoints: Record<string, string> = {
   [NetworkNames.Degen]: 'https://explorer.degen.tips/api?',
   [NetworkNames.Ink]: 'https://explorer.inkonchain.com/api?',
   [NetworkNames.ImmutableZkevm]: 'https://explorer.immutable.com/api?',
-  [NetworkNames.Rari]: 'https://mainnet.explorer.rarichain.org/api?',
   [NetworkNames.Forma]: 'https://explorer.forma.art/api?',
   [NetworkNames.XLayer]: 'https://www.oklink.com/api/v5/explorer/xlayer/api?',
   [NetworkNames.Linea]: 'https://api.lineascan.build/api?',

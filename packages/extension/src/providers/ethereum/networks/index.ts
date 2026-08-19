@@ -35,7 +35,6 @@ import blastNode from './blast';
 import sankoNode from './dmt';
 import degenNode from './degen';
 import immutableZkevmNode from './immutable-zkevm';
-import rariNode from './rari';
 import formaNode from './forma';
 import xlayerNode from './xlayer';
 import lineaNode from './linea';
@@ -102,7 +101,6 @@ export default {
   sanko: sankoNode,
   degen: degenNode,
   immutableZkevm: immutableZkevmNode,
-  rari: rariNode,
   forma: formaNode,
   xlayer: xlayerNode,
   linea: lineaNode,

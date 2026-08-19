@@ -88,7 +88,6 @@ Enkrypt is a web3 wallet built from the ground up to support the multi-chain fut
 - Proof of Play Apex
 - Puppy Net
 - Quartz
-- RARI Chain
 - Rollux
 - Rootstock
 - Sanko Chain

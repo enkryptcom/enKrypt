@@ -151,10 +151,6 @@ const supportedNetworks: Record<SupportedNetworkNames, SupportedNetwork> = {
     tbName: 'itze',
     cgPlatform: CoingeckoPlatform.ImmutableZkevm,
   },
-  [NetworkNames.Rari]: {
-    tbName: 'rari',
-    cgPlatform: undefined,
-  },
   [NetworkNames.Solana]: {
     tbName: '',
     cgPlatform: CoingeckoPlatform.Solana,

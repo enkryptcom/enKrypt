@@ -64,7 +64,6 @@ export enum NetworkNames {
   OpBNB = "OpBNB",
   Palm = "palm",
   Scroll = "scroll",
-  Rari = "rari",
   CotiTestnet = "CotiTestnet",
   Hoodi = "Hoodi",
   Fraxtal = "fraxtal",

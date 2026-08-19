@@ -69,8 +69,6 @@ const lists: Partial<Record<NetworkNames, string>> = {
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/palm.json',
   [NetworkNames.Scroll]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/scroll.json',
-  [NetworkNames.Rari]:
-    'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/rari.json',
   [NetworkNames.Solana]:
     'https://raw.githubusercontent.com/enkryptcom/dynamic-data/main/dapps/sol.json',
   [NetworkNames.Linea]:
