@@ -23,8 +23,8 @@
   },
   "devDependencies": {
     "@types/node": "^25.9.5",
-    "@typescript-eslint/eslint-plugin": "^8.65.0",
-    "@typescript-eslint/parser": "^8.65.0",
+    "@typescript-eslint/eslint-plugin": "^8.67.0",
+    "@typescript-eslint/parser": "^8.67.0",
     "eslint": "^9.39.5",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.1.8",
@@ -36,7 +36,7 @@
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "8.65.0",
+    "typescript-eslint": "8.67.0",
     "vitest": "^4.1.10"
   },
   "repository": {
@@ -53,9 +53,9 @@
     "@ethereumjs/tx": "^5.4.0",
     "@ethereumjs/util": "^9.1.0",
     "@ledgerhq/hw-app-btc": "^10.22.1",
-    "@ledgerhq/hw-app-eth": "^7.8.11",
-    "@ledgerhq/hw-app-solana": "^7.10.6",
-    "@ledgerhq/hw-transport": "^6.35.6",
+    "@ledgerhq/hw-app-eth": "^7.8.14",
+    "@ledgerhq/hw-app-solana": "^7.10.7",
+    "@ledgerhq/hw-transport": "^6.35.7",
     "@ledgerhq/hw-transport-webusb": "^6.35.0",
     "@ledgerhq/live-common": "^34.20.0",
     "@metamask/eth-sig-util": "^8.2.0",
