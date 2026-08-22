@@ -17,5 +17,8 @@ export const pathParser = (
   if (type === SignerType.ed25519mas) {
     return `${basePath}/${index}'/0'`; // Massa uses hardened paths with BIP-44 coin type 632
   }
+  if (type === SignerType.mldsa65anm) {
+    return `${basePath}/0'/0'/${index}'`; // Animica: m/44'/4279885'/account'/0'/index', all hardened (SLIP-0010)
+  }
   return `${basePath}/${index}`;
 };

@@ -1,0 +1,57 @@
+{
+  "name": "@enkryptcom/signer-animica",
+  "version": "0.0.1",
+  "description": "Animica (ANM) blockchain signer — ML-DSA-65 (FIPS 204)",
+  "type": "module",
+  "main": "src/index.ts",
+  "module": "src/index.ts",
+  "publishConfig": {
+    "main": "dist/index.cjs",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "lint": "prettier --write .",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=14.15.0"
+  },
+  "dependencies": {
+    "@enkryptcom/types": "workspace:^",
+    "@enkryptcom/utils": "workspace:^",
+    "@noble/hashes": "^2.3.0",
+    "@noble/post-quantum": "^0.7.0",
+    "@scure/base": "^1.2.5",
+    "bip39": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.19",
+    "@typescript-eslint/eslint-plugin": "^8.59.4",
+    "@typescript-eslint/parser": "^8.59.4",
+    "eslint": "^9.39.4",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-module-resolver": "^1.5.0",
+    "prettier": "^3.8.3",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "8.59.4",
+    "vitest": "^4.1.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/enkryptcom/enKrypt/tree/main/packages/signers/animica"
+  },
+  "keywords": [],
+  "author": "animica",
+  "license": "MIT"
+}

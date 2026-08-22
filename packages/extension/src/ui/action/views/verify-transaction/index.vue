@@ -9,6 +9,7 @@ import VerifyTransactionBTC from '@/providers/bitcoin/ui/send-transaction/verify
 import VerifyTransactionKadena from '@/providers/kadena/ui/send-transaction/verify-transaction/index.vue';
 import VerifyTransactionSolana from '@/providers/solana/ui/send-transaction/verify-transaction/index.vue';
 import VerifyTransactionMassa from '@/providers/massa/ui/send-transaction/verify-transaction/index.vue';
+import VerifyTransactionAnimica from '@/providers/animica/ui/send-transaction/verify-transaction/index.vue';
 import { useRoute } from 'vue-router';
 import { ProviderName } from '@/types/provider';
 import { getNetworkByName } from '@/libs/utils/networks';
@@ -21,6 +22,7 @@ const sendLayouts: Record<ProviderName, any> = {
   [ProviderName.kadena]: VerifyTransactionKadena,
   [ProviderName.solana]: VerifyTransactionSolana,
   [ProviderName.massa]: VerifyTransactionMassa,
+  [ProviderName.animica]: VerifyTransactionAnimica,
   [ProviderName.enkrypt]: null,
 };
 const layout = shallowRef();
