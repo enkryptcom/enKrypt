@@ -1,5 +1,5 @@
 import * as bitcoin from 'bitcoinjs-lib';
-import { LOCK_TIME, SPARK_TX_TYPE } from '@/libs/spark-handler/constants';
+import { LOCK_TIME } from '@/libs/spark-handler/constants';
 import { isSparkAddress } from '@/providers/bitcoin/libs/utils';
 import BigNumber from 'bignumber.js';
 
@@ -7,6 +7,7 @@ interface CreateTempFromSparkTxArgs {
   network: bitcoin.networks.Network;
   to: string;
   amount: string;
+  sparkTxType: number;
 }
 
 interface CreateTempFromSparkTxResult {
@@ -18,10 +19,11 @@ export const createTempFromSparkTx = async ({
   network,
   amount,
   to,
+  sparkTxType,
 }: CreateTempFromSparkTxArgs): Promise<CreateTempFromSparkTxResult> => {
   const isSparkTransaction = await isSparkAddress(to);
   const tempTx = new bitcoin.Transaction();
-  tempTx.version = 3 | (SPARK_TX_TYPE << 16);
+  tempTx.version = 3 | (sparkTxType << 16);
   tempTx.locktime = LOCK_TIME;
   tempTx.addInput(
     Buffer.alloc(32, 0),

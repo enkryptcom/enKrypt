@@ -102,6 +102,17 @@ export default class FiroElectrum {
     }
   }
 
+  async getChainTipHeight(): Promise<number> {
+    const header = await this.mainClient?.request(
+      'blockchain.headers.subscribe',
+      [],
+    );
+    if (typeof header?.height !== 'number') {
+      throw new Error('Failed to fetch chain tip height from electrum server');
+    }
+    return header.height;
+  }
+
   async getBalanceByAddress(address: string): Promise<any> {
     const script = bitcoin.address.toOutputScript(address, networkInfo);
     const hash = bitcoin.crypto.sha256(script);

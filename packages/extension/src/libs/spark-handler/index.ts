@@ -16,7 +16,12 @@ import {
   base64ToReversedHex,
   numberToReversedHex,
 } from '@/libs/spark-handler/utils';
-import { LOCK_TIME, SPARK_TX_TYPE } from '@/libs/spark-handler/constants';
+import {
+  LOCK_TIME,
+  getSparkSpendVersion,
+  getSparkTxType,
+} from '@/libs/spark-handler/constants';
+import { firoElectrum } from '@/providers/bitcoin/libs/electrum-client/electrum-client';
 import { intersectSets } from '@action/utils/set-utils';
 import { createTempFromSparkTx } from '@/libs/spark-handler/createTempFromSparkTx';
 import { getActivePendingSpentTags } from '@/libs/utils/updateAndSync/markCoinsAsPendingSpent';
@@ -72,6 +77,7 @@ const buildFinalSparkSpendTransaction = ({
   requestedAmount,
   serializedSpendHex,
   serializedSpendSize,
+  sparkTxType,
 }: {
   networkInfo: bitcoin.Network;
   scripts: Uint8Array[];
@@ -80,9 +86,10 @@ const buildFinalSparkSpendTransaction = ({
   requestedAmount: number;
   serializedSpendHex: string;
   serializedSpendSize: number;
+  sparkTxType: number;
 }) => {
   const tx = new bitcoin.Transaction();
-  tx.version = 3 | (SPARK_TX_TYPE << 16);
+  tx.version = 3 | (sparkTxType << 16);
   tx.locktime = LOCK_TIME;
   tx.addInput(
     Buffer.alloc(32, 0),
@@ -128,10 +135,18 @@ export async function sendFromSparkAddress(
   let result = 0;
   let deserializedCoinObj = 0;
   let coverSetData = 0;
+  let extensionCommitmentPtr = 0;
   const diversifier = 1n;
   const isTestNetwork = networkInfo.bech32 === 'tb';
   const requestedAmount = getRequestedAmount(amount);
   const db = new IndexedDBHelper();
+
+  // The spend will confirm at tip + 1 at the earliest; that height decides
+  // whether the H2 rules (nType 11 / spendVersion 2) apply.
+  const nextBlockHeight = (await firoElectrum.getChainTipHeight()) + 1;
+  const sparkTxType = getSparkTxType(nextBlockHeight);
+  const spendVersion = getSparkSpendVersion(nextBlockHeight);
+
   const Module = await wasmInstance.getInstance();
   const cleanup = () => {
     if (spendKeyObj && spendKeyObj !== 0) {
@@ -191,6 +206,9 @@ export async function sendFromSparkAddress(
     }
     if (deserializedCoinObj) {
       Module._free(deserializedCoinObj);
+    }
+    if (extensionCommitmentPtr) {
+      Module._free(extensionCommitmentPtr);
     }
     if (result && result !== 0) {
       Module.ccall(
@@ -504,6 +522,7 @@ export async function sendFromSparkAddress(
     network: networkInfo,
     to,
     amount,
+    sparkTxType,
   });
 
   //tempTx// tx.signInput(0, spendKeyObj);  // ? how to sign? Is I need to sign wit all utxo keypairs? // ? how to add subtractFeeFromAmount? // ? what is spend transaction type? // https://github.com/firoorg/sparkmobile/blob/main/include/spark.h#L22
@@ -511,6 +530,12 @@ export async function sendFromSparkAddress(
   // const txHash = tx.extractTransaction()
 
   // const txHashSig = txHash.getHash()
+
+  // Extension commitment: 32 zero bytes for a plain spend (only Spark Name
+  // registrations commit to something else). Consumed by V2 spends; the
+  // pre-H2 wasm build ignores the extra arguments.
+  extensionCommitmentPtr = Module._malloc(32);
+  Module.HEAPU8.fill(0, extensionCommitmentPtr, extensionCommitmentPtr + 32);
 
   // Create the spend transaction
   result = Module.ccall(
@@ -527,6 +552,8 @@ export async function sendFromSparkAddress(
       'number',
       'string',
       'number',
+      'number',
+      'number',
     ],
     [
       spendKeyObj,
@@ -539,6 +566,8 @@ export async function sendFromSparkAddress(
       idAndBlockHashesMap,
       txHashSig,
       additionalTxSize,
+      spendVersion,
+      extensionCommitmentPtr,
     ],
   );
 
@@ -612,6 +641,7 @@ export async function sendFromSparkAddress(
     requestedAmount,
     serializedSpendHex: hex,
     serializedSpendSize,
+    sparkTxType,
   });
   cleanup();
   return {
