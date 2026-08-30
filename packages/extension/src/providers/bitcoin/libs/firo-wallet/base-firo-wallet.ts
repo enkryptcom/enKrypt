@@ -85,6 +85,18 @@ export class BaseFiroWallet {
     });
   }
 
+  async clearSecret(): Promise<void> {
+    this.secret = undefined;
+    this.seed = '';
+    this._xPub = '';
+    this._node0 = undefined;
+    this._node1 = undefined;
+    this.internal_addresses_cache = {};
+    this.external_addresses_cache = {};
+    this.addresses2Check = null;
+    await this.#storage.remove(configs.STORAGE_KEYS.FIRO_WALLET_SECRET);
+  }
+
   async getSecret(): Promise<Buffer> {
     const value = await this.#storage.get(
       configs.STORAGE_KEYS.FIRO_WALLET_SECRET,

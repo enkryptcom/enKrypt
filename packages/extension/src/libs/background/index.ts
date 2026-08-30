@@ -62,6 +62,7 @@ class BackgroundHandler {
     });
   }
   async init(): Promise<void> {
+    await this.#wallet.clearSecret();
     await handlePersistentEvents.bind(this)();
     const enkryptSettings = await this.#settingsState.getEnkryptSettings();
     if (!enkryptSettings.installedTimestamp) {
@@ -184,6 +185,7 @@ class BackgroundHandler {
         return unlockResponse;
       }
       case InternalMethods.lock:
+        await this.#wallet.clearSecret();
         return lock(this.#keyring);
       case InternalMethods.changeNetwork:
         return changeNetwork(msg, this.#tabProviders);
