@@ -40,7 +40,7 @@
     "@kadena/pactjs-cli": "^1.18.3",
     "@ledgerhq/hw-transport-webusb": "^6.35.0",
     "@massalabs/massa-web3": "^5.3.0",
-    "@metamask/eth-sig-util": "^8.2.0",
+    "@metamask/eth-sig-util": "^9.0.0",
     "@metaplex-foundation/mpl-bubblegum": "^5.0.2",
     "@metaplex-foundation/umi": "^1.5.1",
     "@metaplex-foundation/umi-bundle-defaults": "^1.5.1",
