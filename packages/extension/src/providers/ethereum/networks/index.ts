@@ -3,8 +3,6 @@ import etcNode from './etc';
 import maticNode from './matic';
 import maticZkNode from './maticzk';
 import bscNode from './bsc';
-import moonbeamNode from './glmr';
-import moonriverNode from './movr';
 import karuraEvmNode from './karura';
 import okcNode from './okc';
 import astarEvmNode from './astr';
@@ -16,12 +14,10 @@ import vicNode from './vic';
 import zkSyncNode from './zksync';
 import arbNode from './arb';
 import arbNovaNode from './arb-nova';
-import * as skale from './skale';
 import ontEVMNode from './ontevm';
 import gnoNode from './gno';
 import avaxNode from './avax';
 import ftmNode from './ftm';
-import kaiaNode from './kaia';
 import auroraNode from './aurora';
 import puppyNode from './puppy';
 import deriveNode from './derive';
@@ -39,7 +35,6 @@ import blastNode from './blast';
 import sankoNode from './dmt';
 import degenNode from './degen';
 import immutableZkevmNode from './immutable-zkevm';
-import rariNode from './rari';
 import formaNode from './forma';
 import xlayerNode from './xlayer';
 import lineaNode from './linea';
@@ -76,8 +71,6 @@ export default {
   matic: maticNode,
   maticzk: maticZkNode,
   bsc: bscNode,
-  moonbeam: moonbeamNode,
-  moonriver: moonriverNode,
   karuraEvm: karuraEvmNode,
   okc: okcNode,
   astarEvm: astarEvmNode,
@@ -87,21 +80,12 @@ export default {
   zkSepolia: zkSepoliaNode,
   vic: vicNode,
   zkSync: zkSyncNode,
-  skaleEuropa: skale.europaNode,
-  skaleBlockBrawlers: skale.blockBrawlersNode,
-  skaleCalypso: skale.calypsoNode,
-  skaleCryptoBlades: skale.cryptoBladesNode,
-  skaleCryptoColosseum: skale.cryptoColosseumNode,
-  skaleExorde: skale.exordeNode,
-  skaleNebula: skale.nebulaNode,
-  skaleTitan: skale.titanNode,
   ontEVM: ontEVMNode,
   arbitrum: arbNode,
   arbitrumNova: arbNovaNode,
   gnosis: gnoNode,
   avax: avaxNode,
   fantom: ftmNode,
-  kaia: kaiaNode,
   aurora: auroraNode,
   puppy: puppyNode,
   base: baseNode,
@@ -117,7 +101,6 @@ export default {
   sanko: sankoNode,
   degen: degenNode,
   immutableZkevm: immutableZkevmNode,
-  rari: rariNode,
   forma: formaNode,
   xlayer: xlayerNode,
   linea: lineaNode,
