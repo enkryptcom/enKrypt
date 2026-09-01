@@ -32,15 +32,12 @@ export type SupportedNetworkNames =
   | NetworkNames.Matic
   | NetworkNames.AstarEVM
   | NetworkNames.Optimism
-  | NetworkNames.Moonriver
-  | NetworkNames.Moonbeam
   | NetworkNames.Rootstock
   | NetworkNames.Arbitrum
   | NetworkNames.ArbitrumNova
   | NetworkNames.Gnosis
   | NetworkNames.Avalanche
   | NetworkNames.Fantom
-  | NetworkNames.Kaia
   | NetworkNames.Aurora
   | NetworkNames.TomoChain
   | NetworkNames.Shibarium
@@ -60,7 +57,6 @@ export type SupportedNetworkNames =
   | NetworkNames.Mode
   | NetworkNames.OpBNB
   | NetworkNames.Scroll
-  | NetworkNames.Rari
   | NetworkNames.Gravity
   | NetworkNames.Unichain
   | NetworkNames.Abstract
