@@ -13,7 +13,7 @@
 # Uncomment the line if you want fastlane to automatically update itself
 
 before_all do
-  update_fastlane
+  # update_fastlane
 end
 
 desc "Prepare the macos app for build"
