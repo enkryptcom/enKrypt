@@ -24,7 +24,7 @@
       <NFTs :is-active="route.name === 'nfts'" /><br />NFTs
     </router-link>
     <router-link
-      v-if="DappList[network.name]"
+      v-if="DappList[network.name] && !is_safari"
       :to="{
         name: 'dapps',
         params: { id: !!selected ? selected : null },
@@ -46,6 +46,8 @@ import DappList from '@/libs/dapp-list';
 import { BaseNetwork } from '@/types/base-network';
 import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 import { useRoute } from 'vue-router';
+
+const is_safari = __IS_SAFARI__;
 
 defineProps({
   selected: {
