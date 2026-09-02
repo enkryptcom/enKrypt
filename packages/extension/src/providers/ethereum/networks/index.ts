@@ -62,6 +62,7 @@ import coredao from './coredao';
 import appLayerTestnet from './applayer-testnet';
 import nibiru from './nibiru';
 import nibiruTestnet from './nibiru-testnet';
+import shark from './shark';
 // import tac from './tac'; waiting for RPC fix
 
 export default {
@@ -129,5 +130,6 @@ export default {
   nibiru: nibiru,
   nibiruTestnet: nibiruTestnet,
   appLayerTestnet: appLayerTestnet,
+  shark: shark,
   // tac: tac, waiting for RPC fix
 };
