@@ -1,7 +1,7 @@
 import { BitcoinNetworkInfo, HaskoinUnspentType } from '../types';
 import { address as BTCAddress } from 'bitcoinjs-lib';
 import { GasPriceTypes } from '@/providers/common/types';
-import { fromBase } from '@enkryptcom/utils';
+import { fromBase, toBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
 import { BitcoinNetwork } from '../types/bitcoin-network';
 import { BTCTxInfo } from '../ui/types';
@@ -14,6 +14,16 @@ const isAddress = (address: string, network: BitcoinNetworkInfo): boolean => {
     return false;
   }
 };
+
+/**
+ * The network's dust limit in base units.
+ *
+ * Nodes will not relay a transaction that carries an output below this, so a
+ * change output worth less than the limit cannot be added to a transaction. It
+ * has to be left behind as fee instead.
+ */
+const getDustThreshold = (network: BitcoinNetwork): number =>
+  Number(toBase(network.dust.toString(), network.decimals));
 
 const getTxInfo = (
   utxos: HaskoinUnspentType[],
@@ -101,4 +111,4 @@ const getGasCostValues = async (
   };
   return gasCostValues;
 };
-export { isAddress, getGasCostValues, getTxInfo };
+export { isAddress, getGasCostValues, getTxInfo, getDustThreshold };
