@@ -5,6 +5,7 @@ import {
   fromRpcSig,
   toRpcSig,
   privateToAddress,
+  importPublic,
 } from "@ethereumjs/util";
 import { mnemonicToSeed } from "bip39";
 import {
@@ -23,6 +24,20 @@ import {
 import HDkey from "hdkey";
 import { box as naclBox } from "tweetnacl";
 import { encodeBase64 } from "tweetnacl-util";
+
+// `ecrecover` returns the 64 byte ethereum public key. Key pairs held by the
+// keyring may carry the SEC1 compressed (33 byte) or uncompressed (65 byte)
+// form instead, so bring both sides to the same representation before
+// comparing them.
+const toEthereumPublicKey = (publicKey: string): string => {
+  const keyBuffer = hexToBuffer(publicKey);
+  if (keyBuffer.length === 64) return bufferToHex(keyBuffer);
+  try {
+    return bufferToHex(importPublic(keyBuffer));
+  } catch {
+    return bufferToHex(keyBuffer);
+  }
+};
 
 export class EthereumSigner implements SignerInterface {
   async generate(
@@ -51,7 +66,7 @@ export class EthereumSigner implements SignerInterface {
       sigdecoded.r,
       sigdecoded.s,
     );
-    return bufferToHex(rpubkey) === publicKey;
+    return bufferToHex(rpubkey) === toEthereumPublicKey(publicKey);
   }
 
   async sign(msgHash: string, keyPair: KeyPair): Promise<string> {
@@ -59,7 +74,12 @@ export class EthereumSigner implements SignerInterface {
     const privateKeyBuffer = hexToBuffer(keyPair.privateKey);
     const signature = ecsign(msgHashBuffer, privateKeyBuffer);
     const rpcSig = toRpcSig(signature.v, signature.r, signature.s);
-    if (!this.verify(bufferToHex(msgHashBuffer), rpcSig, keyPair.publicKey)) {
+    const isValid = await this.verify(
+      bufferToHex(msgHashBuffer),
+      rpcSig,
+      keyPair.publicKey,
+    );
+    if (!isValid) {
       throw new Error(Errors.SigningErrors.UnableToVerify);
     }
     return toRpcSig(signature.v, signature.r, signature.s);
