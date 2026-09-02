@@ -304,6 +304,40 @@ describe("Keyring create tests", () => {
     },
   );
 
+  it(
+    "keyring should generate animica ml-dsa-65 keys",
+    { timeout: 20_000 },
+    async () => {
+      const memStorage = new MemoryStorage();
+      const storage = new Storage("keyring", { storage: memStorage });
+      const keyring = new KeyRing(storage);
+      // BIP-39 reference mnemonic; expected addresses are the published Animica
+      // HD vectors (docs/wallet/HD_DERIVATION.md), cross-checked on mainnet.
+      await keyring.init(password, {
+        mnemonic:
+          "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+      });
+      const keyAdd: KeyRecordAdd = {
+        basePath: "m/44'/4279885'",
+        signerType: SignerType.mldsa65anm,
+        name: "0index",
+        walletType: WalletType.mnemonic,
+      };
+      await keyring.unlockMnemonic(password);
+      const pair = await keyring.createAndSaveKey(keyAdd);
+      expect(pair.signerType).equals(SignerType.mldsa65anm);
+      expect(pair.pathIndex).equals(0);
+      expect(pair.address).equals(
+        "anim1zqpn54yt2fz07wg5zz33qplkh7tewv30tm5s9cdwvag6kf6myvd2d5sj9pzp7",
+      );
+      const next = await keyring.createKey(keyAdd);
+      expect(next.pathIndex).equals(1);
+      expect(next.address).equals(
+        "anim1zqpmznku3ddgyhl27d0p38jq7qyjgsnvafzd8pwh27gednh0x09s2egxyv9ej",
+      );
+    },
+  );
+
   it("keyring should generate ethereum keys", { timeout: 20_000 }, async () => {
     const memStorage = new MemoryStorage();
     const storage = new Storage("keyring", { storage: memStorage });

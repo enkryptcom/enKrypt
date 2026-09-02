@@ -94,6 +94,22 @@ interface KadenaDBInfo {
 
 type MassaRawInfo = OperationStatus;
 
+/** Result of the Animica `tx.getStatus` JSON-RPC method. */
+interface AnimicaRawInfo {
+  hash: string;
+  /** e.g. 'not_found' | 'pending' | 'confirmed' | 'finalized' | 'rejected' */
+  status: string;
+  state: string;
+  seen_in_mempool: boolean;
+  included_height: number | null;
+  confirmations: number | null;
+  finalized: boolean;
+  reorged_out: boolean;
+  reason: string | null;
+  /** null unless the transaction was rejected */
+  rejection_details: unknown;
+}
+
 enum ActivityStatus {
   pending = 'pending',
   success = 'success',
@@ -132,7 +148,8 @@ interface Activity {
     | SwapRawInfo
     | KadenaRawInfo
     | SOLRawInfo
-    | MassaRawInfo;
+    | MassaRawInfo
+    | AnimicaRawInfo;
 }
 
 export {
@@ -148,4 +165,5 @@ export {
   KadenaDBInfo,
   SOLRawInfo,
   MassaRawInfo,
+  AnimicaRawInfo,
 };

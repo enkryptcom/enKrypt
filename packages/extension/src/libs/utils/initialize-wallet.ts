@@ -5,6 +5,7 @@ import BitcoinNetworks from '@/providers/bitcoin/networks';
 import SolanaNetworks from '@/providers/solana/networks';
 import KadenaNetworks from '@/providers/kadena/networks';
 import MassaNetworks from '@/providers/massa/networks';
+import AnimicaNetworks from '@/providers/animica/networks';
 import { NetworkNames, WalletType } from '@enkryptcom/types';
 import { getAccountsByNetworkName } from '@/libs/utils/accounts';
 import BackupState from '../backup-state';
@@ -26,6 +27,9 @@ export const initAccounts = async (keyring: KeyRing) => {
   ).filter(acc => !acc.isTestWallet);
   const ed25519massa = (
     await getAccountsByNetworkName(NetworkNames.Massa)
+  ).filter(acc => !acc.isTestWallet);
+  const mldsa65anm = (
+    await getAccountsByNetworkName(NetworkNames.Animica)
   ).filter(acc => !acc.isTestWallet);
   if (secp256k1.length == 0)
     await keyring.saveNewAccount({
@@ -67,6 +71,13 @@ export const initAccounts = async (keyring: KeyRing) => {
       basePath: MassaNetworks.Massa.basePath,
       name: 'Massa Account 1',
       signerType: MassaNetworks.Massa.signer[0],
+      walletType: WalletType.mnemonic,
+    });
+  if (mldsa65anm.length == 0)
+    await keyring.saveNewAccount({
+      basePath: AnimicaNetworks.Animica.basePath,
+      name: 'Animica Account 1',
+      signerType: AnimicaNetworks.Animica.signer[0],
       walletType: WalletType.mnemonic,
     });
 };
