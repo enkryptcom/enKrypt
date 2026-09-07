@@ -7,6 +7,10 @@ import {
   markCoinsAsUsed,
   SparkUnusedTxDetails,
 } from '@/libs/utils/updateAndSync/markCoinsAsUsed';
+import {
+  ensureFiroSecrets,
+  handleFiroSecretsError,
+} from '@action/utils/firo-secrets-guard';
 
 let worker: Worker | null = null;
 
@@ -39,10 +43,18 @@ export const useSynchronizeSparkState = (
     }
   };
 
-  const synchronizeWorker = () => {
+  const synchronizeWorker = async () => {
     if (isWorkerRunning.value) {
       pendingWorkerRun.value = true;
       console.log('Worker already running, skip start');
+      return;
+    }
+
+    // The worker needs the firo secret; if it is gone (e.g. background
+    // restarted), send the user to the password screen instead of failing.
+    if (!(await ensureFiroSecrets())) {
+      isCoinFetchPending.value = false;
+      isTagFetchPending.value = false;
       return;
     }
 
@@ -54,7 +66,17 @@ export const useSynchronizeSparkState = (
     isWorkerRunning.value = true;
     pendingWorkerRun.value = false;
 
-    worker.onmessage = () => {
+    worker.onmessage = (event: MessageEvent) => {
+      const workerError = (event.data as { error?: string })?.error;
+      if (workerError) {
+        if (!handleFiroSecretsError(workerError)) {
+          console.error('Spark coin sync worker error:', workerError);
+        }
+        isCoinFetchPending.value = false;
+        isTagFetchPending.value = false;
+        cleanupAndMaybeRestart();
+        return;
+      }
       workerFinished.value = true;
       cleanupAndMaybeRestart();
     };

@@ -102,6 +102,7 @@ import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
 import RateState from '@/libs/rate-state';
 import { useRateStore } from '@action/store/rate-store';
+import { handleFiroSecretsError } from '@action/utils/firo-secrets-guard';
 
 /** -------------------
  * Rate
@@ -238,6 +239,7 @@ const sendAction = async () => {
       });
   } catch (error) {
     isProcessing.value = false;
+    if (handleFiroSecretsError(error)) return;
     console.error('error', error);
     errorMsg.value = getErrorMessage(error);
   }

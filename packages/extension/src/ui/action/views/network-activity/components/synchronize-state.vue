@@ -81,6 +81,7 @@ import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
 import ActivityState from '@/libs/activity-state';
 import { SendEventType } from '@/libs/metrics/types';
 import { trackSendEvents } from '@/libs/metrics';
+import { handleFiroSecretsError } from '@action/utils/firo-secrets-guard';
 
 const props = defineProps({
   isCoinSyncing: {
@@ -266,6 +267,7 @@ const anonymizeFunds = async () => {
       network: props.network.name,
       error: (error as Error).message,
     });
+    if (handleFiroSecretsError(error)) return;
     errorMsg.value = (error as Error).message ?? JSON.stringify(error);
     console.error('ERROR', error);
   } finally {

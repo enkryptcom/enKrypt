@@ -73,10 +73,15 @@ class API implements ProviderAPIInterface {
 
   async getBalance(): Promise<string> {
     if (this.#balancePromise) return this.#balancePromise;
-    this.#balancePromise = this.getUTXOs('')
-      .then(utxos =>
-        utxos.reduce((sum, utxo) => sum + utxo.satoshis, 0).toString(),
-      )
+    // Balance only needs UTXO amounts, not raw transactions, so it can
+    // sum straight from the bulk UTXO endpoint (falling back to electrum).
+    this.#balancePromise = this.#wallet
+      .getTransactionsAddresses()
+      .then(async addresses => {
+        const balance = await this.getAddressBalance(addresses);
+        if (balance !== null) return balance;
+        return (await this.#wallet.getPublicBalance()).toString();
+      })
       .catch(err => {
         console.error('Firo getBalance failed:', err);
         return '0';
@@ -136,10 +141,32 @@ class API implements ProviderAPIInterface {
     );
     const rawByTxid = new Map(uniqueTxids.map((txid, i) => [txid, rawTxs[i]]));
 
+    const isValidRaw = (raw: string | null | undefined, txid: string) => {
+      if (!raw) return false;
+      try {
+        return FTransaction.fromHex(raw).getId() === txid;
+      } catch {
+        return false;
+      }
+    };
+
+    // The insight API strips vExtraPayload from special transactions
+    // (e.g. Spark spends), so their raw hex no longer hashes to the txid;
+    // refetch those complete via electrum.
+    const invalidTxids = uniqueTxids.filter(
+      txid => !isValidRaw(rawByTxid.get(txid), txid),
+    );
+    if (invalidTxids.length) {
+      const electrumRaws = await this.#wallet.getRawTransactions(invalidTxids);
+      for (const txid of invalidTxids) {
+        rawByTxid.set(txid, electrumRaws[txid] ?? null);
+      }
+    }
+
     return utxos.map(u => {
       const raw = rawByTxid.get(u.txid);
       if (!raw) throw new Error(`Missing raw tx for ${u.txid}`);
-      if (FTransaction.fromHex(raw).getId() !== u.txid) {
+      if (!isValidRaw(raw, u.txid)) {
         throw new Error(`Raw tx hash mismatch for ${u.txid}`);
       }
       return {

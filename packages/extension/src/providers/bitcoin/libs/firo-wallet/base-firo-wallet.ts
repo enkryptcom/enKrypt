@@ -15,6 +15,7 @@ import {
 } from '../electrum-client/abstract-electrum';
 import { firoElectrum } from '../electrum-client/electrum-client';
 import configs from './configs';
+import { FiroSecretsRequiredError } from './errors';
 import { getSparkState } from '@/libs/spark-handler/generateSparkWallet';
 import BrowserStorage from '@/libs/common/browser-storage';
 import { InternalStorageNamespace } from '@/types/provider';
@@ -97,14 +98,25 @@ export class BaseFiroWallet {
     await this.#storage.remove(configs.STORAGE_KEYS.FIRO_WALLET_SECRET);
   }
 
-  async getSecret(): Promise<Buffer> {
+  private async getStoredSecret(): Promise<{ secret: string; seed: string }> {
     const value = await this.#storage.get(
       configs.STORAGE_KEYS.FIRO_WALLET_SECRET,
     );
-    if (!value || !value?.secret) {
-      throw Error('FiroWallet not initialize');
+    if (!value || !value.secret) {
+      throw new FiroSecretsRequiredError();
     }
-    const { secret } = value;
+    return value;
+  }
+
+  async hasSecret(): Promise<boolean> {
+    const value = await this.#storage.get(
+      configs.STORAGE_KEYS.FIRO_WALLET_SECRET,
+    );
+    return !!value?.secret;
+  }
+
+  async getSecret(): Promise<Buffer> {
+    const { secret } = await this.getStoredSecret();
     return bip39.mnemonicToSeedSync(secret);
   }
 
@@ -114,11 +126,9 @@ export class BaseFiroWallet {
     const iterationsLimit = Math.floor(addresses.length / 2);
     const addressKeyPairs: Record<string, ECPairInterface> = {};
 
-    const { secret } = await this.#storage.get(
-      configs.STORAGE_KEYS.FIRO_WALLET_SECRET,
-    );
+    const { secret } = await this.getStoredSecret();
 
-    const seed = bip39.mnemonicToSeedSync(secret!);
+    const seed = bip39.mnemonicToSeedSync(secret);
     const root = bip32.fromSeed(seed, this.network);
 
     let dd = 0;
@@ -226,9 +236,7 @@ export class BaseFiroWallet {
       return this._xPub;
     }
 
-    const { seed } = await this.#storage.get(
-      configs.STORAGE_KEYS.FIRO_WALLET_SECRET,
-    );
+    const { seed } = await this.getStoredSecret();
 
     const root = bip32.fromSeed(Buffer.from(seed, 'hex'), this.network);
     this._xPub = root
@@ -405,5 +413,16 @@ export class BaseFiroWallet {
 
   async broadcastTransaction(hex: string): Promise<string> {
     return firoElectrum.broadcast(hex);
+  }
+
+  /** Fetches full raw transactions (including vExtraPayload of special
+   * transactions such as Spark spends) by txid via electrum. */
+  async getRawTransactions(txids: string[]): Promise<Record<string, string>> {
+    const result = await firoElectrum.multiGetTransactionByTxid(
+      txids,
+      45,
+      false,
+    );
+    return result as unknown as Record<string, string>;
   }
 }

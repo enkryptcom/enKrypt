@@ -32,38 +32,27 @@ declare global {
 }
 
 async function loadWasm(): Promise<WasmModule> {
-  return new Promise(async (resolve, reject) => {
-    const wasmModule = await initSpark();
+  // initSpark fetches and compiles the 9.9MB spark.wasm; it must only run
+  // when a Spark operation actually needs it, not on every popup open.
+  const wasmModule = await initSpark();
 
-    if (typeof wasmModule !== 'undefined') {
-      resolve(wasmModule);
-    } else {
-      reject(new Error('Failed to load WASM module.'));
-    }
-  });
+  if (typeof wasmModule === 'undefined') {
+    throw new Error('Failed to load WASM module.');
+  }
+  return wasmModule;
 }
 
 class WasmInstance {
-  instance: WasmModule | null = null;
+  private loadPromise: Promise<WasmModule> | null = null;
 
-  constructor() {
-    loadWasm()
-      .then(module => {
-        this.instance = module;
-      })
-      .catch(error => {
-        console.error('Error loading WASM module:', error);
+  public getInstance(): Promise<WasmModule> {
+    if (!this.loadPromise) {
+      this.loadPromise = loadWasm().catch(error => {
+        this.loadPromise = null;
+        throw error;
       });
-  }
-
-  public async getInstance(): Promise<WasmModule> {
-    if (this.instance) {
-      return Promise.resolve(this.instance);
-    } else {
-      const wasm = await loadWasm();
-      this.instance = wasm;
-      return Promise.resolve(wasm);
     }
+    return this.loadPromise;
   }
 }
 

@@ -104,6 +104,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { ComponentPublicInstance, onBeforeMount, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { wasmInstance } from '@/libs/utils/wasm-loader';
+import { handleFiroSecretsError } from '@action/utils/firo-secrets-guard';
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -327,6 +328,7 @@ const sendAction = async () => {
     });
 
     isProcessing.value = false;
+    if (handleFiroSecretsError(e)) return;
     errorMsg.value = getErrorMessage(e);
     console.error('ERROR', e);
   }

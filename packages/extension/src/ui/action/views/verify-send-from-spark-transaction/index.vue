@@ -93,6 +93,7 @@ import { markCoinsAsPendingSpent } from '@/libs/utils/updateAndSync/markCoinsAsP
 import { fromBase } from '@enkryptcom/utils';
 import { BaseNetwork } from '@/types/base-network';
 import FiroAPI from '@/providers/bitcoin/libs/api-firo';
+import { handleFiroSecretsError } from '@action/utils/firo-secrets-guard';
 
 const emits = defineEmits<{
   (e: 'update:spark-state-changed', network: BaseNetwork): void;
@@ -237,6 +238,7 @@ const sendAction = async () => {
     });
 
     isProcessing.value = false;
+    if (handleFiroSecretsError(error)) return;
     errorMsg.value = getErrorMessage(error);
     console.error('ERROR', error);
   }

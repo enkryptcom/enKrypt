@@ -2,6 +2,7 @@ import { unref, type MaybeRef } from 'vue';
 import { BaseNetwork } from '@/types/base-network';
 import { BaseFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import { NetworkNames } from '@enkryptcom/types/dist';
+import { handleFiroSecretsError } from '@action/utils/firo-secrets-guard';
 
 const wallet = new BaseFiroWallet();
 
@@ -22,5 +23,12 @@ export async function getSparkAddress(
 
   const displayAddress = selectedNetwork.displayAddress(selectedAddressData);
 
-  return wallet.getSparkAddressAsync(displayAddress);
+  try {
+    return await wallet.getSparkAddressAsync(displayAddress);
+  } catch (error) {
+    if (!handleFiroSecretsError(error)) {
+      console.error('Failed to get spark address:', error);
+    }
+    return null;
+  }
 }

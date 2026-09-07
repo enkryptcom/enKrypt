@@ -28,12 +28,14 @@ const mergeCoins = (existing: string[][], incoming: string[][]): string[][] => {
   if (!existing?.length) return [...incoming];
   if (!incoming?.length) return [...existing];
 
-  const seen = new Set(existing.map(coin => JSON.stringify(coin)));
+  // Coins are identified by their hash (first element); serializing every
+  // coin with JSON.stringify blocks the main thread on large sets.
+  const seen = new Set(existing.map(coin => coin?.[0]));
   const updates: string[][] = [];
 
   incoming.forEach(coin => {
-    const key = JSON.stringify(coin);
-    if (seen.has(key)) return;
+    const key = coin?.[0];
+    if (key === undefined || seen.has(key)) return;
     seen.add(key);
     updates.push(coin);
   });

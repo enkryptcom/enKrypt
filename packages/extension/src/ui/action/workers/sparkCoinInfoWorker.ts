@@ -121,6 +121,17 @@ async function fetchAllCoinInfos(
 }
 
 addEventListener('message', async () => {
+  try {
+    await synchronizeCoins();
+  } catch (error) {
+    console.error('sparkCoinInfoWorker failed:', error);
+    postMessage({
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+async function synchronizeCoins() {
   const Module = await wasmWorkerInstance.getInstance();
 
   const spendKeyObj = await getSpendKeyObj(Module);
@@ -165,4 +176,4 @@ addEventListener('message', async () => {
   Module.ccall('js_freeFullViewKey', null, ['number'], [fullViewKeyObj]);
 
   postMessage(result);
-});
+}
