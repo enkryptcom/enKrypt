@@ -18,10 +18,9 @@ import {
 } from '@/libs/spark-handler/utils';
 import {
   LOCK_TIME,
-  getSparkSpendVersion,
-  getSparkTxType,
+  SPARK_SPEND_VERSION,
+  SPARK_TX_TYPE,
 } from '@/libs/spark-handler/constants';
-import { firoElectrum } from '@/providers/bitcoin/libs/electrum-client/electrum-client';
 import { intersectSets } from '@action/utils/set-utils';
 import { createTempFromSparkTx } from '@/libs/spark-handler/createTempFromSparkTx';
 import { getActivePendingSpentTags } from '@/libs/utils/updateAndSync/markCoinsAsPendingSpent';
@@ -98,16 +97,16 @@ const buildFinalSparkSpendTransaction = ({
     Buffer.from('d3', 'hex'),
   );
 
-  scripts.forEach(script => {
-    tx.addOutput(Buffer.from(script), 0);
-  });
-
   if (!isSparkTransaction) {
     tx.addOutput(
       bitcoin.address.toOutputScript(to, networkInfo),
       requestedAmount,
     );
   }
+
+  scripts.forEach(script => {
+    tx.addOutput(Buffer.from(script), 0);
+  });
 
   return (
     tx.toHex() +
@@ -135,17 +134,13 @@ export async function sendFromSparkAddress(
   let result = 0;
   let deserializedCoinObj = 0;
   let coverSetData = 0;
-  let extensionCommitmentPtr = 0;
   const diversifier = 1n;
   const isTestNetwork = networkInfo.bech32 === 'tb';
   const requestedAmount = getRequestedAmount(amount);
   const db = new IndexedDBHelper();
 
-  // The spend will confirm at tip + 1 at the earliest; that height decides
-  // whether the H2 rules (nType 11 / spendVersion 2) apply.
-  const nextBlockHeight = (await firoElectrum.getChainTipHeight()) + 1;
-  const sparkTxType = getSparkTxType(nextBlockHeight);
-  const spendVersion = getSparkSpendVersion(nextBlockHeight);
+  const sparkTxType = SPARK_TX_TYPE;
+  const spendVersion = SPARK_SPEND_VERSION;
 
   const Module = await wasmInstance.getInstance();
   const cleanup = () => {
@@ -206,9 +201,6 @@ export async function sendFromSparkAddress(
     }
     if (deserializedCoinObj) {
       Module._free(deserializedCoinObj);
-    }
-    if (extensionCommitmentPtr) {
-      Module._free(extensionCommitmentPtr);
     }
     if (result && result !== 0) {
       Module.ccall(
@@ -531,11 +523,11 @@ export async function sendFromSparkAddress(
 
   // const txHashSig = txHash.getHash()
 
-  // Extension commitment: 32 zero bytes for a plain spend (only Spark Name
+  // Extension commitment: empty hex for a plain spend (only Spark Name
   // registrations commit to something else). Consumed by V2 spends; the
-  // pre-H2 wasm build ignores the extra arguments.
-  extensionCommitmentPtr = Module._malloc(32);
-  Module.HEAPU8.fill(0, extensionCommitmentPtr, extensionCommitmentPtr + 32);
+  // pre-H2 wasm build ignores the extra arguments. Marshalled the same way
+  // as every other *Hex field in this API, via ccall's 'string' type.
+  const extensionCommitmentHex = '';
 
   // Create the spend transaction
   result = Module.ccall(
@@ -553,7 +545,7 @@ export async function sendFromSparkAddress(
       'string',
       'number',
       'number',
-      'number',
+      'string',
     ],
     [
       spendKeyObj,
@@ -567,7 +559,7 @@ export async function sendFromSparkAddress(
       txHashSig,
       additionalTxSize,
       spendVersion,
-      extensionCommitmentPtr,
+      extensionCommitmentHex,
     ],
   );
 
