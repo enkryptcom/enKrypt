@@ -29,7 +29,17 @@
             :address="txData.toAddress"
             :network="network"
           />
-          <verify-transaction-amount :token="txData.toToken" />
+          <p v-if="isBuilding" class="verify-transaction__status">
+            Calculating network fee…
+          </p>
+          <template v-else-if="builtTx">
+            <verify-transaction-amount :token="displayToken" />
+            <verify-transaction-fee :fee="feeInfo" />
+            <p class="verify-transaction__total">
+              Total from your Spark balance: {{ totalText }}
+              {{ txData.toToken.symbol }}
+            </p>
+          </template>
           <p v-if="errorMsg" class="verify-transaction__error">
             {{ errorMsg }}
           </p>
@@ -52,7 +62,7 @@
           <base-button
             title="Confirm and send"
             :click="sendAction"
-            :disabled="isProcessing"
+            :disabled="isProcessing || isBuilding || !builtTx"
           />
         </div>
       </div>
@@ -71,12 +81,13 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref, ComponentPublicInstance } from 'vue';
+import { computed, onBeforeMount, ref, ComponentPublicInstance } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import CloseIcon from '@action/icons/common/close-icon.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import VerifyTransactionNetwork from '@/providers/common/ui/verify-transaction/verify-transaction-network.vue';
 import VerifyTransactionAccount from '@/providers/common/ui/verify-transaction/verify-transaction-account.vue';
+import VerifyTransactionFee from '@/providers/common/ui/verify-transaction/verify-transaction-fee.vue';
 import VerifyTransactionAmount from '@/providers/common/ui/verify-transaction/verify-transaction-amount.vue';
 import SendProcess from '@action/views/send-process/index.vue';
 import { getCurrentContext } from '@/libs/messenger/extension';
@@ -88,9 +99,14 @@ import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
 import { VerifyTransactionParams } from '@/providers/bitcoin/ui/types';
-import { sendFromSparkAddress, sparkSendLock } from '@/libs/spark-handler';
+import {
+  sendFromSparkAddress,
+  sparkSendLock,
+  SendFromSparkAddressResult,
+} from '@/libs/spark-handler';
 import { markCoinsAsPendingSpent } from '@/libs/utils/updateAndSync/markCoinsAsPendingSpent';
 import { fromBase } from '@enkryptcom/utils';
+import BigNumber from 'bignumber.js';
 import { BaseNetwork } from '@/types/base-network';
 import FiroAPI from '@/providers/bitcoin/libs/api-firo';
 import { handleFiroSecretsError } from '@action/utils/firo-secrets-guard';
@@ -113,12 +129,83 @@ const isPopup: boolean = getCurrentContext() === 'new-window';
 const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const isWindowPopup = ref(false);
 const errorMsg = ref('');
+const isBuilding = ref(true);
+const builtTx = ref<(SendFromSparkAddressResult & { builtAt: number }) | null>(
+  null,
+);
+
+/** A built spend references the current cover sets; rebuild if it got old. */
+const BUILT_TX_MAX_AGE_MS = 60_000;
 
 defineExpose({ verifyScrollRef });
+
+const toDisplayAmount = (satoshis: number) =>
+  fromBase(String(satoshis), txData.toToken.decimals);
+
+const displayToken = computed(() => {
+  const recipientAmount = builtTx.value?.recipientAmount ?? 0;
+  return {
+    ...txData.toToken,
+    amount: String(recipientAmount),
+    valueUSD: new BigNumber(txData.toToken.price || '0')
+      .times(toDisplayAmount(recipientAmount))
+      .toString(),
+  };
+});
+
+const feeInfo = computed(() => {
+  const fee = builtTx.value?.fee ?? 0;
+  return {
+    nativeValue: toDisplayAmount(fee),
+    fiatValue: new BigNumber(txData.toToken.price || '0')
+      .times(toDisplayAmount(fee))
+      .toString(),
+    nativeSymbol: txData.toToken.symbol,
+    fiatSymbol: 'USD',
+  };
+});
+
+const totalText = computed(() =>
+  toDisplayAmount(
+    (builtTx.value?.recipientAmount ?? 0) + (builtTx.value?.fee ?? 0),
+  ),
+);
+
+const getErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
+
+/** Builds the spend once so the fee can be shown before the user confirms.
+ * Returns false when it failed (the error is already on screen). */
+const buildTx = async (): Promise<boolean> => {
+  isBuilding.value = true;
+  errorMsg.value = '';
+  builtTx.value = null;
+  try {
+    await sparkSendLock.run(async () => {
+      const result = await sendFromSparkAddress(
+        network.value.networkInfo,
+        txData.toAddress,
+        fromBase(txData.toToken.amount, txData.toToken.decimals).toString(),
+        { isMax: txData.isMax },
+      );
+      builtTx.value = { ...result, builtAt: Date.now() };
+    });
+    return true;
+  } catch (error) {
+    if (!handleFiroSecretsError(error)) {
+      errorMsg.value = getErrorMessage(error);
+      console.error('ERROR', error);
+    }
+    return false;
+  } finally {
+    isBuilding.value = false;
+  }
+};
 
 onBeforeMount(async () => {
   network.value = (await getNetworkByName(selectedNetwork)!) as BitcoinNetwork;
   trackSendEvents(SendEventType.SendVerify, { network: network.value.name });
+  await buildTx();
 });
 
 const close = () => {
@@ -128,9 +215,6 @@ const close = () => {
     window.close();
   }
 };
-
-const getErrorMessage = (error: unknown): string =>
-  error instanceof Error ? error.message : String(error);
 
 const sendAction = async () => {
   try {
@@ -162,18 +246,21 @@ const sendAction = async () => {
 
     const api = (await network.value.api()) as unknown as FiroAPI;
 
-    await sparkSendLock.run(async () => {
-      const result = await sendFromSparkAddress(
-        network.value.networkInfo,
-        txData.toAddress,
-        fromBase(txData.toToken.amount, txData.toToken.decimals).toString(),
-      );
-
-      if (!result) {
-        throw new Error('Transaction data is undefined');
+    if (
+      !builtTx.value ||
+      Date.now() - builtTx.value.builtAt > BUILT_TX_MAX_AGE_MS
+    ) {
+      if (!(await buildTx())) {
+        isProcessing.value = false;
+        return;
       }
+    }
+    const built = builtTx.value;
+    if (!built) throw new Error('Transaction data is undefined');
+    txActivity.value = String(built.recipientAmount);
 
-      const { hex: rawTx, selectedTags } = result;
+    await sparkSendLock.run(async () => {
+      const { hex: rawTx, selectedTags } = built;
 
       console.log('rawTx in vue', rawTx?.slice(0, 14));
 
@@ -332,6 +419,18 @@ const isHasScroll = () => {
       margin: 0;
       margin-bottom: 56px;
     }
+  }
+
+  &__status,
+  &__total {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+    color: @secondaryLabel;
+    margin: 0;
+    padding: 12px 16px;
   }
 
   &__error {

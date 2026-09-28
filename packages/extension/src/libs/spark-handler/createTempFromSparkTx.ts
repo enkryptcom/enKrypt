@@ -1,12 +1,11 @@
 import * as bitcoin from 'bitcoinjs-lib';
 import { LOCK_TIME } from '@/libs/spark-handler/constants';
 import { isSparkAddress } from '@/providers/bitcoin/libs/utils';
-import BigNumber from 'bignumber.js';
 
 interface CreateTempFromSparkTxArgs {
   network: bitcoin.networks.Network;
   to: string;
-  amount: string;
+  amountSat: number;
   sparkTxType: number;
 }
 
@@ -17,7 +16,7 @@ interface CreateTempFromSparkTxResult {
 
 export const createTempFromSparkTx = async ({
   network,
-  amount,
+  amountSat,
   to,
   sparkTxType,
 }: CreateTempFromSparkTxArgs): Promise<CreateTempFromSparkTxResult> => {
@@ -35,10 +34,7 @@ export const createTempFromSparkTx = async ({
   const baseTempTxBuffer = tempTx.toBuffer();
 
   if (!isSparkTransaction) {
-    tempTx.addOutput(
-      bitcoin.address.toOutputScript(to, network),
-      new BigNumber(amount).multipliedBy(10 ** 8).toNumber(),
-    );
+    tempTx.addOutput(bitcoin.address.toOutputScript(to, network), amountSat);
   }
 
   const fullTempTxBuffer = tempTx.toBuffer();

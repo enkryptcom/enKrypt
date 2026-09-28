@@ -33,6 +33,7 @@ export interface VerifyTransactionParams {
   TxInfo: string;
   mnemonic?: string;
   accountAddress?: string;
+  isMax?: boolean;
 }
 
 export interface SignerTransactionOptions {

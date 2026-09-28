@@ -38,9 +38,22 @@ type SpendCoin = {
 export type SendFromSparkAddressResult = {
   hex: string;
   selectedTags: string[];
+  fee: number;
+  recipientAmount: number;
+};
+
+export type SendFromSparkAddressOptions = {
+  isMax?: boolean;
 };
 
 export const sparkSendLock = createAsyncLock();
+
+class SparkFeeShortfallError extends Error {}
+
+// Extra coins tried after the first attempt. 
+const MAX_EXTRA_COINS = 3;
+const MAX_PROBE_RESERVE = 1_000_000;
+const MAX_TRANSPARENT_MARGIN = 1_000;
 
 const getRequestedAmount = (amount: string) =>
   new BigNumber(amount)
@@ -51,22 +64,31 @@ const getRequestedAmount = (amount: string) =>
 const selectSpendCoins = (
   spendCoinList: SpendCoin[],
   requestedAmount: number,
-): SpendCoin[] =>
-  [...spendCoinList]
-    .sort((leftCoin, rightCoin) => rightCoin.value - leftCoin.value)
-    .reduce<SpendCoin[]>((selectedCoins, spendCoin) => {
-      const selectedAmount = selectedCoins.reduce(
-        (total, coin) => total + coin.value,
-        0,
-      );
+  {
+    needsFeeSlack,
+    extraCoins,
+    useAllCoins,
+  }: { needsFeeSlack: boolean; extraCoins: number; useAllCoins: boolean },
+): SpendCoin[] => {
+  const sortedCoins = [...spendCoinList].sort(
+    (leftCoin, rightCoin) => rightCoin.value - leftCoin.value,
+  );
+  if (useAllCoins) return sortedCoins;
 
-      if (selectedAmount >= requestedAmount) {
-        return selectedCoins;
-      }
-
-      selectedCoins.push(spendCoin);
-      return selectedCoins;
-    }, []);
+  const selectedCoins: SpendCoin[] = [];
+  let selectedAmount = 0;
+  for (const spendCoin of sortedCoins) {
+    const isCovered = needsFeeSlack
+      ? selectedAmount > requestedAmount
+      : selectedAmount >= requestedAmount;
+    if (isCovered) break;
+    selectedCoins.push(spendCoin);
+    selectedAmount += spendCoin.value;
+  }
+  return selectedCoins.concat(
+    sortedCoins.slice(selectedCoins.length, selectedCoins.length + extraCoins),
+  );
+};
 
 const buildFinalSparkSpendTransaction = ({
   networkInfo,
@@ -116,11 +138,23 @@ const buildFinalSparkSpendTransaction = ({
   );
 };
 
-export async function sendFromSparkAddress(
-  networkInfo: bitcoin.Network,
-  to: string,
-  amount: string,
-): Promise<SendFromSparkAddressResult | undefined> {
+type CreateSparkSpendParams = {
+  networkInfo: bitcoin.Network;
+  to: string;
+  requestedAmount: number;
+  feeFromAmount: boolean;
+  extraCoins: number;
+  useAllCoins: boolean;
+};
+
+async function createSparkSpend({
+  networkInfo,
+  to,
+  requestedAmount,
+  feeFromAmount,
+  extraCoins,
+  useAllCoins,
+}: CreateSparkSpendParams): Promise<SendFromSparkAddressResult> {
   let spendKeyObj = 0;
   let fullViewKeyObj = 0;
   let incomingViewKeyObj = 0;
@@ -136,7 +170,6 @@ export async function sendFromSparkAddress(
   let coverSetData = 0;
   const diversifier = 1n;
   const isTestNetwork = networkInfo.bech32 === 'tb';
-  const requestedAmount = getRequestedAmount(amount);
   const db = new IndexedDBHelper();
 
   const sparkTxType = SPARK_TX_TYPE;
@@ -287,7 +320,7 @@ export async function sendFromSparkAddress(
     'js_createPrivateRecipientsVectorForCreateSparkSpendTransaction',
     'number',
     ['number'],
-    [1], // intended final size
+    [2], // intended final size
   );
 
   coinsList = Module.ccall(
@@ -326,15 +359,19 @@ export async function sendFromSparkAddress(
 
   await Promise.allSettled(coinMetaPromiseList);
 
-  const selectedSpendCoins = selectSpendCoins(spendCoinList, requestedAmount);
+  const selectedSpendCoins = selectSpendCoins(spendCoinList, requestedAmount, {
+    needsFeeSlack: !feeFromAmount,
+    extraCoins,
+    useAllCoins,
+  });
 
   const selectedSpendAmount = selectedSpendCoins.reduce(
     (total, coin) => total + coin.value,
     0,
   );
-  const privateRecipientAmount = isSparkTransaction
-    ? requestedAmount
-    : selectedSpendAmount - requestedAmount;
+  // Everything not sent to the recipient comes back as change. The change
+  // output carries the "subtract fee" flag, so the fee is paid by the sender.
+  const changeAmount = selectedSpendAmount - requestedAmount;
 
   if (!selectedSpendCoins.length || selectedSpendAmount < requestedAmount) {
     cleanup();
@@ -343,18 +380,31 @@ export async function sendFromSparkAddress(
     );
   }
 
-  Module.ccall(
-    'js_addPrivateRecipientForCreateSparkSpendTransaction',
-    null,
-    ['number', 'number', 'number', 'string', 'number'],
-    [
-      privateRecipientsVector,
-      isSparkTransaction ? recipientAddressObj : senderAddressObj,
-      BigInt(privateRecipientAmount),
-      'Private memo',
-      1,
-    ],
-  );
+  const addPrivateRecipient = (
+    addressObj: number,
+    value: number,
+    subtractFee: boolean,
+  ) =>
+    Module.ccall(
+      'js_addPrivateRecipientForCreateSparkSpendTransaction',
+      null,
+      ['number', 'number', 'number', 'string', 'number'],
+      [
+        privateRecipientsVector,
+        addressObj,
+        BigInt(value),
+        'Private memo',
+        Number(subtractFee),
+      ],
+    );
+
+  if (isSparkTransaction) {
+    addPrivateRecipient(recipientAddressObj, requestedAmount, feeFromAmount);
+  }
+
+  if (!isSparkTransaction || (!feeFromAmount && changeAmount > 0)) {
+    addPrivateRecipient(senderAddressObj, changeAmount, true);
+  }
 
   selectedSpendCoins.forEach(spendCoin => {
     Module.ccall(
@@ -472,7 +522,6 @@ export async function sendFromSparkAddress(
         ['number', 'number'],
         [coverSetData, deserializedCoin],
       );
-      // console.count('Deserialized coin added');
     });
 
     // Add cover set data to map (with group ID 1)
@@ -513,7 +562,7 @@ export async function sendFromSparkAddress(
   const { txHashSig, additionalTxSize } = await createTempFromSparkTx({
     network: networkInfo,
     to,
-    amount,
+    amountSat: requestedAmount,
     sparkTxType,
   });
 
@@ -564,7 +613,13 @@ export async function sendFromSparkAddress(
   );
 
   if (!result) {
+    const hasUnselectedCoins = selectedSpendCoins.length < spendCoinList.length;
     cleanup();
+    if (hasUnselectedCoins && !useAllCoins) {
+      throw new SparkFeeShortfallError(
+        'Selected Spark coins do not cover the amount and network fee.',
+      );
+    }
     throw new Error(
       'Failed to create Spark spend transaction. Wasm returned a null result; check the preceding Spark wasm logs for the specific reason.',
     );
@@ -582,6 +637,15 @@ export async function sendFromSparkAddress(
     'number',
     ['number'],
     [result],
+  );
+
+  const fee = Number(
+    Module.ccall(
+      'js_getCreateSparkSpendTxResultFee',
+      'number',
+      ['number'],
+      [result],
+    ),
   );
 
   const serializedSpendBytes = new Uint8Array(
@@ -639,5 +703,66 @@ export async function sendFromSparkAddress(
   return {
     hex: finalTx,
     selectedTags: selectedSpendCoins.map(coin => coin.tag),
+    fee,
+    recipientAmount:
+      isSparkTransaction && feeFromAmount
+        ? requestedAmount - fee
+        : requestedAmount,
   };
+}
+
+const createSparkSpendWithFeeRetry = async (
+  params: Omit<CreateSparkSpendParams, 'extraCoins'>,
+): Promise<SendFromSparkAddressResult> => {
+  for (let extraCoins = 0; ; extraCoins++) {
+    try {
+      return await createSparkSpend({ ...params, extraCoins });
+    } catch (error) {
+      if (
+        !(error instanceof SparkFeeShortfallError) ||
+        extraCoins >= MAX_EXTRA_COINS
+      ) {
+        throw error instanceof SparkFeeShortfallError
+          ? new Error('Not enough Spark balance to cover the network fee.')
+          : error;
+      }
+    }
+  }
+};
+
+export async function sendFromSparkAddress(
+  networkInfo: bitcoin.Network,
+  to: string,
+  amount: string,
+  { isMax = false }: SendFromSparkAddressOptions = {},
+): Promise<SendFromSparkAddressResult> {
+  const requestedAmount = getRequestedAmount(amount);
+  const isSparkTransaction = await isSparkAddress(to);
+
+  if (isMax && !isSparkTransaction) {
+    const probe = await createSparkSpendWithFeeRetry({
+      networkInfo,
+      to,
+      requestedAmount:
+        requestedAmount -
+        Math.min(MAX_PROBE_RESERVE, Math.floor(requestedAmount / 2)),
+      feeFromAmount: false,
+      useAllCoins: true,
+    });
+    return createSparkSpendWithFeeRetry({
+      networkInfo,
+      to,
+      requestedAmount: requestedAmount - probe.fee - MAX_TRANSPARENT_MARGIN,
+      feeFromAmount: false,
+      useAllCoins: true,
+    });
+  }
+
+  return createSparkSpendWithFeeRetry({
+    networkInfo,
+    to,
+    requestedAmount,
+    feeFromAmount: isMax && isSparkTransaction,
+    useAllCoins: false,
+  });
 }

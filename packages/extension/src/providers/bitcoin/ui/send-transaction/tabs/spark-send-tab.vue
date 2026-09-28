@@ -254,6 +254,7 @@ const sendAction = async () => {
           fromAddressName: 'Spark Account',
           toAddress: addressTo.value,
           accountAddress: props.accountInfo.selectedAccount?.address,
+          isMax: isMaxSelected.value,
         }),
         'utf8',
       ).toString('base64'),
