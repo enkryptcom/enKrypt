@@ -7,6 +7,8 @@ interface CreateTempFromSparkTxArgs {
   to: string;
   amountSat: number;
   sparkTxType: number;
+  /** Pass when already known, to skip the wasm address check. */
+  isSparkTransaction?: boolean;
 }
 
 interface CreateTempFromSparkTxResult {
@@ -19,8 +21,10 @@ export const createTempFromSparkTx = async ({
   amountSat,
   to,
   sparkTxType,
+  isSparkTransaction: knownIsSparkTransaction,
 }: CreateTempFromSparkTxArgs): Promise<CreateTempFromSparkTxResult> => {
-  const isSparkTransaction = await isSparkAddress(to);
+  const isSparkTransaction =
+    knownIsSparkTransaction ?? (await isSparkAddress(to));
   const tempTx = new bitcoin.Transaction();
   tempTx.version = 3 | (sparkTxType << 16);
   tempTx.locktime = LOCK_TIME;

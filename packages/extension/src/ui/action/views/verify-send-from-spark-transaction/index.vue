@@ -29,9 +29,18 @@
             :address="txData.toAddress"
             :network="network"
           />
-          <p v-if="isBuilding" class="verify-transaction__status">
-            Calculating network fee…
-          </p>
+          <div v-if="isBuilding" class="verify-transaction__status">
+            <p>{{ buildStatus.title }}</p>
+            <div class="verify-transaction__progress">
+              <div
+                class="verify-transaction__progress-bar"
+                :style="{ width: `${buildStatus.percent}%` }"
+              />
+            </div>
+            <p v-if="buildStatus.hint" class="verify-transaction__hint">
+              {{ buildStatus.hint }}
+            </p>
+          </div>
           <template v-else-if="builtTx">
             <verify-transaction-amount :token="displayToken" />
             <verify-transaction-fee :fee="feeInfo" />
@@ -81,7 +90,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount, ref, ComponentPublicInstance } from 'vue';
+import {
+  computed,
+  onBeforeMount,
+  onBeforeUnmount,
+  ref,
+  ComponentPublicInstance,
+} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import CloseIcon from '@action/icons/common/close-icon.vue';
 import BaseButton from '@action/components/base-button/index.vue';
@@ -103,6 +118,7 @@ import {
   sendFromSparkAddress,
   sparkSendLock,
   SendFromSparkAddressResult,
+  SparkSpendProgress,
 } from '@/libs/spark-handler';
 import { markCoinsAsPendingSpent } from '@/libs/utils/updateAndSync/markCoinsAsPendingSpent';
 import { fromBase } from '@enkryptcom/utils';
@@ -130,14 +146,53 @@ const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const isWindowPopup = ref(false);
 const errorMsg = ref('');
 const isBuilding = ref(true);
-const builtTx = ref<(SendFromSparkAddressResult & { builtAt: number }) | null>(
-  null,
-);
-
-/** A built spend references the current cover sets; rebuild if it got old. */
-const BUILT_TX_MAX_AGE_MS = 60_000;
+const builtTx = ref<SendFromSparkAddressResult | null>(null);
+const buildProgress = ref<SparkSpendProgress | null>(null);
+const proveStartedAt = ref(0);
+const now = ref(Date.now());
+let nowTimer: ReturnType<typeof setInterval> | undefined;
+const buildAbort = new AbortController();
 
 defineExpose({ verifyScrollRef });
+
+const formatTimeLeft = (ms: number) => {
+  const minutes = Math.round(ms / 60_000);
+  return minutes >= 1
+    ? `About ${minutes} min left`
+    : 'Less than a minute left';
+};
+
+const buildStatus = computed(() => {
+  const progress = buildProgress.value;
+  if (progress?.stage === 'prepare') {
+    const percent = progress.total
+      ? Math.floor((progress.done / progress.total) * 100)
+      : 0;
+    return { title: `Preparing coin sets… ${percent}%`, percent, hint: '' };
+  }
+  if (progress?.stage === 'prove') {
+    const elapsed = now.value - proveStartedAt.value;
+    const coins = progress.inputs === 1 ? 'coin' : 'coins';
+    return {
+      title: `Creating private proofs for ${progress.inputs} ${coins}…`,
+      // Only an estimate: the wasm does not report progress while proving.
+      percent: Math.min(95, (elapsed / progress.estimatedMs) * 100),
+      hint:
+        elapsed < progress.estimatedMs
+          ? formatTimeLeft(progress.estimatedMs - elapsed)
+          : 'Taking longer than usual, almost done…',
+    };
+  }
+  return { title: 'Checking your coins…', percent: 0, hint: '' };
+});
+
+const onBuildProgress = (progress: SparkSpendProgress) => {
+  if (progress.stage === 'prove') {
+    proveStartedAt.value = Date.now();
+    now.value = proveStartedAt.value;
+  }
+  buildProgress.value = progress;
+};
 
 const toDisplayAmount = (satoshis: number) =>
   fromBase(String(satoshis), txData.toToken.decimals);
@@ -180,24 +235,31 @@ const buildTx = async (): Promise<boolean> => {
   isBuilding.value = true;
   errorMsg.value = '';
   builtTx.value = null;
+  buildProgress.value = null;
+  nowTimer = setInterval(() => (now.value = Date.now()), 1000);
   try {
     await sparkSendLock.run(async () => {
-      const result = await sendFromSparkAddress(
+      builtTx.value = await sendFromSparkAddress(
         network.value.networkInfo,
         txData.toAddress,
         fromBase(txData.toToken.amount, txData.toToken.decimals).toString(),
-        { isMax: txData.isMax },
+        {
+          isMax: txData.isMax,
+          onProgress: onBuildProgress,
+          signal: buildAbort.signal,
+        },
       );
-      builtTx.value = { ...result, builtAt: Date.now() };
     });
     return true;
   } catch (error) {
+    if (buildAbort.signal.aborted) return false;
     if (!handleFiroSecretsError(error)) {
       errorMsg.value = getErrorMessage(error);
       console.error('ERROR', error);
     }
     return false;
   } finally {
+    clearInterval(nowTimer);
     isBuilding.value = false;
   }
 };
@@ -206,6 +268,12 @@ onBeforeMount(async () => {
   network.value = (await getNetworkByName(selectedNetwork)!) as BitcoinNetwork;
   trackSendEvents(SendEventType.SendVerify, { network: network.value.name });
   await buildTx();
+});
+
+// Leaving the page stops a build that is still running.
+onBeforeUnmount(() => {
+  buildAbort.abort();
+  clearInterval(nowTimer);
 });
 
 const close = () => {
@@ -246,10 +314,9 @@ const sendAction = async () => {
 
     const api = (await network.value.api()) as unknown as FiroAPI;
 
-    if (
-      !builtTx.value ||
-      Date.now() - builtTx.value.builtAt > BUILT_TX_MAX_AGE_MS
-    ) {
+    // The spend pins its cover sets by block hash, so it stays valid while
+    // the user reads the screen; only build when there is no tx yet.
+    if (!builtTx.value) {
       if (!(await buildTx())) {
         isProcessing.value = false;
         return;
@@ -431,6 +498,30 @@ const isHasScroll = () => {
     color: @secondaryLabel;
     margin: 0;
     padding: 12px 16px;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  &__progress {
+    height: 4px;
+    margin-top: 8px;
+    border-radius: 2px;
+    background: @gray02;
+    overflow: hidden;
+  }
+
+  &__progress-bar {
+    height: 100%;
+    background: @primary;
+    transition: width 1s linear;
+  }
+
+  &__hint {
+    margin-top: 6px !important;
+    font-size: 12px;
+    line-height: 16px;
   }
 
   &__error {
