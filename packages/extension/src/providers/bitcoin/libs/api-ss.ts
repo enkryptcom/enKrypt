@@ -69,14 +69,27 @@ class API implements ProviderAPIInterface {
     const address = pubkey.length < 64 ? pubkey : this.getAddress(pubkey);
     return fetch(`${this.node}/api/v1/account/${address}`)
       .then(res => res.json())
-      .then((balance: { balance: string; unconfirmedBalance: string }) => {
-        if ((balance as any).message) return '0';
-        return toBN(balance.balance)
-          .add(toBN(balance.unconfirmedBalance))
-          .toString();
-      })
-      .catch(() => '0');
+      .then(
+        (balance: {
+          balance: string;
+          unconfirmedBalance: string | undefined;
+        }) => {
+          if ((balance as any).message) {
+            return '0';
+          }
+          const _undefinedBalance = balance.unconfirmedBalance || '0';
+          const a = toBN(balance.balance)
+            .add(toBN(_undefinedBalance))
+            .toString();
+          return toBN(balance.balance).add(toBN(_undefinedBalance)).toString();
+        },
+      )
+      .catch(e => {
+        console.log(e);
+        return '0';
+      });
   }
+
   async broadcastTx(rawtx: string): Promise<boolean> {
     return fetch(`${this.node}/api/v1/send`, {
       method: 'POST',
