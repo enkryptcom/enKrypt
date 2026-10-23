@@ -128,7 +128,7 @@ import SendInputAmount from '@/providers/common/ui/send-transaction/send-input-a
 import SendTokenSelect from './components/send-token-select.vue';
 import AssetsSelectList from '@action/views/assets-select-list/index.vue';
 import BaseButton from '@action/components/base-button/index.vue';
-import SendAlert from '@/providers/solana/ui/send-transaction/components/send-alert.vue';
+import SendAlert from '@/ui/send/send-alert.vue';
 import { AccountsHeaderData } from '@action/types/account';
 import { BaseNetwork } from '@/types/base-network';
 import BigNumber from 'bignumber.js';
