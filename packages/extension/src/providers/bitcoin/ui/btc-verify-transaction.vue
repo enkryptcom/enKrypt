@@ -338,5 +338,5 @@ const deny = async () => {
 
 <style lang="less">
 @import '@action/styles/theme.less';
-@import './styles/verify-transaction.less';
+@import '@/ui/common/styles/verify-transaction.less';
 </style>

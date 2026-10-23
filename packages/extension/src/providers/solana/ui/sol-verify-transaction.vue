@@ -386,7 +386,7 @@ const deny = async () => {
 
 <style lang="less">
 @import '@action/styles/theme.less';
-@import '@/providers/common/ui/styles/verify-transaction.less';
+@import '@/ui/common/styles/verify-transaction.less';
 .make-me-red {
   color: #f0580c !important;
 }
