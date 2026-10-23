@@ -41,6 +41,6 @@ const isHasScroll = () => {
 </script>
 
 <style lang="less" scoped>
-@import '@/providers/ethereum/ui/styles/common-popup.less';
+@import '@/ui/common/styles/common-popup.less';
 @import '@action/styles/custom-scroll.less';
 </style>

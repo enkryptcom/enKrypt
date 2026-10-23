@@ -167,6 +167,6 @@ const onSelectedAddressChanged = async (newAccount: EnkryptAccount) => {
 </script>
 
 <style lang="less">
-@import '@/providers/ethereum/ui/styles/common-popup.less';
+@import '@/ui/common/styles/common-popup.less';
 @import '@action/styles/provider-connect-dapp.less';
 </style>
