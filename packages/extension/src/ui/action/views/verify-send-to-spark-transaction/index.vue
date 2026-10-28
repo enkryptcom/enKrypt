@@ -84,7 +84,6 @@ import { getMintTxData } from '@/libs/spark-handler/getMintTxData';
 import { getTotalMintedAmount } from '@/libs/spark-handler/getTotalMintedAmount';
 import { DEFAULT_BTC_NETWORK, getNetworkByName } from '@/libs/utils/networks';
 import FiroAPI from '@/providers/bitcoin/libs/api-firo';
-import { validator } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import { isAddress } from '@/providers/bitcoin/libs/utils';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { VerifyTransactionParams } from '@/providers/bitcoin/ui/types';
@@ -100,7 +99,6 @@ import CloseIcon from '@action/icons/common/close-icon.vue';
 import SendProcess from '@action/views/send-process/index.vue';
 import { EnkryptAccount } from '@enkryptcom/types';
 import BigNumber from 'bignumber.js';
-import * as bitcoin from 'bitcoinjs-lib';
 import { ComponentPublicInstance, onBeforeMount, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { wasmInstance } from '@/libs/utils/wasm-loader';
@@ -175,10 +173,7 @@ const sendAction = async () => {
       })),
     });
 
-    const psbt = new bitcoin.Psbt({ network: network.value.networkInfo });
-
-    const { inputAmountBn, psbtInputs } =
-      await getTotalMintedAmount(spendableUtxos);
+    const inputAmountBn = getTotalMintedAmount(spendableUtxos);
 
     // Calculate tx fee
     const tempTx = createTempTx({
@@ -194,15 +189,10 @@ const sendAction = async () => {
           value: amountToSendBN.toNumber(),
         },
       ],
-      inputs: psbtInputs,
     });
 
     const feeBn = await getFee(tempTx);
     // End calculate fee
-
-    psbtInputs.forEach(el => {
-      psbt.addInput(el);
-    });
 
     if (inputAmountBn.lt(amountToSendBN.plus(feeBn))) {
       console.error('❌ Not enough balance!', {
@@ -215,43 +205,20 @@ const sendAction = async () => {
       throw new Error('❌ Not enough balance!');
     }
 
-    psbt.addOutput({
-      script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
-      value: amountToSendBN.toNumber(),
-    });
-
     const changeAmount = inputAmountBn.minus(amountToSendBN).minus(feeBn);
 
-    if (changeAmount.gt(0)) {
-      const firstUtxoAddress = spendableUtxos[0].address;
-
-      psbt.addOutput({
-        address: firstUtxoAddress!,
-        value: changeAmount.toNumber(),
-      });
-    }
-
-    for (let index = 0; index < spendableUtxos.length; index++) {
-      const utxo = spendableUtxos[index];
-      const keyPair = addressKeyPairs[utxo.address];
-
-      const Signer = {
-        sign: (hash: Uint8Array) => {
-          return Buffer.from(keyPair.sign(hash));
+    const rawTx = createTempTx({
+      changeAmount,
+      network: network.value.networkInfo,
+      addressKeyPairs,
+      spendableUtxos,
+      mintValueOutput: [
+        {
+          script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
+          value: amountToSendBN.toNumber(),
         },
-        publicKey: Buffer.from(keyPair.publicKey),
-      } as unknown as bitcoin.Signer;
-
-      psbt.signInput(index, Signer);
-    }
-
-    if (!psbt.validateSignaturesOfAllInputs(validator)) {
-      throw new Error('Error: Some inputs were not signed!');
-    }
-
-    psbt.finalizeAllInputs();
-
-    const rawTx = psbt.extractTransaction().toHex();
+      ],
+    }).toHex();
     console.log('Raw Mint Transaction:', rawTx);
 
     const txActivity: Activity = {

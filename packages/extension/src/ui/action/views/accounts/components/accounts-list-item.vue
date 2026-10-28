@@ -21,7 +21,7 @@
         {{ $filters.formatFloatingPointValue(amount).value }} {{ symbol }}
         <span>{{
           $filters.replaceWithEllipsis(
-            network.name === NetworkNames.Firo && active
+            network.name === NetworkNames.Firo && active && sparkDisplayAddress
               ? sparkDisplayAddress
               : address,
             6,
@@ -104,7 +104,8 @@ const props = defineProps({
 });
 
 const sparkDisplayAddress = computedAsync(async () => {
-  if (props.network.name !== NetworkNames.Firo) return null;
+  // Only active (Firo) accounts display a spark address.
+  if (props.network.name !== NetworkNames.Firo || !props.active) return null;
   return await getSparkAddress(props.network, props.address);
 });
 

@@ -8,12 +8,25 @@ export default async (
   network: BaseNetwork,
   pubkey: string,
 ): Promise<Activity[]> => {
-  return fetch(
-    `${network.node}/insight-api-zcoin/txs?address=${network.displayAddress(
-      pubkey,
-    )}&pageSize=40`,
-  )
-    .then(res => res.json())
+  const baseUrl = `${network.node}/insight-api-zcoin/txs?address=${network.displayAddress(
+    pubkey,
+  )}&pageSize=40`;
+  const MAX_PAGES = 25;
+  const fetchAllPages = async (): Promise<{ txs: FiroTxType[] }> => {
+    const first = await fetch(`${baseUrl}&pageNum=0`).then(res => res.json());
+    if (first.message) return first;
+    const all: FiroTxType[] = [...(first.txs ?? [])];
+    const pages = Math.min(Number(first.pagesTotal) || 1, MAX_PAGES);
+    for (let page = 1; page < pages; page++) {
+      const next = await fetch(`${baseUrl}&pageNum=${page}`).then(res =>
+        res.json(),
+      );
+      if (next.message || !next.txs?.length) break;
+      all.push(...next.txs);
+    }
+    return { txs: all };
+  };
+  return fetchAllPages()
     .then(async (txs: { txs: FiroTxType[] }) => {
       if ((txs as any).message) return [];
       let tokenPrice = '0';
@@ -55,7 +68,7 @@ export default async (
           if (relevantOut) {
             toAddress = relevantOut.scriptPubKey.addresses![0];
             value = Number(relevantOut.value);
-          } else {
+          } else if (tx.vout[0]) {
             toAddress = tx.vout[0].scriptPubKey.addresses![0];
             value = Number(tx.vout[0].value);
           }

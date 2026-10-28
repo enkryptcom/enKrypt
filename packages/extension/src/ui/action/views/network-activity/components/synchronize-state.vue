@@ -68,13 +68,12 @@ import { AccountsHeaderData, SparkAccount } from '@action/types/account';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import Loader from '@action/icons/common/loader.vue';
 import { NetworkNames } from '@enkryptcom/types/dist';
-import { validator } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
-import * as bitcoin from 'bitcoinjs-lib';
 import { wasmInstance } from '@/libs/utils/wasm-loader';
 import FiroAPI from '@/providers/bitcoin/libs/api-firo';
 import { getMintTxData } from '@/libs/spark-handler/getMintTxData';
 import { getTotalMintedAmount } from '@/libs/spark-handler/getTotalMintedAmount';
 import { createTempTx } from '@/libs/spark-handler/createTempTx';
+import { buildSignedP2pkhTx } from '@/libs/spark-handler/buildSignedP2pkhTx';
 import { getFee } from '@/libs/spark-handler/getFee';
 import MarketData from '@/libs/market-data';
 import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
@@ -140,8 +139,7 @@ const anonymizeFunds = async () => {
 
     if (spendableUtxos.length === 0) throw new Error('No UTXOs available!');
 
-    const { inputAmountBn, psbtInputs } =
-      await getTotalMintedAmount(spendableUtxos);
+    const inputAmountBn = getTotalMintedAmount(spendableUtxos);
 
     const tempTx = createTempTx({
       network: props.network.networkInfo,
@@ -153,7 +151,6 @@ const anonymizeFunds = async () => {
           value: inputAmountBn.toNumber(),
         },
       ],
-      inputs: psbtInputs,
     });
 
     const feeBn = await getFee(tempTx);
@@ -170,38 +167,17 @@ const anonymizeFunds = async () => {
       })),
     });
 
-    const psbt = new bitcoin.Psbt({ network: props.network.networkInfo });
-
-    psbtInputs.forEach(el => {
-      psbt.addInput(el);
-    });
-
-    psbt.addOutput({
-      script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
-      value: Number(mintAmountBn.toString()),
-    });
-
-    for (let index = 0; index < spendableUtxos.length; index++) {
-      const utxo = spendableUtxos[index];
-      const keyPair = addressKeyPairs[utxo.address];
-
-      const Signer = {
-        sign: (hash: Uint8Array) => {
-          return Buffer.from(keyPair.sign(hash));
+    const rawTx = buildSignedP2pkhTx({
+      network: props.network.networkInfo,
+      utxos: spendableUtxos,
+      addressKeyPairs,
+      outputs: [
+        {
+          script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
+          value: Number(mintAmountBn.toString()),
         },
-        publicKey: Buffer.from(keyPair.publicKey),
-      } as unknown as bitcoin.Signer;
-
-      psbt.signInput(index, Signer);
-    }
-
-    if (!psbt.validateSignaturesOfAllInputs(validator)) {
-      throw new Error('Error: Some inputs were not signed!');
-    }
-
-    psbt.finalizeAllInputs();
-
-    const rawTx = psbt.extractTransaction().toHex();
+      ],
+    }).toHex();
     console.log('Raw Mint Transaction:', rawTx);
 
     const fromAddress = props.accountInfo.selectedAccount?.address ?? '';
