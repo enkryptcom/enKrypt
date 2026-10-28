@@ -84,7 +84,7 @@ import VerifyTransactionNetwork from '@/providers/common/ui/verify-transaction/v
 import VerifyTransactionAccount from '@/providers/common/ui/verify-transaction/verify-transaction-account.vue';
 import VerifyTransactionAmount from '@/providers/common/ui/verify-transaction/verify-transaction-amount.vue';
 import VerifyTransactionFee from '@/providers/common/ui/verify-transaction/verify-transaction-fee.vue';
-import SendAlert from '../components/send-alert.vue';
+import SendAlert from '@/ui/send/send-alert.vue';
 import HardwareWalletMsg from '@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue';
 import SendProcess from '@action/views/send-process/index.vue';
 import PublicKeyRing from '@/libs/keyring/public-keyring';

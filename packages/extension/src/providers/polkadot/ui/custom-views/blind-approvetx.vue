@@ -20,5 +20,5 @@ import AlertIcon from '@action/icons/send/alert-icon.vue';
 
 <style lang="less">
 @import '@action/styles/theme.less';
-@import '../styles/verify-transaction.less';
+@import '@/ui/common/styles/verify-transaction.less';
 </style>
