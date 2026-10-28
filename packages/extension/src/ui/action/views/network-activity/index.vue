@@ -78,6 +78,8 @@ import {
   MassaRawInfo,
 } from '@/types/activity';
 import NetworkActivityLoading from './components/network-activity-loading.vue';
+import { NetworkNames } from '@enkryptcom/types';
+import { getSparkHistoryAccount } from '@/libs/utils/spark-history-account';
 import { ProviderName } from '@/types/provider';
 import ActivityState from '@/libs/activity-state';
 import Swap, {
@@ -301,13 +303,31 @@ const checkSwap = (activity: Activity): void => {
   activityCheckTimers.push(timer);
 };
 const selectedNetworkName = computed(() => props.network.name);
+
+/** On Firo, private (Spark) history is kept in the first seed-phrase account
+ * only (see getSparkHistoryAccount). Other accounts skip it, including
+ * entries an older version saved under them. */
+const showsSparkHistory = (): boolean => {
+  if (props.network.name !== NetworkNames.Firo) return true;
+  const historyAccount = getSparkHistoryAccount(
+    props.accountInfo.activeAccounts ?? [],
+  );
+  return (
+    !historyAccount ||
+    historyAccount.address === props.accountInfo.selectedAccount?.address
+  );
+};
+
 const setActivities = () => {
   activities.value = [];
   isNoActivity.value = false;
   if (props.accountInfo.selectedAccount)
     props.network.getAllActivity(activityAddress.value).then(all => {
-      activities.value = all;
-      isNoActivity.value = all.length === 0;
+      const visible = showsSparkHistory()
+        ? all
+        : all.filter(act => act.type !== ActivityType.spark_transaction);
+      activities.value = visible;
+      isNoActivity.value = visible.length === 0;
       activities.value.forEach(act => {
         if (
           (act.status === ActivityStatus.pending ||
