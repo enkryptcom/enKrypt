@@ -23,6 +23,7 @@ import { intersectSets } from '@action/utils/set-utils';
 import { createTempFromSparkTx } from '@/libs/spark-handler/createTempFromSparkTx';
 import { getActivePendingSpentTags } from '@/libs/utils/updateAndSync/markCoinsAsPendingSpent';
 import BigNumber from 'bignumber.js';
+import { BaseFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 
 type SpendCoin = {
   coin: string[];
@@ -165,6 +166,8 @@ const buildFinalSparkSpendTransaction = ({
 
 type CreateSparkSpendParams = {
   Module: WasmModule;
+  /** Wallet seed, read once per send (see buildSparkSpend). */
+  seed: Buffer;
   networkInfo: bitcoin.Network;
   to: string;
   isSparkTransaction: boolean;
@@ -201,6 +204,7 @@ const saveSpendStats = async (
 
 async function createSparkSpend({
   Module,
+  seed,
   networkInfo,
   to,
   isSparkTransaction,
@@ -304,7 +308,7 @@ async function createSparkSpend({
   };
 
   onProgress({ stage: 'coins' });
-  spendKeyObj = await getSpendKeyObj(Module);
+  spendKeyObj = await getSpendKeyObj(Module, seed);
 
   const ownedCoins = ((await db.readData('myCoins')) || []) as OwnedCoinData[];
 
@@ -851,8 +855,14 @@ export async function buildSparkSpend(
   onProgress: (progress: SparkSpendProgress) => void,
 ): Promise<SendFromSparkAddressResult> {
   const requestedAmount = getRequestedAmount(amount);
+  // One send can run several builds back to back (fee retries, the max-send
+  // probe), each up to an hour with many coins. The stored secret is cleared
+  // whenever the background restarts, so read it once here: a later build
+  // must not fail on a secret that expired while an earlier one was proving.
+  const seed = await new BaseFiroWallet().getSecret();
   const baseParams = {
     Module,
+    seed,
     networkInfo,
     to,
     isSparkTransaction,

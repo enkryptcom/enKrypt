@@ -86,6 +86,12 @@
       :is-done="isSendDone"
       :is-window-popup="isWindowPopup"
     />
+
+    <spark-unlock-dialog
+      v-if="isUnlockOpen"
+      @unlocked="onUnlocked"
+      @cancel="onUnlockCancel"
+    />
   </div>
 </template>
 
@@ -125,7 +131,10 @@ import { fromBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
 import { BaseNetwork } from '@/types/base-network';
 import FiroAPI from '@/providers/bitcoin/libs/api-firo';
-import { handleFiroSecretsError } from '@action/utils/firo-secrets-guard';
+import { isFiroSecretsRequiredError } from '@/providers/bitcoin/libs/firo-wallet/errors';
+import { BaseFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
+import SparkUnlockDialog from './components/spark-unlock-dialog.vue';
+import { getSparkHistoryOptions } from '@/libs/utils/spark-history';
 
 const emits = defineEmits<{
   (e: 'update:spark-state-changed', network: BaseNetwork): void;
@@ -157,9 +166,7 @@ defineExpose({ verifyScrollRef });
 
 const formatTimeLeft = (ms: number) => {
   const minutes = Math.round(ms / 60_000);
-  return minutes >= 1
-    ? `About ${minutes} min left`
-    : 'Less than a minute left';
+  return minutes >= 1 ? `About ${minutes} min left` : 'Less than a minute left';
 };
 
 const buildStatus = computed(() => {
@@ -229,6 +236,40 @@ const totalText = computed(() =>
 const getErrorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : String(error);
 
+const firoWallet = new BaseFiroWallet();
+const isUnlockOpen = ref(false);
+let afterUnlock: (() => void) | null = null;
+
+/** The Firo secret is cleared whenever the background restarts, which is
+ * likely during a long build. Ask for the password here instead of sending
+ * the user to the lock screen, which would throw the built spend away. */
+const askForPassword = (then: () => void) => {
+  afterUnlock = then;
+  isUnlockOpen.value = true;
+};
+
+const onUnlocked = () => {
+  isUnlockOpen.value = false;
+  const then = afterUnlock;
+  afterUnlock = null;
+  then?.();
+};
+
+const onUnlockCancel = () => {
+  isUnlockOpen.value = false;
+  afterUnlock = null;
+  errorMsg.value = 'Your password is needed to continue.';
+};
+
+/** Builds once the secret is there; asks for the password first if not. */
+const startBuild = async () => {
+  if (!(await firoWallet.hasSecret())) {
+    askForPassword(startBuild);
+    return;
+  }
+  await buildTx();
+};
+
 /** Builds the spend once so the fee can be shown before the user confirms.
  * Returns false when it failed (the error is already on screen). */
 const buildTx = async (): Promise<boolean> => {
@@ -253,7 +294,9 @@ const buildTx = async (): Promise<boolean> => {
     return true;
   } catch (error) {
     if (buildAbort.signal.aborted) return false;
-    if (!handleFiroSecretsError(error)) {
+    if (isFiroSecretsRequiredError(error)) {
+      askForPassword(startBuild);
+    } else {
       errorMsg.value = getErrorMessage(error);
       console.error('ERROR', error);
     }
@@ -267,7 +310,7 @@ const buildTx = async (): Promise<boolean> => {
 onBeforeMount(async () => {
   network.value = (await getNetworkByName(selectedNetwork)!) as BitcoinNetwork;
   trackSendEvents(SendEventType.SendVerify, { network: network.value.name });
-  await buildTx();
+  await startBuild();
 });
 
 // Leaving the page stops a build that is still running.
@@ -285,6 +328,13 @@ const close = () => {
 };
 
 const sendAction = async () => {
+  // Broadcasting needs no key, but the coin sync right after it does. The
+  // secret may have expired while the user waited on a long build, so ask
+  // for the password now, with the built spend still on screen.
+  if (!(await firoWallet.hasSecret())) {
+    askForPassword(sendAction);
+    return;
+  }
   try {
     isProcessing.value = true;
     errorMsg.value = '';
@@ -346,12 +396,7 @@ const sendAction = async () => {
               ...{ transactionHash: txid },
             },
           ],
-          {
-            address: network.value.displayAddress(
-              txData.accountAddress || txData.fromAddress,
-            ),
-            network: network.value.name,
-          },
+          getSparkHistoryOptions(network.value.name),
         );
 
         isSendDone.value = true;
@@ -373,12 +418,10 @@ const sendAction = async () => {
           error: error.message,
         });
         txActivity.status = ActivityStatus.failed;
-        activityState.addActivities([txActivity], {
-          address: network.value.displayAddress(
-            txData.accountAddress || txData.fromAddress,
-          ),
-          network: network.value.name,
-        });
+        activityState.addActivities(
+          [txActivity],
+          getSparkHistoryOptions(network.value.name),
+        );
 
         isProcessing.value = false;
         errorMsg.value = getErrorMessage(error);
@@ -392,7 +435,10 @@ const sendAction = async () => {
     });
 
     isProcessing.value = false;
-    if (handleFiroSecretsError(error)) return;
+    if (isFiroSecretsRequiredError(error)) {
+      askForPassword(sendAction);
+      return;
+    }
     errorMsg.value = getErrorMessage(error);
     console.error('ERROR', error);
   }

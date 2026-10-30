@@ -10,7 +10,10 @@ const wallet = new BaseFiroWallet();
  * restoring pubkeys/keys for all Firo/Spark operations.
  */
 export const openUnlockScreenToRestoreKeys = (): void => {
-  if (router.currentRoute.value.name !== 'lock-screen') {
+  const current = router.currentRoute.value.name;
+  // The Spark send page asks for the password itself; leaving it would abort
+  // a spend that may have been building for an hour.
+  if (current !== 'lock-screen' && current !== 'verify-send-from-spark') {
     router.push({ name: 'lock-screen' });
   }
 };

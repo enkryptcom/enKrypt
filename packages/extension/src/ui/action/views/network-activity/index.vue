@@ -79,7 +79,8 @@ import {
 } from '@/types/activity';
 import NetworkActivityLoading from './components/network-activity-loading.vue';
 import { NetworkNames } from '@enkryptcom/types';
-import { getSparkHistoryAccount } from '@/libs/utils/spark-history-account';
+import { getSparkHistoryOptions } from '@/libs/utils/spark-history';
+import { ActivityOptions } from '@/libs/activity-state/types';
 import { ProviderName } from '@/types/provider';
 import ActivityState from '@/libs/activity-state';
 import Swap, {
@@ -167,13 +168,20 @@ const checkActivity = (activity: Activity): void => {
 
 let isActivityUpdating = false;
 
+/** Where each entry shown from another list (shared private history or
+ * another account) is stored, so its status update is saved there. */
+const activitySources = new Map<string, ActivityOptions>();
+
 const updateActivitySync = (activity: Activity) => {
   isActivityUpdating = true;
   return activityState
-    .updateActivity(activity, {
-      address: activityAddress.value,
-      network: props.network.name,
-    })
+    .updateActivity(
+      activity,
+      activitySources.get(activity.transactionHash) ?? {
+        address: activityAddress.value,
+        network: props.network.name,
+      },
+    )
     .finally(() => {
       isActivityUpdating = false;
     });
@@ -304,47 +312,72 @@ const checkSwap = (activity: Activity): void => {
 };
 const selectedNetworkName = computed(() => props.network.name);
 
-/** On Firo, private (Spark) history is kept in the first seed-phrase account
- * only (see getSparkHistoryAccount). Other accounts skip it, including
- * entries an older version saved under them. */
-const showsSparkHistory = (): boolean => {
-  if (props.network.name !== NetworkNames.Firo) return true;
-  const historyAccount = getSparkHistoryAccount(
-    props.accountInfo.activeAccounts ?? [],
-  );
-  return (
-    !historyAccount ||
-    historyAccount.address === props.accountInfo.selectedAccount?.address
-  );
+/** On Firo, every account shows the whole wallet's history: the private
+ * (Spark) list (see getSparkHistoryOptions) and every Firo account's own
+ * history. The selected account's entry wins when a hash is in both, so a
+ * send between two accounts shows from this account's side. */
+const withFiroWalletHistory = async (all: Activity[]): Promise<Activity[]> => {
+  activitySources.clear();
+  if (props.network.name !== NetworkNames.Firo) return all;
+  const otherAddresses = (props.accountInfo.activeAccounts ?? [])
+    .map(account => props.network.displayAddress(account.address))
+    .filter(address => address !== activityAddress.value);
+  const sparkOptions = getSparkHistoryOptions(props.network.name);
+  const sources: ActivityOptions[] = [
+    sparkOptions,
+    ...otherAddresses.map(address => ({
+      address,
+      network: props.network.name,
+    })),
+  ];
+  const lists = await Promise.all([
+    activityState.getAllActivities(sparkOptions),
+    // One account failing to load should not hide the rest.
+    ...otherAddresses.map(address =>
+      props.network.getAllActivity(address).catch(() => [] as Activity[]),
+    ),
+  ]);
+  const seen = new Set(all.map(act => act.transactionHash));
+  const extra: Activity[] = [];
+  sources.forEach((source, idx) => {
+    for (const act of lists[idx] ?? []) {
+      // Failed sends have no hash; keep each of them.
+      if (act.transactionHash && seen.has(act.transactionHash)) continue;
+      seen.add(act.transactionHash);
+      activitySources.set(act.transactionHash, source);
+      extra.push(act);
+    }
+  });
+  return [...all, ...extra].sort((a, b) => b.timestamp - a.timestamp);
 };
 
 const setActivities = () => {
   activities.value = [];
   isNoActivity.value = false;
   if (props.accountInfo.selectedAccount)
-    props.network.getAllActivity(activityAddress.value).then(all => {
-      const visible = showsSparkHistory()
-        ? all
-        : all.filter(act => act.type !== ActivityType.spark_transaction);
-      activities.value = visible;
-      isNoActivity.value = visible.length === 0;
-      activities.value.forEach(act => {
-        if (
-          (act.status === ActivityStatus.pending ||
-            act.status === ActivityStatus.dropped) &&
-          act.type === ActivityType.transaction
-        ) {
-          checkActivity(act);
-        }
-        if (
-          (act.status === ActivityStatus.pending ||
-            act.status === ActivityStatus.dropped) &&
-          act.type === ActivityType.swap
-        ) {
-          checkSwap(act);
-        }
+    props.network
+      .getAllActivity(activityAddress.value)
+      .then(withFiroWalletHistory)
+      .then(all => {
+        activities.value = all;
+        isNoActivity.value = all.length === 0;
+        activities.value.forEach(act => {
+          if (
+            (act.status === ActivityStatus.pending ||
+              act.status === ActivityStatus.dropped) &&
+            act.type === ActivityType.transaction
+          ) {
+            checkActivity(act);
+          }
+          if (
+            (act.status === ActivityStatus.pending ||
+              act.status === ActivityStatus.dropped) &&
+            act.type === ActivityType.swap
+          ) {
+            checkSwap(act);
+          }
+        });
       });
-    });
   else activities.value = [];
 };
 

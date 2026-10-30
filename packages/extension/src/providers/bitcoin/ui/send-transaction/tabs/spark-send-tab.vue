@@ -78,8 +78,6 @@ import SendSparkAddressInput from '../components/send-spark-address-input.vue';
 import SendTokenSelect from '../components/send-token-select.vue';
 import { calculateCurrentSparkBalance } from '@/libs/utils/updateAndSync/calculateCurrentSparkBalance';
 import useAsyncComputed from '@action/composables/async-computed';
-import { getSparkHistoryAccount } from '@/libs/utils/spark-history-account';
-
 const router = useRouter();
 const route = useRoute();
 
@@ -254,12 +252,6 @@ const sendAction = async () => {
           fromAddress: fromAccountAddress,
           fromAddressName: 'Spark Account',
           toAddress: addressTo.value,
-          // Saved with the rest of the private history, not under the
-          // selected account (see getSparkHistoryAccount).
-          accountAddress: (
-            getSparkHistoryAccount(props.accountInfo.activeAccounts ?? []) ??
-            props.accountInfo.selectedAccount
-          )?.address,
           isMax: isMaxSelected.value,
         }),
         'utf8',

@@ -6,7 +6,7 @@ import ActivityState from '@/libs/activity-state';
 import { AccountsHeaderData } from '@action/types/account';
 import { SparkUnusedTxDetails } from '@/libs/utils/updateAndSync/markCoinsAsUsed';
 import { fromBase } from '@enkryptcom/utils';
-import { getSparkHistoryAccount } from '@/libs/utils/spark-history-account';
+import { getSparkHistoryOptions } from '@/libs/utils/spark-history';
 
 const activityState = new ActivityState();
 
@@ -29,12 +29,6 @@ export const useUpdateActivityState = (
         return;
       }
       console.log('Watching sparkUnusedTxDetails change', details);
-
-      // Private history belongs to the whole wallet, not to whichever
-      // account happens to be selected when the sync finishes.
-      const historyAccount =
-        getSparkHistoryAccount(accountHeaderData.value.activeAccounts ?? []) ??
-        selectedAccount;
 
       for (const txDetail of details) {
         // Skip just this entry; stopping here would drop all the ones after it.
@@ -64,10 +58,9 @@ export const useUpdateActivityState = (
               },
             },
           ],
-          {
-            address: network.displayAddress(historyAccount.address),
-            network: network.name,
-          },
+          // Private history belongs to the whole wallet, not to whichever
+          // account happens to be selected when the sync finishes.
+          getSparkHistoryOptions(network.name),
         );
       }
     },
