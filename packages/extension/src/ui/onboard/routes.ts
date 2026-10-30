@@ -1,9 +1,10 @@
 import { RouteRecordRaw } from 'vue-router';
 import NewWallet from './new-wallet.vue';
 import UserAnalytics from './user-analytics.vue';
-import CreateWalletUI from './create-wallet/routes';
-import RestoreWalletUI from './restore-wallet/routes';
-import HardwareWalletUI from './hardware-wallet/routes';
+import CreateWalletUI from './create-wallet/routes.js';
+import RestoreWalletUI from './restore-wallet/routes.js';
+import HardwareWalletUI from './hardware-wallet/routes.js';
+import { OnboardRouteName, OnboardRoutePath } from './route-enums';
 let uiRoutes: RouteRecordRaw[] = [];
 uiRoutes = uiRoutes.concat(CreateWalletUI());
 uiRoutes = uiRoutes.concat(RestoreWalletUI());
@@ -11,21 +12,25 @@ uiRoutes = uiRoutes.concat(HardwareWalletUI());
 const routes = [...uiRoutes];
 if (__IS_FIREFOX__) {
   routes.unshift({
-    path: '/new-wallet',
+    path: OnboardRoutePath.NewWallet,
     component: NewWallet,
-    name: 'new-wallet',
+    name: OnboardRouteName.NewWallet,
   });
   routes.unshift({
-    path: '/',
+    path: OnboardRoutePath.Root,
     component: UserAnalytics,
-    name: 'user-analytics',
+    name: OnboardRouteName.UserAnalytics,
   });
   routes.unshift({
-    path: '/user-privacy',
+    path: OnboardRoutePath.UserPrivacy,
     component: UserAnalytics,
-    name: 'user-privacy',
+    name: OnboardRouteName.UserPrivacy,
   });
 } else {
-  routes.unshift({ path: '/', component: NewWallet, name: 'new-wallet' });
+  routes.unshift({
+    path: OnboardRoutePath.Root,
+    component: NewWallet,
+    name: OnboardRouteName.NewWallet,
+  });
 }
 export default routes;
