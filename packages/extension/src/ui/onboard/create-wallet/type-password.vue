@@ -1,37 +1,31 @@
 <template>
-  <div class="type-password">
-    <h3 class="type-password__title">Confirm your password</h3>
-    <p class="type-password__description">
+  <div class="flex flex-col gap-2">
+    <h1 class="text-heading-2xl mt-3">Confirm your password</h1>
+    <p class="text-text-sm text-text-subtle">
       Enkrypt is non-custodial. We cannot restore or reset your password for
       you. Make sure you remember it.
     </p>
 
-    <div class="type-password__form">
-      <base-input
+    <div class="flex flex-col gap-4 py-4">
+      <app-input
+        v-model="typePassword"
         type="password"
-        :value="typePassword"
-        placeholder="Password"
-        @keyup.enter="nextAction()"
-        @update:value="passwordUpdated"
+        label="Password"
+        :error-message="mismatchError"
+        :submit-disabled="isDisabled"
+        @enter="nextAction"
       />
-
-      <div
-        v-if="isDisabled && typePassword.length > 0"
-        class="type-password__error"
+      <app-btn size="large" :disabled="isDisabled" @click="nextAction"
+        >Next</app-btn
       >
-        Passwords don't match
-      </div>
-
-      <base-button title="Next" :click="nextAction" :disabled="isDisabled" />
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
-import BaseButton from '@action/components/base-button/index.vue';
-import BaseInput from '@action/components/base-input/index.vue';
+import { computed, onMounted, ref } from 'vue';
+import AppBtn from '@common/components/buttons/AppBtn.vue';
+import AppInput from '@common/components/input/AppInput.vue';
 import { useRouter } from 'vue-router';
-import { onMounted } from 'vue';
 import { routes } from './routes';
 import { useOnboardStore } from './store';
 
@@ -41,7 +35,10 @@ const store = useOnboardStore();
 const password = store.password;
 
 const typePassword = ref('');
-const isDisabled = ref(true);
+const isDisabled = computed(() => typePassword.value.trim() !== password);
+const mismatchError = computed(() =>
+  typePassword.value && isDisabled.value ? "Passwords don't match" : undefined,
+);
 
 const nextAction = () => {
   if (!isDisabled.value) {
@@ -51,70 +48,9 @@ const nextAction = () => {
   }
 };
 
-const passwordUpdated = (value: string) => {
-  isDisabled.value = true;
-  typePassword.value = value.trim();
-  if (value.trim() === password) isDisabled.value = false;
-};
-
 onMounted(() => {
   if (!password) {
     router.push({ path: routes.pickPassword.path });
   }
 });
 </script>
-
-<style lang="less">
-@import '@action/styles/theme.less';
-
-.type-password {
-  width: 100%;
-
-  &__title {
-    font-style: normal;
-    font-weight: 700;
-    font-size: 34px;
-    line-height: 40px;
-    letter-spacing: 0.25px;
-    color: @primaryLabel;
-    margin: 0 0 8px 0;
-  }
-
-  &__description {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
-    color: @secondaryLabel;
-    margin: 0;
-  }
-
-  &__form {
-    padding: 16px 0;
-
-    .button {
-      margin-top: 16px;
-    }
-  }
-
-  &__error {
-    padding-top: 8px;
-    padding-left: 12px;
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0.25px;
-    color: @error;
-  }
-
-  &__label {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 20px;
-    color: @secondaryLabel;
-    margin: 0;
-  }
-}
-</style>

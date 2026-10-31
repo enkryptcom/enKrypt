@@ -25,7 +25,8 @@
     "types": ["node"],
     "paths": {
       "@/*": ["./src/*"],
-      "@action/*": ["./src/ui/action/*"]
+      "@action/*": ["./src/ui/action/*"],
+      "@common/*": ["./src/ui/common/*"]
     },
     "lib": ["dom"]
   }

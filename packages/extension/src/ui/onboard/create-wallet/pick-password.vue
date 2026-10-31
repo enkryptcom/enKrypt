@@ -1,28 +1,33 @@
 <template>
-  <div class="pick-password">
-    <h3 class="pick-password__title">Pick a password</h3>
-    <p class="pick-password__description">
-      This will be used to unlock your wallet.
+  <div class="flex flex-col gap-2">
+    <h1 class="text-heading-2xl mt-3">Pick a password</h1>
+    <p class="text-text-sm text-text-subtle">
+      This will be used to unlock your wallet. Best passwords are long and
+      contain letters, numbers and special characters.
     </p>
 
-    <div class="pick-password__form">
-      <password-input
-        @keyup.enter="nextAction()"
-        @update:strength-and-password="passwordUpdated"
+    <div class="flex flex-col gap-4 py-4">
+      <app-input
+        v-model="password"
+        type="password"
+        label="Password"
+        :feedback="strengthFeedback"
+        :submit-disabled="isDisabled"
+        @enter="nextAction"
       />
-      <base-button title="Next" :disabled="isDisabled" @click="nextAction" />
+      <app-btn size="large" :disabled="isDisabled" @click="nextAction"
+        >Next</app-btn
+      >
     </div>
 
-    <p class="pick-password__label">
-      Best passwords are long and contain letters, numbers and special
-      characters.
-    </p>
+    <p class="text-text-sm text-text-subtle"></p>
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
-import BaseButton from '@action/components/base-button/index.vue';
-import PasswordInput from '@action/components/password-input/index.vue';
+import { computed } from 'vue';
+import AppBtn from '@common/components/buttons/AppBtn.vue';
+import AppInput from '@common/components/input/AppInput.vue';
+import { usePassword } from '@common/composables/usePassword';
 import { useRouter } from 'vue-router';
 import { routes } from './routes';
 import { useOnboardStore } from './store';
@@ -30,61 +35,15 @@ import { useOnboardStore } from './store';
 const router = useRouter();
 
 const store = useOnboardStore();
-const password = ref('');
-const isDisabled = ref(true);
+const { password, trimmedPassword, isValid, strengthFeedback } = usePassword();
+const isDisabled = computed(() => !isValid.value);
 
 const nextAction = () => {
   if (!isDisabled.value) {
-    store.setPassword(password.value);
+    store.setPassword(trimmedPassword.value);
     router.push({
       name: routes.typePassword.name,
     });
   }
 };
-
-const passwordUpdated = (info: { password: string; strength: number }) => {
-  password.value = info.password.trim();
-  isDisabled.value = true;
-  if (info.strength > 1) isDisabled.value = false;
-};
 </script>
-
-<style lang="less">
-@import '@action/styles/theme.less';
-
-.pick-password {
-  width: 100%;
-
-  &__title {
-    font-style: normal;
-    font-weight: 700;
-    font-size: 34px;
-    line-height: 40px;
-    letter-spacing: 0.25px;
-    color: @primaryLabel;
-    margin: 0 0 8px 0;
-  }
-
-  &__description {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
-    color: @secondaryLabel;
-    margin: 0;
-  }
-
-  &__form {
-    padding: 16px 0;
-  }
-
-  &__label {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 20px;
-    color: @secondaryLabel;
-    margin: 0;
-  }
-}
-</style>

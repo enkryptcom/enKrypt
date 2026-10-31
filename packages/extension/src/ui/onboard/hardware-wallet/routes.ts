@@ -4,34 +4,30 @@ import SelectAccount from './views/select-account.vue';
 import ImportingAccount from './views/importing-account.vue';
 
 import { RouteRecordRaw } from 'vue-router';
+import { OnboardRouteName, OnboardRoutePath } from '../route-enums';
 export const routes = {
   addHardwareWallet: {
-    path: '',
-    name: 'add-hardware-wallet',
+    path: OnboardRoutePath.HardwareWalletRoot,
+    name: OnboardRouteName.HardwareWalletAdd,
     component: AddHardwareWallet,
   },
   Connect: {
-    path: 'connect/:network/:walletType',
-    name: 'connect',
+    path: OnboardRoutePath.HardwareWalletConnect,
+    name: OnboardRouteName.HardwareWalletConnect,
     component: Connect,
   },
   SelectAccount: {
-    path: 'select-account/:network/:walletType',
-    name: 'select-account',
+    path: OnboardRoutePath.HardwareWalletSelectAccount,
+    name: OnboardRouteName.HardwareWalletSelectAccount,
     component: SelectAccount,
   },
   ImportingAccount: {
-    path: 'importing-account/:network/:walletType',
-    name: 'importing-account',
+    path: OnboardRoutePath.HardwareWalletImportingAccount,
+    name: OnboardRouteName.HardwareWalletImportingAccount,
     component: ImportingAccount,
   },
 };
-export const namespace = 'hardware-wallet';
 
 export default (): RouteRecordRaw[] => {
-  return Object.values(routes).map(route => {
-    route.path = `/${namespace}/${route.path}`;
-    route.name = `${namespace}-${String(route.name)}`;
-    return route;
-  });
+  return Object.values(routes);
 };

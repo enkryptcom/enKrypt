@@ -7,54 +7,50 @@ import WalletReady from '../create-wallet/wallet-ready.vue';
 import UserAnalytics from '../user-analytics.vue';
 import BackupDetected from './backup-detected.vue';
 import { RouteRecordRaw } from 'vue-router';
+import { OnboardRouteName, OnboardRoutePath } from '../route-enums';
 export const routes = {
   start: {
-    path: 'start',
-    name: 'start',
+    path: OnboardRoutePath.RestoreWalletStart,
+    name: OnboardRouteName.RestoreWalletStart,
     component: Start,
   },
   otherInfo: {
-    path: 'other-info',
-    name: 'other-info',
+    path: OnboardRoutePath.RestoreWalletOtherInfo,
+    name: OnboardRouteName.RestoreWalletOtherInfo,
     component: OtherInfo,
   },
   enterRecoveryPhrase: {
-    path: 'enter-recovery-phrase',
-    name: 'enter-recovery-phrase',
+    path: OnboardRoutePath.RestoreWalletEnterRecoveryPhrase,
+    name: OnboardRouteName.RestoreWalletEnterRecoveryPhrase,
     component: EnterRecoveryPhrase,
   },
   pickPassword: {
-    path: 'pick-password',
-    name: 'pick-password',
+    path: OnboardRoutePath.RestoreWalletPickPassword,
+    name: OnboardRouteName.RestoreWalletPickPassword,
     component: PickPassword,
   },
   typePassword: {
-    path: 'type-password',
-    name: 'type-password',
+    path: OnboardRoutePath.RestoreWalletTypePassword,
+    name: OnboardRouteName.RestoreWalletTypePassword,
     component: TypePassword,
   },
   userAnalytics: {
-    path: 'user-analytics',
-    name: 'user-analytics',
+    path: OnboardRoutePath.RestoreWalletUserAnalytics,
+    name: OnboardRouteName.RestoreWalletUserAnalytics,
     component: UserAnalytics,
   },
   backupDetected: {
-    path: 'backup-detected',
-    name: 'backup-detected',
+    path: OnboardRoutePath.RestoreWalletBackupDetected,
+    name: OnboardRouteName.RestoreWalletBackupDetected,
     component: BackupDetected,
   },
   walletReady: {
-    path: 'wallet-ready',
-    name: 'wallet-ready',
+    path: OnboardRoutePath.RestoreWalletReady,
+    name: OnboardRouteName.RestoreWalletReady,
     component: WalletReady,
   },
 };
-export const namespace = 'restore-wallet';
 
 export default (): RouteRecordRaw[] => {
-  return Object.values(routes).map(route => {
-    route.path = `/${namespace}/${route.path}`;
-    route.name = `${namespace}-${String(route.name)}`;
-    return route;
-  });
+  return Object.values(routes);
 };

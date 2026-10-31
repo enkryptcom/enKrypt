@@ -36,6 +36,7 @@ import BaseButton from '@action/components/base-button/index.vue';
 import SettingsState from '@/libs/settings-state';
 import { optOutofMetrics } from '@/libs/metrics';
 import { useRouter, useRoute } from 'vue-router';
+import { OnboardRouteName } from './route-enums';
 
 const router = useRouter();
 const route = useRoute();
@@ -47,10 +48,10 @@ const agree = async () => {
   enkryptSettings.isMetricsEnabled = true;
   await settingsState.setEnkryptSettings(enkryptSettings);
   optOutofMetrics(false);
-  if (route.name === 'user-privacy') {
+  if (route.name === OnboardRouteName.UserPrivacy) {
     window.close();
   } else {
-    router.push({ name: 'new-wallet' });
+    router.push({ name: OnboardRouteName.NewWallet });
   }
 };
 
@@ -59,10 +60,10 @@ const deny = async () => {
   enkryptSettings.isMetricsEnabled = false;
   await settingsState.setEnkryptSettings(enkryptSettings);
   optOutofMetrics(true);
-  if (route.name === 'user-privacy') {
+  if (route.name === OnboardRouteName.UserPrivacy) {
     window.close();
   } else {
-    router.push({ name: 'new-wallet' });
+    router.push({ name: OnboardRouteName.NewWallet });
   }
 };
 </script>

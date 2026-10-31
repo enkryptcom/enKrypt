@@ -3,6 +3,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, type PluginOption } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import tailwindcss from '@tailwindcss/vite';
 import { crx } from '@crxjs/vite-plugin';
 import chromeManifest from './src/manifest/manifest.chrome';
 import firefoxManifest from './src/manifest/manifest.firefox';
@@ -75,6 +76,7 @@ export default defineConfig({
       protocolImports: true,
     }),
     vue(),
+    tailwindcss(),
     assetsRewritePlugin,
     transformCSInject(),
     transformManifest(),
@@ -120,6 +122,7 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@action': fileURLToPath(new URL('./src/ui/action', import.meta.url)),
+      '@common': fileURLToPath(new URL('./src/ui/common', import.meta.url)),
       fs: './configs/vite/empty.js',
     },
   },
