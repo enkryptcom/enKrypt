@@ -6,17 +6,29 @@
       class="rounded-2xl bg-background-alternative p-5 sm:p-7 w-full sm:max-w-[480px] sm:min-h-[600px] mx-auto"
       :class="wrapClassObject()"
     >
-      <div v-if="isShowBackButton()" class="flex items-center justify-start">
-        <a @click="router.go(-1)">
-          <arrow-back />
-        </a>
+      <div v-if="isShowBackButton()" class="flex items-center justify-between">
+        <app-btn-icon @click="router.go(-1)" icon="arrow-left" label="back" />
+        <img :src="appLogo" class="max-h-7" />
       </div>
 
-      <!-- <img :src="appLogo" class="absolute left-5 top-4 sm:top-8 h-14 max-h-8" /> -->
-
       <router-view class="mb-5 flex flex-col w-full" />
-      <!-- <img :src="appLogo" class="max-h-8" /> -->
     </div>
+
+    <footer
+      class="flex flex-col items-center gap-1 w-full sm:max-w-[480px] mx-auto text-center text-text-xs text-text-muted"
+    >
+      <p>
+        By continuing, I agree to the
+        <a
+          href="https://www.myetherwallet.com/terms-of-service"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-text-brand hover:underline"
+          >Terms of Service</a
+        >
+      </p>
+      <p>&copy; {{ currentYear }} MyEtherWallet. All rights reserved.</p>
+    </footer>
 
     <div
       v-if="
@@ -37,7 +49,7 @@
 
 <script setup lang="ts">
 import appLogo from '@/assets/images/logo.svg';
-import ArrowBack from '@action/icons/common/arrow-back.vue';
+import AppBtnIcon from '@common/components/buttons/AppBtnIcon.vue';
 import ExtensionIcon from '@action/icons/tip/extension-icon.vue';
 import OnlineIcon from '@action/icons/tip/online-icon.vue';
 import PinIcon from '@action/icons/tip/pin-icon.vue';
@@ -48,6 +60,7 @@ import { OnboardRouteName, OnboardRoutePath } from './route-enums';
 
 const route = useRoute();
 const router = useRouter();
+const currentYear = new Date().getFullYear();
 
 onMounted(async () => {
   isGeoRestricted().then(restricted => {

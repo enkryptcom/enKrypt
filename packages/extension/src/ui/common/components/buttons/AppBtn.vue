@@ -75,7 +75,7 @@
  * </app-base-button>
  */
 import { computed, type PropType } from 'vue';
-import AppSpinner from '@/components/spinner/AppSpinner.vue';
+import AppSpinner from '@common/components/spinner/AppSpinner.vue';
 import { BTN_SIZE_SPEC, type BtnSize } from './buttonSizes';
 
 const props = defineProps({

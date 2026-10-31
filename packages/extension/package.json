@@ -36,6 +36,7 @@
     "@ethereumjs/tx": "^5.4.0",
     "@ethereumjs/util": "^9.1.0",
     "@ethereumjs/wallet": "^2.0.4",
+    "@heroicons/vue": "^2.2.0",
     "@kadena/client": "^1.18.3",
     "@kadena/pactjs-cli": "^1.18.3",
     "@ledgerhq/hw-transport-webusb": "^6.35.0",

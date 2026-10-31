@@ -23,7 +23,7 @@
 </template>
 <script setup lang="ts">
 import appLogo from '@/assets/images/logo.svg';
-import AppBtn from '@/components/buttons/AppBtn.vue';
+import AppBtn from '@common/components/buttons/AppBtn.vue';
 import { routes as cwalletRoutes } from './create-wallet/routes';
 import { routes as rwalletRoutes } from './restore-wallet/routes';
 import { useRouter } from 'vue-router';
