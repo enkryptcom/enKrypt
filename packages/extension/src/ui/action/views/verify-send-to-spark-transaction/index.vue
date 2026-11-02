@@ -31,7 +31,7 @@
             :network="network"
           />
           <verify-transaction-amount :token="txData.toToken" />
-          <verify-transaction-fee :fee="txData.gasFee" />
+          <verify-transaction-fee :fee="displayFee" />
           <p v-if="errorMsg" class="verify-transaction__error">
             {{ errorMsg }}
           </p>
@@ -87,6 +87,7 @@ import FiroAPI from '@/providers/bitcoin/libs/api-firo';
 import { isAddress } from '@/providers/bitcoin/libs/utils';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { VerifyTransactionParams } from '@/providers/bitcoin/ui/types';
+import { GasFeeInfo } from '@/providers/common/types';
 import HardwareWalletMsg from '@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue';
 import VerifyTransactionAccount from '@/providers/common/ui/verify-transaction/verify-transaction-account.vue';
 import VerifyTransactionAmount from '@/providers/common/ui/verify-transaction/verify-transaction-amount.vue';
@@ -98,8 +99,9 @@ import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import CloseIcon from '@action/icons/common/close-icon.vue';
 import SendProcess from '@action/views/send-process/index.vue';
 import { EnkryptAccount } from '@enkryptcom/types';
+import { fromBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
-import { ComponentPublicInstance, onBeforeMount, ref } from 'vue';
+import { ComponentPublicInstance, computed, onBeforeMount, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { wasmInstance } from '@/libs/utils/wasm-loader';
 import { handleFiroSecretsError } from '@action/utils/firo-secrets-guard';
@@ -120,12 +122,66 @@ const isPopup: boolean = getCurrentContext() === 'new-window';
 const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const isWindowPopup = ref(false);
 const errorMsg = ref('');
+const previewFee = ref<GasFeeInfo | null>(null);
+const displayFee = computed(() => previewFee.value ?? txData.gasFee);
 
 defineExpose({ verifyScrollRef });
+
+const calculatePreviewFee = async () => {
+  try {
+    const wasmModule = await wasmInstance.getInstance();
+    const api = (await network.value.api()) as unknown as FiroAPI;
+    const { spendableUtxos, addressKeyPairs } =
+      await api.getSpendableUtxosWithKeyPairs();
+    if (spendableUtxos.length === 0) return;
+
+    const amountToSendBN = new BigNumber(txData.toToken.amount);
+    const mintTxData = await getMintTxData({
+      wasmModule,
+      address: txData.toAddress,
+      amount: amountToSendBN.toString(),
+      utxos: spendableUtxos.map(({ txid, vout }) => ({
+        txHash: Buffer.from(txid, 'hex').reverse(),
+        vout,
+        txHashLength: Buffer.from(txid, 'hex').length,
+      })),
+    });
+    const inputAmountBn = getTotalMintedAmount(spendableUtxos);
+
+    const tempTx = createTempTx({
+      changeAmount: inputAmountBn
+        .minus(amountToSendBN)
+        .minus(new BigNumber(500)),
+      network: network.value.networkInfo,
+      addressKeyPairs,
+      spendableUtxos,
+      mintValueOutput: [
+        {
+          script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
+          value: amountToSendBN.toNumber(),
+        },
+      ],
+    });
+    const feeBn = await getFee(tempTx);
+
+    const feeNative = fromBase(feeBn.toFixed(0), txData.toToken.decimals);
+    previewFee.value = {
+      nativeValue: feeNative,
+      fiatValue: new BigNumber(txData.toToken.price || '0')
+        .times(feeNative)
+        .toString(),
+      nativeSymbol: txData.gasFee.nativeSymbol,
+      fiatSymbol: txData.gasFee.fiatSymbol,
+    };
+  } catch (e) {
+    console.warn('Could not calculate mint fee for preview', e);
+  }
+};
 
 onBeforeMount(async () => {
   network.value = (await getNetworkByName(selectedNetwork)!) as BitcoinNetwork;
   trackSendEvents(SendEventType.SendVerify, { network: network.value.name });
+  calculatePreviewFee();
   if (isAddress(txData.fromAddress, network.value.networkInfo)) {
     account.value = await KeyRing.getAccount(txData.fromAddress);
     isWindowPopup.value = account.value.isHardware;
