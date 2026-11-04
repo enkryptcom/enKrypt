@@ -8,6 +8,7 @@
         surfaceClass,
         { 'cursor-not-allowed': disabled },
       ]"
+      @click="setInFocusInput()"
     >
       <div
         v-if="$slots.leading"
@@ -50,7 +51,6 @@
               : 'text-text-default placeholder:text-text-placeholder',
           ]"
           autocomplete="off"
-          @pointerdown="setActive()"
           @focus="setInFocusInput()"
           @blur="startOutOfFocusTimeout()"
           @input="onInput"
@@ -252,7 +252,7 @@ watch(inFocusInput, value => {
 });
 
 const onInput = () => {
-  setActive();
+  setInFocusInput();
   if (hasRequiredError.value) {
     hasRequiredError.value = false;
   }
@@ -283,7 +283,6 @@ const showReveal = computed(() => props.type === 'password' && !props.disabled);
 
 const showPassword = ref(false);
 const togglePasswordVisibility = () => {
-  setActive();
   setInFocusInput();
   nextTick(() => {
     showPassword.value = !showPassword.value;
@@ -297,7 +296,6 @@ const inputType = computed(() => {
 });
 
 const clearInputValue = () => {
-  setActive();
   setInFocusInput();
   nextTick(() => {
     model.value = '';

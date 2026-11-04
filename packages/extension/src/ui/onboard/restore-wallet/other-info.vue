@@ -1,10 +1,9 @@
 <template>
-  <div class="restore-wallet-other-info">
-    <custom-scrollbar
-      class="restore-wallet-other-info__scroll-area"
-      :settings="scrollSettings({ suppressScrollX: true })"
-    >
-      <h3>Your safety and security is our #1 priority</h3>
+  <div class="flex flex-col gap-4">
+    <h1 class="text-heading-2xl mt-3">
+      Your safety and security is our #1 priority
+    </h1>
+    <div class="flex flex-col gap-4 text-text-sm text-text-subtle">
       <p>
         We don't support keystore file and private key imports in Enkrypt, as
         they are highly unsafe.
@@ -15,7 +14,7 @@
         offline)
       </p>
       <p>
-        For maximum security its best to create a new wallet directly in
+        For maximum security it's best to create a new wallet directly in
         Enkrypt, same as if you just got a new hardware wallet. That way you can
         be sure your keys never leave your device.
       </p>
@@ -25,45 +24,6 @@
         Tokens to the new wallet.
       </p>
       <p>Using your existing private key considerably reduces your security.</p>
-    </custom-scrollbar>
+    </div>
   </div>
 </template>
-<script setup lang="ts">
-import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
-import scrollSettings from '@/libs/utils/scroll-settings';
-</script>
-
-<style lang="less">
-@import '@action/styles/theme.less';
-
-.restore-wallet-other-info {
-  h3 {
-    font-style: normal;
-    font-weight: 700;
-    font-size: 34px;
-    line-height: 40px;
-    letter-spacing: 0.25px;
-    color: @primaryLabel;
-    margin: 0 0 16px 0;
-  }
-
-  p {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0.25px;
-    color: @secondaryLabel;
-    margin: 0 0 16px 0;
-  }
-
-  &__scroll-area {
-    position: relative;
-    margin: auto;
-    width: calc(~'100% + 15px');
-    max-height: 488px;
-    padding-right: 15px;
-    box-sizing: border-box;
-  }
-}
-</style>
