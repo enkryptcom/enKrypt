@@ -1,9 +1,9 @@
 <template>
   <div class="flex flex-col gap-4">
     <img :src="appLogo" class="h-12 mr-auto" />
-    <h1 class="text-heading-2xl mt-3">Your wallet is ready</h1>
+    <h1 class="text-heading-2xl mt-4">Your wallet is ready!</h1>
 
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-2 mt-3">
       <p class="text-text-sm text-text-subtle">Follow us</p>
       <div class="flex items-center gap-6">
         <a
@@ -13,19 +13,19 @@
           :aria-label="social.label"
           target="_blank"
           rel="noopener noreferrer"
-          class="block rounded-8 transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+          class="block rounded-full p-2 transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
         >
           <component :is="social.icon" />
         </a>
       </div>
     </div>
 
-    <app-btn class="mt-2" size="large" @click="finishAction">Finish</app-btn>
+    <app-btn class="mt-5" size="large" @click="finishAction">Finish</app-btn>
     <a
       href="https://blog.enkrypt.com/getting-started-with-enkrypt-wallet/"
       target="_blank"
       rel="noopener noreferrer"
-      class="self-center text-label-base text-text-brand hover:underline"
+      class="self-center text-label-base text-text-brand hover:underline mt-1"
       >How to get started 👉</a
     >
   </div>
