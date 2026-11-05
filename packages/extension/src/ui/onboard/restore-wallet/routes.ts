@@ -1,5 +1,3 @@
-import Start from './start-restore.vue';
-import OtherInfo from './other-info.vue';
 import EnterRecoveryPhrase from './enter-recovery-phrase.vue';
 import PickPassword from './pick-password.vue';
 import TypePassword from './type-password.vue';
@@ -9,16 +7,6 @@ import BackupDetected from './backup-detected.vue';
 import { RouteRecordRaw } from 'vue-router';
 import { OnboardRouteName, OnboardRoutePath } from '../route-enums';
 export const routes = {
-  start: {
-    path: OnboardRoutePath.RestoreWalletStart,
-    name: OnboardRouteName.RestoreWalletStart,
-    component: Start,
-  },
-  otherInfo: {
-    path: OnboardRoutePath.RestoreWalletOtherInfo,
-    name: OnboardRouteName.RestoreWalletOtherInfo,
-    component: OtherInfo,
-  },
   enterRecoveryPhrase: {
     path: OnboardRoutePath.RestoreWalletEnterRecoveryPhrase,
     name: OnboardRouteName.RestoreWalletEnterRecoveryPhrase,

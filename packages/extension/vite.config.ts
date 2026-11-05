@@ -123,6 +123,9 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@action': fileURLToPath(new URL('./src/ui/action', import.meta.url)),
       '@common': fileURLToPath(new URL('./src/ui/common', import.meta.url)),
+      '@components': fileURLToPath(
+        new URL('./src/ui/common/components', import.meta.url),
+      ),
       fs: './configs/vite/empty.js',
     },
   },

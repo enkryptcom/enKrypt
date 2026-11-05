@@ -35,6 +35,6 @@ const createAction = () => {
 };
 
 const restoreAction = () => {
-  router.push({ name: rwalletRoutes.start.name });
+  router.push({ name: rwalletRoutes.enterRecoveryPhrase.name });
 };
 </script>

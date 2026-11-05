@@ -74,7 +74,7 @@ const passwordUpdated = (value: string) => {
 
 const checkMnemonicAndPassword = () => {
   if (!store.password || !store.mnemonic) {
-    router.push({ path: routes.start.path });
+    router.push({ name: routes.enterRecoveryPhrase.name });
   }
 };
 

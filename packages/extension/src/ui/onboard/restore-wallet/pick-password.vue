@@ -49,7 +49,7 @@ const passwordUpdated = (info: { password: string; strength: number }) => {
 
 onMounted(() => {
   if (!store.mnemonic) {
-    router.push({ name: routes.start.name });
+    router.push({ name: routes.enterRecoveryPhrase.name });
   }
 });
 </script>
