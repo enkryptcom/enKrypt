@@ -1,5 +1,5 @@
 import PickPassword from '../pick-password.vue';
-import TypePassword from './type-password.vue';
+import TypePassword from '../type-password.vue';
 import RecoveryPhrase from './recovery-phrase.vue';
 import CheckPhrase from './double-check-phrase.vue';
 import WalletReady from './wallet-ready.vue';
@@ -18,6 +18,7 @@ export const routes = {
     path: OnboardRoutePath.CreateWalletTypePassword,
     name: OnboardRouteName.CreateWalletTypePassword,
     component: TypePassword,
+    props: { flow: 'create' },
   },
   recoveryPhrase: {
     path: OnboardRoutePath.CreateWalletRecoveryPhrase,

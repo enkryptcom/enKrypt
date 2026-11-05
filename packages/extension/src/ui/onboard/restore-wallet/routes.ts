@@ -1,6 +1,6 @@
 import EnterRecoveryPhrase from './enter-recovery-phrase.vue';
 import PickPassword from '../pick-password.vue';
-import TypePassword from './type-password.vue';
+import TypePassword from '../type-password.vue';
 import WalletReady from '../create-wallet/wallet-ready.vue';
 import UserAnalytics from '../user-analytics.vue';
 import BackupDetected from './backup-detected.vue';
@@ -22,6 +22,7 @@ export const routes = {
     path: OnboardRoutePath.RestoreWalletTypePassword,
     name: OnboardRouteName.RestoreWalletTypePassword,
     component: TypePassword,
+    props: { flow: 'restore' },
   },
   userAnalytics: {
     path: OnboardRoutePath.RestoreWalletUserAnalytics,
