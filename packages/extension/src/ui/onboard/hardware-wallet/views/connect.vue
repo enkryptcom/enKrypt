@@ -1,39 +1,63 @@
 <template>
-  <div class="connect" :class="{ process: isProcessing || isError }">
-    <ledger-logo v-if="walletType === HWwalletType.ledger" />
-    <trezor-logo v-if="walletType === HWwalletType.trezor" />
-    <h3 v-if="walletType === HWwalletType.ledger">Connect to your Ledger</h3>
-    <h3 v-if="walletType === HWwalletType.trezor">Connect to your Trezor</h3>
-    <p v-if="walletType === HWwalletType.ledger">
+  <div class="relative w-full">
+    <div class="flex items-center justify-between gap-3">
+      <app-btn-icon
+        icon="arrow-left"
+        label="Back to hardware wallets"
+        @click="backToHardwareRoute"
+      />
+      <ledger-logo v-if="walletType === HWwalletType.ledger" />
+      <trezor-logo v-if="walletType === HWwalletType.trezor" />
+    </div>
+    <h1
+      v-if="walletType === HWwalletType.ledger"
+      class="mt-6 mb-4 text-heading-xl text-text-default"
+    >
+      Connect to your Ledger
+    </h1>
+    <p
+      v-if="walletType === HWwalletType.trezor"
+      class="mt-6 mb-2 text-heading-xl text-text-default"
+    >
+      Connect to your Trezor
+    </p>
+    <p
+      v-if="walletType === HWwalletType.ledger"
+      class="mb-6 text-text-base text-text-subtle"
+    >
       Connect your wallet to your computer. Unlock your Ledger and open the
       <b>{{ appName }} App.</b>
-      <!-- <a href="#">Learn more</a> -->
     </p>
-    <p v-if="walletType === HWwalletType.trezor">
+    <p
+      v-if="walletType === HWwalletType.trezor"
+      class="mb-6 text-text-base text-text-subtle"
+    >
       Connect your wallet to your computer. Follow the instructions in the
       Trezor connection tab.
-      <!-- <a href="#">Learn more</a> -->
     </p>
-    <base-button title="Connect" :click="connectAction" />
-  </div>
+    <hardware-wallet-process
+      v-if="isProcessing"
+      :is-ledger="walletType === HWwalletType.ledger"
+      :is-connetion="true"
+    />
 
-  <hardware-wallet-process
-    v-if="isProcessing"
-    :is-ledger="walletType === HWwalletType.ledger"
-    :is-connetion="true"
-  />
-  <hardware-wallet-error
-    v-if="isError"
-    :is-ledger="walletType === HWwalletType.ledger"
-    :app-name="appName"
-    :error-message="errorMessage"
-    @retry-connection="connectAction"
-  />
+    <hardware-wallet-error
+      v-else-if="isError"
+      :is-ledger="walletType === HWwalletType.ledger"
+      :app-name="appName"
+      :error-message="errorMessage"
+      @retry-connection="connectAction"
+    />
+    <app-btn v-else size="large" @click="connectAction" class="flex w-full"
+      >Connect</app-btn
+    >
+  </div>
 </template>
 <script setup lang="ts">
 import { computed, onBeforeMount, ref } from 'vue';
 import LedgerLogo from '@/assets/icons/hardware/ledger-logo.vue';
-import BaseButton from '@action/components/base-button/index.vue';
+import AppBtn from '@common/components/buttons/AppBtn.vue';
+import AppBtnIcon from '@common/components/buttons/AppBtnIcon.vue';
 import HardwareWalletProcess from '../components/hardware-wallet-process.vue';
 import HardwareWalletError from '../components/hardware-wallet-error.vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -50,8 +74,18 @@ const networkName = route.params.network as keyof typeof ledgerAppNames;
 const walletType = route.params.walletType as HWwalletType;
 
 if (!networkName || !walletType) {
-  router.push({ name: routes.addHardwareWallet.name });
+  router.push({
+    name: routes.addHardwareWallet.name,
+    query: { network: networkName },
+  });
 }
+
+const backToHardwareRoute = () => {
+  router.push({
+    name: routes.addHardwareWallet.name,
+    query: { network: networkName },
+  });
+};
 
 const network = ref<BaseNetwork | undefined>();
 
@@ -93,46 +127,3 @@ const connectAction = () => {
     });
 };
 </script>
-
-<style lang="less">
-@import '@action/styles/theme.less';
-
-.connect {
-  width: 100%;
-  position: relative;
-
-  &.process {
-    height: 348px;
-    overflow: hidden;
-  }
-
-  h3 {
-    font-style: normal;
-    font-weight: 700;
-    font-size: 34px;
-    line-height: 40px;
-    letter-spacing: 0.25px;
-    color: @primaryLabel;
-    margin: 24px 0 8px 0;
-  }
-
-  p {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
-    color: @secondaryLabel;
-    margin: 0 0 24px 0;
-
-    a {
-      color: @secondaryLabel;
-      display: block;
-      margin: 8px 0 0 0;
-
-      &:hover {
-        text-decoration: none;
-      }
-    }
-  }
-}
-</style>
