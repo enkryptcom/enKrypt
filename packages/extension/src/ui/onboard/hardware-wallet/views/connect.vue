@@ -32,7 +32,7 @@
 </template>
 <script setup lang="ts">
 import { computed, onBeforeMount, ref } from 'vue';
-import LedgerLogo from '@action/icons/hardware/ledger-logo.vue';
+import LedgerLogo from '@/assets/icons/hardware/ledger-logo.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import HardwareWalletProcess from '../components/hardware-wallet-process.vue';
 import HardwareWalletError from '../components/hardware-wallet-error.vue';
@@ -41,7 +41,7 @@ import { routes } from '../routes';
 import { getNetworkByName } from '@/libs/utils/networks';
 import HWwallet, { ledgerAppNames } from '@enkryptcom/hw-wallets';
 import { HWwalletType } from '@enkryptcom/types';
-import TrezorLogo from '@action/icons/hardware/trezor-logo.vue';
+import TrezorLogo from '@/assets/icons/hardware/trezor-logo.vue';
 import { BaseNetwork } from '@/types/base-network';
 
 const route = useRoute();

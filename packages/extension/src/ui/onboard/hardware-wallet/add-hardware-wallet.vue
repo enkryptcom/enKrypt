@@ -1,55 +1,54 @@
 <template>
-  <div class="add-hardware-wallet">
-    <hardware-icon />
-    <h3>Add hardware wallet account</h3>
-    <p>Select a hardware wallet you'd like to use with Enkrypt.</p>
+  <div class="flex flex-col gap-2">
+    <hardware-icon class="text-icon-default" />
+    <h1 class="text-heading-2xl mt-3">Add hardware wallet account</h1>
+    <p class="text-text-sm text-text-subtle">
+      Select a hardware wallet you'd like to use with MEW extension.
+    </p>
 
-    <router-link
-      v-if="isLedgerSupported"
-      :to="{
-        name: routes.Connect.name,
-        params: {
-          network: route.query.network as string,
-          walletType: HWwalletType.ledger,
-        },
-      }"
-      class="add-hardware-wallet__button"
-    >
-      <ledger-logo />
-      <right-arrow />
-    </router-link>
-    <router-link
-      v-if="isTrezorSupported"
-      :to="{
-        name: routes.Connect.name,
-        params: {
-          network: route.query.network as string,
-          walletType: HWwalletType.trezor,
-        },
-      }"
-      class="add-hardware-wallet__button"
-    >
-      <trezor-logo />
-      <right-arrow />
-    </router-link>
+    <div class="flex flex-col gap-3 py-4">
+      <router-link
+        v-for="wallet in wallets"
+        :key="wallet.type"
+        :to="{
+          name: routes.Connect.name,
+          params: {
+            network: route.query.network as string,
+            walletType: wallet.type,
+          },
+        }"
+        :aria-label="wallet.label"
+        class="flex h-16 w-full items-center justify-between rounded-12 py-4 pr-3 pl-5 text-text-default inset-ring inset-ring-border-default transition-colors hover:bg-background-default-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+      >
+        <component :is="wallet.logo" />
+        <app-icon name="chevron-right" class="text-icon-default" />
+      </router-link>
+      <p
+        v-if="isChecked && !wallets.length"
+        class="text-text-sm text-text-subtle"
+      >
+        No supported hardware wallets for this network.
+      </p>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
-import HardwareIcon from '@action/icons/hardware/hardware-icon.vue';
-import LedgerLogo from '@action/icons/hardware/ledger-logo.vue';
-import TrezorLogo from '@action/icons/hardware/trezor-logo.vue';
-import RightArrow from '@action/icons/common/right-arrow.vue';
+import HardwareIcon from '@/assets/icons/hardware/hardware-icon.vue';
+import LedgerLogo from '@/assets/icons/hardware/ledger-logo.vue';
+import TrezorLogo from '@/assets/icons/hardware/trezor-logo.vue';
+import AppIcon from '@components/icon/AppIcon.vue';
 import { routes } from './routes';
 import { useRoute } from 'vue-router';
 import { HWwalletType, NetworkNames } from '@enkryptcom/types';
 import HWwallets from '@enkryptcom/hw-wallets';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 const hwWallet = new HWwallets();
 const isLedgerSupported = ref(false);
 const isTrezorSupported = ref(false);
+const isChecked = ref(false);
 const route = useRoute();
 
-hwWallet
+const ledgerCheck = hwWallet
   .getSupportedPaths({
     wallet: HWwalletType.ledger,
     networkName: route.query.network as NetworkNames,
@@ -58,7 +57,7 @@ hwWallet
     if (paths) isLedgerSupported.value = !__IS_FIREFOX__;
   })
   .catch(() => ({}));
-hwWallet
+const trezorCheck = hwWallet
   .getSupportedPaths({
     wallet: HWwalletType.trezor,
     networkName: route.query.network as NetworkNames,
@@ -67,56 +66,17 @@ hwWallet
     if (paths) isTrezorSupported.value = true;
   })
   .catch(() => ({}));
+// Hold the empty state until both checks settle, so it doesn't flash
+Promise.allSettled([ledgerCheck, trezorCheck]).then(() => {
+  isChecked.value = true;
+});
+
+const wallets = computed(() => [
+  ...(isLedgerSupported.value
+    ? [{ type: HWwalletType.ledger, label: 'Ledger', logo: LedgerLogo }]
+    : []),
+  ...(isTrezorSupported.value
+    ? [{ type: HWwalletType.trezor, label: 'Trezor', logo: TrezorLogo }]
+    : []),
+]);
 </script>
-
-<style lang="less">
-@import '@action/styles/theme.less';
-
-.add-hardware-wallet {
-  width: 100%;
-
-  h3 {
-    font-style: normal;
-    font-weight: 700;
-    font-size: 34px;
-    line-height: 40px;
-    letter-spacing: 0.25px;
-    color: @primaryLabel;
-    margin: 24px 0 8px 0;
-  }
-
-  p {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
-    color: @secondaryLabel;
-    margin: 0 0 24px 0;
-  }
-
-  &__button {
-    width: 100%;
-    height: 64px;
-    border: 1px solid rgba(95, 99, 104, 0.2);
-    border-radius: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-direction: row;
-    padding: 15px 12px 15px 20px;
-    box-sizing: border-box;
-    text-decoration: none;
-    cursor: pointer;
-    margin: 0 0 12px 0;
-    transition: background 300ms ease-in-out;
-
-    &:hover {
-      background: @black004;
-    }
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-}
-</style>
