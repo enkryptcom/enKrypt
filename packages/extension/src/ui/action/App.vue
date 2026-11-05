@@ -53,6 +53,7 @@
               :key="route.fullPath"
               :is-coin-syncing="isCoinFetchPending"
               :is-tag-syncing="isTagFetchPending"
+              :spark-history-version="sparkHistoryVersion"
               :network="currentNetwork"
               :subnetwork="currentSubNetwork"
               :account-info="accountHeaderData"
@@ -205,7 +206,11 @@ const { sparkUnusedTxDetails, isCoinFetchPending, isTagFetchPending } =
     }
   });
 
-useUpdateActivityState(currentNetwork, sparkUnusedTxDetails, accountHeaderData);
+const { sparkHistoryVersion } = useUpdateActivityState(
+  currentNetwork,
+  sparkUnusedTxDetails,
+  accountHeaderData,
+);
 
 /** -------------------
  * Rate

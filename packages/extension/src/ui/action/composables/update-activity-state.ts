@@ -1,4 +1,4 @@
-import { watch, Ref } from 'vue';
+import { ref, watch, Ref } from 'vue';
 import { NetworkNames } from '@enkryptcom/types/dist';
 import { BaseNetwork } from '@/types/base-network';
 import { ActivityStatus, ActivityType } from '@/types/activity';
@@ -15,6 +15,8 @@ export const useUpdateActivityState = (
   sparkUnusedTxDetails: Ref<SparkUnusedTxDetails[]>,
   accountHeaderData: Ref<AccountsHeaderData>,
 ) => {
+  const sparkHistoryVersion = ref(0);
+
   watch(
     [sparkUnusedTxDetails, networkRef],
     async ([details]) => {
@@ -63,7 +65,11 @@ export const useUpdateActivityState = (
           getSparkHistoryOptions(network.name),
         );
       }
+
+      sparkHistoryVersion.value++;
     },
     { deep: true },
   );
+
+  return { sparkHistoryVersion };
 };

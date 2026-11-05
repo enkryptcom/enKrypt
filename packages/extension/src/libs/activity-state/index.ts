@@ -2,8 +2,13 @@ import { InternalStorageNamespace } from '@/types/provider';
 import BrowserStorage from '@/libs/common/browser-storage';
 import { ActivityOptions } from './types';
 import { Activity, ActivityStatus } from '@/types/activity';
+import { createAsyncLock } from '@/libs/utils/async-mutex';
+import { isSparkHistoryOptions } from '@/libs/utils/spark-history';
 const STORAGE_KEY = 'activity';
 const MAX_PENDING_TIME = 12 * 60 * 60 * 1000; // 12 hours
+const MAX_ACTIVITIES = 50;
+const MAX_SPARK_ACTIVITIES = 500;
+const activityWriteLock = createAsyncLock();
 
 class ActivityState {
   #storage: BrowserStorage;
@@ -20,6 +25,16 @@ class ActivityState {
     activity: Activity[],
     options: ActivityOptions,
   ): Promise<void> {
+    return activityWriteLock.run(() =>
+      this.addActivitiesUnlocked(activity, options),
+    );
+  }
+
+  private async addActivitiesUnlocked(
+    activity: Activity[],
+    options: ActivityOptions,
+  ): Promise<void> {
+    const isSparkHistory = isSparkHistoryOptions(options);
     let activities = await this.getActivitiesById(this.getActivityId(options));
     const liveHashesToRemove: string[] = [];
     const oldHashesToRemove: string[] = [];
@@ -51,18 +66,29 @@ class ActivityState {
       return b.timestamp - a.timestamp;
     });
     const currentTime = new Date().getTime();
-    combined = combined.filter(
-      a =>
-        a.status !== ActivityStatus.pending ||
-        a.timestamp > currentTime - MAX_PENDING_TIME,
-    );
+    if (!isSparkHistory) {
+      combined = combined.filter(
+        a =>
+          a.status !== ActivityStatus.pending ||
+          a.timestamp > currentTime - MAX_PENDING_TIME,
+      );
+    }
     await this.setActivitiesById(
-      combined.slice(0, 50),
+      combined.slice(0, isSparkHistory ? MAX_SPARK_ACTIVITIES : MAX_ACTIVITIES),
       this.getActivityId(options),
     );
   }
 
   async updateActivity(
+    activity: Activity,
+    options: ActivityOptions,
+  ): Promise<void> {
+    return activityWriteLock.run(() =>
+      this.updateActivityUnlocked(activity, options),
+    );
+  }
+
+  private async updateActivityUnlocked(
     activity: Activity,
     options: ActivityOptions,
   ): Promise<void> {

@@ -389,15 +389,19 @@ const sendAction = async () => {
         trackSendEvents(SendEventType.SendComplete, {
           network: network.value.name,
         });
-        activityState.addActivities(
-          [
-            {
-              ...txActivity,
-              ...{ transactionHash: txid },
-            },
-          ],
-          getSparkHistoryOptions(network.value.name),
-        );
+        await activityState
+          .addActivities(
+            [
+              {
+                ...txActivity,
+                ...{ transactionHash: txid },
+              },
+            ],
+            getSparkHistoryOptions(network.value.name),
+          )
+          .catch(error => {
+            console.error('Failed to save Spark send to history', error);
+          });
 
         isSendDone.value = true;
         if (getCurrentContext() === 'popup') {
