@@ -1,47 +1,61 @@
 <template>
-  <div class="ledger-select-account">
-    <h3>Select an account</h3>
-    <hardware-select-path
-      :paths="networkPaths"
-      :selected-path="selectedPath"
-      @update:selected-path="selectPath"
-    />
-    <div class="ledger-select-account__list">
-      <hardware-select-account
-        v-for="(account, index) in visibleAccounts"
-        :key="index"
-        :network="network"
-        :selected="account.selected"
-        :balance="account.balance"
-        :index="account.index"
-        :address="account.address"
-        :disabled="existingAddresses.includes(account.address)"
-        @toggle:select="toggleSelectAccount(account.index)"
+  <div class="flex flex-col gap-2">
+    <h1 class="text-heading-2xl mt-3">Select an account</h1>
+
+    <div class="flex flex-col gap-4 py-4">
+      <hardware-select-path
+        :paths="networkPaths"
+        :selected-path="selectedPath"
+        @update:selected-path="selectPath"
       />
-    </div>
-    <div class="ledger-select-account__controls">
-      <a
-        class="prev"
-        :class="{ disable: currentAddressIndex < ADDRESSES_PER_PAGE }"
-        @click="loadPrevAccounts"
-        ><arrow-prev />Previous</a
+      <div class="flex flex-col gap-1 my-2">
+        <hardware-select-account
+          v-for="(account, index) in visibleAccounts"
+          :key="index"
+          :network="network"
+          :selected="account.selected"
+          :balance="account.balance"
+          :index="account.index"
+          :address="account.address"
+          :disabled="existingAddresses.includes(account.address)"
+          @toggle:select="toggleSelectAccount(account.index)"
+        />
+      </div>
+      <div class="flex items-center justify-between">
+        <app-btn
+          type="secondary"
+          size="small"
+          :disabled="currentAddressIndex < ADDRESSES_PER_PAGE || loading"
+          @click="loadPrevAccounts"
+        >
+          <template #leading>
+            <app-icon name="chevron-left" size="xxs" />
+          </template>
+          Previous
+        </app-btn>
+        <app-btn
+          type="secondary"
+          size="small"
+          :is-loading="loading"
+          @click="loadNextAccounts"
+        >
+          Next
+          <template #trailing>
+            <app-icon name="chevron-right" size="xxs" />
+          </template>
+        </app-btn>
+      </div>
+      <app-btn size="large" :disabled="!enableContinue" @click="continueAction"
+        >Continue</app-btn
       >
-      <a @click="loadNextAccounts">Next<arrow-next /></a>
     </div>
-    <base-button
-      :disabled="!enableContinue"
-      class="ledger-select-account__button"
-      title="Continue"
-      :click="continueAction"
-    />
   </div>
 </template>
 <script setup lang="ts">
 import HardwareSelectPath from '../components/hardware-select-path.vue';
 import HardwareSelectAccount from '../components/hardware-select-account.vue';
-import BaseButton from '@action/components/base-button/index.vue';
-import ArrowNext from '@action/icons/common/arrow-next.vue';
-import ArrowPrev from '@action/icons/common/arrow-prev.vue';
+import AppBtn from '@components/buttons/AppBtn.vue';
+import AppIcon from '@components/icon/AppIcon.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { routes } from '../routes';
 import { getNetworkByName } from '@/libs/utils/networks';
@@ -195,76 +209,3 @@ const continueAction = async () => {
   });
 };
 </script>
-
-<style lang="less" scoped>
-@import '@action/styles/theme.less';
-
-.ledger-select-account {
-  width: 100%;
-  h3 {
-    font-style: normal;
-    font-weight: 700;
-    font-size: 34px;
-    line-height: 40px;
-    letter-spacing: 0.25px;
-    color: @primaryLabel;
-    margin: 0 0 16px 0;
-  }
-  &__list {
-    font-size: 0;
-    margin: 0 0 16px 0;
-  }
-  &__controls {
-    margin: 0 0 32px 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-direction: row;
-
-    a {
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-      padding: 4px 4px 4px 8px;
-      height: 24px;
-      background: rgba(0, 0, 0, 0.04);
-      border-radius: 6px;
-      text-decoration: none;
-      font-style: normal;
-      font-weight: 500;
-      font-size: 12px;
-      line-height: 16px;
-      letter-spacing: 0.8px;
-      color: @primaryLabel;
-      cursor: pointer;
-      transition: opacity 300ms ease-in-out;
-      opacity: 1;
-
-      &:hover {
-        opacity: 0.8;
-      }
-      &.disable {
-        opacity: 0.2;
-      }
-
-      svg {
-        margin-left: 4px;
-      }
-
-      &.prev {
-        padding: 4px 8px 4px 4px;
-
-        svg {
-          margin-right: 4px;
-          margin-left: 0;
-        }
-      }
-    }
-  }
-
-  &__button {
-    margin-bottom: -32px;
-  }
-}
-</style>
