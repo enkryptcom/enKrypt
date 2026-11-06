@@ -6,44 +6,24 @@
         label="Back to hardware wallets"
         @click="backToHardwareRoute"
       />
-      <ledger-logo v-if="walletType === HWwalletType.ledger" />
-      <trezor-logo v-if="walletType === HWwalletType.trezor" />
+      <component :is="walletLogo" />
     </div>
-    <h1
-      v-if="walletType === HWwalletType.ledger"
-      class="mt-6 mb-4 text-heading-xl text-text-default"
-    >
-      Connect to your Ledger
+    <h1 class="mt-6 mb-4 text-heading-2xl text-text-default">
+      {{ title }}
     </h1>
-    <p
-      v-if="walletType === HWwalletType.trezor"
-      class="mt-6 mb-2 text-heading-xl text-text-default"
-    >
-      Connect to your Trezor
-    </p>
-    <p
-      v-if="walletType === HWwalletType.ledger"
-      class="mb-6 text-text-base text-text-subtle"
-    >
-      Connect your wallet to your computer. Unlock your Ledger and open the
-      <b>{{ appName }} App.</b>
-    </p>
-    <p
-      v-if="walletType === HWwalletType.trezor"
-      class="mb-6 text-text-base text-text-subtle"
-    >
-      Connect your wallet to your computer. Follow the instructions in the
-      Trezor connection tab.
+    <p class="mb-6 text-text-base text-text-subtle">
+      {{ instructions }}
+      <b v-if="isLedger">{{ appName }} App.</b>
     </p>
     <hardware-wallet-process
       v-if="isProcessing"
-      :is-ledger="walletType === HWwalletType.ledger"
+      :is-ledger="isLedger"
       :is-connetion="true"
     />
 
     <hardware-wallet-error
       v-else-if="isError"
-      :is-ledger="walletType === HWwalletType.ledger"
+      :is-ledger="isLedger"
       :app-name="appName"
       :error-message="errorMessage"
       @retry-connection="connectAction"
@@ -100,6 +80,17 @@ onBeforeMount(async () => {
 const appName = computed(() => {
   return ledgerAppNames[networkName] || '';
 });
+
+const isLedger = computed(() => walletType === HWwalletType.ledger);
+const walletLabel = computed(() => (isLedger.value ? 'Ledger' : 'Trezor'));
+const walletLogo = computed(() => (isLedger.value ? LedgerLogo : TrezorLogo));
+const title = computed(() => `Connect to your ${walletLabel.value}`);
+// Ledger's sentence ends with the app name, rendered bold in the template
+const instructions = computed(() =>
+  isLedger.value
+    ? 'Connect your wallet to your computer. Unlock your Ledger and open the'
+    : 'Connect your wallet to your computer. Follow the instructions in the Trezor connection tab.',
+);
 const connectAction = () => {
   const hwwallet = new HWwallet();
   isProcessing.value = true;
