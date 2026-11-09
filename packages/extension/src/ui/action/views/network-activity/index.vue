@@ -86,6 +86,8 @@ import {
 import { ActivityOptions } from '@/libs/activity-state/types';
 import { ProviderName } from '@/types/provider';
 import ActivityState from '@/libs/activity-state';
+import SparkHistoryState from '@/libs/utils/spark-history-state';
+import { useMergeSparkHistory } from '@action/composables/merge-spark-history';
 import Swap, {
   SupportedNetworkName,
   TransactionStatus,
@@ -114,8 +116,6 @@ const props = defineProps({
   },
 });
 
-const MAX_SPARK_STATUS_CHECK_AGE = 24 * 60 * 60 * 1000;
-
 const {
   cryptoAmount,
   fiatAmount,
@@ -132,6 +132,7 @@ const selectedAddress = computed(
 );
 const apiPromise = props.network.api();
 const activityState = new ActivityState();
+const sparkHistoryState = new SparkHistoryState();
 let swap: Swap;
 apiPromise.then(api => {
   swap = new Swap({
@@ -183,10 +184,14 @@ const activitySources = new Map<string, ActivityOptions>();
 
 const updateActivitySync = (activity: Activity) => {
   isActivityUpdating = true;
-  return activityState
+  const source = activitySources.get(activity.transactionHash);
+  // Spark rows live in their own storage (see SparkHistoryState).
+  const state =
+    source && isSparkHistoryOptions(source) ? sparkHistoryState : activityState;
+  return state
     .updateActivity(
       activity,
-      activitySources.get(activity.transactionHash) ?? {
+      source ?? {
         address: activityAddress.value,
         network: props.network.name,
       },
@@ -340,7 +345,7 @@ const withFiroWalletHistory = async (all: Activity[]): Promise<Activity[]> => {
     })),
   ];
   const lists = await Promise.all([
-    activityState.getAllActivities(sparkOptions),
+    sparkHistoryState.getAllActivities(sparkOptions),
     // One account failing to load should not hide the rest.
     ...otherAddresses.map(address =>
       props.network.getAllActivity(address).catch(() => [] as Activity[]),
@@ -360,82 +365,31 @@ const withFiroWalletHistory = async (all: Activity[]): Promise<Activity[]> => {
   return [...all, ...extra].sort((a, b) => b.timestamp - a.timestamp);
 };
 
-const isTooOldForSparkStatusCheck = (act: Activity): boolean => {
-  const source = activitySources.get(act.transactionHash);
-  return (
-    !!source &&
-    isSparkHistoryOptions(source) &&
-    Date.now() - act.timestamp > MAX_SPARK_STATUS_CHECK_AGE
-  );
-};
-
-let pendingActivityLoads = 0;
-let isSparkMergeSkipped = false;
-
-const mergeSparkHistory = async () => {
-  if (
-    props.network.name !== NetworkNames.Firo ||
-    !props.accountInfo.selectedAccount
-  ) {
-    return;
-  }
-  if (pendingActivityLoads > 0) {
-    isSparkMergeSkipped = true;
-    return;
-  }
-  const sparkOptions = getSparkHistoryOptions(props.network.name);
-  const sparkActivities = await activityState.getAllActivities(sparkOptions);
-  if (pendingActivityLoads > 0) {
-    isSparkMergeSkipped = true;
-    return;
-  }
-
-  const shownIndexes = new Map(
-    activities.value.map((act, idx) => [act.transactionHash, idx]),
-  );
-  const added: Activity[] = [];
-  for (const act of sparkActivities) {
-    if (!act.transactionHash) continue;
-    const shownIndex = shownIndexes.get(act.transactionHash);
-    if (shownIndex === undefined) {
-      activitySources.set(act.transactionHash, sparkOptions);
-      added.push(act);
-      continue;
-    }
-    const source = activitySources.get(act.transactionHash);
-    const shown = activities.value[shownIndex];
-    if (
-      source &&
-      isSparkHistoryOptions(source) &&
-      shown &&
-      shown.status !== act.status
-    ) {
-      activities.value[shownIndex] = act;
+const { isTooOldForSparkStatusCheck, startActivityLoad, finishActivityLoad } =
+  useMergeSparkHistory({
+    networkName: () => props.network.name,
+    hasSelectedAccount: () => !!props.accountInfo.selectedAccount,
+    sparkHistoryVersion: () => props.sparkHistoryVersion,
+    getShownActivities: () => activities.value,
+    replaceActivity: (index, activity) => {
+      activities.value[index] = activity;
       forceUpdateVal.value++;
-    }
-  }
-  if (!added.length) return;
-
-  activities.value = [...activities.value, ...added].sort(
-    (a, b) => b.timestamp - a.timestamp,
-  );
-  isNoActivity.value = false;
-  added.forEach(act => {
-    if (
-      act.status === ActivityStatus.pending &&
-      act.type === ActivityType.transaction &&
-      !isTooOldForSparkStatusCheck(act)
-    ) {
-      checkActivity(act);
-    }
+    },
+    addActivities: added => {
+      activities.value = [...activities.value, ...added].sort(
+        (a, b) => b.timestamp - a.timestamp,
+      );
+      isNoActivity.value = false;
+    },
+    activitySources,
+    checkActivity,
   });
-};
 
 const setActivities = () => {
   activities.value = [];
   isNoActivity.value = false;
   if (props.accountInfo.selectedAccount) {
-    pendingActivityLoads++;
+    startActivityLoad();
     props.network
       .getAllActivity(activityAddress.value)
       .then(withFiroWalletHistory)
@@ -460,18 +414,11 @@ const setActivities = () => {
           }
         });
       })
-      .finally(() => {
-        pendingActivityLoads--;
-        if (pendingActivityLoads === 0 && isSparkMergeSkipped) {
-          isSparkMergeSkipped = false;
-          mergeSparkHistory();
-        }
-      });
+      .finally(finishActivityLoad);
   } else activities.value = [];
 };
 
 watch([selectedAddress, selectedNetworkName], setActivities);
-watch(() => props.sparkHistoryVersion, mergeSparkHistory);
 onMounted(() => {
   setActivities();
   activityCheckTimers.forEach(timer => clearInterval(timer));

@@ -2,19 +2,21 @@ import { ref, watch, Ref } from 'vue';
 import { NetworkNames } from '@enkryptcom/types/dist';
 import { BaseNetwork } from '@/types/base-network';
 import { ActivityStatus, ActivityType } from '@/types/activity';
-import ActivityState from '@/libs/activity-state';
+import SparkHistoryState from '@/libs/utils/spark-history-state';
 import { AccountsHeaderData } from '@action/types/account';
 import { SparkUnusedTxDetails } from '@/libs/utils/updateAndSync/markCoinsAsUsed';
 import { fromBase } from '@enkryptcom/utils';
 import { getSparkHistoryOptions } from '@/libs/utils/spark-history';
 
-const activityState = new ActivityState();
+const activityState = new SparkHistoryState();
 
 export const useUpdateActivityState = (
   networkRef: Ref<BaseNetwork>,
   sparkUnusedTxDetails: Ref<SparkUnusedTxDetails[]>,
   accountHeaderData: Ref<AccountsHeaderData>,
 ) => {
+  // Bumped after each sync so an open activity page shows the new rows
+  // (see useMergeSparkHistory).
   const sparkHistoryVersion = ref(0);
 
   watch(

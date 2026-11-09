@@ -114,7 +114,7 @@ import SendProcess from '@action/views/send-process/index.vue';
 import { getCurrentContext } from '@/libs/messenger/extension';
 import { DEFAULT_BTC_NETWORK, getNetworkByName } from '@/libs/utils/networks';
 import { ActivityStatus, Activity, ActivityType } from '@/types/activity';
-import ActivityState from '@/libs/activity-state';
+import SparkHistoryState from '@/libs/utils/spark-history-state';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { trackSendEvents } from '@/libs/metrics';
@@ -360,7 +360,7 @@ const sendAction = async () => {
       transactionHash: '',
     };
 
-    const activityState = new ActivityState();
+    const activityState = new SparkHistoryState();
 
     const api = (await network.value.api()) as unknown as FiroAPI;
 
