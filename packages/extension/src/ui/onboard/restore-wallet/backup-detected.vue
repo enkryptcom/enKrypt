@@ -1,69 +1,81 @@
 <template>
-  <div class="backup-detected">
-    <h3>Found backup</h3>
+  <div class="flex flex-col gap-4">
+    <h1 class="text-heading-2xl mt-3">Found backup</h1>
 
-    <div class="backup-detected__backups">
-      <h4>Please choose a backup to use:</h4>
+    <div class="flex flex-col gap-2">
+      <p class="text-text-sm text-text-subtle">
+        Please choose a backup to use:
+      </p>
       <div
-        class="backup-detected__backup-items-container"
-        v-if="!loadingBackups"
+        class="flex h-[300px] flex-col gap-1 overflow-y-auto rounded-12 bg-background-default p-2"
       >
-        <a
-          v-for="backup in backups"
-          :key="backup.userId"
-          @click="selectBackup(backup)"
-          :class="[
-            { selected: selectedBackup === backup },
-            'backup-detected__backup-item',
-          ]"
-        >
-          <backup-identicon :hash="backup.userId" />
-          <div class="backup-detected__backup-item__name">
-            <h4>{{ generateRandomNameWithSeed(' ', backup.userId) }}</h4>
-            <p>{{ formatDate(backup.updatedAt) }}</p>
+        <template v-if="!loadingBackups">
+          <button
+            v-for="backup in backups"
+            :key="backup.userId"
+            type="button"
+            :aria-pressed="selectedBackup === backup"
+            :class="[
+              'flex w-full items-center gap-3 rounded-8 p-3 text-left transition-colors hover:bg-background-default-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus',
+              {
+                'inset-ring-2 inset-ring-border-brand':
+                  selectedBackup === backup,
+              },
+            ]"
+            @click="selectBackup(backup)"
+          >
+            <backup-identicon :hash="backup.userId" />
+            <span class="flex flex-col">
+              <span class="text-text-base text-text-default">{{
+                generateRandomNameWithSeed(' ', backup.userId)
+              }}</span>
+              <span class="text-text-sm text-text-muted">{{
+                formatDate(backup.updatedAt)
+              }}</span>
+            </span>
+          </button>
+        </template>
+        <template v-else>
+          <div
+            v-for="idx in 3"
+            :key="idx"
+            class="flex flex-col gap-1.5 p-3 animate-pulse"
+            aria-hidden="true"
+          >
+            <div class="bg-background-default-hover h-4 w-[150px] rounded-4" />
+            <div class="bg-background-default-hover h-3 w-[100px] rounded-4" />
           </div>
-        </a>
-      </div>
-      <div class="backup-detected__backup-items-container" v-else>
-        <a
-          v-for="(backup, idx) in [1, 2, 3]"
-          :key="`entity-${backup}-${idx}`"
-          class="backup-detected__backup-item-loading"
-        >
-          <div class="backup-detected__backup-item-loading__loading-container">
-            <balance-loader />
-            <balance-loader />
-          </div>
-        </a>
+        </template>
       </div>
     </div>
-    <base-button
-      :title="backupBtnText"
-      :disabled="backupBtnDisabled"
-      :click="useBackup"
-    />
-    <base-button
-      style="margin-top: 10px"
-      no-background
-      :disabled="processing"
-      title="Skip"
-      :click="skip"
-    />
 
-    <div class="backup-detected__details">
+    <app-btn
+      size="large"
+      :disabled="backupBtnDisabled"
+      :is-loading="processing"
+      @click="useBackup"
+      >{{ backupBtnText }}</app-btn
+    >
+    <app-btn size="large" type="tertiary" :disabled="processing" @click="skip"
+      >Skip</app-btn
+    >
+
+    <p class="text-text-sm text-text-subtle">
       Enkrypt creates backups of generated user accounts, derivation paths, and
       account names across all networks to make it easier to restore your
       wallet.
       <a
         href="https://help.myetherwallet.com/en/articles/6437190-enkrypt-add-and-import-accounts-and-connect-a-hardware-wallet#h_62bd285c76"
         target="_blank"
+        rel="noopener noreferrer"
+        class="text-text-brand hover:underline"
         >Learn more</a
       >
-    </div>
+    </p>
   </div>
 </template>
 <script setup lang="ts">
-import BaseButton from '@action/components/base-button/index.vue';
+import AppBtn from '@components/buttons/AppBtn.vue';
 import { computed, onBeforeMount, ref, unref } from 'vue';
 import { useRestoreStore } from './store';
 import KeyRing from '@/libs/keyring/keyring';
@@ -75,7 +87,6 @@ import { useRouter } from 'vue-router';
 import { routes } from '../restore-wallet/routes';
 import { generateRandomNameWithSeed } from '@enkryptcom/utils';
 import backupIdenticon from '@/ui/action/views/settings/views/settings-backups/backup-identicon.vue';
-import BalanceLoader from '@action/icons/common/balance-loader.vue';
 
 const selectedBackup = ref<ListBackupType>();
 const backups = ref<ListBackupType[]>([]);
@@ -155,155 +166,3 @@ const skip = () => {
   });
 };
 </script>
-
-<style lang="less">
-@import '@action/styles/theme.less';
-
-.selected {
-  border: 1px solid @primary !important;
-  border-radius: 10px;
-  color: @white;
-}
-.backup-detected {
-  width: 100%;
-
-  &__logo {
-    margin-bottom: 24px;
-  }
-
-  h3 {
-    font-style: normal;
-    font-weight: 700;
-    font-size: 34px;
-    line-height: 40px;
-    letter-spacing: 0.25px;
-    color: @primaryLabel;
-    margin: 0 0 12px 0;
-  }
-  h4 {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 18px;
-    line-height: 24px;
-    color: @secondaryLabel;
-    margin: 0 0 8px 0;
-  }
-
-  &__details {
-    font-style: normal;
-    font-weight: 400;
-    line-height: 20px;
-    font-size: 16px;
-    color: @secondaryLabel;
-    margin-top: 10px;
-    padding: 20px;
-    border-radius: 12px;
-    background: white;
-
-    a {
-      color: @primary;
-    }
-  }
-
-  &__backup-items-container {
-    padding: 16px;
-    min-height: 150px;
-    max-height: 300px;
-    overflow-y: auto;
-    background: @white;
-    border-radius: 8px;
-  }
-
-  &__backup-item {
-    margin: 4px;
-    padding: 16px;
-    display: flex;
-    font-size: 16px;
-    align-items: center;
-    cursor: pointer;
-    border: 1px solid @white;
-
-    &:hover {
-      border: 1px solid @primary;
-      border-radius: 10px;
-    }
-
-    &__name {
-      margin-left: 10px;
-
-      h4 {
-        font-style: normal;
-        font-weight: 400;
-        font-size: 16px;
-        line-height: 24px;
-        color: #202124;
-        margin: 0 0 1px 0 !important;
-      }
-
-      p {
-        font-style: normal;
-        font-weight: 400;
-        font-size: 14px;
-        color: @tertiaryLabel;
-        margin: 0;
-      }
-    }
-  }
-
-  &__backup-item-loading {
-    margin: 4px;
-    padding: 16px;
-    display: flex;
-    font-size: 16px;
-    align-items: center;
-    border: 1px solid @white;
-    cursor: not-allowed;
-
-    &__loading-container {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      height: 100%;
-
-      svg {
-        width: 100px;
-
-        &:first-child {
-          width: 150px;
-          margin-bottom: 5px;
-        }
-      }
-    }
-
-    &:hover {
-      border: 1px solid @white;
-      border-radius: 10px;
-    }
-  }
-
-  &__backups {
-    margin-bottom: 24px;
-
-    h4 {
-      font-style: normal;
-      font-weight: 400;
-      font-size: 16px;
-      line-height: 24px;
-      color: @secondaryLabel;
-      margin: 0 0 8px 0;
-    }
-
-    &-wrap {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: flex-start;
-
-      a {
-        display: block;
-        margin-right: 24px;
-      }
-    }
-  }
-}
-</style>

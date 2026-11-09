@@ -1,0 +1,317 @@
+<template>
+  <div ref="target" class="relative text-label-sm">
+    <label for="select" class="sr-only">
+      {{ props.placeholder }}
+    </label>
+    <slot
+      name="select-button"
+      :toggleSelect="toggleSelect"
+      :openSelect="openSelect"
+    >
+      <button class="rounded-full hoverNoBG p-2" @click="toggleSelect">
+        <div class="flex items-center">
+          <span>{{ selected ? selected.label : '' }}</span>
+          <AppIcon
+            name="chevron-down"
+            variant="filled"
+            size="xxs"
+            class="ml-1"
+          />
+        </div>
+      </button>
+    </slot>
+    <transition
+      enter-active-class="transition duration-100 ease-out"
+      enter-from-class="transform scale-95 opacity-0"
+      enter-to-class="transform scale-100 opacity-100"
+      leave-active-class="transition duration-75 ease-in"
+      leave-from-class="transform scale-100 opacity-100"
+      leave-to-class="transform scale-95 opacity-0"
+    >
+      <div
+        role="listbox"
+        aria-label="Select option"
+        v-show="openSelect"
+        class="absolute top-full focus:outline-none z-[500] pt-2"
+        :class="position"
+      >
+        <div
+          class="p-1.5 min-w-[200px] max-w-full bg-white shadow-xl rounded-3xl border border-border-default overflow-hidden"
+        >
+          <div
+            v-if="useVueRouter"
+            class="grid grid-cols-1 gap-1 mew-scrollbar"
+            :style="listStyle"
+          >
+            <template v-for="option in options" :key="option.value">
+              <a
+                v-if="option.external"
+                class="flex items-center px-4 h-12 hover:bg-background-default hover:text-text-brand rounded-2xl text-label-sm text-text-subtle transition-colors"
+                role="option"
+                :id="option.value"
+                :href="option.value"
+                target="_blank"
+                @click="selectOption(option)"
+              >
+                {{ option.label }}
+              </a>
+              <router-link
+                v-else
+                class="flex items-center px-4 h-12 hover:bg-background-default hover:text-text-brand rounded-2xl text-label-sm text-text-subtle transition-colors"
+                active-class="bg-background-default !text-text-brand"
+                role="option"
+                :id="option.value"
+                :to="{ name: option.value }"
+                @click="selectOption(option)"
+              >
+                {{ option.label }}
+              </router-link>
+            </template>
+          </div>
+          <div
+            v-else-if="useLink"
+            class="grid grid-cols-1 gap-1 mew-scrollbar"
+            :style="listStyle"
+          >
+            <a
+              v-for="option in options"
+              :key="option.value"
+              class="flex items-center px-4 h-12 hover:bg-background-default hover:text-text-brand rounded-2xl text-label-sm text-text-subtle transition-colors"
+              role="option"
+              :id="option.value"
+              :href="option.value"
+              target="_blank"
+              @click="selectOption(option)"
+            >
+              {{ option.label }}
+            </a>
+          </div>
+          <div
+            v-else
+            class="grid grid-cols-1 gap-1 mew-scrollbar"
+            :style="listStyle"
+          >
+            <button
+              v-for="option in options"
+              :key="option.value"
+              :class="[
+                {
+                  'bg-background-default text-text-brand':
+                    selected && option.value === selected.value,
+                },
+                'flex text-left items-center px-4 h-12 hover:bg-background-default hover:text-text-brand rounded-2xl text-label-sm text-text-subtle transition-colors',
+              ]"
+              role="option"
+              :id="option.value"
+              @click="selectOption(option)"
+            >
+              <span class="flex min-w-0 flex-col">
+                <span class="truncate">{{ option.label }}</span>
+                <span
+                  v-if="option.description"
+                  class="truncate text-text-xs text-text-subtle"
+                  >{{ option.description }}</span
+                >
+              </span>
+              <AppIcon
+                name="check"
+                variant="filled"
+                size="l"
+                v-if="selected && option.value === selected.value"
+                class="ml-auto text-text-brand px-2 -mr-3"
+              />
+            </button>
+          </div>
+        </div>
+      </div>
+    </transition>
+  </div>
+</template>
+
+<script setup lang="ts">
+/**
+ * AppSelect component
+ *
+ * @example
+ * <app-select
+ *   v-model:selected="selectedOption"
+ *   :options="options"
+ *   placeholder="Select an option"/>
+ *
+ * @example with slot
+ * <app-select
+ *   v-model:selected="selectedOption"
+ *   :options="options"
+ *   placeholder="Select an option">
+ *   <template #select-button>
+ *    <button class="rounded-full hoverNoBG p-2" @click="selectedOption.value = true">
+ *   </template>
+ * </app-select>
+ *
+ * @example emit only
+ * <app-select
+ *   :emit-only="true" @select-option="selectHandler" />
+ *
+ */
+import { ref, computed } from 'vue';
+import { type AppSelectOption } from './types';
+import { watch, onBeforeUnmount } from 'vue';
+import { onClickOutside, useElementHover } from '@vueuse/core';
+
+import AppIcon from '@components/icon/AppIcon.vue';
+const emit = defineEmits<{
+  (e: 'select-option'): void;
+}>();
+
+const props = defineProps({
+  /**
+   * @placeholder The placeholder text of the button field. Also used as the aria label.
+   */
+  placeholder: {
+    type: String,
+  },
+  emitOnly: {
+    type: Boolean,
+    default: false,
+  },
+  /**
+   * @options The options for the select dropdown.
+   */
+  options: {
+    type: Array as () => AppSelectOption[],
+    required: true,
+  },
+  /**
+   * @useVueRouter If true, the options will be rendered as router-links.
+   */
+  useVueRouter: {
+    type: Boolean,
+    default: false,
+  },
+  useLink: {
+    type: Boolean,
+    default: false,
+  },
+  /**
+   * @hasOnHover If true, the dropdown will be opened on hover.
+   */
+  hasOnHover: {
+    type: Boolean,
+    default: false,
+  },
+  position: {
+    type: String,
+    default: '-left-4',
+  },
+  /**
+   * @maxVisibleItems Cap the dropdown to this many rows before it scrolls.
+   * 0 (default) means no cap — the list grows to fit every option.
+   */
+  maxVisibleItems: {
+    type: Number,
+    default: 0,
+  },
+});
+
+// Each option row is h-12 (48px) with a gap-1 (4px) between rows.
+const OPTION_HEIGHT = 48;
+const OPTION_GAP = 4;
+const listStyle = computed(() =>
+  props.maxVisibleItems > 0
+    ? {
+        maxHeight: `${props.maxVisibleItems * OPTION_HEIGHT + (props.maxVisibleItems - 1) * OPTION_GAP}px`,
+        overflowY: 'auto' as const,
+      }
+    : {},
+);
+
+/**
+ * @target The target element for the dropdown.
+ * This is used in outside click detection.
+ */
+const target = ref<HTMLElement | null>(null);
+const targetValue = ref<HTMLElement | null>(null);
+/**
+ * @model The v-model for the input field.
+ */
+const selected = defineModel<AppSelectOption>('selected', { required: false });
+/**
+ * Open state of the dropdown, exposed as `v-model:open` so an ancestor can
+ * react to it. TheHeader uses this to lift its z-index while a header dropdown
+ * is open, otherwise the popover is clipped behind sibling drawers (MEW-2113).
+ * Defaults to false, so callers that don't bind `open` are unaffected.
+ */
+const openSelect = defineModel<boolean>('open', { default: false });
+
+/**
+ * @method toggleSelect
+ * Toggles the open state of the select dropdown.
+ */
+const toggleSelect = () => {
+  openSelect.value = !openSelect.value;
+  if (openSelect.value) {
+    targetValue.value = target.value;
+  } else {
+    targetValue.value = null;
+    if (timeout.value) {
+      clearTimeout(timeout.value);
+      timeout.value = null;
+    }
+  }
+};
+
+/*
+ * Closes the dropdown when clicking outside of it.
+ */
+onClickOutside(targetValue, () => {
+  targetValue.value = null;
+  openSelect.value = false;
+  if (timeout.value) {
+    clearTimeout(timeout.value);
+    timeout.value = null;
+  }
+});
+
+/**
+ * @method selectOption
+ * Sets the selected option and closes the dropdown.
+ */
+const selectOption = (option: AppSelectOption) => {
+  selected.value = option;
+  toggleSelect();
+  if (props.emitOnly) {
+    emit('select-option');
+    return;
+  }
+};
+
+/** ------------------------------
+ * Hover
+ ------------------------------*/
+const isHovered = useElementHover(target);
+const timeout = ref<NodeJS.Timeout | null>(null);
+
+watch(isHovered, isHovering => {
+  if (props.hasOnHover) {
+    if (isHovering) {
+      if (timeout.value) {
+        clearTimeout(timeout.value);
+        timeout.value = null;
+      }
+      openSelect.value = true;
+      targetValue.value = target.value;
+    } else {
+      timeout.value = setTimeout(() => {
+        openSelect.value = false;
+        targetValue.value = null;
+      }, 600);
+    }
+  }
+});
+
+onBeforeUnmount(() => {
+  if (timeout.value) {
+    clearTimeout(timeout.value);
+  }
+});
+</script>

@@ -17,7 +17,9 @@
     "types": ["./node_modules/.kadena/pactjs-generated"],
     "paths": {
       "@/*": ["./src/*"],
-      "@action/*": ["./src/ui/action/*"]
+      "@action/*": ["./src/ui/action/*"],
+      "@common/*": ["./src/ui/common/*"],
+      "@components/*": ["./src/ui/common/components/*"]
     }
   }
 }

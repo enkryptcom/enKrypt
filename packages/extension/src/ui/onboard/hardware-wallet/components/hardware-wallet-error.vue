@@ -1,18 +1,22 @@
 <template>
-  <div class="hardware-wallet-error">
-    <import-error-animation />
-    <h3 v-if="isLedger">Unable to connect to Ledger</h3>
-    <h3 v-else>Unable to connect to Trezor</h3>
+  <div class="w-full flex-col items-center justify-center p-6 text-center">
+    <import-error-animation class="shrink-0 w-10" />
+    <h1 class="mt-6 text-text-base font-semibold text-text-error">
+      Unable to connect to {{ isLedger ? 'Ledger' : 'Trezor' }}
+    </h1>
 
-    <p>
+    <p class="mt-2 mb-6 break-words text-text-xs text-text-error">
       {{ errorMessage }}
     </p>
-    <base-button title="Retry" :click="() => emit('retryConnection')" />
+    <app-btn class="w-full" size="large" @click="emit('retryConnection')"
+      >Retry</app-btn
+    >
   </div>
 </template>
 <script setup lang="ts">
-import ImportErrorAnimation from '@action/icons/import/import-error-animation.vue';
-import BaseButton from '@action/components/base-button/index.vue';
+import ImportErrorAnimation from '@/assets/icons/import-error-animation.vue';
+import AppBtn from '@common/components/buttons/AppBtn.vue';
+
 const emit = defineEmits<{
   (e: 'retryConnection'): void;
 }>();
@@ -32,49 +36,3 @@ defineProps({
   },
 });
 </script>
-
-<style lang="less" scoped>
-@import '@action/styles/theme.less';
-
-.hardware-wallet-error {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 5;
-  background-color: @white;
-  padding: 56px;
-  box-sizing: border-box;
-
-  h3 {
-    font-style: normal;
-    font-weight: 500;
-    font-size: 20px;
-    line-height: 28px;
-    text-align: center;
-    letter-spacing: 0.15px;
-    color: @error;
-    margin: 24px 0 0 0;
-  }
-
-  p {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
-    color: @secondaryLabel;
-    text-align: center;
-    margin: 8px 0 24px 0;
-  }
-
-  svg {
-    width: 72px;
-    height: 72px;
-  }
-}
-</style>

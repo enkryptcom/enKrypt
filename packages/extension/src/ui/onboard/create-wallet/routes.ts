@@ -1,49 +1,47 @@
-import PickPassword from './pick-password.vue';
-import TypePassword from './type-password.vue';
+import PickPassword from '../pick-password.vue';
+import TypePassword from '../type-password.vue';
 import RecoveryPhrase from './recovery-phrase.vue';
 import CheckPhrase from './double-check-phrase.vue';
 import WalletReady from './wallet-ready.vue';
 import UserAnalytics from '../user-analytics.vue';
 import { RouteRecordRaw } from 'vue-router';
+import { OnboardRouteName, OnboardRoutePath } from '../route-enums';
 
 export const routes = {
   pickPassword: {
-    path: 'pick-password',
-    name: 'pick-password',
+    path: OnboardRoutePath.CreateWalletPickPassword,
+    name: OnboardRouteName.CreateWalletPickPassword,
     component: PickPassword,
+    props: { flow: 'create' },
   },
   typePassword: {
-    path: 'type-password',
-    name: 'type-password',
+    path: OnboardRoutePath.CreateWalletTypePassword,
+    name: OnboardRouteName.CreateWalletTypePassword,
     component: TypePassword,
+    props: { flow: 'create' },
   },
   recoveryPhrase: {
-    path: 'recovery-phrase',
-    name: 'recovery-phrase',
+    path: OnboardRoutePath.CreateWalletRecoveryPhrase,
+    name: OnboardRouteName.CreateWalletRecoveryPhrase,
     component: RecoveryPhrase,
   },
   checkPhrase: {
-    path: 'check-phrase',
-    name: 'check-phrase',
+    path: OnboardRoutePath.CreateWalletCheckPhrase,
+    name: OnboardRouteName.CreateWalletCheckPhrase,
     component: CheckPhrase,
   },
   userAnalytics: {
-    path: 'user-analytics',
-    name: 'user-analytics',
+    path: OnboardRoutePath.CreateWalletUserAnalytics,
+    name: OnboardRouteName.CreateWalletUserAnalytics,
     component: UserAnalytics,
   },
   walletReady: {
-    path: 'wallet-ready',
-    name: 'wallet-ready',
+    path: OnboardRoutePath.CreateWalletReady,
+    name: OnboardRouteName.CreateWalletReady,
     component: WalletReady,
   },
 };
-export const namespace = 'create-wallet';
 
 export default (): RouteRecordRaw[] => {
-  return Object.values(routes).map(route => {
-    route.path = `/${namespace}/${route.path}`;
-    route.name = `${namespace}-${String(route.name)}`;
-    return route;
-  });
+  return Object.values(routes);
 };

@@ -1,40 +1,52 @@
 <template>
-  <div class="hardware-select-patch__wrap">
-    <a class="hardware-select-patch" @click="toggleSelectPath">
-      <div class="hardware-select-patch__title">Derivation path</div>
-
-      <div class="hardware-select-patch__arrow">
-        <div class="hardware-select-patch__value">
-          <span>{{ selectedPath.label }}</span>
-        </div>
-        <switch-arrow />
-      </div>
-    </a>
-    <div v-show="isSelectPath" class="hardware-select-patch__list">
-      <a
-        v-for="(curPath, index) in paths"
-        :key="index"
-        class="hardware-select-patch__list-item"
-        @click="selectPath(curPath)"
+  <app-select
+    v-model:selected="selectedOption"
+    :options="options"
+    placeholder="Derivation path"
+    position="inset-x-0"
+    :max-visible-items="5"
+  >
+    <template #select-button="{ toggleSelect, openSelect }">
+      <button
+        type="button"
+        class="flex h-16 w-full items-center gap-2 rounded-2xl bg-background-formfield px-4 transition-colors hover:bg-background-formfield-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+        :aria-expanded="openSelect"
+        aria-haspopup="listbox"
+        @click="toggleSelect"
       >
-        <h6>{{ curPath.label }}</h6>
-        <p>{{ curPath.path }}</p>
-      </a>
-    </div>
-  </div>
+        <div class="mr-auto text-left">
+          <p class="text-text-xs text-text-subtle mb-1">Derivation path</p>
+          <p class="ml-auto truncate text-label-base">
+            {{ selectedPath.label }} -
+            <span class="text-text-sm">{{ selectedPath.basePath }}</span>
+          </p>
+        </div>
+
+        <app-icon
+          name="chevron-down"
+          size="xxs"
+          :class="[
+            'shrink-0 text-icon-default transition-transform',
+            { 'rotate-180': openSelect },
+          ]"
+        />
+      </button>
+    </template>
+  </app-select>
 </template>
 
 <script setup lang="ts">
-import SwitchArrow from '@action/icons/header/switch_arrow.vue';
-import { PropType, ref } from 'vue';
+import { computed, PropType } from 'vue';
+import AppSelect from '@components/select/AppSelect.vue';
+import AppIcon from '@components/icon/AppIcon.vue';
+import type { AppSelectOption } from '@components/select/types';
 import { PathType } from '../types';
 
 const emit = defineEmits<{
   (e: 'update:selectedPath', path: PathType): void;
 }>();
 
-const isSelectPath = ref(false);
-defineProps({
+const props = defineProps({
   paths: {
     type: Array as PropType<PathType[]>,
     default: () => [],
@@ -45,132 +57,21 @@ defineProps({
   },
 });
 
-const toggleSelectPath = () => {
-  isSelectPath.value = !isSelectPath.value;
-};
+const toOption = (path: PathType): AppSelectOption => ({
+  label: path.label ?? path.path,
+  value: path.path,
+  description: path.path,
+});
 
-const selectPath = (path: PathType) => {
-  toggleSelectPath();
-  emit('update:selectedPath', path);
-};
+const options = computed(() => props.paths.map(toOption));
+
+// AppSelect works with options; map back to the PathType the parent expects
+const selectedOption = computed({
+  get: () =>
+    props.selectedPath.path ? toOption(props.selectedPath) : undefined,
+  set: option => {
+    const path = props.paths.find(p => p.path === option?.value);
+    if (path) emit('update:selectedPath', path);
+  },
+});
 </script>
-
-<style lang="less" scoped>
-@import '@action/styles/theme.less';
-
-.hardware-select-patch {
-  height: 40px;
-  background: #ffffff;
-  margin: 0 0 16px 0;
-  box-sizing: border-box;
-  border: 1px solid @gray02;
-  box-sizing: border-box;
-  border-radius: 10px;
-  padding: 10px 16px;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  flex-direction: row;
-  position: relative;
-  cursor: pointer;
-  text-decoration: none;
-  width: 100%;
-
-  &__wrap {
-    position: relative;
-  }
-
-  &__title {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: row;
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0.25px;
-    color: @secondaryLabel;
-  }
-
-  &__arrow {
-    position: absolute;
-    font-size: 0;
-    right: 12px;
-    top: 8px;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: row;
-  }
-
-  &__value {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: row;
-    margin-right: 4px;
-
-    span {
-      font-style: normal;
-      font-weight: 400;
-      font-size: 14px;
-      line-height: 20px;
-      color: @primaryLabel;
-    }
-
-    svg {
-      margin-right: 4px;
-    }
-  }
-
-  &__list {
-    position: absolute;
-    width: 220px;
-    height: auto;
-    right: 0;
-    top: 36px;
-    background: @white;
-    box-shadow:
-      0px 0.5px 5px rgba(0, 0, 0, 0.039),
-      0px 3.75px 11px rgba(0, 0, 0, 0.19);
-    border-radius: 12px;
-    padding: 8px;
-    box-sizing: border-box;
-    z-index: 11;
-
-    &-item {
-      transition: background 300ms ease-in-out;
-      cursor: pointer;
-      padding: 6px 16px;
-      display: block;
-      box-sizing: border-box;
-      border-radius: 10px;
-
-      h6 {
-        font-style: normal;
-        font-weight: 400;
-        font-size: 14px;
-        line-height: 20px;
-        letter-spacing: 0.25px;
-        color: @primaryLabel;
-        margin: 0;
-      }
-
-      p {
-        font-style: normal;
-        font-weight: 400;
-        font-size: 12px;
-        line-height: 16px;
-        letter-spacing: 0.5px;
-        color: @secondaryLabel;
-        margin: 0;
-      }
-
-      &:hover {
-        background: @black004;
-      }
-    }
-  }
-}
-</style>

@@ -14,7 +14,7 @@
 import ImportKeystoreAnimation from '@action/icons/import/import-keystore-animation.vue';
 import ImportPrivateKeyAnimation from '@action/icons/import/import-private-key-animation.vue';
 import ImportAccountAnimation from '@action/icons/import/import-account-animation.vue';
-import ImportDoneAnimation from '@action/icons/import/import-done-animation.vue';
+import ImportDoneAnimation from '@/assets/icons/import-done-animation.vue';
 
 defineProps({
   isKeystore: {

@@ -1,22 +1,40 @@
 <template>
-  <div class="double-check-phrase">
-    <h3>Let's double check it</h3>
+  <div class="flex flex-col gap-4">
+    <h1 class="text-heading-2xl mt-3">Let's double check it</h1>
 
-    <check-phrase
-      v-for="(item, index) in phraseItems"
-      :id="item.id"
-      :key="index"
-      :phrases="item.items"
-      :valid-index="item.validIndex"
-      @update:phrasevalidity="updateSelection(index, $event)"
-    />
+    <div
+      v-for="(item, itemIdx) in phraseItems"
+      :key="itemIdx"
+      class="flex flex-col gap-2"
+    >
+      <p class="text-text-sm text-text-subtle">
+        Select word #{{ item.id + 1 }}
+      </p>
+      <div class="grid grid-cols-3 gap-2" role="group">
+        <app-btn
+          v-for="(word, wordIdx) in item.items"
+          :key="wordIdx"
+          size="medium"
+          :type="selection[itemIdx] === wordIdx ? 'primary' : 'secondary'"
+          :aria-pressed="selection[itemIdx] === wordIdx"
+          @click="selection[itemIdx] = wordIdx"
+          >{{ word }}</app-btn
+        >
+      </div>
+    </div>
 
-    <base-button title="Next" :click="nextAction" :disabled="isDisabled" />
+    <app-btn
+      class="mt-2"
+      size="large"
+      :disabled="!isValid"
+      :is-loading="isInitializing"
+      @click="nextAction"
+      >Next</app-btn
+    >
   </div>
 </template>
 <script setup lang="ts">
-import BaseButton from '@action/components/base-button/index.vue';
-import CheckPhrase from '@action/components/check-phrase/index.vue';
+import AppBtn from '@common/components/buttons/AppBtn.vue';
 import { routes } from './routes';
 import { useOnboardStore } from './store';
 import { useRouter } from 'vue-router';
@@ -37,11 +55,12 @@ if (!phrase) {
 const shuffledArr = shuffle(phraseArr);
 const chunkedArr = chunk(shuffledArr, 3);
 const phraseItems: { id: number; items: string[]; validIndex: number }[] = [];
-const validSelection = ref<boolean[]>(chunkedArr.map(() => false));
+// Picked word index per group; -1 = nothing picked yet
+const selection = ref<number[]>(chunkedArr.map(() => -1));
 const isInitializing = ref(false);
-const isDisabled = computed<boolean>(() => {
-  return validSelection.value.includes(false) || isInitializing.value;
-});
+const isValid = computed(() =>
+  phraseItems.every((item, idx) => selection.value[idx] === item.validIndex),
+);
 
 chunkedArr.forEach(chunk => {
   const randWord = sample(chunk) || '';
@@ -51,11 +70,8 @@ chunkedArr.forEach(chunk => {
     validIndex: chunk.findIndex(p => p === randWord),
   });
 });
-const updateSelection = (idx: number, val: boolean) => {
-  validSelection.value[idx] = val;
-};
-
 const nextAction = () => {
+  if (!isValid.value || isInitializing.value) return;
   isInitializing.value = true;
   onboardInitializeWallets({
     mnemonic: phrase,
@@ -66,21 +82,3 @@ const nextAction = () => {
   });
 };
 </script>
-
-<style lang="less">
-@import '@action/styles/theme.less';
-
-.double-check-phrase {
-  width: 100%;
-
-  h3 {
-    font-style: normal;
-    font-weight: 700;
-    font-size: 34px;
-    line-height: 40px;
-    letter-spacing: 0.25px;
-    color: @primaryLabel;
-    margin: 0 0 16px 0;
-  }
-}
-</style>
