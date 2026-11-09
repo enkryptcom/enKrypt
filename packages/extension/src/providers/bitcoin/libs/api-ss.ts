@@ -85,7 +85,7 @@ class API implements ProviderAPIInterface {
         },
       )
       .catch(e => {
-        console.log(e);
+        console.error('Error getBalance: ', e);
         return '0';
       });
   }
