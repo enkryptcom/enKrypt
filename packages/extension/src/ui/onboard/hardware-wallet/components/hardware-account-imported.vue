@@ -10,5 +10,5 @@
   </div>
 </template>
 <script setup lang="ts">
-import ImportDoneAnimation from '@action/icons/import/import-done-animation.vue';
+import ImportDoneAnimation from '@/assets/icons/import-done-animation.vue';
 </script>

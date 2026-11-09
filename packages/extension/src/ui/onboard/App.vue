@@ -4,7 +4,6 @@
   >
     <div
       class="rounded-2xl bg-background-alternative p-5 sm:p-7 w-full sm:max-w-[480px] sm:min-h-[600px] mx-auto"
-      :class="wrapClassObject()"
     >
       <div v-if="isShowBackButton()" class="flex items-center justify-between">
         <app-btn-icon @click="router.go(-1)" icon="arrow-left" label="back" />
@@ -35,13 +34,10 @@
 <script setup lang="ts">
 import appLogo from '@/assets/images/logo.svg';
 import AppBtnIcon from '@common/components/buttons/AppBtnIcon.vue';
-import ExtensionIcon from '@action/icons/tip/extension-icon.vue';
-import OnlineIcon from '@action/icons/tip/online-icon.vue';
-import PinIcon from '@action/icons/tip/pin-icon.vue';
 import { onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { isGeoRestricted } from '@/libs/utils/screening';
-import { OnboardRouteName, OnboardRoutePath } from './route-enums';
+import { OnboardRouteName } from './route-enums';
 
 const route = useRoute();
 const router = useRouter();
@@ -69,18 +65,6 @@ const isShowBackButton = () => {
     route.name !== OnboardRouteName.RestoreWalletBackupDetected &&
     !String(route.name).startsWith('hardware-wallet-')
   );
-};
-
-const wrapClassObject = () => {
-  return {
-    'onboard__wrap--ready':
-      route.name === OnboardRouteName.CreateWalletReady ||
-      route.name === OnboardRouteName.RestoreWalletReady ||
-      route.name === OnboardRouteName.RestoreWalletBackupDetected,
-    'onboard__wrap--auto-height': route.path.startsWith(
-      OnboardRoutePath.HardwareWalletRoot,
-    ),
-  };
 };
 </script>
 
