@@ -196,7 +196,7 @@ const deny = async () => {
 
 <style lang="less" scoped>
 @import '@action/styles/theme.less';
-@import '@/providers/ethereum/ui/styles/common-popup.less';
+@import '@/ui/common/styles/common-popup.less';
 
 .update-metadata {
   &__block {
