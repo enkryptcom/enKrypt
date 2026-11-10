@@ -56,27 +56,23 @@ import NetworkNftsCategory from './components/network-nfts-category.vue';
 import NetworkNftsFavorite from './components/network-nfts-favorite.vue';
 import NetworkNftsHidden from './components/network-nfts-hidden.vue';
 import NetworkNftsEmpty from './components/network-nfts-empty.vue';
-import { onMounted, PropType, ref, watch, computed } from 'vue';
+import { onMounted, ref, watch, computed } from 'vue';
 import { NodeType } from '@/types/provider';
-import { AccountsHeaderData } from '../../types/account';
 import { NFTCollection, NFTItem } from '@/types/nft';
 import NFTState from '@/libs/nft-state';
 import scrollSettings from '@/libs/utils/scroll-settings';
 import NftDetailView from '@action/views/nft-detail-view/index.vue';
 import { trackNFTEvents } from '@/libs/metrics';
 import { NFTEventType } from '@/libs/metrics/types';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
+import { useAccountsStore } from '@action/store/accounts-store';
 
 const nftState = new NFTState();
-const props = defineProps({
-  network: {
-    type: Object as PropType<NodeType>,
-    default: () => ({}),
-  },
-  accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
-    default: () => ({}),
-  },
-});
+const { currentNetwork } = storeToRefs(useNetworksStore());
+const { selectedAccount } = storeToRefs(useAccountsStore());
+const network = computed(() => currentNetwork.value as unknown as NodeType);
+const selectedAddress = computed(() => selectedAccount.value?.address || '');
 const NFTs = ref<NFTCollection[]>([]);
 const favoriteNFTs = ref<NFTItem[]>([]);
 const hiddenNFTs = ref<NFTItem[]>([]);
@@ -84,12 +80,12 @@ const liveNFTCollection = ref<NFTCollection[]>([]);
 const detailNFT = ref<NFTItem | null>(null);
 const isNoNFTs = ref(false);
 
-watch([props.accountInfo, props.network], () => {
+watch(selectedAddress, () => {
   updateNFTInfo();
 });
 onMounted(() => {
   updateNFTInfo();
-  trackNFTEvents(NFTEventType.NFTOpen, { network: props.network.name });
+  trackNFTEvents(NFTEventType.NFTOpen, { network: network.value.name });
 });
 const localUpdate = async () => {
   const favs = await nftState.getFavoriteNFTs();
@@ -123,13 +119,10 @@ const localUpdate = async () => {
 const updateNFTInfo = async () => {
   liveNFTCollection.value = [];
   NFTs.value = [];
-  if (props.network.NFTHandler) {
+  if (network.value.NFTHandler) {
     isNoNFTs.value = false;
-    props.network
-      .NFTHandler(
-        props.network,
-        props.accountInfo.selectedAccount?.address || '',
-      )
+    network.value
+      .NFTHandler(network.value, selectedAddress.value)
       .then(collections => {
         liveNFTCollection.value = collections;
         localUpdate();

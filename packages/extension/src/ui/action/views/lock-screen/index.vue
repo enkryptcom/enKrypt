@@ -54,10 +54,9 @@ import { computed } from 'vue';
 import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
 import { trackGenericEvents } from '@/libs/metrics';
 import { GenericEvents } from '@/libs/metrics/types';
+import networkSelectionComposable from '@action/composables/network-selection';
 
-const emit = defineEmits<{
-  (e: 'update:init'): void;
-}>();
+const { init } = networkSelectionComposable();
 
 const password = ref(__PREFILL_PASSWORD__!);
 const isDisabled = computed(() => {
@@ -83,7 +82,7 @@ const unlockAction = async () => {
   } else {
     isError.value = false;
     password.value = '';
-    emit('update:init');
+    init();
     setTimeout(() => (isUnlocking.value = false), 750);
     trackGenericEvents(GenericEvents.login_success);
   }

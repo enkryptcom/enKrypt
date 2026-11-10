@@ -32,14 +32,13 @@ import KeyRingBase from '@/libs/keyring/keyring';
 import BaseButton from '@action/components/base-button/index.vue';
 import { EnkryptAccount } from '@enkryptcom/types';
 import { PropType } from 'vue';
+import networkSelectionComposable from '@action/composables/network-selection';
 
 const model = defineModel<boolean>();
+const { init } = networkSelectionComposable();
 const closeWindow = () => {
   model.value = false;
 };
-const emit = defineEmits<{
-  (e: 'update:init'): void;
-}>();
 
 const props = defineProps({
   account: {
@@ -51,7 +50,7 @@ const deleteAccount = () => {
   const keyring = new KeyRingBase();
   keyring.deleteAccount(props.account.address).then(() => {
     closeWindow();
-    emit('update:init');
+    init();
   });
 };
 </script>

@@ -16,7 +16,7 @@
       <div class="deposit__code">
         <qrcode-vue
           :value="
-            $props.network?.provider == ProviderName.kadena
+            network.provider == ProviderName.kadena
               ? network.displayAddress(account.address)
               : network.provider + ':' + network.displayAddress(account.address)
           "
@@ -54,23 +54,26 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, onMounted, computed, watch } from 'vue';
+import { PropType, ref, computed, watch } from 'vue';
 import CopyIcon from '@action/icons/header/copy_icon.vue';
 import QrcodeVue from 'qrcode.vue';
 import { EnkryptAccount } from '@enkryptcom/types';
 import Notification from '@action/components/notification/index.vue';
 import { ProviderName } from '@/types/provider';
-import { BaseNetwork, SubNetworkOptions } from '@/types/base-network';
-import DomainState from '@/libs/domain-state';
 import AppDialog from '@action/components/app-dialog/index.vue';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
 
 const isCopied = ref(false);
-const subNetwork = ref<SubNetworkOptions | null>(null);
+const { currentNetwork: network, currentSubNetwork } =
+  storeToRefs(useNetworksStore());
+const subNetwork = computed(
+  () =>
+    network.value.subNetworks?.find(
+      net => net.id === currentSubNetwork.value,
+    ) ?? null,
+);
 const props = defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
   account: {
     type: Object as PropType<EnkryptAccount>,
     default: () => {
@@ -94,21 +97,11 @@ const toggleNotification = () => {
   isCopied.value = !isCopied.value;
 };
 
-onMounted(() => {
-  if (props.network.subNetworks) {
-    const domainState = new DomainState();
-    domainState.getSelectedSubNetWork().then(id => {
-      const subnet = props.network.subNetworks?.find(net => net.id === id);
-      if (subnet) subNetwork.value = subnet;
-    });
-  }
-});
-
 const depositCopy = computed(() => {
   if (subNetwork.value !== null)
-    return `You can send ${props.network.currencyNameLong} to this address in ${subNetwork.value.name} using ${props.network.name_long} network.`;
+    return `You can send ${network.value.currencyNameLong} to this address in ${subNetwork.value.name} using ${network.value.name_long} network.`;
   else
-    return `You can send ${props.network.currencyNameLong} to this address using ${props.network.name_long} network.`;
+    return `You can send ${network.value.currencyNameLong} to this address using ${network.value.name_long} network.`;
 });
 
 /** -------------------

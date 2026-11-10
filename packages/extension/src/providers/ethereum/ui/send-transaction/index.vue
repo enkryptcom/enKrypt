@@ -133,7 +133,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, PropType, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { debounce } from 'lodash';
 import SendHeader from '@/providers/common/ui/send-transaction/send-header.vue';
@@ -150,7 +150,7 @@ import SendFeeSelect from '@/providers/common/ui/send-transaction/send-fee-selec
 import TransactionFeeView from '@action/views/transaction-fee/index.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import { NFTItemWithCollectionName, NFTItem, NFTType } from '@/types/nft';
-import { AccountsHeaderData } from '@action/types/account';
+import sendContextComposable from '@action/composables/send-context';
 import { numberToHex, toBN } from 'web3-utils';
 import { GasPriceTypes, GasFeeType } from '@/providers/common/types';
 import { EvmNetwork } from '../../types/evm-network';
@@ -185,19 +185,10 @@ import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
 import { parseCurrency } from '@/ui/action/utils/filters';
 import { isWalletRestricted } from '@/libs/utils/screening';
 
-const props = defineProps({
-  network: {
-    type: Object as PropType<EvmNetwork>,
-    default: () => ({}),
-  },
-  accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
-    default: () => ({}),
-  },
-});
+const { network, accountInfo } = sendContextComposable<EvmNetwork>();
 
 const loadingAsset = new Erc20Token({
-  icon: props.network.icon,
+  icon: network.icon,
   symbol: 'Loading',
   balance: '0',
   price: '0',
@@ -244,7 +235,7 @@ const hasEnoughBalance = computed(() => {
     toBN(
       toBase(
         gasCostValues.value[selectedFee.value].nativeValue,
-        props.network.decimals,
+        network.decimals,
       ),
     ).gt(toBN(nativeBalance.value))
   ) {
@@ -265,14 +256,12 @@ const sendAmount = computed(() => {
 
 const isMaxSelected = ref<boolean>(false);
 const selectedFee = ref<GasPriceTypes>(
-  props.network.name === NetworkNames.Ethereum || NetworkNames.Binance
+  network.name === NetworkNames.Ethereum || NetworkNames.Binance
     ? GasPriceTypes.REGULAR
     : GasPriceTypes.ECONOMY,
 );
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
-const addressFrom = ref<string>(
-  props.accountInfo.selectedAccount?.address ?? '',
-);
+const addressFrom = ref<string>(accountInfo.selectedAccount?.address ?? '');
 const addressTo = ref<string>('');
 const isLoadingAssets = ref(true);
 
@@ -288,20 +277,20 @@ const selectedNft = ref<NFTItemWithCollectionName>({
 
 const showMax = computed(() => {
   if (selectedAsset.value.contract !== NATIVE_TOKEN_ADDRESS) return true;
-  if (MAX_UNAVAILABLE_NETWORKS.includes(props.network.name)) return false;
+  if (MAX_UNAVAILABLE_NETWORKS.includes(network.name)) return false;
   return true;
 });
 
 const nativeBalance = computed(() => {
-  const accountIndex = props.accountInfo.activeAccounts.findIndex(
+  const accountIndex = accountInfo.activeAccounts.findIndex(
     acc => acc.address === addressFrom.value,
   );
 
   if (accountIndex !== -1) {
-    const balance = props.accountInfo.activeBalances[accountIndex];
+    const balance = accountInfo.activeBalances[accountIndex];
 
     if (balance !== '~') {
-      return toBase(balance, props.network.decimals);
+      return toBase(balance, network.decimals);
     }
   }
 
@@ -309,7 +298,7 @@ const nativeBalance = computed(() => {
 });
 
 onMounted(async () => {
-  trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
+  trackSendEvents(SendEventType.SendOpen, { network: network.name });
   fetchAssets().then(setBaseCosts);
 });
 
@@ -317,7 +306,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
   const web3 = new Web3Eth();
   const value =
     isSendToken.value && selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
-      ? numberToHex(toBase(sendAmount.value, props.network.decimals))
+      ? numberToHex(toBase(sendAmount.value, network.decimals))
       : '0x0';
   const toAddress =
     isSendToken.value && selectedAsset.value.contract === NATIVE_TOKEN_ADDRESS
@@ -356,7 +345,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
               )
               .encodeABI();
   return {
-    chainId: props.network.chainID,
+    chainId: network.chainID,
     from: addressFrom.value as `0x{string}`,
     value: value as `0x${string}`,
     to: toAddress!.toLowerCase() as `0x${string}`,
@@ -364,7 +353,7 @@ const TxInfo = computed<SendTransactionDataType>(() => {
   };
 });
 const Tx = computed(() => {
-  const web3 = new Web3Eth(props.network.node);
+  const web3 = new Web3Eth(network.node);
   const tx = new Transaction(TxInfo.value, web3);
   return tx;
 });
@@ -396,7 +385,7 @@ const nativeBalanceAfterTransactionInBaseUnits = computed(() => {
       toBN(
         toBase(
           gasCostValues.value[selectedFee.value].nativeValue,
-          props.network.decimals,
+          network.decimals,
         ),
       ),
     );
@@ -412,7 +401,7 @@ const nativeBalanceAfterTransactionInBaseUnits = computed(() => {
       toBN(
         toBase(
           gasCostValues.value[selectedFee.value].nativeValue,
-          props.network.decimals,
+          network.decimals,
         ),
       ),
     );
@@ -429,7 +418,7 @@ const nativeBalanceAfterTransactionInBaseUnits = computed(() => {
 const nativeBalanceAfterTransactionInHumanUnits = computed(() => {
   return fromBase(
     nativeBalanceAfterTransactionInBaseUnits.value.abs().toString(),
-    props.network.decimals,
+    network.decimals,
   );
 });
 
@@ -464,12 +453,12 @@ const errorMsg = computed(() => {
   ) {
     return `Not enough funds. You are
       ~${formatFloatingPointValue(nativeBalanceAfterTransactionInHumanUnits.value).value}
-      ${props.network.currencyName} (${parseCurrency(
+      ${network.currencyName} (${parseCurrency(
         balanceAfterInUsd.value,
       )}) short.`;
   }
 
-  if (!props.network.isAddress(addressTo.value) && addressTo.value !== '') {
+  if (!network.isAddress(addressTo.value) && addressTo.value !== '') {
     return `Invalid to address.`;
   }
 
@@ -501,7 +490,7 @@ const setTransactionFees = (tx: Transaction) => {
     .getGasCosts()
     .then(async gasvals => {
       const getConvertedVal = (type: GasPriceTypes) =>
-        fromBase(gasvals[type], props.network.decimals);
+        fromBase(gasvals[type], network.decimals);
       const nativeVal = accountAssets.value[0].price || '0';
       gasCostValues.value = {
         [GasPriceTypes.ECONOMY]: {
@@ -509,7 +498,7 @@ const setTransactionFees = (tx: Transaction) => {
           fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.ECONOMY))
             .times(nativeVal!)
             .toString(),
-          nativeSymbol: props.network.currencyName,
+          nativeSymbol: network.currencyName,
           fiatSymbol: 'USD',
         },
         [GasPriceTypes.REGULAR]: {
@@ -517,7 +506,7 @@ const setTransactionFees = (tx: Transaction) => {
           fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.REGULAR))
             .times(nativeVal!)
             .toString(),
-          nativeSymbol: props.network.currencyName,
+          nativeSymbol: network.currencyName,
           fiatSymbol: 'USD',
         },
         [GasPriceTypes.FAST]: {
@@ -525,7 +514,7 @@ const setTransactionFees = (tx: Transaction) => {
           fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FAST))
             .times(nativeVal!)
             .toString(),
-          nativeSymbol: props.network.currencyName,
+          nativeSymbol: network.currencyName,
           fiatSymbol: 'USD',
         },
         [GasPriceTypes.FASTEST]: {
@@ -533,7 +522,7 @@ const setTransactionFees = (tx: Transaction) => {
           fiatValue: new BigNumber(getConvertedVal(GasPriceTypes.FASTEST))
             .times(nativeVal!)
             .toString(),
-          nativeSymbol: props.network.currencyName,
+          nativeSymbol: network.currencyName,
           fiatSymbol: 'USD',
         },
       };
@@ -546,11 +535,11 @@ const setTransactionFees = (tx: Transaction) => {
 };
 
 const setBaseCosts = () => {
-  const web3 = new Web3Eth(props.network.node);
+  const web3 = new Web3Eth(network.node);
   const tx = new Transaction(
     {
-      chainId: props.network.chainID,
-      from: props.accountInfo.selectedAccount!.address as `0x{string}`,
+      chainId: network.chainID,
+      from: accountInfo.selectedAccount!.address as `0x{string}`,
       value: '0x0',
       to: NATIVE_TOKEN_ADDRESS,
     },
@@ -562,7 +551,7 @@ const fetchAssets = () => {
   accountAssets.value = [];
   selectedAsset.value = loadingAsset;
   isLoadingAssets.value = true;
-  return props.network.getAllTokens(addressFrom.value).then(allAssets => {
+  return network.getAllTokens(addressFrom.value).then(allAssets => {
     accountAssets.value = allAssets as (Erc20Token & { contract: string })[];
     const hasParamData =
       isSendToken.value && tokenParamData && tokenParamData.contract;
@@ -603,7 +592,7 @@ const isValidSend = computed<boolean>(() => {
 });
 
 const isInputsValid = computed<boolean>(() => {
-  if (!props.network.isAddress(addressTo.value)) return false;
+  if (!network.isAddress(addressTo.value)) return false;
   if (
     isSendToken.value &&
     !isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
@@ -656,7 +645,7 @@ watch([isSendToken], () => {
 
 const close = () => {
   trackSendEvents(SendEventType.SendDecline, {
-    network: props.network.name,
+    network: network.name,
   });
   router.go(-1);
 };
@@ -700,8 +689,8 @@ const inputAddressTo = async (text: string) => {
     nameResolver
       .resolveName(
         text,
-        [props.network.name as CoinType, 'ETH'],
-        props.network.provider as string,
+        [network.name as CoinType, 'ETH'],
+        network.provider as string,
       )
       .then(resolved => {
         if (resolved) {
@@ -769,10 +758,7 @@ const selectFee = (type: GasPriceTypes) => {
 const recentlySentAddresses = new RecentlySentAddressesState();
 
 const sendAction = async () => {
-  await recentlySentAddresses.addRecentlySentAddress(
-    props.network,
-    addressTo.value,
-  );
+  await recentlySentAddresses.addRecentlySentAddress(network, addressTo.value);
 
   const keyring = new PublicKeyRing();
   const fromAccountInfo = await keyring.getAccount(
@@ -840,7 +826,7 @@ const toggleSelectNft = (open: boolean) => {
 const selectNFT = (item: NFTItemWithCollectionName) => {
   selectedNft.value = item;
   if (item.contract) {
-    const web3 = new Web3Eth(props.network.node);
+    const web3 = new Web3Eth(network.node);
     const selectedNFTContract = new web3.Contract(
       erc1155 as any,
       item.contract,

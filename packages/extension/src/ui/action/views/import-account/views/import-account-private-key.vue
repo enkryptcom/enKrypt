@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, type PropType } from 'vue';
+import { ref, computed } from 'vue';
 import ImportAccountHeader from '../components/import-account-header.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import bs58 from 'bs58';
@@ -40,22 +40,18 @@ import { Wallet } from '@ethereumjs/wallet';
 import { bufferToHex, hexToBuffer } from '@enkryptcom/utils';
 import { type KeyPairAdd, SignerType } from '@enkryptcom/types';
 import PublicKeyRing from '@/libs/keyring/public-keyring';
-import { BaseNetwork } from '@/types/base-network';
 import { decode as wifDecode } from 'wif';
 import { ProviderName } from '@/types/provider';
 import { getPublicKey } from '@noble/secp256k1';
 import { Keypair } from '@solana/web3.js';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
 
 const isProcessing = ref(false);
 const privKey = ref('');
 const keyring = new PublicKeyRing();
 
-const props = defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
-});
+const { currentNetwork: network } = storeToRefs(useNetworksStore());
 
 const emit = defineEmits<{
   (e: 'update:wallet', keypair: KeyPairAdd): void;
@@ -67,14 +63,14 @@ const formattedPrivateKey = computed(() => privKey.value.trim());
 
 const isValidKey = computed(() => {
   try {
-    if (props.network.provider === ProviderName.ethereum) {
+    if (network.value.provider === ProviderName.ethereum) {
       const buffer = hexToBuffer(formattedPrivateKey.value);
       new Wallet(buffer);
       return true;
-    } else if (props.network.provider === ProviderName.bitcoin) {
+    } else if (network.value.provider === ProviderName.bitcoin) {
       wifDecode(formattedPrivateKey.value);
       return true;
-    } else if (props.network.provider === ProviderName.solana) {
+    } else if (network.value.provider === ProviderName.solana) {
       bs58.decode(formattedPrivateKey.value);
       return true;
     }
@@ -90,7 +86,7 @@ const onInput = () => {
 };
 
 const importAction = async () => {
-  if (props.network.provider === ProviderName.ethereum) {
+  if (network.value.provider === ProviderName.ethereum) {
     const buffer = hexToBuffer(formattedPrivateKey.value);
     const wallet = new Wallet(buffer);
     const newAddress = wallet.getAddressString();
@@ -107,7 +103,7 @@ const importAction = async () => {
       name: '',
       signerType: SignerType.secp256k1,
     });
-  } else if (props.network.provider === ProviderName.bitcoin) {
+  } else if (network.value.provider === ProviderName.bitcoin) {
     const decoded = wifDecode(formattedPrivateKey.value);
     emit('update:wallet', {
       privateKey: bufferToHex(decoded.privateKey),
@@ -116,7 +112,7 @@ const importAction = async () => {
       name: '',
       signerType: SignerType.secp256k1btc,
     });
-  } else if (props.network.provider === ProviderName.solana) {
+  } else if (network.value.provider === ProviderName.solana) {
     const decoded = bs58.decode(formattedPrivateKey.value);
     const keypair = Keypair.fromSecretKey(decoded);
     emit('update:wallet', {

@@ -1,59 +1,43 @@
 <template>
   <div class="network-header">
     <accounts-header-account
-      v-if="!!accountInfo.selectedAccount"
-      :name="accountInfo.selectedAccount.name"
-      :address="network.displayAddress(accountInfo.selectedAccount.address)"
+      v-if="!!selectedAccount"
+      :name="selectedAccount.name"
+      :address="network.displayAddress(selectedAccount.address)"
       :toggle-accounts="toggleAccounts"
       :active="showAccounts"
-      :network="network"
-      v-bind="$attrs"
       @toggle:deposit="$emit('toggle:deposit')"
-      @select:subnetwork="$emit('select:subnetwork', $event)"
     />
 
-    <accounts-list
-      :network="network"
-      :account-info="accountInfo"
-      :show-accounts="showAccounts"
-      :toggle="toggleAccounts"
-      v-bind="$attrs"
-    />
+    <accounts-list :show-accounts="showAccounts" :toggle="toggleAccounts" />
 
     <deposit
-      v-if="!!accountInfo.selectedAccount"
-      :account="accountInfo.selectedAccount"
+      v-if="!!selectedAccount"
+      :account="selectedAccount"
       :show-deposit="showDeposit"
-      :network="network"
       @toggle:deposit="$emit('toggle:deposit')"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, PropType } from 'vue';
+import { onMounted, ref } from 'vue';
 import AccountsHeaderAccount from './components/header-accounts.vue';
 import AccountsList from '@action/views/accounts/index.vue';
 import Deposit from '@action/views/deposit/index.vue';
 import { useRouter } from 'vue-router';
-import type { AccountsHeaderData } from '@action/types/account';
-import { BaseNetwork } from '@/types/base-network';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
+import { useAccountsStore } from '@action/store/accounts-store';
 const router = useRouter();
 defineEmits<{
   (e: 'toggle:deposit'): void;
-  (e: 'select:subnetwork', id: string): void;
 }>();
 const showAccounts = ref(false);
+const { currentNetwork: network } = storeToRefs(useNetworksStore());
+const { selectedAccount } = storeToRefs(useAccountsStore());
 
 defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
-  accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
-    default: () => ({}),
-  },
   showDeposit: Boolean,
 });
 

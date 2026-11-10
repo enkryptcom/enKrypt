@@ -33,17 +33,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, ref } from 'vue';
+import { computed, ref } from 'vue';
 import ImportAccountHeader from '../components/import-account-header.vue';
 import BaseInput from '@action/components/base-input/index.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import { Wallet, thirdparty } from '@ethereumjs/wallet';
 import type { KeyringPair$Json } from '@polkadot/keyring/types';
-import { BaseNetwork } from '@/types/base-network';
 import { ProviderName } from '@/types/provider';
 import { getAccountFromJSON } from '@/providers/polkadot/libs/keystore';
 import { KeyPairAdd } from '@enkryptcom/types';
 import PublicKeyRing from '@/libs/keyring/public-keyring';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
 
 const emit = defineEmits<{
   (e: 'navigate:importAccount'): void;
@@ -67,11 +68,8 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
 });
+const { currentNetwork: network } = storeToRefs(useNetworksStore());
 
 const isProcessing = ref(false);
 const isDisabled = computed(() => {
@@ -106,7 +104,7 @@ const unlock = async () => {
   isProcessing.value = true;
   error.value = '';
 
-  if (props.network.provider === ProviderName.ethereum) {
+  if (network.value.provider === ProviderName.ethereum) {
     try {
       const wallet = await getWalletFromPrivKeyFile(
         props.fileJson,
@@ -125,13 +123,13 @@ const unlock = async () => {
         publicKey: wallet.getPublicKeyString(),
         address: wallet.getAddressString(),
         name: '',
-        signerType: props.network.signer[0],
+        signerType: network.value.signer[0],
       });
     } catch (e) {
       isProcessing.value = false;
       error.value = (e as Error).message;
     }
-  } else if (props.network.provider === ProviderName.polkadot) {
+  } else if (network.value.provider === ProviderName.polkadot) {
     try {
       const account = getAccountFromJSON(
         props.fileJson as KeyringPair$Json,

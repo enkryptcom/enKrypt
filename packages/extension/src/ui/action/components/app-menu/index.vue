@@ -123,7 +123,7 @@
               v-bind="$attrs"
               :network="element"
               :is-active="
-                !!activeNetwork && element.name === activeNetwork.name
+                !!currentNetwork && element.name === currentNetwork.name
               "
               :is-pinned="getIsPinned(element.name)"
               :scroll-position="y"
@@ -176,7 +176,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import AppMenuTab from './components/app-menu-tab.vue';
 import AppMenuItem from './components/app-menu-item.vue';
 import AppMenuSort from './components/app-menu-sort.vue';
@@ -220,14 +220,8 @@ import BannersState from '@/libs/banners-state';
 
 const appMenuRef = ref(null);
 
-const props = defineProps({
-  activeNetwork: {
-    type: Object as PropType<BaseNetwork>,
-  },
-});
-
 const networksStore = useNetworksStore();
-const { orderedNetworks, pinnedNetworks, pinnedNetworkNames } =
+const { orderedNetworks, pinnedNetworks, pinnedNetworkNames, currentNetwork } =
   storeToRefs(networksStore);
 
 const emit = defineEmits<{
@@ -302,9 +296,9 @@ const openUpdatesDialog = (_location: UpdatesOpenLocation) => {
     closeMoreMenu();
   }
   emit('show:updates-dialog');
-  if (props.activeNetwork) {
+  if (currentNetwork.value) {
     trackUpdatesEvents(UpdatesEventType.UpdatesOpen, {
-      network: props.activeNetwork.name,
+      network: currentNetwork.value.name,
       location: _location,
     });
   }
@@ -373,7 +367,7 @@ const sortNetworks = (networks: BaseNetwork[], sortBy: NetworkSort) => {
  ------------------*/
 const searchNetworks = computed({
   get() {
-    if (!props.activeNetwork) return [];
+    if (!currentNetwork.value) return [];
     if ((!searchInput.value && searchInput.value === '') || !isExpanded.value) {
       //All Networks
       if (activeCategory.value === NetworksCategory.All) {
@@ -385,11 +379,11 @@ const searchNetworks = computed({
       //Pinned Networks
       else if (activeCategory.value === NetworksCategory.Pinned) {
         const hasCurrentNetwork = pinnedNetworkNames.value.includes(
-          props.activeNetwork.name,
+          currentNetwork.value.name,
         );
         return hasCurrentNetwork
           ? pinnedNetworks.value
-          : [...pinnedNetworks.value, props.activeNetwork];
+          : [...pinnedNetworks.value, currentNetwork.value];
       }
       //New Networks
       else {
@@ -398,10 +392,10 @@ const searchNetworks = computed({
         );
         const hasCurrentNetwork = networks
           .map(network => network.name)
-          .includes(props.activeNetwork.name);
+          .includes(currentNetwork.value.name);
         return hasCurrentNetwork
           ? networks
-          : [...networks, props.activeNetwork];
+          : [...networks, currentNetwork.value];
       }
     }
     //Search Networks

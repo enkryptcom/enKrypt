@@ -11,8 +11,7 @@
           :token-price="tokenPrice"
           :price-change-percentage="priceChangePercentage"
           :sparkline="sparkline"
-          :symbol="props.network.currencyName"
-          v-bind="$attrs"
+          :symbol="network.currencyName"
         />
 
         <network-activity-action v-bind="$attrs" />
@@ -46,20 +45,12 @@ import NetworkActivityTotal from './components/network-activity-total.vue';
 import NetworkActivityAction from './components/network-activity-action.vue';
 import NetworkActivityTransaction from './components/network-activity-transaction.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
-import {
-  computed,
-  onMounted,
-  onUnmounted,
-  PropType,
-  ref,
-  toRaw,
-  toRef,
-  watch,
-} from 'vue';
-import { AccountsHeaderData } from '../../types/account';
+import { computed, onMounted, onUnmounted, ref, toRaw, watch } from 'vue';
 import accountInfoComposable from '@action/composables/account-info';
-import { BaseNetwork } from '@/types/base-network';
 import scrollSettings from '@/libs/utils/scroll-settings';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
+import { useAccountsStore } from '@action/store/accounts-store';
 
 import {
   Activity,
@@ -85,16 +76,8 @@ import EvmAPI from '@/providers/ethereum/libs/api';
 import type Web3Eth from 'web3-eth';
 import { OperationStatus } from '@massalabs/massa-web3';
 
-const props = defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
-  accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
-    default: () => ({}),
-  },
-});
+const { currentNetwork: network } = storeToRefs(useNetworksStore());
+const { selectedAccount } = storeToRefs(useAccountsStore());
 
 const {
   cryptoAmount,
@@ -102,21 +85,19 @@ const {
   tokenPrice,
   priceChangePercentage,
   sparkline,
-} = accountInfoComposable(toRef(props, 'network'), toRef(props, 'accountInfo'));
+} = accountInfoComposable();
 
 const forceUpdateVal = ref(0);
 const isNoActivity = ref(false);
 const activities = ref<Activity[]>([]);
-const selectedAddress = computed(
-  () => props.accountInfo.selectedAccount?.address || '',
-);
-const apiPromise = props.network.api();
+const selectedAddress = computed(() => selectedAccount.value?.address || '');
+const apiPromise = network.value.api();
 const activityState = new ActivityState();
 let swap: Swap;
 apiPromise.then(api => {
   swap = new Swap({
     api: (api as EvmAPI).web3 as Web3Eth,
-    network: props.network.name as unknown as SupportedNetworkName,
+    network: network.value.name as unknown as SupportedNetworkName,
     walletIdentifier: WalletIdentifier.enkrypt,
     evmOptions: {
       infiniteApproval: true,
@@ -128,7 +109,7 @@ apiPromise.then(api => {
 const activityCheckTimers: ReturnType<typeof setInterval>[] = [];
 
 const activityAddress = computed(() =>
-  props.network.displayAddress(props.accountInfo.selectedAccount!.address),
+  network.value.displayAddress(selectedAccount.value!.address),
 );
 
 const updateVisibleActivity = (activity: Activity): void => {
@@ -162,7 +143,7 @@ const updateActivitySync = (activity: Activity) => {
   return activityState
     .updateActivity(activity, {
       address: activityAddress.value,
-      network: props.network.name,
+      network: network.value.name,
     })
     .finally(() => {
       isActivityUpdating = false;
@@ -170,7 +151,7 @@ const updateActivitySync = (activity: Activity) => {
 };
 
 const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {
-  if (props.network.provider === ProviderName.ethereum) {
+  if (network.value.provider === ProviderName.ethereum) {
     if (!info) return;
     if (isActivityUpdating) return;
     const evmInfo = info as EthereumRawInfo;
@@ -179,7 +160,7 @@ const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {
       : ActivityStatus.failed;
     activity.rawInfo = evmInfo;
     updateActivitySync(activity).then(() => updateVisibleActivity(activity));
-  } else if (props.network.provider === ProviderName.polkadot) {
+  } else if (network.value.provider === ProviderName.polkadot) {
     if (!info) return;
     const subInfo = info as SubscanExtrinsicInfo;
     if (!subInfo.pending) {
@@ -190,14 +171,14 @@ const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {
       activity.rawInfo = subInfo;
       updateActivitySync(activity).then(() => updateVisibleActivity(activity));
     }
-  } else if (props.network.provider === ProviderName.bitcoin) {
+  } else if (network.value.provider === ProviderName.bitcoin) {
     if (!info) return;
     const btcInfo = info as BTCRawInfo;
     if (isActivityUpdating) return;
     activity.status = ActivityStatus.success;
     activity.rawInfo = btcInfo;
     updateActivitySync(activity).then(() => updateVisibleActivity(activity));
-  } else if (props.network.provider === ProviderName.kadena) {
+  } else if (network.value.provider === ProviderName.kadena) {
     if (!info) return;
     const kadenaInfo = info as KadenaRawInfo;
     if (isActivityUpdating) return;
@@ -207,7 +188,7 @@ const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {
         : ActivityStatus.failed;
     activity.rawInfo = kadenaInfo as KadenaRawInfo;
     updateActivitySync(activity).then(() => updateVisibleActivity(activity));
-  } else if (props.network.provider === ProviderName.solana) {
+  } else if (network.value.provider === ProviderName.solana) {
     if (info) {
       const solInfo = info as SOLRawInfo;
       if (isActivityUpdating) return;
@@ -225,7 +206,7 @@ const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {
     } else {
       return; /* Give the transaction more time to be mined */
     }
-  } else if (props.network.provider === ProviderName.massa) {
+  } else if (network.value.provider === ProviderName.massa) {
     if (!info) return;
     const massaInfo = info as MassaRawInfo;
     if (isActivityUpdating || massaInfo === OperationStatus.PendingInclusion)
@@ -283,7 +264,7 @@ const checkSwap = (activity: Activity): void => {
           activityState
             .updateActivity(activity, {
               address: activityAddress.value,
-              network: props.network.name,
+              network: network.value.name,
             })
             .then(() => updateVisibleActivity(activity));
         });
@@ -292,12 +273,12 @@ const checkSwap = (activity: Activity): void => {
   }, 5000);
   activityCheckTimers.push(timer);
 };
-const selectedNetworkName = computed(() => props.network.name);
+const selectedNetworkName = computed(() => network.value.name);
 const setActivities = () => {
   activities.value = [];
   isNoActivity.value = false;
-  if (props.accountInfo.selectedAccount)
-    props.network.getAllActivity(activityAddress.value).then(all => {
+  if (selectedAccount.value)
+    network.value.getAllActivity(activityAddress.value).then(all => {
       activities.value = all;
       isNoActivity.value = all.length === 0;
       activities.value.forEach(act => {

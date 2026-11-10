@@ -55,8 +55,12 @@ import { SVGRenderer } from 'echarts/renderers';
 import { LineChart } from 'echarts/charts';
 import { GridComponent } from 'echarts/components';
 import VChart from 'vue-echarts';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
 
 use([SVGRenderer, LineChart, GridComponent]);
+
+const { currentSubNetwork: subnetwork } = storeToRefs(useNetworksStore());
 
 const props = defineProps({
   cryptoAmount: {
@@ -68,10 +72,6 @@ const props = defineProps({
     default: '0',
   },
   symbol: {
-    type: String,
-    default: '',
-  },
-  subnetwork: {
     type: String,
     default: '',
   },

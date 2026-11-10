@@ -1,13 +1,13 @@
 import MarketData from '@/libs/market-data';
-import { BaseNetwork } from '@/types/base-network';
-import { computed, ref, watch, onMounted, Ref } from 'vue';
-import { AccountsHeaderData } from '../types/account';
+import { computed, ref, watch, onMounted } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '../store/networks-store';
+import { useAccountsStore } from '../store/accounts-store';
 import { formatFloatingPointValue } from '../utils/filters';
 const defaultFiatVal = '0.00';
-export default (
-  network: Ref<BaseNetwork>,
-  accountInfo: Ref<AccountsHeaderData>,
-) => {
+export default () => {
+  const { currentNetwork: network } = storeToRefs(useNetworksStore());
+  const { accountInfo } = storeToRefs(useAccountsStore());
   const marketData = new MarketData();
   const fiatAmount = ref<string>(defaultFiatVal);
   const tokenPrice = ref<string>(defaultFiatVal);

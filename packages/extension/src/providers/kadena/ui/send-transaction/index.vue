@@ -70,9 +70,7 @@
         @update:input-set-max="setSendMax"
       />
 
-      <send-fee-select
-        :fee="fee ?? { nativeSymbol: props.network.currencyName }"
-      />
+      <send-fee-select :fee="fee ?? { nativeSymbol: network.currencyName }" />
 
       <send-alert v-show="errorMsg" :error-msg="errorMsg" />
 
@@ -93,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { debounce } from 'lodash';
 import CloseIcon from '@action/icons/common/close-icon.vue';
@@ -106,7 +104,7 @@ import SendInputAmount from '@/providers/common/ui/send-transaction/send-input-a
 import SendFeeSelect from './components/send-fee-select.vue';
 import SendAlert from './components/send-alert.vue';
 import BaseButton from '@action/components/base-button/index.vue';
-import { AccountsHeaderData } from '@action/types/account';
+import sendContextComposable from '@action/composables/send-context';
 import { GasFeeInfo } from '@/providers/ethereum/ui/types';
 import { toBN } from 'web3-utils';
 import {
@@ -130,16 +128,7 @@ import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
 import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
 
-const props = defineProps({
-  network: {
-    type: Object as PropType<KadenaNetwork>,
-    default: () => ({}),
-  },
-  accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
-    default: () => ({}),
-  },
-});
+const { network, accountInfo } = sendContextComposable<KadenaNetwork>();
 
 const route = useRoute();
 const router = useRouter();
@@ -150,7 +139,7 @@ const addressInputTo = ref();
 const addressInputFrom = ref();
 const isOpenSelectContactFrom = ref(false);
 const isOpenSelectContactTo = ref(false);
-const addressFrom = ref(props.accountInfo.selectedAccount!.address);
+const addressFrom = ref(accountInfo.selectedAccount!.address);
 const addressTo = ref('');
 const isOpenSelectToken = ref(false);
 const amount = ref<string>();
@@ -158,12 +147,12 @@ const fee = ref<GasFeeInfo | null>(null);
 const accountAssets = ref<KDAToken[]>([]);
 const selectedAsset = ref<KDAToken | Partial<KDAToken>>(
   new KDAToken({
-    icon: props.network.icon,
+    icon: network.icon,
     balance: '0',
     price: '0',
     name: 'loading',
     symbol: 'loading',
-    decimals: props.network.decimals,
+    decimals: network.decimals,
   }),
 );
 const sendMax = ref(false);
@@ -181,7 +170,7 @@ const isAddress = computed(() => {
 });
 
 onMounted(() => {
-  trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
+  trackSendEvents(SendEventType.SendOpen, { network: network.name });
   isLoadingAssets.value = true;
   fetchTokens();
 });
@@ -200,20 +189,20 @@ const validateFields = async () => {
 
   try {
     if (isAddress.value) {
-      const to = props.network.displayAddress(addressTo.value);
-      const from = props.network.displayAddress(addressFrom.value);
+      const to = network.displayAddress(addressTo.value);
+      const from = network.displayAddress(addressFrom.value);
       const accountDetailFrom = await accountAssets.value[0].getAccountDetails(
         from,
-        props.network,
+        network,
       );
       if (accountDetailFrom.error) {
         errorMsg.value = 'Not enough balance'; // account doesnt exist
         return;
       }
-      if (!props.network.isAddress(to)) {
+      if (!network.isAddress(to)) {
         const accountDetail = await accountAssets.value[0].getAccountDetails(
           to,
-          props.network,
+          network,
         );
 
         if (accountDetail.error) {
@@ -233,7 +222,7 @@ const validateFields = async () => {
     }
 
     let rawAmount = toBN(toBase('0', selectedAsset.value.decimals!));
-    const minAmount = toBN(toBase('0.000001', props.network.decimals));
+    const minAmount = toBN(toBase('0.000001', network.decimals));
     if (amount.value) {
       if (!isValidDecimals(amount.value, selectedAsset.value.decimals!)) {
         fieldsValidation.value.amount = false;
@@ -260,13 +249,13 @@ const validateFields = async () => {
     if (amount.value || sendMax.value) {
       const localTransaction = await selectedAsset.value.buildTransaction!(
         addressTo.value,
-        props.accountInfo.selectedAccount,
+        accountInfo.selectedAccount,
         sendMax.value
-          ? fromBase(minAmount.toString(), props.network.decimals)
+          ? fromBase(minAmount.toString(), network.decimals)
           : amount.value!,
-        props.network,
+        network,
       );
-      const networkApi = (await props.network.api()) as KadenaAPI;
+      const networkApi = (await network.api()) as KadenaAPI;
 
       const transactionResult = await networkApi
         .sendLocalTransaction(localTransaction)
@@ -358,8 +347,8 @@ watch(addressFrom, () => {
 });
 
 const fetchTokens = async () => {
-  const networkApi = (await props.network.api()) as KadenaAPI;
-  const networkAssets = await props.network.getAllTokens(addressFrom.value);
+  const networkApi = (await network.api()) as KadenaAPI;
+  const networkAssets = await network.getAllTokens(addressFrom.value);
   const pricePromises = networkAssets.map(asset => asset.getLatestPrice());
   const balancePromises = networkAssets.map(asset => {
     if (!asset.balance) {
@@ -387,7 +376,7 @@ const fetchTokens = async () => {
 
 const close = () => {
   trackSendEvents(SendEventType.SendDecline, {
-    network: props.network.name,
+    network: network.name,
   });
   router.go(-1);
 };
@@ -399,7 +388,7 @@ const inputAddressFrom = (text: string) => {
 const inputAddressTo = (text: string) => {
   const debounceResolve = debounce(() => {
     nameResolver
-      .resolveName(text, [props.network.name as CoinType])
+      .resolveName(text, [network.name as CoinType])
       .then(resolved => {
         if (resolved) {
           addressTo.value = resolved;
@@ -477,14 +466,11 @@ const isDisabled = computed(() => {
 const recentlySentAddresses = new RecentlySentAddressesState();
 
 const sendAction = async () => {
-  await recentlySentAddresses.addRecentlySentAddress(
-    props.network,
-    addressTo.value,
-  );
+  await recentlySentAddresses.addRecentlySentAddress(network, addressTo.value);
 
   const keyring = new PublicKeyRing();
   const fromAccount = await keyring.getAccount(addressFrom.value);
-  const networkApi = (await props.network.api()) as KadenaAPI;
+  const networkApi = (await network.api()) as KadenaAPI;
   const chainId = await networkApi.getChainId();
   const txVerifyInfo: VerifyTransactionParams = {
     TransactionData: {

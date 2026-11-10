@@ -116,7 +116,7 @@
       <send-alert
         v-show="
           nativeBalanceAfterTransaction.isNeg() ||
-          (Number(sendAmount) < (props.network as BitcoinNetwork).dust &&
+          (Number(sendAmount) < (network as BitcoinNetwork).dust &&
             Number(sendAmount) > 0)
         "
         :native-symbol="network.name"
@@ -129,10 +129,8 @@
           )
         "
         :decimals="network.decimals"
-        :below-dust="
-          Number(sendAmount) < (props.network as BitcoinNetwork).dust
-        "
-        :dust="(props.network as BitcoinNetwork).dust.toString()"
+        :below-dust="Number(sendAmount) < (network as BitcoinNetwork).dust"
+        :dust="(network as BitcoinNetwork).dust.toString()"
         :not-enough="nativeBalanceAfterTransaction.isNeg()"
       />
 
@@ -153,7 +151,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, PropType, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import SendHeader from '@/providers/common/ui/send-transaction/send-header.vue';
 import SendAddressInput from './components/send-address-input.vue';
@@ -168,7 +166,7 @@ import TransactionFeeView from '@action/views/transaction-fee/index.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import SendNftSelect from '@/providers/common/ui/send-transaction/send-nft-select.vue';
 import NftSelectList from '@/providers/common/ui/send-transaction/nft-select-list/index.vue';
-import { AccountsHeaderData } from '@action/types/account';
+import sendContextComposable from '@action/composables/send-context';
 import { toBN } from 'web3-utils';
 import { GasPriceTypes, GasFeeType } from '@/providers/common/types';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
@@ -197,23 +195,14 @@ import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
 import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
 
-const props = defineProps({
-  network: {
-    type: Object as PropType<BitcoinNetwork>,
-    default: () => ({}),
-  },
-  accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
-    default: () => ({}),
-  },
-});
+const { network, accountInfo } = sendContextComposable<BitcoinNetwork>();
 const loadingAsset = new BTCToken({
-  icon: props.network.icon,
+  icon: network.icon,
   symbol: 'Loading',
   balance: '0',
   price: '0',
   name: 'loading',
-  decimals: props.network.decimals,
+  decimals: network.decimals,
 });
 
 const addressInputTo = ref();
@@ -239,9 +228,7 @@ const sendAmount = computed(() => {
 const isMaxSelected = ref<boolean>(false);
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.REGULAR);
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
-const addressFrom = ref<string>(
-  props.accountInfo.selectedAccount?.address ?? '',
-);
+const addressFrom = ref<string>(accountInfo.selectedAccount?.address ?? '');
 const addressTo = ref<string>('');
 const isLoadingAssets = ref(true);
 
@@ -250,7 +237,7 @@ const showMax = computed(() => {
 });
 
 onMounted(async () => {
-  trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
+  trackSendEvents(SendEventType.SendOpen, { network: network.name });
   fetchAssets().then(setBaseCosts);
 });
 
@@ -280,11 +267,11 @@ const nativeBalanceAfterTransaction = computed(() => {
 const setTransactionFees = (byteSize: number) => {
   const nativeVal = selectedAsset.value.price || '0';
   getGasCostValues(
-    props.network as BitcoinNetwork,
+    network as BitcoinNetwork,
     byteSize,
     nativeVal,
-    props.network.decimals,
-    props.network.currencyName,
+    network.decimals,
+    network.currencyName,
   ).then(val => (gasCostValues.value = val));
 };
 
@@ -295,13 +282,13 @@ const setBaseCosts = () => {
 };
 
 const updateUTXOs = async () => {
-  const api = (await props.network.api()) as BitcoinAPI;
+  const api = (await network.api()) as BitcoinAPI;
   return api.getUTXOs(addressFrom.value).then(utxos => {
     accountUTXOs.value = utxos;
     const txSize = calculateSizeBasedOnType(
       accountUTXOs.value.length + (isSendToken.value ? 0 : 1),
       2,
-      (props.network as BitcoinNetwork).networkInfo.paymentType,
+      (network as BitcoinNetwork).networkInfo.paymentType,
     );
     setTransactionFees(Math.ceil(txSize));
   });
@@ -310,7 +297,7 @@ const updateUTXOs = async () => {
 const fetchAssets = () => {
   selectedAsset.value = loadingAsset;
   isLoadingAssets.value = true;
-  return props.network.getAllTokens(addressFrom.value).then(allAssets => {
+  return network.getAllTokens(addressFrom.value).then(allAssets => {
     accountAssets.value = allAssets as BTCToken[];
     selectedAsset.value = allAssets[0] as BTCToken;
     isLoadingAssets.value = false;
@@ -338,9 +325,7 @@ const sendButtonTitle = computed(() => {
 });
 
 const isInputsValid = computed<boolean>(() => {
-  if (
-    !isAddress(addressTo.value, (props.network as BitcoinNetwork).networkInfo)
-  )
+  if (!isAddress(addressTo.value, (network as BitcoinNetwork).networkInfo))
     return false;
   if (
     isSendToken.value &&
@@ -352,7 +337,7 @@ const isInputsValid = computed<boolean>(() => {
     return false;
   }
   if (
-    Number(sendAmount.value) < (props.network as BitcoinNetwork).dust &&
+    Number(sendAmount.value) < (network as BitcoinNetwork).dust &&
     isSendToken.value
   )
     return false;
@@ -386,7 +371,7 @@ const selectedNft = ref<NFTItemWithCollectionName>({
 
 const close = () => {
   trackSendEvents(SendEventType.SendDecline, {
-    network: props.network.name,
+    network: network.name,
   });
   router.go(-1);
 };
@@ -439,7 +424,7 @@ const selectAccountFrom = (account: string) => {
 };
 
 const selectAccountTo = (account: string) => {
-  addressTo.value = props.network.displayAddress(account);
+  addressTo.value = network.displayAddress(account);
   isOpenSelectContactTo.value = false;
 };
 
@@ -474,10 +459,7 @@ const selectNFT = (item: NFTItemWithCollectionName) => {
 const recentlySentAddresses = new RecentlySentAddressesState();
 
 const sendAction = async () => {
-  await recentlySentAddresses.addRecentlySentAddress(
-    props.network,
-    addressTo.value,
-  );
+  await recentlySentAddresses.addRecentlySentAddress(network, addressTo.value);
 
   const keyring = new PublicKeyRing();
   const fromAccountInfo = await keyring.getAccount(addressFrom.value);
@@ -495,7 +477,7 @@ const sendAction = async () => {
       value: toAmount.toNumber(),
     });
   } else {
-    const api = (await props.network.api()) as BitcoinAPI;
+    const api = (await network.api()) as BitcoinAPI;
     const [txid, index] = selectedNft.value.id.split(':');
     const ordinalTx = await api.getTransactionStatus(txid);
     const ordinalOutput = ordinalTx!.outputs[parseInt(index)];
@@ -519,7 +501,7 @@ const sendAction = async () => {
   const remainder = UTXOBalance.value.sub(toAmount).sub(currentFee);
   if (remainder.gtn(0)) {
     txInfo.outputs.push({
-      address: props.network.displayAddress(addressFrom.value),
+      address: network.displayAddress(addressFrom.value),
       value: remainder.toNumber(),
     });
   }
