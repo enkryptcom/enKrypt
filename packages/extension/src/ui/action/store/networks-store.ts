@@ -26,6 +26,7 @@ import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
 import { NetworkNames } from '@enkryptcom/types';
 import { computed, ref } from 'vue';
 import { useAccountsStore } from './accounts-store';
+import { useAccountCacheStore } from './account-cache-store';
 
 /**
  * Defines the store for managing networks. The store is initilized in App.vue on mount.
@@ -221,9 +222,15 @@ export const useNetworksStore = defineStore('useNetworksStore', () => {
    * @method setCurrentNetwork - Makes a network the current one and loads its accounts.
    *
    * Resolves once the network, its sub-network and its accounts are in the stores
-   * and the network is saved in DomainState. Telling the dapp and loading balances
-   * carry on afterwards, so callers are not held up by the tab or by RPC calls.
-   * A call that is overtaken by a later one changes nothing.
+   * and DomainState has saved the network. It does not wait for the address
+   * screening, the message to the dapp or the balance lookups, so a slow tab or
+   * RPC node does not delay callers. isAddressRestricted and activeBalances can
+   * still be out of date when the promise resolves.
+   *
+   * If a later call starts before this one has loaded its accounts, this one
+   * returns without changing either store, saving the network or messaging the
+   * tab. By then it has already sent the metrics event and may have saved a
+   * default sub-network.
    *
    * @param network - Network to select
    */
@@ -260,7 +267,8 @@ export const useNetworksStore = defineStore('useNetworksStore', () => {
 
   /**
    * @method init - Restores the network saved for the current domain, falling back
-   * to the default network, and loads the network list.
+   * to the default network, and loads the network list. It also loads the account
+   * cache, so that the cached entries are in memory before any view is shown.
    */
   const init = async () => {
     // A network change that is still being saved must not be read as the old one
@@ -272,6 +280,8 @@ export const useNetworksStore = defineStore('useNetworksStore', () => {
     await Promise.all([
       setCurrentNetwork(savedNetwork ?? DEFAULT_EVM_NETWORK),
       setActiveNetworks(),
+      // load() logs a failed read itself, so the cache cannot make init fail
+      useAccountCacheStore().load(),
     ]);
   };
 

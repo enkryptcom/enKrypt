@@ -4,8 +4,9 @@ import { BaseNetwork } from '@/types/base-network';
 import { useNetworksStore } from '@action/store/networks-store';
 
 /**
- * Changes to the popup's network selection that also open the selected
- * network's assets. The stores only hold state, navigation is done here.
+ * Wraps the networks store's init, setCurrentNetwork and setCurrentSubNetwork.
+ * Each wrapper runs the store action and then opens the assets view of the
+ * current network. The stores never call the router, so navigation happens here.
  */
 export default () => {
   const router = useRouter();

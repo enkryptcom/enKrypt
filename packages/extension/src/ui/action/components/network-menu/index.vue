@@ -1,7 +1,6 @@
 <template>
   <div class="network-menu">
     <router-link
-      v-if="network"
       :to="{ name: 'assets', params: { id: !!selected ? selected : null } }"
       exact-active-class="router-link-active"
     >

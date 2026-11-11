@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import { EnkryptAccount } from '@enkryptcom/types';
 import { BaseNetwork } from '@/types/base-network';
@@ -6,13 +6,17 @@ import { InternalMethods } from '@/types/messenger';
 import { EnkryptProviderEventMethods } from '@/types/provider';
 import { MessageMethod } from '@/providers/ethereum/types';
 import { MessageMethod as KadenaMessageMethod } from '@/providers/kadena/types';
+import { CachedAccountInfo } from '@/libs/account-cache-state/types';
 import { useNetworksStore } from '../networks-store';
 import { useAccountsStore } from '../accounts-store';
+import { useAccountCacheStore } from '../account-cache-store';
 
 /**
- * Everything the stores reach outside themselves for: the persisted domain
- * state, the keyring, the networks and the messenger. Declared with vi.hoisted
- * because the vi.mock factories below run before the imports above.
+ * Shared state and stubs for the modules the stores depend on: the saved domain
+ * state, the accounts, the networks, address screening, the read of the stored
+ * account cache, the providers' approved addresses and the messenger. It is
+ * declared with vi.hoisted because the vi.mock factories below run before the
+ * imports above.
  */
 const mocks = vi.hoisted(() => {
   /** Balance lookups wait for `until`, so a test can hold them back */
@@ -72,6 +76,10 @@ const mocks = vi.hoisted(() => {
     /** Per network name: a promise the account lookup waits for */
     accountsDelay: {} as Record<string, Promise<void>>,
     restrictedAddresses: [] as string[],
+    /** Reads of the stored account cache */
+    getCacheEntries: vi.fn<() => Promise<Record<string, CachedAccountInfo>>>(
+      async () => ({}),
+    ),
     sendToBackgroundFromAction: vi.fn<
       (message: unknown) => Promise<{ result: string }>
     >(async () => ({ result: 'true' })),
@@ -102,6 +110,12 @@ vi.mock('@/libs/domain-state', () => ({
     };
     getCurrentTabId = async () => 7;
     getCurrentDomain = async () => 'example.com';
+  },
+}));
+vi.mock('@/libs/account-cache-state', () => ({
+  default: class {
+    getEntries = mocks.getCacheEntries;
+    setEntries = async () => {};
   },
 }));
 vi.mock('@/libs/networks-state', () => ({
@@ -160,6 +174,13 @@ const sentRouting = () =>
     return { provider, tabId };
   });
 
+/** Records console.error calls for the current test and keeps them out of the test output. */
+const captureErrors = () => {
+  const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
+  onTestFinished(() => errors.mockRestore());
+  return errors;
+};
+
 beforeEach(() => {
   setActivePinia(createPinia());
   mocks.saved.network = null;
@@ -169,6 +190,7 @@ beforeEach(() => {
   mocks.balances.until = Promise.resolve();
   mocks.networkSaves.until = Promise.resolve();
   mocks.restrictedAddresses = [];
+  mocks.getCacheEntries.mockClear();
   mocks.sendToBackgroundFromAction.mockClear();
   mocks.addApprovedAddress.mockClear();
 });
@@ -199,6 +221,49 @@ describe('networks store', () => {
       await networksStore.init();
       expect(networksStore.currentNetwork.name).toBe('ETH');
       expect(mocks.saved.network).toBe('ETH');
+    });
+
+    it('waits for a network save that is still in progress', async () => {
+      mocks.saved.network = 'ETH';
+      let release = () => {};
+      mocks.networkSaves.until = new Promise(resolve => (release = resolve));
+      const networksStore = useNetworksStore();
+      const switching = networksStore.setCurrentNetwork(networks.BTC!);
+      await settle();
+      const restoring = networksStore.init();
+      await settle();
+      release();
+      await Promise.all([switching, restoring]);
+      expect(networksStore.currentNetwork.name).toBe('BTC');
+      expect(mocks.saved.network).toBe('BTC');
+    });
+
+    it('loads the account cache without filling the balances from it', async () => {
+      const cacheStore = useAccountCacheStore();
+      mocks.getCacheEntries.mockResolvedValueOnce({
+        [cacheStore.keyFor('ETH', '', '0xaaa')]: {
+          balance: '1.5',
+          updatedAt: 1,
+        },
+      });
+      let release = () => {};
+      mocks.balances.until = new Promise(resolve => (release = resolve));
+      await useNetworksStore().init();
+      expect(cacheStore.currentEntry?.balance).toBe('1.5');
+      expect(useAccountsStore().activeBalances).toEqual(['~', '~']);
+      release();
+      await settle();
+      expect(useAccountsStore().activeBalances).toEqual(['2', '2']);
+    });
+
+    it('restores the network when the account cache cannot be read', async () => {
+      const errors = captureErrors();
+      mocks.getCacheEntries.mockRejectedValueOnce(new Error('storage failed'));
+      const networksStore = useNetworksStore();
+      await networksStore.init();
+      expect(networksStore.currentNetwork.name).toBe('ETH');
+      expect(useAccountCacheStore().entries).toEqual({});
+      expect(errors).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -307,6 +372,37 @@ describe('networks store', () => {
         isRestricted: true,
         address: '0xaaa',
       });
+    });
+
+    it('selects and saves the network when the dapp cannot be told', async () => {
+      mocks.saved.network = 'ETH';
+      const errors = captureErrors();
+      mocks.sendToBackgroundFromAction.mockRejectedValueOnce(
+        new Error('tab is gone'),
+      );
+      const networksStore = useNetworksStore();
+      await networksStore.setCurrentNetwork(networks.MATIC!);
+      await settle();
+      expect(networksStore.currentNetwork.name).toBe('MATIC');
+      expect(mocks.saved.network).toBe('MATIC');
+      expect(useAccountsStore().activeBalances).toEqual(['2', '2']);
+      expect(errors).toHaveBeenCalledTimes(1);
+    });
+
+    it('selects a network that has no accounts', async () => {
+      const errors = captureErrors();
+      const networksStore = useNetworksStore();
+      await networksStore.setCurrentNetwork({
+        ...networks.ETH,
+        name: 'EMPTY',
+      } as unknown as BaseNetwork);
+      await settle();
+      const accountsStore = useAccountsStore();
+      expect(networksStore.currentNetwork.name).toBe('EMPTY');
+      expect(mocks.saved.network).toBe('EMPTY');
+      expect(accountsStore.selectedAccount).toBeNull();
+      expect(accountsStore.isAddressRestricted.isRestricted).toBe(false);
+      expect(errors).not.toHaveBeenCalled();
     });
   });
 

@@ -12,6 +12,7 @@
           :price-change-percentage="priceChangePercentage"
           :sparkline="sparkline"
           :symbol="network.currencyName"
+          :is-cached="isCached"
         />
 
         <network-activity-action v-bind="$attrs" />
@@ -85,6 +86,7 @@ const {
   tokenPrice,
   priceChangePercentage,
   sparkline,
+  isCached,
 } = accountInfoComposable();
 
 const forceUpdateVal = ref(0);

@@ -55,7 +55,7 @@ const emptyAccounts = (): AccountsHeaderData => ({
  *
  * @method {Function} fetchAccounts - Reads the accounts of a network without changing the store.
  * @method {Function} setAccounts - Replaces the account data.
- * @method {Function} selectAccount - Selects an account, persists it and tells the connected dapp.
+ * @method {Function} selectAccount - Selects an account, saves it and tells the dapp in the active tab.
  * @method {Function} checkAddress - Screens the selected account.
  * @method {Function} switchToUnrestrictedAccount - Selects an account other than the restricted one.
  * @method {Function} fetchBalances - Loads the native balance of every active account.
@@ -133,7 +133,9 @@ export const useAccountsStore = defineStore('useAccountsStore', () => {
 
   /**
    * @method selectAccount - Selects an account. Unless the address is restricted,
-   * the selection is saved in DomainState and the connected dapp is told about it.
+   * it then approves the address for the current domain on Ethereum, Bitcoin and
+   * Solana networks, saves the selection in DomainState and tells the dapp in the
+   * active tab.
    * @param account - One of the active accounts
    */
   const selectAccount = async (account: EnkryptAccount) => {

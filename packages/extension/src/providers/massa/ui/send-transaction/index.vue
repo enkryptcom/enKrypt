@@ -284,7 +284,6 @@ const errorMsg = computed(() => {
   if (
     addressTo.value &&
     addressTo.value.trim() !== '' &&
-    network &&
     !(network as MassaNetwork).isValidAddress(addressTo.value)
   ) {
     return `Invalid to address.`;
@@ -300,7 +299,7 @@ const isInputsValid = computed<boolean>(() => {
   }
 
   // Check if address is valid
-  if (!network || !(network as MassaNetwork).isValidAddress(addressTo.value)) {
+  if (!(network as MassaNetwork).isValidAddress(addressTo.value)) {
     return false;
   }
 

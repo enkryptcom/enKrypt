@@ -15,7 +15,7 @@
           :key="index"
           :name="account.name"
           :address="network.displayAddress(account.address)"
-          :amount="activeBalances[index]"
+          :amount="balanceOf(account)"
           :symbol="network.currencyName"
           :is-checked="selectedAccount?.address == account.address"
           :select="selectAccount"
@@ -23,8 +23,8 @@
           :identicon-element="network.identicon"
           :show-edit="true"
           :deletable="account.walletType !== WalletType.mnemonic"
-          @action:rename="renameAccount(index)"
-          @action:delete="deleteAccount(index)"
+          @action:rename="renameAccount(account)"
+          @action:delete="deleteAccount(account)"
         />
 
         <div v-if="displayInactive.length > 0" class="accounts__info">
@@ -164,16 +164,23 @@ const addAccountAction = () => {
   }, 100);
 };
 
-const renameAccount = (accountIdx: number) => {
-  accountToRename.value = activeAccounts.value[accountIdx];
+// The list can be filtered and sorted by the search, so a row's index is not
+// the account's index in activeAccounts or activeBalances.
+const balanceOf = (account: EnkryptAccount) =>
+  activeBalances.value[
+    activeAccounts.value.findIndex(acc => acc.address === account.address)
+  ];
+
+const renameAccount = (account: EnkryptAccount) => {
+  accountToRename.value = account;
   props.toggle();
   setTimeout(() => {
     isRenameAccount.value = true;
   }, 100);
 };
 
-const deleteAccount = (accountIdx: number) => {
-  accountToDelete.value = activeAccounts.value[accountIdx];
+const deleteAccount = (account: EnkryptAccount) => {
+  accountToDelete.value = account;
   props.toggle();
 
   setTimeout(() => {

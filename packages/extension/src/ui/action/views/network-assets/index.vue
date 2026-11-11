@@ -13,6 +13,7 @@
             :price-change-percentage="priceChangePercentage"
             :sparkline="sparkline"
             :symbol="network.currencyName"
+            :is-cached="isCached"
           />
 
           <!-- Banners -->
@@ -27,9 +28,10 @@
             v-if="isFetchError"
             :update-assets="updateAssets"
           />
+          <!-- A row builds its chart once, so each list gets new rows -->
           <network-assets-item
             v-for="(item, index) in assets"
-            :key="index"
+            :key="`${listVersion}-${index}`"
             :token="item"
             :network="network"
             @update:tokens="updateAssets"
@@ -79,9 +81,10 @@ import NetworkAssetsHeader from './components/network-assets-header.vue';
 import NetworkAssetsLoading from './components/network-assets-loading.vue';
 import NetworkAssetsError from './components/network-assets-error.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import type { AssetsType } from '@/types/provider';
 import accountInfoComposable from '@action/composables/account-info';
+import networkAssetsComposable from '@action/composables/network-assets';
 import scrollSettings from '@/libs/utils/scroll-settings';
 import Deposit from '@action/views/deposit/index.vue';
 import BaseButton from '@action/components/base-button/index.vue';
@@ -98,12 +101,10 @@ import { useAccountsStore } from '@action/store/accounts-store';
 const showDeposit = ref(false);
 
 const route = useRoute();
-const { currentNetwork: network, currentSubNetwork } =
-  storeToRefs(useNetworksStore());
+const { currentNetwork: network } = storeToRefs(useNetworksStore());
 const { selectedAccount } = storeToRefs(useAccountsStore());
-const assets = ref<AssetsType[]>([]);
-const isLoading = ref(false);
-const isFetchError = ref(false);
+const { assets, listVersion, isLoading, isFetchError, updateAssets } =
+  networkAssetsComposable();
 
 const {
   cryptoAmount,
@@ -111,32 +112,10 @@ const {
   tokenPrice,
   priceChangePercentage,
   sparkline,
+  isCached,
 } = accountInfoComposable();
 const selected: string = route.params.id as string;
 
-const updateAssets = () => {
-  isFetchError.value = false;
-  isLoading.value = true;
-  assets.value = [];
-  const currentNetwork = selectedNetworkName.value;
-  if (selectedAccount.value?.address) {
-    network.value
-      .getAllTokenInfo(selectedAccount.value?.address || '')
-      .then(_assets => {
-        if (selectedNetworkName.value !== currentNetwork) return;
-        assets.value = _assets;
-        isLoading.value = false;
-      })
-      .catch(e => {
-        console.error(e);
-        if (selectedNetworkName.value !== currentNetwork) return;
-        isFetchError.value = true;
-        isLoading.value = false;
-        assets.value = [];
-      });
-  }
-};
-const selectedAddress = computed(() => selectedAccount.value?.address || '');
 const selectedNetworkName = computed(() => network.value.name);
 const showAddCustomTokens = ref(false);
 
@@ -151,9 +130,7 @@ const isMassaNetwork = computed(
   () => network.value.provider === ProviderName.massa,
 );
 
-watch([selectedAddress, selectedNetworkName, currentSubNetwork], updateAssets);
 onMounted(async () => {
-  updateAssets();
   if (await bannersState.showNetworkAssetsSolanaStakingBanner()) {
     isSolanaStakingBanner.value = true;
   }

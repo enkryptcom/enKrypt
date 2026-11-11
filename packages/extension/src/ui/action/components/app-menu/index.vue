@@ -122,9 +122,7 @@
             <app-menu-item
               v-bind="$attrs"
               :network="element"
-              :is-active="
-                !!currentNetwork && element.name === currentNetwork.name
-              "
+              :is-active="element.name === currentNetwork.name"
               :is-pinned="getIsPinned(element.name)"
               :scroll-position="y"
               :can-drag="getCanDrag(element)"
@@ -164,13 +162,6 @@
         key="solana-banner"
         @close="closeSolanaStakingBanner"
       />
-
-      <!-- Leaving this here for future use -->
-      <!-- <survey-popup
-        v-else-if="isSurveyPopup && isExpanded"
-        key="survey-popup"
-        @close="closeSurveyPopup"
-      /> -->
     </Transition>
   </div>
 </template>
@@ -296,12 +287,10 @@ const openUpdatesDialog = (_location: UpdatesOpenLocation) => {
     closeMoreMenu();
   }
   emit('show:updates-dialog');
-  if (currentNetwork.value) {
-    trackUpdatesEvents(UpdatesEventType.UpdatesOpen, {
-      network: currentNetwork.value.name,
-      location: _location,
-    });
-  }
+  trackUpdatesEvents(UpdatesEventType.UpdatesOpen, {
+    network: currentNetwork.value.name,
+    location: _location,
+  });
 };
 
 /** ------------------
@@ -367,7 +356,6 @@ const sortNetworks = (networks: BaseNetwork[], sortBy: NetworkSort) => {
  ------------------*/
 const searchNetworks = computed({
   get() {
-    if (!currentNetwork.value) return [];
     if ((!searchInput.value && searchInput.value === '') || !isExpanded.value) {
       //All Networks
       if (activeCategory.value === NetworksCategory.All) {
