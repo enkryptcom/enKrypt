@@ -53,6 +53,7 @@
               :key="route.fullPath"
               :is-coin-syncing="isCoinFetchPending"
               :is-tag-syncing="isTagFetchPending"
+              :spark-history-version="sparkHistoryVersion"
               :network="currentNetwork"
               :subnetwork="currentSubNetwork"
               :account-info="accountHeaderData"
@@ -188,6 +189,15 @@ const isAddressRestricted = ref<{ isRestricted: boolean; address: string }>({
 
 const { sparkUnusedTxDetails, isCoinFetchPending, isTagFetchPending } =
   useSynchronizeSparkState(currentNetwork, async () => {
+    // Money sent to a public address only counts after it confirms; refresh the
+    // public balance with each sync so it shows without reopening the popup.
+    if (currentNetwork.value.name === NetworkNames.Firo) {
+      updateActiveBalances(
+        currentNetwork.value,
+        accountHeaderData.value.activeAccounts,
+      );
+    }
+
     if (accountHeaderData.value.sparkAccount) {
       console.log('UPDATING BALANCE');
 
@@ -205,7 +215,11 @@ const { sparkUnusedTxDetails, isCoinFetchPending, isTagFetchPending } =
     }
   });
 
-useUpdateActivityState(currentNetwork, sparkUnusedTxDetails, accountHeaderData);
+const { sparkHistoryVersion } = useUpdateActivityState(
+  currentNetwork,
+  sparkUnusedTxDetails,
+  accountHeaderData,
+);
 
 /** -------------------
  * Rate
@@ -353,6 +367,10 @@ onMounted(async () => {
 
 const getSparkAccountState = async (network: BaseNetwork) => {
   if (network.name === NetworkNames.Firo) {
+    // A mint or spend just moved public funds; without this the public
+    // balance stays stale until the popup is reopened.
+    updateActiveBalances(network, accountHeaderData.value.activeAccounts);
+
     // TODO: check maybe redundand
     const selectedAccount = accountHeaderData.value.selectedAccount;
     const currentSelectedAddress = selectedAccount?.address;
@@ -511,6 +529,13 @@ const setNetwork = async (network: BaseNetwork) => {
   });
   domainState.setSelectedNetwork(network.name);
 
+  await updateActiveBalances(network, activeAccounts);
+};
+
+const updateActiveBalances = async (
+  network: BaseNetwork,
+  activeAccounts: EnkryptAccount[],
+) => {
   if (network.api) {
     try {
       const thisNetworkName = currentNetwork.value.name;

@@ -1,21 +1,15 @@
 import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB';
-import {
-  FullTransactionModel,
-  MyCoinModel,
-} from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
-import { base64ToReversedHex } from '@/libs/spark-handler/utils';
-import { firoElectrum } from '@/providers/bitcoin/libs/electrum-client/electrum-client';
+import { MyCoinModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
 import { getActivePendingSpentTags } from '@/libs/utils/updateAndSync/markCoinsAsPendingSpent';
 
-export type SparkUnusedTxDetails = FullTransactionModel & { value: number };
+// txHash is the spending tx as the server sends it (base64, reversed bytes).
+export type SyncedSparkCoin = MyCoinModel & { txHash?: string | null };
 
 const db = new IndexedDBHelper();
 
 export const markCoinsAsUsed = async (
   onBalanceCalculated?: () => void,
-): Promise<SparkUnusedTxDetails[]> => {
-  let unusedTxDetails: SparkUnusedTxDetails[] = [];
-
+): Promise<SyncedSparkCoin[]> => {
   const usedCoinsTags = await db.readData<{
     tags: string[];
     txHashes: [string, string][];
@@ -39,7 +33,7 @@ export const markCoinsAsUsed = async (
 
   const txHashesMap = new Map(usedCoinsTags.txHashes || []);
   console.log('>>>>txHashesMap', txHashesMap);
-  const updatedCoins = myCoins.map(coin => {
+  const updatedCoins: SyncedSparkCoin[] = myCoins.map(coin => {
     if (!coinsTagsSet.has(coin.tag)) return coin;
     return {
       ...coin,
@@ -48,56 +42,8 @@ export const markCoinsAsUsed = async (
     };
   });
 
-  const unusedCoins = updatedCoins.filter(el => !el.isUsed);
-
-  const mintIds = unusedCoins.map(unusedCoin => unusedCoin.coin[1]);
-
-  const txIdsDecoded = mintIds
-    .map(base64 => {
-      try {
-        return base64ToReversedHex(base64);
-      } catch {
-        return '';
-      }
-    })
-    .filter(Boolean);
-
-  console.log('===>>>Unused Spark Coins TX IDs:', txIdsDecoded);
-
-  if (!!txIdsDecoded?.length) {
-    const results = await firoElectrum.multiGetTransactionByTxid(txIdsDecoded);
-
-    unusedTxDetails = txIdsDecoded
-      .map((txId, index) => {
-        const tx = results[txId];
-
-        if (!tx) {
-          console.warn(`Transaction details not found for txId: ${txId}`);
-          return null;
-        }
-
-        const coin = unusedCoins[index];
-        const coinValue = coin?.value;
-
-        if (coinValue === undefined) {
-          console.warn(
-            `Coin value not found for txId: ${txId}, index: ${index}`,
-          );
-
-          return {
-            ...tx,
-            value: '0',
-          };
-        }
-
-        return {
-          ...tx,
-          value: Number(coinValue),
-        };
-      })
-      .filter((tx): tx is SparkUnusedTxDetails => tx !== null);
-  }
-
+  // Spark history is rebuilt from these coins afterwards (rebuildSparkHistory),
+  // so the balance no longer waits on fetching their txs.
   await db.saveData(DB_DATA_KEYS.myCoins, updatedCoins);
 
   if (onBalanceCalculated) {
@@ -108,5 +54,5 @@ export const markCoinsAsUsed = async (
     }
   }
 
-  return unusedTxDetails;
+  return updatedCoins;
 };

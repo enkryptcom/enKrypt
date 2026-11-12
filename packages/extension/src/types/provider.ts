@@ -45,6 +45,7 @@ export enum InternalStorageNamespace {
   kadenaAccountsState = 'KadenaAccountsState',
   solanaAccountsState = 'SolanaAccountsState',
   activityState = 'ActivityState',
+  sparkActivityState = 'SparkActivityState',
   marketData = 'MarketData',
   cacheFetch = 'CacheFetch',
   nftState = 'NFTState',

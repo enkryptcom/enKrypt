@@ -24,14 +24,10 @@ import { createTempFromSparkTx } from '@/libs/spark-handler/createTempFromSparkT
 import { getActivePendingSpentTags } from '@/libs/utils/updateAndSync/markCoinsAsPendingSpent';
 import BigNumber from 'bignumber.js';
 import { BaseFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
-
-type SpendCoin = {
-  coin: string[];
-  setId: number;
-  metadata: number;
-  value: number;
-  tag: string;
-};
+import {
+  selectSpendCoins,
+  SpendCoin,
+} from '@/libs/spark-handler/select-spend-coins';
 
 export type SendFromSparkAddressResult = {
   hex: string;
@@ -86,35 +82,6 @@ const getRequestedAmount = (amount: string) =>
     .multipliedBy(10 ** 8)
     .integerValue(BigNumber.ROUND_CEIL)
     .toNumber();
-
-const selectSpendCoins = (
-  spendCoinList: SpendCoin[],
-  requestedAmount: number,
-  {
-    needsFeeSlack,
-    extraCoins,
-    useAllCoins,
-  }: { needsFeeSlack: boolean; extraCoins: number; useAllCoins: boolean },
-): SpendCoin[] => {
-  const sortedCoins = [...spendCoinList].sort(
-    (leftCoin, rightCoin) => rightCoin.value - leftCoin.value,
-  );
-  if (useAllCoins) return sortedCoins;
-
-  const selectedCoins: SpendCoin[] = [];
-  let selectedAmount = 0;
-  for (const spendCoin of sortedCoins) {
-    const isCovered = needsFeeSlack
-      ? selectedAmount > requestedAmount
-      : selectedAmount >= requestedAmount;
-    if (isCovered) break;
-    selectedCoins.push(spendCoin);
-    selectedAmount += spendCoin.value;
-  }
-  return selectedCoins.concat(
-    sortedCoins.slice(selectedCoins.length, selectedCoins.length + extraCoins),
-  );
-};
 
 const buildFinalSparkSpendTransaction = ({
   networkInfo,
@@ -422,6 +389,7 @@ async function createSparkSpend({
     needsFeeSlack: !feeFromAmount,
     extraCoins,
     useAllCoins: useAllCoins || useFeeEstimate,
+    sweepDust: !feeFromAmount && !useAllCoins && !useFeeEstimate,
   });
 
   const selectedSpendAmount = selectedSpendCoins.reduce(

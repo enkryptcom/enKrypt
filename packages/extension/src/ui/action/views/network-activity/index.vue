@@ -16,6 +16,7 @@
           v-bind="$attrs"
           :network="props.network as BitcoinNetwork"
           :spark-account="props.accountInfo.sparkAccount"
+          @update:spark-state="updateSparkState"
         />
 
         <network-activity-action v-bind="$attrs" />
@@ -79,10 +80,15 @@ import {
 } from '@/types/activity';
 import NetworkActivityLoading from './components/network-activity-loading.vue';
 import { NetworkNames } from '@enkryptcom/types';
-import { getSparkHistoryOptions } from '@/libs/utils/spark-history';
+import {
+  getSparkHistoryOptions,
+  isSparkHistoryOptions,
+} from '@/libs/utils/spark-history';
 import { ActivityOptions } from '@/libs/activity-state/types';
 import { ProviderName } from '@/types/provider';
 import ActivityState from '@/libs/activity-state';
+import SparkHistoryState from '@/libs/utils/spark-history-state';
+import { useMergeSparkHistory } from '@action/composables/merge-spark-history';
 import Swap, {
   SupportedNetworkName,
   TransactionStatus,
@@ -105,6 +111,10 @@ const props = defineProps({
     type: Object as PropType<AccountsHeaderData>,
     default: () => ({}),
   },
+  sparkHistoryVersion: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const {
@@ -114,6 +124,13 @@ const {
   priceChangePercentage,
   sparkline,
 } = accountInfoComposable(toRef(props, 'network'), toRef(props, 'accountInfo'));
+const emits = defineEmits<{
+  (e: 'update:spark-state-changed', network: BaseNetwork): void;
+}>();
+
+const updateSparkState = (network: BaseNetwork) => {
+  emits('update:spark-state-changed', network);
+};
 
 const forceUpdateVal = ref(0);
 const isNoActivity = ref(false);
@@ -123,6 +140,7 @@ const selectedAddress = computed(
 );
 const apiPromise = props.network.api();
 const activityState = new ActivityState();
+const sparkHistoryState = new SparkHistoryState();
 let swap: Swap;
 apiPromise.then(api => {
   swap = new Swap({
@@ -174,10 +192,14 @@ const activitySources = new Map<string, ActivityOptions>();
 
 const updateActivitySync = (activity: Activity) => {
   isActivityUpdating = true;
-  return activityState
+  const source = activitySources.get(activity.transactionHash);
+  // Spark rows live in their own storage (see SparkHistoryState).
+  const state =
+    source && isSparkHistoryOptions(source) ? sparkHistoryState : activityState;
+  return state
     .updateActivity(
       activity,
-      activitySources.get(activity.transactionHash) ?? {
+      source ?? {
         address: activityAddress.value,
         network: props.network.name,
       },
@@ -331,7 +353,7 @@ const withFiroWalletHistory = async (all: Activity[]): Promise<Activity[]> => {
     })),
   ];
   const lists = await Promise.all([
-    activityState.getAllActivities(sparkOptions),
+    sparkHistoryState.getAllActivities(sparkOptions),
     // One account failing to load should not hide the rest.
     ...otherAddresses.map(address =>
       props.network.getAllActivity(address).catch(() => [] as Activity[]),
@@ -351,10 +373,31 @@ const withFiroWalletHistory = async (all: Activity[]): Promise<Activity[]> => {
   return [...all, ...extra].sort((a, b) => b.timestamp - a.timestamp);
 };
 
+const { isTooOldForSparkStatusCheck, startActivityLoad, finishActivityLoad } =
+  useMergeSparkHistory({
+    networkName: () => props.network.name,
+    hasSelectedAccount: () => !!props.accountInfo.selectedAccount,
+    sparkHistoryVersion: () => props.sparkHistoryVersion,
+    getShownActivities: () => activities.value,
+    replaceActivity: (index, activity) => {
+      activities.value[index] = activity;
+      forceUpdateVal.value++;
+    },
+    addActivities: added => {
+      activities.value = [...activities.value, ...added].sort(
+        (a, b) => b.timestamp - a.timestamp,
+      );
+      isNoActivity.value = false;
+    },
+    activitySources,
+    checkActivity,
+  });
+
 const setActivities = () => {
   activities.value = [];
   isNoActivity.value = false;
-  if (props.accountInfo.selectedAccount)
+  if (props.accountInfo.selectedAccount) {
+    startActivityLoad();
     props.network
       .getAllActivity(activityAddress.value)
       .then(withFiroWalletHistory)
@@ -365,7 +408,8 @@ const setActivities = () => {
           if (
             (act.status === ActivityStatus.pending ||
               act.status === ActivityStatus.dropped) &&
-            act.type === ActivityType.transaction
+            act.type === ActivityType.transaction &&
+            !isTooOldForSparkStatusCheck(act)
           ) {
             checkActivity(act);
           }
@@ -377,8 +421,9 @@ const setActivities = () => {
             checkSwap(act);
           }
         });
-      });
-  else activities.value = [];
+      })
+      .finally(finishActivityLoad);
+  } else activities.value = [];
 };
 
 watch([selectedAddress, selectedNetworkName], setActivities);

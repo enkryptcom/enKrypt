@@ -5,7 +5,7 @@ import { appendCoinSetUpdates } from '@/libs/utils/updateAndSync/handleCoinSetUp
 import { BaseNetwork } from '@/types/base-network';
 import {
   markCoinsAsUsed,
-  SparkUnusedTxDetails,
+  SyncedSparkCoin,
 } from '@/libs/utils/updateAndSync/markCoinsAsUsed';
 import {
   ensureFiroSecrets,
@@ -29,7 +29,7 @@ export const useSynchronizeSparkState = (
   const tagSyncFinished = ref(false);
   const workerFinished = ref(false);
 
-  const sparkUnusedTxDetails = ref<SparkUnusedTxDetails[]>([]);
+  const sparkUnusedTxDetails = ref<SyncedSparkCoin[]>([]);
 
   const cleanupAndMaybeRestart = () => {
     worker?.terminate();
