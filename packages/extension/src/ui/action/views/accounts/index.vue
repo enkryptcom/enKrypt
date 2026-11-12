@@ -15,16 +15,16 @@
           :key="index"
           :name="account.name"
           :address="network.displayAddress(account.address)"
-          :amount="accountInfo.activeBalances[index]"
+          :amount="balanceOf(account)"
           :symbol="network.currencyName"
-          :is-checked="accountInfo.selectedAccount?.address == account.address"
+          :is-checked="selectedAccount?.address == account.address"
           :select="selectAccount"
           :active="true"
           :identicon-element="network.identicon"
           :show-edit="true"
           :deletable="account.walletType !== WalletType.mnemonic"
-          @action:rename="renameAccount(index)"
-          @action:delete="deleteAccount(index)"
+          @action:rename="renameAccount(account)"
+          @action:delete="deleteAccount(account)"
         />
 
         <div v-if="displayInactive.length > 0" class="accounts__info">
@@ -83,28 +83,21 @@
     </div>
   </div>
 
-  <add-account-form v-model="isAddAccount" v-bind="$attrs" :network="network" />
+  <add-account-form v-model="isAddAccount" />
 
   <rename-account-form
     v-if="isRenameAccount"
     v-model="isRenameAccount"
-    v-bind="$attrs"
     :account="accountToRename"
-    :network="network"
   />
 
   <delete-account-form
     v-if="isDeleteAccount"
     v-model="isDeleteAccount"
-    v-bind="$attrs"
     :account="accountToDelete"
   />
 
-  <import-account
-    v-bind="$attrs"
-    v-model="isImportAccount"
-    :network="network"
-  />
+  <import-account v-model="isImportAccount" />
 </template>
 
 <script setup lang="ts">
@@ -118,34 +111,28 @@ import AddHardwareAccount from '@action/icons/actions/add-hardware-account.vue';
 import ImportAccountIcon from '@action/icons/actions/import-account-icon.vue';
 import ImportAccount from '@action/views/import-account/index.vue';
 import BaseInputDebounced from '@action/components/base-input-debounced/index.vue';
-import { AccountsHeaderData } from '../../types/account';
-import { PropType, ref, computed } from 'vue';
+import { ref, computed } from 'vue';
 import openHardware from '@/libs/utils/open-hardware';
 import scrollSettings from '@/libs/utils/scroll-settings';
 import { EnkryptAccount } from '@enkryptcom/types';
 import HWwallets from '@enkryptcom/hw-wallets';
 import { SignerType } from '@enkryptcom/types';
-import { BaseNetwork } from '@/types/base-network';
 import { WalletType } from '@enkryptcom/types';
 import { ProviderName } from '@/types/provider';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
+import { useAccountsStore } from '@action/store/accounts-store';
 
-const emit = defineEmits<{
-  (e: 'addressChanged', account: EnkryptAccount): void;
-}>();
+const { currentNetwork: network } = storeToRefs(useNetworksStore());
+const accountsStore = useAccountsStore();
+const { activeAccounts, inactiveAccounts, activeBalances, selectedAccount } =
+  storeToRefs(accountsStore);
 const isAddAccount = ref(false);
 const isRenameAccount = ref(false);
 const isDeleteAccount = ref(false);
 const isImportAccount = ref(false);
 const hwWallet = new HWwallets();
 const props = defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
-  accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
-    default: () => ({}),
-  },
   showAccounts: Boolean,
   toggle: {
     type: Function,
@@ -159,9 +146,9 @@ const close = () => {
   props.toggle();
 };
 const selectAccount = (address: string) => {
-  for (const acc of props.accountInfo.activeAccounts) {
-    if (props.network.displayAddress(acc.address) === address) {
-      emit('addressChanged', acc);
+  for (const acc of activeAccounts.value) {
+    if (network.value.displayAddress(acc.address) === address) {
+      accountsStore.selectAccount(acc);
       break;
     }
   }
@@ -177,16 +164,23 @@ const addAccountAction = () => {
   }, 100);
 };
 
-const renameAccount = (accountIdx: number) => {
-  accountToRename.value = props.accountInfo.activeAccounts[accountIdx];
+// The list can be filtered and sorted by the search, so a row's index is not
+// the account's index in activeAccounts or activeBalances.
+const balanceOf = (account: EnkryptAccount) =>
+  activeBalances.value[
+    activeAccounts.value.findIndex(acc => acc.address === account.address)
+  ];
+
+const renameAccount = (account: EnkryptAccount) => {
+  accountToRename.value = account;
   props.toggle();
   setTimeout(() => {
     isRenameAccount.value = true;
   }, 100);
 };
 
-const deleteAccount = (accountIdx: number) => {
-  accountToDelete.value = props.accountInfo.activeAccounts[accountIdx];
+const deleteAccount = (account: EnkryptAccount) => {
+  accountToDelete.value = account;
   props.toggle();
 
   setTimeout(() => {
@@ -262,15 +256,15 @@ function filterAndSortAccounts(accounts: EnkryptAccount[]) {
 
 const displayActive = computed(() => {
   if (!searchInput.value || searchInput.value === '') {
-    return props.accountInfo.activeAccounts;
+    return activeAccounts.value;
   }
-  return filterAndSortAccounts(props.accountInfo.activeAccounts);
+  return filterAndSortAccounts(activeAccounts.value);
 });
 const displayInactive = computed(() => {
   if (!searchInput.value || searchInput.value === '') {
-    return props.accountInfo.inactiveAccounts;
+    return inactiveAccounts.value;
   }
-  return filterAndSortAccounts(props.accountInfo.inactiveAccounts);
+  return filterAndSortAccounts(inactiveAccounts.value);
 });
 </script>
 

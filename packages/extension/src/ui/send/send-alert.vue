@@ -1,7 +1,7 @@
 <template>
   <div class="send-alert" role="alert" aria-live="polite">
     <alert-icon />
-    <p v-if="errorMsg"><slot>{{ errorMsg }}</slot></p>
+    <p v-if="errorMsg">{{ errorMsg }}</p>
     <slot v-else />
   </div>
 </template>

@@ -49,14 +49,18 @@
 
 <script setup lang="ts">
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
-import { onBeforeMount, ref, watchEffect, computed } from 'vue';
+import { onBeforeUnmount, ref, watchEffect, computed } from 'vue';
 import { use } from 'echarts/core';
 import { SVGRenderer } from 'echarts/renderers';
 import { LineChart } from 'echarts/charts';
 import { GridComponent } from 'echarts/components';
 import VChart from 'vue-echarts';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
 
 use([SVGRenderer, LineChart, GridComponent]);
+
+const { currentSubNetwork: subnetwork } = storeToRefs(useNetworksStore());
 
 const props = defineProps({
   cryptoAmount: {
@@ -71,10 +75,6 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  subnetwork: {
-    type: String,
-    default: '',
-  },
   tokenPrice: {
     type: String,
     default: '0',
@@ -86,6 +86,11 @@ const props = defineProps({
   sparkline: {
     type: String,
     default: '',
+  },
+  /** The amount is the last saved one, shown while the balance loads */
+  isCached: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -134,15 +139,18 @@ watchEffect(() => {
   if (timer) {
     clearTimeout(timer);
   }
-  // set the timer on initial change to blank
-  if (props.cryptoAmount == '~') {
+  // The balance is loading while a skeleton or a saved amount is shown. When
+  // that lasts 30 seconds the error is shown, until the balance has loaded.
+  if (props.cryptoAmount == '~' || props.isCached) {
     timer = setTimeout(() => {
       assumedError.value = true;
     }, 30000);
+  } else {
+    assumedError.value = false;
   }
 });
 
-onBeforeMount(() => {
+onBeforeUnmount(() => {
   if (timer) {
     clearTimeout(timer);
   }

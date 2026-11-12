@@ -51,12 +51,16 @@
 import { PropType, ref, onMounted, computed } from 'vue';
 import AppDialog from '@action/components/app-dialog/index.vue';
 import BaseButton from '@action/components/base-button/index.vue';
-import { NodeType } from '@/types/provider';
 import { EnkryptAccount } from '@enkryptcom/types';
 import KeyRing from '@/libs/keyring/keyring';
 import BackupState from '@/libs/backup-state';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
+import networkSelectionComposable from '@action/composables/network-selection';
 
 const model = defineModel<boolean>();
+const { currentNetwork: network } = storeToRefs(useNetworksStore());
+const { init } = networkSelectionComposable();
 const closeWindow = () => {
   model.value = false;
 };
@@ -66,14 +70,7 @@ const renameAccountInput = ref(null);
 const isProcessing = ref(false);
 defineExpose({ renameAccountInput });
 
-const emit = defineEmits<{
-  (e: 'update:init'): void;
-}>();
 const props = defineProps({
-  network: {
-    type: Object as PropType<NodeType>,
-    default: () => ({}),
-  },
   account: {
     type: Object as PropType<EnkryptAccount>,
     default: () => ({}),
@@ -109,7 +106,7 @@ const renameAccount = () => {
       console.error('Failed to backup');
     });
     closeWindow();
-    emit('update:init');
+    init();
   });
 };
 </script>

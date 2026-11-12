@@ -4,7 +4,6 @@
       <!-- Ethereum ecosystem  -->
       <import-account-start
         v-if="isStart"
-        :network="network"
         @select:keystore="keystoreFileAction"
         @select:privkey="privateKeyAction"
         @close="close"
@@ -24,7 +23,6 @@
         :is-error="keystorePassError"
         :file-name="keystoreFile?.name || ''"
         :file-json="keystoreJSON"
-        :network="network"
         @navigate:import-account="importingAccountAction"
         @update:wallet="walletUpdate"
         @update:value="updateKeystorePassword"
@@ -34,18 +32,15 @@
 
       <import-account-importing
         v-if="isImportingAccount"
-        :network="network"
         :keypair="keyPair"
         :is-keystore="isKeyStoreImport"
         :is-priv-key="isPrivKeyImport"
-        v-bind="$attrs"
         @close="close"
         @back="enterPasswordAction"
       />
 
       <import-account-private-key
         v-if="isPrivateKey"
-        :network="network"
         @update:wallet="walletUpdate"
         @close="close"
         @back="startAction"
@@ -69,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, PropType } from 'vue';
+import { ref } from 'vue';
 import AppDialog from '@action/components/app-dialog/index.vue';
 import ImportAccountStart from './views/import-account-start.vue';
 import ImportAccountKeystoreFile from './views/import-account-keystore-file.vue';
@@ -78,7 +73,6 @@ import ImportAccountImporting from './views/import-account-importing.vue';
 import ImportAccountPrivateKey from './views/import-account-private-key.vue';
 // import ImportAccountStartDot from "./views/import-account-start-dot.vue";
 // import ImportAccountSelectAccountDot from "./views/import-account-select-account-dot.vue";
-import { BaseNetwork } from '@/types/base-network';
 import { KeyPairAdd, SignerType } from '@enkryptcom/types';
 
 const model = defineModel<boolean>();
@@ -102,12 +96,6 @@ const keyPair = ref<KeyPairAdd>({
   signerType: SignerType.secp256k1,
 });
 
-defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
-});
 const isPrivKeyImport = ref(false);
 const isKeyStoreImport = ref(false);
 

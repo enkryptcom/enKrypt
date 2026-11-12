@@ -37,21 +37,16 @@
 import ImportStartIcon from '@action/icons/import/import-start-icon.vue';
 import ImportAccountHeader from '../components/import-account-header.vue';
 import RightArrow from '@action/icons/common/right-arrow.vue';
-import { PropType } from 'vue';
-import { BaseNetwork } from '@/types/base-network';
 import { ProviderName } from '@/types/provider';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
 
 defineEmits<{
   (e: 'select:keystore'): void;
   (e: 'select:privkey'): void;
 }>();
 
-defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
-});
+const { currentNetwork: network } = storeToRefs(useNetworksStore());
 </script>
 
 <style lang="less">

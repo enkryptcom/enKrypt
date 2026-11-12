@@ -70,7 +70,7 @@
 
       <send-fee-select
         v-if="!edWarn"
-        :fee="fee ?? { nativeSymbol: props.network.currencyName }"
+        :fee="fee ?? { nativeSymbol: network.currencyName }"
       />
 
       <send-alert
@@ -101,7 +101,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { debounce } from 'lodash';
 import CloseIcon from '@action/icons/common/close-icon.vue';
@@ -116,7 +116,7 @@ import SendAlert from './components/send-alert.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import SubstrateApi from '@/providers/polkadot/libs/api';
 import { ApiPromise } from '@polkadot/api';
-import { AccountsHeaderData } from '@action/types/account';
+import sendContextComposable from '@action/composables/send-context';
 import { GasFeeInfo } from '@/providers/ethereum/ui/types';
 import { SubstrateNetwork } from '../../types/substrate-network';
 import { toBN } from 'web3-utils';
@@ -142,16 +142,7 @@ import { SendEventType } from '@/libs/metrics/types';
 import { BNType } from '@/providers/common/types';
 import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
 
-const props = defineProps({
-  network: {
-    type: Object as PropType<SubstrateNetwork>,
-    default: () => ({}),
-  },
-  accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
-    default: () => ({}),
-  },
-});
+const { network, accountInfo } = sendContextComposable<SubstrateNetwork>();
 
 const route = useRoute();
 const router = useRouter();
@@ -161,7 +152,7 @@ const addressInputTo = ref();
 const addressInputFrom = ref();
 const isOpenSelectContactFrom = ref(false);
 const isOpenSelectContactTo = ref(false);
-const addressFrom = ref(props.accountInfo.selectedAccount!.address);
+const addressFrom = ref(accountInfo.selectedAccount!.address);
 const addressTo = ref('');
 const isOpenSelectToken = ref(false);
 const amount = ref<string>();
@@ -169,7 +160,7 @@ const fee = ref<GasFeeInfo | null>(null);
 const accountAssets = ref<SubstrateToken[]>([]);
 const selectedAsset = ref<SubstrateToken | Partial<SubstrateToken>>(
   new SubstrateNativeToken({
-    icon: props.network.icon,
+    icon: network.icon,
     balance: '0',
     price: '0',
     name: 'loading',
@@ -234,10 +225,10 @@ const isAddress = computed(() => {
 onMounted(() => {
   isLoadingAssets.value = true;
   existentialBalance.value = `${fromBase(
-    props.network.existentialDeposit!.toString(),
-    props.network.decimals,
-  )} ${props.network.currencyName}`;
-  trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
+    network.existentialDeposit!.toString(),
+    network.decimals,
+  )} ${network.currencyName}`;
+  trackSendEvents(SendEventType.SendOpen, { network: network.name });
   fetchTokens();
 });
 
@@ -249,7 +240,7 @@ const validateFields = async () => {
       return;
     }
 
-    const api = (await props.network.api()).api as ApiPromise;
+    const api = (await network.api()).api as ApiPromise;
     await api.isReady;
 
     let rawAmount = toBN(
@@ -272,7 +263,7 @@ const validateFields = async () => {
         } = res;
         return currentFree as BNType;
       });
-    if (addressToBalance.lt(props.network.existentialDeposit!)) {
+    if (addressToBalance.lt(network.existentialDeposit!)) {
       destinationHasEnough.value = false;
     }
     const tx = await selectedAsset.value.send!(
@@ -282,7 +273,7 @@ const validateFields = async () => {
       sendOptions,
     );
     const { partialFee } = (
-      await tx.paymentInfo(props.accountInfo.selectedAccount!.address)
+      await tx.paymentInfo(accountInfo.selectedAccount!.address)
     ).toJSON();
     const rawFee = toBN(partialFee?.toString() ?? '0');
     const rawBalance = toBN(selectedAsset.value.balance!);
@@ -337,8 +328,8 @@ watch(addressFrom, () => {
 });
 
 const fetchTokens = async () => {
-  const networkApi = (await props.network.api()) as SubstrateApi;
-  const networkAssets = await props.network.getAllTokens(addressFrom.value);
+  const networkApi = (await network.api()) as SubstrateApi;
+  const networkAssets = await network.getAllTokens(addressFrom.value);
   const pricePromises = networkAssets.map(asset => asset.getLatestPrice());
   const balancePromises = networkAssets.map(asset => {
     if (!asset.balance) {
@@ -366,7 +357,7 @@ const fetchTokens = async () => {
 
 const close = () => {
   trackSendEvents(SendEventType.SendDecline, {
-    network: props.network.name,
+    network: network.name,
   });
   router.go(-1);
 };
@@ -378,7 +369,7 @@ const inputAddressFrom = (text: string) => {
 const inputAddressTo = (text: string) => {
   const debounceResolve = debounce(() => {
     nameResolver
-      .resolveName(text, [props.network.name as CoinType, 'DOT', 'KSM'])
+      .resolveName(text, [network.name as CoinType, 'DOT', 'KSM'])
       .then(resolved => {
         if (resolved) {
           addressTo.value = resolved;
@@ -466,8 +457,7 @@ const destinationBalanceCheck = computed(() => {
         ),
       );
       return (
-        destinationHasEnough.value ||
-        rawAmount.gte(props.network.existentialDeposit!)
+        destinationHasEnough.value || rawAmount.gte(network.existentialDeposit!)
       );
     }
   }
@@ -478,7 +468,7 @@ const isDisabled = computed(() => {
 
   let addressIsValid = false;
   try {
-    props.network.displayAddress(addressTo.value);
+    network.displayAddress(addressTo.value);
     addressIsValid = true;
   } catch {
     addressIsValid = false;
@@ -500,10 +490,7 @@ const isDisabled = computed(() => {
 const recentlySentAddresses = new RecentlySentAddressesState();
 
 const sendAction = async () => {
-  await recentlySentAddresses.addRecentlySentAddress(
-    props.network,
-    addressTo.value,
-  );
+  await recentlySentAddresses.addRecentlySentAddress(network, addressTo.value);
 
   const sendAmount = toBase(amount.value!, selectedAsset.value.decimals!);
 
@@ -511,7 +498,7 @@ const sendAction = async () => {
     ? { type: 'all' }
     : undefined;
 
-  const api = (await props.network.api()).api as ApiPromise;
+  const api = (await network.api()).api as ApiPromise;
   await api.isReady;
 
   const tx = await selectedAsset.value?.send!(

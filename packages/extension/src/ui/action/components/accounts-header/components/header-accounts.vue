@@ -35,7 +35,6 @@
           :sub-nets="network.subNetworks"
           :selected-id="currentSubNetwork.id"
           :show-chains="showChains"
-          v-bind="$attrs"
           @select:subnetwork="setSubNetwork"
         />
         <switch-arrow />
@@ -85,7 +84,7 @@ import EvmAccountState from '@/providers/ethereum/libs/accounts-state';
 import KadenaAccountState from '@/providers/kadena/libs/accounts-state';
 import SolanaAccountState from '@/providers/solana/libs/accounts-state';
 import SubstrateAccountState from '@/providers/polkadot/libs/accounts-state';
-import { BaseNetwork, SubNetworkOptions } from '@/types/base-network';
+import { SubNetworkOptions } from '@/types/base-network';
 import Notification from '@action/components/notification/index.vue';
 import Tooltip from '@action/components/tooltip/index.vue';
 import IconCopy from '@action/icons/header/copy_icon.vue';
@@ -93,17 +92,25 @@ import IconDisconnect from '@action/icons/header/disconnect_icon.vue';
 import IconExternal from '@action/icons/header/external-icon.vue';
 import IconQr from '@action/icons/header/qr_icon.vue';
 import SwitchArrow from '@action/icons/header/switch_arrow.vue';
-import { PropType, computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import SubnetList from './subnet-list.vue';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
+import networkSelectionComposable from '@action/composables/network-selection';
 
 const isCopied = ref(false);
 const domainState = new DomainState();
 const isConnectedDomain = ref(false);
 const showChains = ref(false);
-const currentSubNetwork = ref<SubNetworkOptions>({
-  id: '',
-  name: '',
-});
+const { currentNetwork: network, currentSubNetwork: currentSubNetworkId } =
+  storeToRefs(useNetworksStore());
+const { selectSubNetwork } = networkSelectionComposable();
+const currentSubNetwork = computed<SubNetworkOptions>(
+  () =>
+    network.value.subNetworks?.find(
+      net => net.id === currentSubNetworkId.value,
+    ) ?? { id: '', name: '' },
+);
 const currentDomain = ref('');
 const kadenaAccountState = new KadenaAccountState();
 const allAccountStates = [
@@ -128,14 +135,9 @@ const props = defineProps({
     type: Function,
     default: () => ({}),
   },
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
 });
-const emit = defineEmits<{
+defineEmits<{
   (e: 'toggle:deposit'): void;
-  (e: 'select:subnetwork', id: string): void;
 }>();
 
 const copy = (address: string) => {
@@ -146,7 +148,7 @@ const showAccounts = () => {
   props.toggleAccounts();
 };
 const externalLink = computed(() => {
-  return props.network.blockExplorerAddr.replace('[[address]]', props.address);
+  return network.value.blockExplorerAddr.replace('[[address]]', props.address);
 });
 const toggleNotification = () => {
   isCopied.value = !isCopied.value;
@@ -160,24 +162,9 @@ const checkAndSetConnectedDapp = () => {
     });
   });
 };
-const checkAndSetSubNetwork = () => {
-  if (props.network.subNetworks) {
-    domainState.getSelectedSubNetWork().then(id => {
-      if (id) {
-        const subnet = props.network.subNetworks!.find(net => net.id === id);
-        if (subnet) currentSubNetwork.value = subnet;
-      } else {
-        currentSubNetwork.value = props.network.subNetworks![0];
-      }
-      setSubNetwork(currentSubNetwork.value.id);
-    });
-  }
-};
 
-const setSubNetwork = async (id: string) => {
-  const subnet = props.network.subNetworks!.find(net => net.id === id);
-  if (subnet) currentSubNetwork.value = subnet;
-  emit('select:subnetwork', id);
+const setSubNetwork = (id: string) => {
+  selectSubNetwork(id);
   setTimeout(() => {
     showChains.value = false;
   }, 100);
@@ -186,9 +173,7 @@ const setSubNetwork = async (id: string) => {
 onMounted(async () => {
   currentDomain.value = await domainState.getCurrentDomain();
   checkAndSetConnectedDapp();
-  checkAndSetSubNetwork();
 });
-watch(() => props.network, checkAndSetSubNetwork);
 const disconnectFromDapp = async () => {
   await Promise.all(
     allAccountStates.map(as => as.deleteState(currentDomain.value)),

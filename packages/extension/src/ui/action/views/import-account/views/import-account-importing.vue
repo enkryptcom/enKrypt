@@ -58,7 +58,6 @@ import ImportAccountHeader from '../components/import-account-header.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import HardwareImportingAccount from '@/ui/onboard/hardware-wallet/components/hardware-importing-account.vue';
 import ImportAccountProcess from '../components/import-account-process.vue';
-import { BaseNetwork } from '@/types/base-network';
 import API from '@/providers/ethereum/libs/api';
 import { EnkryptAccount, KeyPairAdd } from '@enkryptcom/types';
 import { formatFloatingPointValue } from '@/libs/utils/number-formatter';
@@ -68,6 +67,9 @@ import KeyRingBase from '@/libs/keyring/keyring';
 import BaseInput from '@action/components/base-input/index.vue';
 import { sendToBackgroundFromAction } from '@/libs/messenger/extension';
 import { InternalMethods } from '@/types/messenger';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
+import networkSelectionComposable from '@action/composables/network-selection';
 
 const isProcessing = ref(false);
 const isDone = ref(false);
@@ -80,15 +82,10 @@ const nameValue = ref('');
 const keyringError = ref(false);
 const keyringPassword = ref('');
 
-const emit = defineEmits<{
-  (e: 'update:init'): void;
-}>();
+const { currentNetwork: network } = storeToRefs(useNetworksStore());
+const { init } = networkSelectionComposable();
 
 const props = defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
   keypair: {
     type: Object as PropType<KeyPairAdd>,
     default: () => ({}),
@@ -105,7 +102,7 @@ const isNameTaken = computed(() => {
 });
 onMounted(() => {
   nameValue.value = props.keypair.name || 'My private account';
-  props.network.api().then(api => {
+  network.value.api().then(api => {
     nodeAPI.value = api as API;
     updateBalance();
   });
@@ -117,7 +114,7 @@ const updateBalance = async () => {
     .then(
       bal =>
         (balance.value = formatFloatingPointValue(
-          fromBase(bal, props.network.decimals),
+          fromBase(bal, network.value.decimals),
         ).value),
     );
 };
@@ -142,7 +139,7 @@ const importAction = async () => {
           keyringPassword.value,
         )
         .then(() => {
-          emit('update:init');
+          init();
           sendToBackgroundFromAction({
             message: JSON.stringify({
               method: InternalMethods.unlock,

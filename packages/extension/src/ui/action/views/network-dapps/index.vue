@@ -21,39 +21,34 @@ import { useRoute } from 'vue-router';
 import NetworkDappsItem from './components/network-dapps-item.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import scrollSettings from '@/libs/utils/scroll-settings';
-import { onMounted, PropType, ref } from 'vue';
-import { BaseNetwork } from '@/types/base-network';
+import { onMounted, ref } from 'vue';
 import DappList from '@/libs/dapp-list';
 import Masonry from '@action/components/masonry/index.vue';
 import { DAppsItem } from '@/types/ui';
 import cacheFetch from '@/libs/cache-fetch';
 import { trackDAppsEvents } from '@/libs/metrics';
 import { DAppsEventType } from '@/libs/metrics/types';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
 
 const route = useRoute();
-
-const props = defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
-});
+const { currentNetwork: network } = storeToRefs(useNetworksStore());
 
 const selected: string = route.params.id as string;
 const list = ref<DAppsItem[]>([]);
 
 onMounted(async () => {
-  if (DappList[props.network.name]) {
+  if (DappList[network.value.name]) {
     try {
       const dappsList = await cacheFetch({
-        url: DappList[props.network.name]!,
+        url: DappList[network.value.name]!,
       });
       list.value = dappsList;
     } catch {
       console.error('Could not retrieve dapps list');
     }
   }
-  trackDAppsEvents(DAppsEventType.DAppsOpen, { network: props.network.name });
+  trackDAppsEvents(DAppsEventType.DAppsOpen, { network: network.value.name });
 });
 </script>
 

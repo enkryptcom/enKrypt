@@ -13,7 +13,7 @@
             :price-change-percentage="priceChangePercentage"
             :sparkline="sparkline"
             :symbol="network.currencyName"
-            :subnetwork="props.subnetwork"
+            :is-cached="isCached"
           />
 
           <!-- Banners -->
@@ -28,9 +28,10 @@
             v-if="isFetchError"
             :update-assets="updateAssets"
           />
+          <!-- A row builds its chart once, so each list gets new rows -->
           <network-assets-item
             v-for="(item, index) in assets"
-            :key="index"
+            :key="`${listVersion}-${index}`"
             :token="item"
             :network="network"
             @update:tokens="updateAssets"
@@ -54,20 +55,19 @@
       <network-assets-loading v-if="isLoading" />
 
       <deposit
-        v-if="!!props.accountInfo.selectedAccount"
-        :account="props.accountInfo.selectedAccount"
+        v-if="!!selectedAccount"
+        :account="selectedAccount"
         :show-deposit="showDeposit"
-        :network="network"
         @toggle:deposit="toggleDeposit"
       />
     </div>
     <!-- prettier-ignore -->
-    <custom-evm-token v-if="showAddCustomTokens && isEvmNetwork" :address="props.accountInfo.selectedAccount?.address!"
-      :network="(props.network as EvmNetwork)" @update:token-added="addCustomAsset"
+    <custom-evm-token v-if="showAddCustomTokens && isEvmNetwork" :address="selectedAccount?.address!"
+      :network="(network as EvmNetwork)" @update:token-added="addCustomAsset"
       @update:close="toggleShowAddCustomTokens"></custom-evm-token>
     <!-- prettier-ignore -->
-    <custom-massa-token v-if="showAddCustomTokens && isMassaNetwork" :address="props.accountInfo.selectedAccount?.address!"
-      :network="props.network" @update:token-added="addCustomAsset"
+    <custom-massa-token v-if="showAddCustomTokens && isMassaNetwork" :address="selectedAccount?.address!"
+      :network="network" @update:token-added="addCustomAsset"
       @update:close="toggleShowAddCustomTokens"></custom-massa-token>
   </div>
 </template>
@@ -81,11 +81,10 @@ import NetworkAssetsHeader from './components/network-assets-header.vue';
 import NetworkAssetsLoading from './components/network-assets-loading.vue';
 import NetworkAssetsError from './components/network-assets-error.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
-import { computed, onMounted, type PropType, ref, toRef, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import type { AssetsType } from '@/types/provider';
-import type { AccountsHeaderData } from '../../types/account';
 import accountInfoComposable from '@action/composables/account-info';
-import { BaseNetwork } from '@/types/base-network';
+import networkAssetsComposable from '@action/composables/network-assets';
 import scrollSettings from '@/libs/utils/scroll-settings';
 import Deposit from '@action/views/deposit/index.vue';
 import BaseButton from '@action/components/base-button/index.vue';
@@ -95,27 +94,17 @@ import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 import { ProviderName } from '@/types/provider';
 import NetworkAssetsSolanaStakingBanner from './components/network-assets-solana-staking-banner.vue';
 import BannersState from '@/libs/banners-state';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
+import { useAccountsStore } from '@action/store/accounts-store';
 
 const showDeposit = ref(false);
 
 const route = useRoute();
-const props = defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
-  subnetwork: {
-    type: String,
-    default: '',
-  },
-  accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
-    default: () => ({}),
-  },
-});
-const assets = ref<AssetsType[]>([]);
-const isLoading = ref(false);
-const isFetchError = ref(false);
+const { currentNetwork: network } = storeToRefs(useNetworksStore());
+const { selectedAccount } = storeToRefs(useAccountsStore());
+const { assets, listVersion, isLoading, isFetchError, updateAssets } =
+  networkAssetsComposable();
 
 const {
   cryptoAmount,
@@ -123,36 +112,11 @@ const {
   tokenPrice,
   priceChangePercentage,
   sparkline,
-} = accountInfoComposable(toRef(props, 'network'), toRef(props, 'accountInfo'));
+  isCached,
+} = accountInfoComposable();
 const selected: string = route.params.id as string;
 
-const updateAssets = () => {
-  isFetchError.value = false;
-  isLoading.value = true;
-  assets.value = [];
-  const currentNetwork = selectedNetworkName.value;
-  if (props.accountInfo.selectedAccount?.address) {
-    props.network
-      .getAllTokenInfo(props.accountInfo.selectedAccount?.address || '')
-      .then(_assets => {
-        if (selectedNetworkName.value !== currentNetwork) return;
-        assets.value = _assets;
-        isLoading.value = false;
-      })
-      .catch(e => {
-        console.error(e);
-        if (selectedNetworkName.value !== currentNetwork) return;
-        isFetchError.value = true;
-        isLoading.value = false;
-        assets.value = [];
-      });
-  }
-};
-const selectedAddress = computed(
-  () => props.accountInfo.selectedAccount?.address || '',
-);
-const selectedNetworkName = computed(() => props.network.name);
-const selectedSubnetwork = computed(() => props.subnetwork);
+const selectedNetworkName = computed(() => network.value.name);
 const showAddCustomTokens = ref(false);
 
 const isSolanaStakingBanner = ref(false);
@@ -160,15 +124,13 @@ const bannersState = new BannersState();
 
 // Network type checks
 const isEvmNetwork = computed(
-  () => props.network.provider === ProviderName.ethereum,
+  () => network.value.provider === ProviderName.ethereum,
 );
 const isMassaNetwork = computed(
-  () => props.network.provider === ProviderName.massa,
+  () => network.value.provider === ProviderName.massa,
 );
 
-watch([selectedAddress, selectedNetworkName, selectedSubnetwork], updateAssets);
 onMounted(async () => {
-  updateAssets();
   if (await bannersState.showNetworkAssetsSolanaStakingBanner()) {
     isSolanaStakingBanner.value = true;
   }

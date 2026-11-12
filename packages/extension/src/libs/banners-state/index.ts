@@ -54,15 +54,4 @@ export default class BannersState {
     state.isHideSolanStakingBanner = true;
     await this.storage.set(StorageKeys.bannersInfo, state);
   }
-
-  async showSurveyPopup(): Promise<boolean> {
-    const state = await this.getOrInitializeState();
-    return !state.isHideSurveyPopup;
-  }
-
-  async hideSurveyPopup() {
-    const state = await this.getOrInitializeState();
-    state.isHideSurveyPopup = true;
-    await this.storage.set(StorageKeys.bannersInfo, state);
-  }
 }

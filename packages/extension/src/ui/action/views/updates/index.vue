@@ -65,15 +65,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import UpdatesHeader from './components/updates-header.vue';
 import UpdatesNetwork from './components/updates-network.vue';
 import { useTimeAgo } from '@vueuse/core';
 import { Version } from '@/ui/action/types/updates';
 import { trackUpdatesEvents } from '@/libs/metrics';
 import { UpdatesEventType } from '@/libs/metrics/types';
-import { NetworkNames } from '@enkryptcom/types';
 import { useUpdatesStore } from '@/ui/action/store/updates-store';
+import { useNetworksStore } from '@/ui/action/store/networks-store';
 import { storeToRefs } from 'pinia';
 
 const emit = defineEmits<{
@@ -85,12 +85,9 @@ const props = defineProps({
     required: true,
     type: String,
   },
-  currentNetwork: {
-    type: String as PropType<NetworkNames>,
-    required: true,
-  },
 });
 const updatesStore = useUpdatesStore();
+const networksStore = useNetworksStore();
 const { releases } = storeToRefs(updatesStore);
 
 /** -------------------
@@ -151,7 +148,7 @@ const close = () => {
   emit('close:popup');
   const timeSinceOpen = Date.now() - timeOpen.value;
   trackUpdatesEvents(UpdatesEventType.UpdatesClosed, {
-    network: props.currentNetwork,
+    network: networksStore.currentNetwork.name,
     duration: timeSinceOpen,
   });
 };

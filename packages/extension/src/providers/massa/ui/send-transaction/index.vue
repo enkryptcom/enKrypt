@@ -118,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, PropType, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import SendHeader from '@/providers/common/ui/send-transaction/send-header.vue';
 import SendAddressInput from './components/send-address-input.vue';
@@ -129,8 +129,7 @@ import SendTokenSelect from './components/send-token-select.vue';
 import AssetsSelectList from '@action/views/assets-select-list/index.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import SendAlert from '@/ui/send/send-alert.vue';
-import { AccountsHeaderData } from '@action/types/account';
-import { BaseNetwork } from '@/types/base-network';
+import sendContextComposable from '@action/composables/send-context';
 import BigNumber from 'bignumber.js';
 import { fromBase, toBase, isValidDecimals } from '@enkryptcom/utils';
 import { isNumericPositive } from '@/libs/utils/number-formatter';
@@ -144,16 +143,7 @@ import { routes as RouterNames } from '@/ui/action/router';
 import { SignerType } from '@enkryptcom/types';
 import { MassaNetwork } from '../../networks/massa-base';
 
-const props = defineProps({
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
-  accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
-    default: () => ({}),
-  },
-});
+const { network, accountInfo } = sendContextComposable();
 
 const router = useRouter();
 const addressInputTo = ref();
@@ -171,21 +161,21 @@ const keyRing = new PublicKeyRing();
 
 const account = computed(() => {
   // Create a proper AccountInfo object from AccountsHeaderData
-  if (props.accountInfo?.selectedAccount) {
-    const selectedIndex = props.accountInfo.activeAccounts.findIndex(
-      acc => acc.address === props.accountInfo.selectedAccount?.address,
+  if (accountInfo?.selectedAccount) {
+    const selectedIndex = accountInfo.activeAccounts.findIndex(
+      acc => acc.address === accountInfo.selectedAccount?.address,
     );
     const balance =
       selectedIndex >= 0
-        ? props.accountInfo.activeBalances[selectedIndex] || '0'
+        ? accountInfo.activeBalances[selectedIndex] || '0'
         : '0';
 
     return {
-      address: props.accountInfo.selectedAccount.address,
+      address: accountInfo.selectedAccount.address,
       balance: balance,
-      name: props.accountInfo.selectedAccount.name,
-      publicKey: props.accountInfo.selectedAccount.publicKey || '',
-      type: props.accountInfo.selectedAccount.walletType || '',
+      name: accountInfo.selectedAccount.name,
+      publicKey: accountInfo.selectedAccount.publicKey || '',
+      type: accountInfo.selectedAccount.walletType || '',
     };
   }
   return {
@@ -195,10 +185,6 @@ const account = computed(() => {
     publicKey: '',
     type: '',
   };
-});
-
-const network = computed(() => {
-  return props.network;
 });
 
 const accountBalance = computed(() => {
@@ -298,8 +284,7 @@ const errorMsg = computed(() => {
   if (
     addressTo.value &&
     addressTo.value.trim() !== '' &&
-    network.value &&
-    !(network.value as MassaNetwork).isValidAddress(addressTo.value)
+    !(network as MassaNetwork).isValidAddress(addressTo.value)
   ) {
     return `Invalid to address.`;
   }
@@ -314,10 +299,7 @@ const isInputsValid = computed<boolean>(() => {
   }
 
   // Check if address is valid
-  if (
-    !network.value ||
-    !(network.value as MassaNetwork).isValidAddress(addressTo.value)
-  ) {
+  if (!(network as MassaNetwork).isValidAddress(addressTo.value)) {
     return false;
   }
 
@@ -366,7 +348,7 @@ onMounted(async () => {
 
   // Fetch minimal fee from the network
   try {
-    const api = (await network.value.api()) as MassaAPI;
+    const api = (await network.api()) as MassaAPI;
     const minimalFeeBase = await api.getMinimalFee();
     const minFee = formatMas(BigInt(minimalFeeBase));
     fee.value = minFee;
@@ -383,7 +365,7 @@ onMounted(async () => {
 const updateAccountBalance = async () => {
   if (addressFrom.value) {
     try {
-      const api = (await network.value.api()) as MassaAPI;
+      const api = (await network.api()) as MassaAPI;
       const balance = await api.getBalance(addressFrom.value);
       // Update the account object with the new balance
       if (account.value) {
@@ -397,7 +379,7 @@ const updateMasTokenInfo = async () => {
   if (!addressFrom.value) return;
 
   try {
-    const tokenInfos = await network.value.getAllTokenInfo(addressFrom.value);
+    const tokenInfos = await network.getAllTokenInfo(addressFrom.value);
     masTokenInfo.value =
       tokenInfos.find((t: AssetsType) => t.symbol === 'MAS') || null;
   } catch (error) {
@@ -410,7 +392,7 @@ const loadAccountAssets = async () => {
 
   try {
     isLoadingAssets.value = true;
-    const tokenInfos = await network.value.getAllTokenInfo(addressFrom.value);
+    const tokenInfos = await network.getAllTokenInfo(addressFrom.value);
 
     // Add price field to AssetsType objects for compatibility with AssetsSelectList
     const tokensWithPrice = tokenInfos.map((token: AssetsType) => ({
@@ -554,7 +536,7 @@ const sendAction = async () => {
       txFee: {
         nativeValue: fee.value,
         fiatValue: feeFiatValue.value,
-        nativeSymbol: network.value.currencyName,
+        nativeSymbol: network.currencyName,
         fiatSymbol: 'USD',
       } as TxFeeInfo,
       toAddress: addressTo.value,
@@ -564,7 +546,7 @@ const sendAction = async () => {
     const routedRoute = router.resolve({
       name: RouterNames.verify.name, // 'verify-transaction'
       query: {
-        id: network.value.name,
+        id: network.name,
         txData: Buffer.from(JSON.stringify(txVerifyInfo), 'utf8').toString(
           'base64',
         ),

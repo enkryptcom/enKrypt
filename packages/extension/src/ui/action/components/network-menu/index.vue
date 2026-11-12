@@ -1,7 +1,6 @@
 <template>
   <div class="network-menu">
     <router-link
-      v-if="network"
       :to="{ name: 'assets', params: { id: !!selected ? selected : null } }"
       exact-active-class="router-link-active"
     >
@@ -41,24 +40,21 @@ import Activity from '@action/icons/tabs/activity.vue';
 import Assets from '@action/icons/tabs/assets.vue';
 import NFTs from '@action/icons/tabs/nfts.vue';
 import DApps from '@action/icons/tabs/dapps.vue';
-import { PropType } from 'vue';
 import DappList from '@/libs/dapp-list';
-import { BaseNetwork } from '@/types/base-network';
 import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
 import { useRoute } from 'vue-router';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
 
 defineProps({
   selected: {
     type: String,
     default: '',
   },
-  network: {
-    type: Object as PropType<BaseNetwork>,
-    default: () => ({}),
-  },
 });
 
 const route = useRoute();
+const { currentNetwork: network } = storeToRefs(useNetworksStore());
 </script>
 
 <style lang="less">

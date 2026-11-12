@@ -51,17 +51,21 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import BaseButton from '@action/components/base-button/index.vue';
-import { NodeType } from '@/types/provider';
 import { sendToBackgroundFromAction } from '@/libs/messenger/extension';
 import { InternalMethods } from '@/types/messenger';
 import { EnkryptAccount, KeyRecordAdd, WalletType } from '@enkryptcom/types';
 import Keyring from '@/libs/keyring/public-keyring';
 import BackupState from '@/libs/backup-state';
 import AppDialog from '@action/components/app-dialog/index.vue';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
+import networkSelectionComposable from '@action/composables/network-selection';
 
 const model = defineModel<boolean>();
+const { currentNetwork: network } = storeToRefs(useNetworksStore());
+const { init } = networkSelectionComposable();
 
 const isFocus = ref(false);
 const accountName = ref('');
@@ -70,25 +74,16 @@ const isDisabled = ref(true);
 const addAccountInput = ref(null);
 
 defineExpose({ addAccountInput });
-const emit = defineEmits<{
-  (e: 'update:init'): void;
-}>();
 
 const closeWindow = () => {
   model.value = false;
 };
-const props = defineProps({
-  network: {
-    type: Object as PropType<NodeType>,
-    default: () => ({}),
-  },
-});
 const kr = new Keyring();
 const setNewAccountInfo = async () => {
   const keyReq: KeyRecordAdd = {
     name: '',
-    basePath: props.network.basePath,
-    signerType: props.network.signer[0],
+    basePath: network.value.basePath,
+    signerType: network.value.signer[0],
     walletType: WalletType.mnemonic,
   };
   await sendToBackgroundFromAction({
@@ -128,8 +123,8 @@ const changeFocus = () => {
 const addAccount = async () => {
   const keyReq: KeyRecordAdd = {
     name: accountName.value.trim(),
-    basePath: props.network.basePath,
-    signerType: props.network.signer[0],
+    basePath: network.value.basePath,
+    signerType: network.value.signer[0],
     walletType: WalletType.mnemonic,
   };
   await sendToBackgroundFromAction({
@@ -142,7 +137,7 @@ const addAccount = async () => {
     backupState.backup(false).catch(() => {
       console.error('Failed to backup');
     });
-    emit('update:init');
+    init();
     closeWindow();
   });
 };

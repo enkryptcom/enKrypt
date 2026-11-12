@@ -123,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, PropType, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { debounce } from 'lodash';
 import SendHeader from '@/providers/common/ui/send-transaction/send-header.vue';
@@ -139,7 +139,7 @@ import SendInputAmount from '@/providers/common/ui/send-transaction/send-input-a
 import SendFeeSelect from './components/send-fee-select.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import { NFTItemWithCollectionName, NFTItem, NFTType } from '@/types/nft';
-import { AccountsHeaderData } from '@action/types/account';
+import sendContextComposable from '@action/composables/send-context';
 import { numberToHex, toBN } from 'web3-utils';
 import { GasPriceTypes, GasFeeType } from '@/providers/common/types';
 import { SolanaNetwork, getAddress } from '../../types/sol-network';
@@ -186,25 +186,16 @@ import SolanaAPI from '@/providers/solana/libs/api';
 import RecentlySentAddressesState from '@/libs/recently-sent-addresses';
 import { parseCurrency } from '@/ui/action/utils/filters';
 
-const props = defineProps({
-  network: {
-    type: Object as PropType<SolanaNetwork>,
-    default: () => ({}),
-  },
-  accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
-    default: () => ({}),
-  },
-});
+const { network, accountInfo } = sendContextComposable<SolanaNetwork>();
 
 const loadingAsset = new SOLToken({
-  icon: props.network.icon,
+  icon: network.icon,
   symbol: 'Loading',
   balance: '0',
   price: '0',
   name: 'loading',
   contract: '0x0',
-  decimals: props.network.decimals,
+  decimals: network.decimals,
 });
 
 const route = useRoute();
@@ -233,7 +224,7 @@ const hasPositiveSendAmount = computed(() => {
 
 const hasLessThanFees = computed(() => {
   return BigNumber(gasCostValues.value[selectedFee.value].nativeValue).gt(
-    fromBase(nativeBalance.value, props.network.decimals),
+    fromBase(nativeBalance.value, network.decimals),
   );
 });
 
@@ -257,9 +248,7 @@ const sendAmount = computed(() => {
 const isMaxSelected = ref<boolean>(false);
 const selectedFee = ref<GasPriceTypes>(GasPriceTypes.ECONOMY);
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
-const addressFrom = ref<string>(
-  props.accountInfo.selectedAccount?.address ?? '',
-);
+const addressFrom = ref<string>(accountInfo.selectedAccount?.address ?? '');
 const addressTo = ref<string>('');
 const isLoadingAssets = ref(true);
 
@@ -274,21 +263,21 @@ const selectedNft = ref<NFTItemWithCollectionName>({
 });
 
 const nativeBalance = computed(() => {
-  const accountIndex = props.accountInfo.activeAccounts.findIndex(
+  const accountIndex = accountInfo.activeAccounts.findIndex(
     acc => acc.address === addressFrom.value,
   );
   if (accountIndex !== -1) {
-    const balance = props.accountInfo.activeBalances[accountIndex];
+    const balance = accountInfo.activeBalances[accountIndex];
     if (balance !== '~') {
-      return toBase(balance, props.network.decimals);
+      return toBase(balance, network.decimals);
     }
   }
   return '0';
 });
 
 onMounted(async () => {
-  trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
-  solConnection.value = (await props.network.api()).api as SolanaAPI;
+  trackSendEvents(SendEventType.SendOpen, { network: network.name });
+  solConnection.value = (await network.api()).api as SolanaAPI;
   fetchAssets().then(setBaseCosts);
 });
 
@@ -331,7 +320,7 @@ const nativeBalanceAfterTransactionInBaseUnits = computed(() => {
       toBN(
         toBase(
           gasCostValues.value[selectedFee.value].nativeValue,
-          props.network.decimals,
+          network.decimals,
         ),
       ),
     );
@@ -346,7 +335,7 @@ const nativeBalanceAfterTransactionInBaseUnits = computed(() => {
       toBN(
         toBase(
           gasCostValues.value[selectedFee.value].nativeValue,
-          props.network.decimals,
+          network.decimals,
         ),
       ),
     );
@@ -362,7 +351,7 @@ const nativeBalanceAfterTransactionInBaseUnits = computed(() => {
 const nativeBalanceAfterTransactionInHumanUnits = computed(() => {
   return fromBase(
     nativeBalanceAfterTransactionInBaseUnits.value.abs().toString(),
-    props.network.decimals,
+    network.decimals,
   );
 });
 
@@ -395,13 +384,13 @@ const errorMsg = computed(() => {
   ) {
     return `Not enough funds. You are
       ~${formatFloatingPointValue(nativeBalanceAfterTransactionInHumanUnits.value).value}
-      ${props.network.currencyName} (${parseCurrency(
+      ${network.currencyName} (${parseCurrency(
         balanceAfterInUsd.value,
       )}) short.`;
   }
 
   if (
-    !props.network.isAddress(getAddress(addressTo.value)) &&
+    !network.isAddress(getAddress(addressTo.value)) &&
     addressTo.value !== ''
   ) {
     return `Invalid to address.`;
@@ -431,14 +420,14 @@ const setTransactionFees = (tx: SolTransaction) => {
     .then(async fee => {
       const totalFee = fee! + storageFee.value;
       const getConvertedVal = () =>
-        fromBase(totalFee.toString(), props.network.decimals);
+        fromBase(totalFee.toString(), network.decimals);
       const nativeVal = accountAssets.value[0].price || '0';
       gasCostValues.value[GasPriceTypes.ECONOMY] = {
         nativeValue: getConvertedVal(),
         fiatValue: new BigNumber(getConvertedVal())
           .times(nativeVal!)
           .toString(),
-        nativeSymbol: props.network.currencyName,
+        nativeSymbol: network.currencyName,
         fiatSymbol: 'USD',
       };
       isEstimateValid.value = true;
@@ -456,7 +445,7 @@ const fetchAssets = () => {
   accountAssets.value = [];
   selectedAsset.value = loadingAsset;
   isLoadingAssets.value = true;
-  return props.network.getAllTokens(addressFrom.value).then(allAssets => {
+  return network.getAllTokens(addressFrom.value).then(allAssets => {
     accountAssets.value = allAssets as SOLToken[];
     const hasParamData =
       isSendToken.value && tokenParamData && tokenParamData.contract;
@@ -497,7 +486,7 @@ const isValidSend = computed<boolean>(() => {
 });
 
 const isInputsValid = computed<boolean>(() => {
-  if (!props.network.isAddress(getAddress(addressTo.value))) return false;
+  if (!network.isAddress(getAddress(addressTo.value))) return false;
   if (
     isSendToken.value &&
     !isValidDecimals(sendAmount.value, selectedAsset.value.decimals!)
@@ -519,7 +508,7 @@ const updateTransactionFees = async () => {
   const to = TxInfo.value.to
     ? new PublicKey(getAddress(TxInfo.value.to))
     : from;
-  const priorityFee = (await getPriorityFees(props.network)).high;
+  const priorityFee = (await getPriorityFees(network)).high;
   const transaction = new SolTransaction();
   if (priorityFee !== 0) {
     transaction.add(
@@ -674,7 +663,7 @@ watch([isSendToken], () => {
 
 const close = () => {
   trackSendEvents(SendEventType.SendDecline, {
-    network: props.network.name,
+    network: network.name,
   });
   router.go(-1);
 };
@@ -718,8 +707,8 @@ const inputAddressTo = async (text: string) => {
     nameResolver
       .resolveName(
         text,
-        [props.network.name as CoinType, 'ETH'],
-        props.network.provider as string,
+        [network.name as CoinType, 'ETH'],
+        network.provider as string,
       )
       .then(resolved => {
         if (resolved) {
@@ -775,10 +764,7 @@ const inputAmount = (inputAmount: string) => {
 const recentlySentAddresses = new RecentlySentAddressesState();
 
 const sendAction = async () => {
-  await recentlySentAddresses.addRecentlySentAddress(
-    props.network,
-    addressTo.value,
-  );
+  await recentlySentAddresses.addRecentlySentAddress(network, addressTo.value);
 
   const keyring = new PublicKeyRing();
   const fromAccountInfo = await keyring.getAccount(

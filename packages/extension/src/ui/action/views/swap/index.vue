@@ -117,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Browser from 'webextension-polyfill';
 import CloseIcon from '@action/icons/common/close-icon.vue';
@@ -132,9 +132,7 @@ import SwapErrorPopup from './components/swap-error/index.vue';
 import SendAddressInput from './components/send-address-input.vue';
 import SendContactsList from './components/send-contacts-list.vue';
 import { getAccountsByNetworkName } from '@/libs/utils/accounts';
-import { AccountsHeaderData } from '../../types/account';
 import { getNetworkByName } from '@/libs/utils/networks';
-import { BaseNetwork } from '@/types/base-network';
 import BigNumber from 'bignumber.js';
 import { SubstrateNetwork } from '@/providers/polkadot/types/substrate-network';
 import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
@@ -169,6 +167,9 @@ import { trackSwapEvents } from '@/libs/metrics';
 import { SwapEventType } from '@/libs/metrics/types';
 import { Connection } from '@solana/web3.js';
 import { SwapType } from '@enkryptcom/swap/src/types';
+import { storeToRefs } from 'pinia';
+import { useNetworksStore } from '@action/store/networks-store';
+import { useAccountsStore } from '@action/store/accounts-store';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const debug = (..._args: any[]) => {};
@@ -180,13 +181,8 @@ type BN = ReturnType<typeof toBN>;
 const router = useRouter();
 const route = useRoute();
 const nameResolver = new GenericNameResolver();
-const props = defineProps({
-  network: { type: Object as PropType<BaseNetwork>, default: () => ({}) },
-  accountInfo: {
-    type: Object as PropType<AccountsHeaderData>,
-    default: () => ({}),
-  },
-});
+const { currentNetwork: network } = storeToRefs(useNetworksStore());
+const { selectedAccount } = storeToRefs(useAccountsStore());
 
 const selected: string = route.params.id as string;
 
@@ -196,7 +192,7 @@ const fromToken = ref<TokenType | null>({
   symbol: '',
   decimals: 18,
   address: '',
-  logoURI: props.network.icon,
+  logoURI: network.value.icon,
   type: '' as any,
 });
 const fromAmount = ref<string | null>(null);
@@ -240,35 +236,35 @@ const isLooking = ref(false);
 const swapMax = ref(false);
 
 let api: Web3Eth | Connection;
-switch (props.network.name) {
+switch (network.value.name) {
   case NetworkNames.Solana:
-    api = new Connection(props.network.node);
+    api = new Connection(network.value.node);
     break;
   default:
     // Assume EVM
-    api = new Web3Eth(props.network.node);
+    api = new Web3Eth(network.value.node);
     break;
 }
 
 const swap = new EnkryptSwap({
   api,
-  network: props.network.name as unknown as SupportedNetworkName,
+  network: network.value.name as unknown as SupportedNetworkName,
   walletIdentifier: WalletIdentifier.enkrypt,
   evmOptions: { infiniteApproval: true },
 });
 
 onMounted(async () => {
-  trackSwapEvents(SwapEventType.SwapOpen, { network: props.network.name });
+  trackSwapEvents(SwapEventType.SwapOpen, { network: network.value.name });
   if (
-    !isSupportedNetwork(props.network.name as unknown as SupportedNetworkName)
+    !isSupportedNetwork(network.value.name as unknown as SupportedNetworkName)
   ) {
     swapError.value = SwapError.NETWORK_NOT_SUPPORTED;
     toggleSwapError();
     return;
   }
   isLooking.value = true;
-  props.network
-    .getAllTokenInfo(props.accountInfo.selectedAccount?.address as string)
+  network.value
+    .getAllTokenInfo(selectedAccount.value?.address as string)
     .then(async tokens => {
       await swap.initPromise;
       let swapFromTokens = swap.getFromTokens();
@@ -312,7 +308,7 @@ onMounted(async () => {
       let thisNetwork: NetworkInfo;
       supportedNetworks.forEach(net => {
         const netInfo = getNetworkInfoByName(net as SupportedNetworkName);
-        if (props.network.name === net) {
+        if (network.value.name === net) {
           thisNetwork =
             swapToTokens.all[net as unknown as SupportedNetworkName].length ===
             1
@@ -346,7 +342,7 @@ const setToTokens = () => {
       defaultBNVals[val.decimals] = toBN(toBase('1', val.decimals));
     val.balance = defaultBNVals[val.decimals];
     return (
-      (toNetwork.value!.id as string) !== (props.network.name as string) ||
+      (toNetwork.value!.id as string) !== (network.value.name as string) ||
       val.address !== fromToken.value?.address
     );
   });
@@ -374,7 +370,7 @@ const setToTokens = () => {
     const isInTrending = existingtrending.includes(val.address);
     existingtrending.push(val.address);
     return (
-      ((toNetwork.value!.id as string) !== (props.network.name as string) ||
+      ((toNetwork.value!.id as string) !== (network.value.name as string) ||
         val.address !== fromToken.value?.address) &&
       !isInTrending
     );
@@ -385,7 +381,7 @@ const setToTokens = () => {
     accounts => {
       toAccounts.value = accounts;
       const currentAccount = accounts.find(
-        a => a.address === props.accountInfo.selectedAccount!.address,
+        a => a.address === selectedAccount.value!.address,
       );
       if (currentAccount) {
         address.value = currentAccount.address;
@@ -407,8 +403,8 @@ const inputAddress = (text: string) => {
     nameResolver
       .resolveName(
         text,
-        [props.network.name as CoinType, 'ETH'],
-        props.network.provider as string,
+        [network.value.name as CoinType, 'ETH'],
+        network.value.provider as string,
       )
       .then(resolved => {
         if (resolved) {
@@ -614,7 +610,7 @@ const updateQuote = () => {
     throw err;
   }
   trackSwapEvents(SwapEventType.SwapRate, {
-    network: props.network.name,
+    network: network.value.name,
     fromToken: fromToken.value!.name,
     toToken: toToken.value!.name,
   });
@@ -639,8 +635,8 @@ const updateQuote = () => {
     .getQuotes(
       {
         amount: fromRawAmount,
-        fromAddress: props.network.displayAddress(
-          props.accountInfo.selectedAccount!.address,
+        fromAddress: network.value.displayAddress(
+          selectedAccount.value!.address,
         ),
         fromToken: fromToken.value!,
         toToken: toToken.value!,
@@ -858,8 +854,8 @@ const sendAction = async () => {
     nativeBalance: nativeSwapToken.value!.getBalanceRaw() || toBN('0'),
     nativePrice: nativeSwapToken.value!.getFiatValue() || 0,
     existentialDeposit:
-      (props.network as SubstrateNetwork).existentialDeposit || toBN('0'),
-    fromAddress: props.accountInfo.selectedAccount!.address,
+      (network.value as SubstrateNetwork).existentialDeposit || toBN('0'),
+    fromAddress: selectedAccount.value!.address,
     toAddress: address.value,
   };
   const routedRoute = router.resolve({
@@ -871,7 +867,7 @@ const sendAction = async () => {
       ),
     },
   });
-  if (props.accountInfo.selectedAccount!.isHardware) {
+  if (selectedAccount.value!.isHardware) {
     await Browser.windows.create({
       url: Browser.runtime.getURL(
         getUiPath(
