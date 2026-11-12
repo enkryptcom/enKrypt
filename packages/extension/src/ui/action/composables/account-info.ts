@@ -22,6 +22,8 @@ const defaultFiatValues = () => ({
  * selection in the account cache are shown, and isCached is true. When the
  * balance has loaded, the values are computed again, shown and saved. If they
  * cannot be computed, the defaults are shown and the cache is not changed.
+ * Values computed without market data are shown too, but they do not replace
+ * saved market data.
  */
 export default () => {
   const { currentNetwork: network } = storeToRefs(useNetworksStore());
@@ -104,6 +106,8 @@ export default () => {
     const isShown = () => request === lastUpdate && key === currentKey.value;
     const values = defaultFiatValues();
     const coingeckoID = network.value.coingeckoID;
+    /** The coin has market data, but the lookup did not return it */
+    let isMarketMissing = false;
     try {
       if (coingeckoID) {
         const market = await marketData.getMarketData([coingeckoID]);
@@ -118,6 +122,8 @@ export default () => {
           values.priceChangePercentage =
             market[0].price_change_percentage_24h || 0;
           values.sparkline = JSON.stringify(market[0].sparkline_in_24h.price);
+        } else {
+          isMarketMissing = true;
         }
       }
     } catch (e) {
@@ -130,7 +136,16 @@ export default () => {
     // A result for a selection that is no longer current still belongs to its
     // own entry. A result that a later one for the same selection has replaced
     // is dropped.
-    if (isShown() || key !== currentKey.value) {
+    const isForItsEntry = isShown() || key !== currentKey.value;
+    // The market data lookup returns nothing when its request fails, so a
+    // result without market data does not replace an entry that has it. A coin
+    // that never has market data is still saved, because its entry has none.
+    const savedPrice = accountCacheStore.entries[key]?.tokenPrice;
+    const isSavedMarketLost =
+      isMarketMissing &&
+      savedPrice !== undefined &&
+      savedPrice !== defaultFiatVal;
+    if (isForItsEntry && !isSavedMarketLost) {
       accountCacheStore.save(key, { balance: amount, ...values });
     }
     if (isShown()) showFiatValues(values);

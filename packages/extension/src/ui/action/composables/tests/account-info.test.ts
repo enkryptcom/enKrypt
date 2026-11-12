@@ -2,7 +2,10 @@ import { beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { createApp } from 'vue';
 import { createPinia, setActivePinia, type Pinia } from 'pinia';
 import { EnkryptAccount } from '@enkryptcom/types';
-import { CachedAccountInfo } from '@/libs/account-cache-state/types';
+import {
+  CachedAccountInfo,
+  CachedAsset,
+} from '@/libs/account-cache-state/types';
 import { useAccountCacheStore } from '../../store/account-cache-store';
 import { useAccountsStore } from '../../store/accounts-store';
 import accountInfoComposable from '../account-info';
@@ -13,16 +16,21 @@ import accountInfoComposable from '../account-info';
  * imports above.
  */
 const mocks = vi.hoisted(() => {
-  /** Lookups wait for `until`, so a test can hold them back. The fiat value lookup fails with `error`. */
+  /**
+   * Lookups wait for `until`, so a test can hold them back. The fiat value
+   * lookup fails with `error`. With a `price` of null the market data request
+   * has failed, which the lookups report as no market data and a value of '0'.
+   */
   const market = {
     until: Promise.resolve(),
-    price: 2000,
+    price: 2000 as number | null,
     error: null as Error | null,
   };
   return {
     market,
     getMarketData: vi.fn(async () => {
       await market.until;
+      if (market.price === null) return [null];
       return [
         {
           current_price: market.price,
@@ -43,6 +51,7 @@ vi.mock('@/libs/market-data', () => ({
     getMarketData = mocks.getMarketData;
     getTokenValue = async (amount: string) => {
       if (mocks.market.error) throw mocks.market.error;
+      if (mocks.market.price === null) return '0';
       return (Number(amount) * mocks.market.price).toFixed(2);
     };
   },
@@ -141,6 +150,33 @@ const savedValues = {
   sparkline: '[3,4]',
 };
 
+/** A token list, which the assets view can save before the balance block saves anything */
+const savedAssets: CachedAsset[] = [
+  {
+    name: 'Ethereum',
+    symbol: 'ETH',
+    icon: '',
+    balance: '1',
+    balancef: '1',
+    balanceUSD: 1,
+    balanceUSDf: '1',
+    value: '1',
+    valuef: '1',
+    decimals: 18,
+    sparkline: '',
+    priceChangePercentage: 0,
+  },
+];
+
+/** What is computed for a balance of 2 when no market data is found */
+const valuesWithoutMarket = {
+  balance: '2',
+  fiatAmount: '0',
+  tokenPrice: '0.00',
+  priceChangePercentage: 0,
+  sparkline: '',
+};
+
 beforeEach(() => {
   pinia = createPinia();
   setActivePinia(pinia);
@@ -186,6 +222,30 @@ describe('account info composable', () => {
       expect(useAccountCacheStore().currentEntry).toMatchObject({
         balance: '2',
         ...values,
+      });
+    });
+
+    it('saves the balance without market values when no market data is found', async () => {
+      mocks.market.price = null;
+      const info = mount();
+      useAccountsStore().accountInfo.activeBalances = ['2', '~'];
+      await settle();
+      expect(info.cryptoAmount.value).toBe('2');
+      expect(info.tokenPrice.value).toBe('0.00');
+      expect(useAccountCacheStore().currentEntry).toMatchObject(
+        valuesWithoutMarket,
+      );
+    });
+
+    it('saves the balance without market values when only a token list is saved', async () => {
+      await cache(accounts.A, { assets: savedAssets });
+      mocks.market.price = null;
+      mount();
+      useAccountsStore().accountInfo.activeBalances = ['2', '~'];
+      await settle();
+      expect(useAccountCacheStore().currentEntry).toMatchObject({
+        ...valuesWithoutMarket,
+        assets: savedAssets,
       });
     });
 
@@ -292,6 +352,33 @@ describe('account info composable', () => {
       expect(info.tokenPrice.value).toBe('2000');
     });
 
+    it('shows the values computed without market data and keeps the saved ones', async () => {
+      await cache(accounts.A, savedValues);
+      mocks.market.price = null;
+      const info = mount();
+      useAccountsStore().accountInfo.activeBalances = ['2', '~'];
+      await settle();
+      expect(info.cryptoAmount.value).toBe('2');
+      expect(info.isCached.value).toBe(false);
+      expect(info.fiatAmount.value).toBe('0');
+      expect(info.tokenPrice.value).toBe('0.00');
+      expect(info.priceChangePercentage.value).toBe(0);
+      expect(info.sparkline.value).toBe('');
+      expect(useAccountCacheStore().currentEntry).toMatchObject(savedValues);
+    });
+
+    it('saves the new balance when no market data is found and none is saved', async () => {
+      await cache(accounts.A, { ...valuesWithoutMarket, balance: '1.5' });
+      mocks.market.price = null;
+      const info = mount();
+      useAccountsStore().accountInfo.activeBalances = ['2', '~'];
+      await settle();
+      expect(info.cryptoAmount.value).toBe('2');
+      expect(useAccountCacheStore().currentEntry).toMatchObject(
+        valuesWithoutMarket,
+      );
+    });
+
     it('shows the defaults and keeps the saved values when the fiat value cannot be computed', async () => {
       const errors = captureErrors();
       const error = new Error('offline');
@@ -345,6 +432,22 @@ describe('account info composable', () => {
       expect(info.cryptoAmount.value).toBe('~');
       expect(info.fiatAmount.value).toBe('0.00');
       expect(info.tokenPrice.value).toBe('0.00');
+    });
+
+    it('keeps the saved values of an account that is no longer selected when no market data is found for it', async () => {
+      await cache(accounts.A, savedValues);
+      mocks.market.price = null;
+      useAccountsStore().accountInfo.activeBalances = ['2', '~'];
+      const release = holdMarketData();
+      mount();
+      await settle();
+      useAccountsStore().accountInfo.selectedAccount = accounts.B;
+      await settle();
+      release();
+      await settle();
+      const cacheStore = useAccountCacheStore();
+      expect(cacheStore.entries[keyOf(accounts.A)]).toMatchObject(savedValues);
+      expect(cacheStore.entries[keyOf(accounts.B)]).toBeUndefined();
     });
 
     it('ignores a failure for an account that is no longer selected', async () => {

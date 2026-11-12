@@ -18,7 +18,7 @@ const mocks = vi.hoisted(() => {
     /** A lookup waits for the `until` and fails with the `error` set when it starts */
     until: Promise.resolve(),
     error: null as Error | null,
-    /** The assets each address holds */
+    /** The assets each address holds. A null stands for an asset the lookup could not build. */
     byAddress: {} as Record<string, unknown[]>,
   };
   return {
@@ -168,12 +168,23 @@ describe('network assets composable', () => {
       expect(saved?.[0]).not.toHaveProperty('baseToken');
     });
 
-    it('saves an empty list', async () => {
+    it('shows an empty list and does not save it', async () => {
       mocks.lookups.byAddress['0xaaa'] = [];
       const list = mount();
       await settle();
       expect(list.assets.value).toEqual([]);
-      expect(useAccountCacheStore().currentEntry?.assets).toEqual([]);
+      expect(list.isLoading.value).toBe(false);
+      expect(list.isFetchError.value).toBe(false);
+      expect(useAccountCacheStore().currentEntry).toBeUndefined();
+    });
+
+    it('shows a list with a missing asset and does not save it', async () => {
+      mocks.lookups.byAddress['0xaaa'] = [null, asset('USDC')];
+      const list = mount();
+      await settle();
+      expect(list.assets.value).toEqual([null, asset('USDC')]);
+      expect(list.isLoading.value).toBe(false);
+      expect(useAccountCacheStore().currentEntry).toBeUndefined();
     });
 
     it('shows the list as loading and loads nothing when no account is selected', async () => {
@@ -229,6 +240,16 @@ describe('network assets composable', () => {
       expect(list.isLoading.value).toBe(false);
       expect(list.assets.value).toEqual([]);
       expect(errors).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows a loaded list with a missing asset and keeps the saved one', async () => {
+      mocks.lookups.byAddress['0xaaa'] = [null, asset('USDC')];
+      const list = mount();
+      await settle();
+      expect(list.assets.value).toEqual([null, asset('USDC')]);
+      expect(useAccountCacheStore().currentEntry?.assets).toEqual([
+        asset('ETH', '0.5'),
+      ]);
     });
 
     it('shows an empty loaded list and keeps the saved one', async () => {
@@ -293,6 +314,24 @@ describe('network assets composable', () => {
         'ETH',
         'DAI',
       ]);
+      expect(symbols(cacheStore.entries[keyOf(accounts.B)]?.assets)).toEqual([
+        'USDC',
+      ]);
+    });
+
+    it('does not save an incomplete list for an account that is no longer selected', async () => {
+      const cacheStore = useAccountCacheStore();
+      mocks.lookups.byAddress['0xaaa'] = [null, asset('DAI')];
+      const release = holdLookups();
+      const list = mount();
+      await settle();
+      mocks.lookups.until = Promise.resolve();
+      useAccountsStore().accountInfo.selectedAccount = accounts.B;
+      await settle();
+      release();
+      await settle();
+      expect(symbols(list.assets.value)).toEqual(['USDC']);
+      expect(cacheStore.entries[keyOf(accounts.A)]).toBeUndefined();
       expect(symbols(cacheStore.entries[keyOf(accounts.B)]?.assets)).toEqual([
         'USDC',
       ]);

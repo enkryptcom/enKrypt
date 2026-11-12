@@ -20,7 +20,8 @@ const toCachedAsset = (asset: AssetsType): CachedAsset => {
  * the network or the sub-network changes. While it loads, the list that was last
  * saved for the selection in the account cache is shown. A list that arrives
  * after the selection has changed is saved for the selection it was loaded for
- * and is not shown.
+ * and is not shown. Only a complete list is saved, so a saved list always has
+ * rows to show.
  */
 export default () => {
   const { currentNetwork: network, currentSubNetwork } =
@@ -63,12 +64,12 @@ export default () => {
         // own entry. A list that a later one for the same selection has replaced
         // is dropped.
         const isForItsEntry = isShown() || key !== currentKey.value;
-        // Some networks return an empty list when the lookup fails, so an empty
-        // list does not replace a saved list that has assets
-        const isEmptyOverSaved =
-          _assets.length === 0 &&
-          !!accountCacheStore.entries[key]?.assets?.length;
-        if (isForItsEntry && !isEmptyOverSaved) {
+        // Every network puts its own coin in the list. A list that is empty or
+        // has a missing asset comes from a lookup that failed in part, so it is
+        // not saved.
+        const isComplete =
+          _assets.length > 0 && _assets.every(asset => !!asset);
+        if (isForItsEntry && isComplete) {
           accountCacheStore.save(key, { assets: _assets.map(toCachedAsset) });
         }
         if (!isShown()) return;
