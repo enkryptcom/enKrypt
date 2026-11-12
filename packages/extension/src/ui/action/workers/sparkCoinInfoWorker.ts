@@ -14,6 +14,7 @@ import {
 } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
 import { getSetsFromDb } from '@/libs/utils/updateAndSync/getSetsFromDb';
 import { removeDuplicates } from '@/libs/spark-handler/owned-coins';
+import { keepSpentFlags } from '@/libs/utils/updateAndSync/keepSpentFlags';
 
 const db = new IndexedDBHelper();
 
@@ -78,7 +79,7 @@ async function fetchAllCoinInfos(
       (await db.readData<MyCoinModel[]>(DB_DATA_KEYS.myCoins)) || [];
 
     const dedupedMyCoinsSet = removeDuplicates(
-      new Set([...savedMyCoins, ...myCoins]),
+      new Set([...savedMyCoins, ...keepSpentFlags(savedMyCoins, myCoins)]),
     );
 
     console.log('===>>>Deduped Spark Coins:', dedupedMyCoinsSet);
