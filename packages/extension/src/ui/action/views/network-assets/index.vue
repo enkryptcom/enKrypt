@@ -103,6 +103,7 @@ import CustomMassaToken from './components/custom-massa-token.vue';
 import { ProviderName } from '@/types/provider';
 import NetworkAssetsSolanaStakingBanner from './components/network-assets-solana-staking-banner.vue';
 import BannersState from '@/libs/banners-state';
+import { NetworkNames } from '@enkryptcom/types';
 
 const showDeposit = ref(false);
 
@@ -172,6 +173,25 @@ const updateSparkState = (network: BaseNetwork) => {
   updateAssets();
   emits('update:spark-state-changed', network);
 };
+
+let firoRefreshId = 0;
+
+// Updates the Firo row in place when a balance changes; updateAssets would
+// empty the list and show the loader.
+const refreshFiroAssets = () => {
+  const address = selectedAddress.value;
+  if (!address || isLoading.value || isFetchError.value) return;
+  const refreshId = ++firoRefreshId;
+  props.network
+    .getAllTokenInfo(address)
+    .then(_assets => {
+      if (refreshId !== firoRefreshId || isLoading.value) return;
+      if (selectedNetworkName.value !== NetworkNames.Firo) return;
+      if (selectedAddress.value !== address) return;
+      assets.value = _assets;
+    })
+    .catch(e => console.error(e));
+};
 const selectedAddress = computed(
   () => props.accountInfo.selectedAccount?.address || '',
 );
@@ -191,6 +211,18 @@ const isMassaNetwork = computed(
 );
 
 watch([selectedAddress, selectedNetworkName, selectedSubnetwork], updateAssets);
+watch(
+  [
+    cryptoAmount,
+    () => props.accountInfo.sparkAccount?.sparkBalance?.availableBalance,
+  ],
+  (_balances, [oldPublicBalance]) => {
+    if (selectedNetworkName.value !== NetworkNames.Firo) return;
+    // '~' is the first load after opening; updateAssets covers that one.
+    if (cryptoAmount.value === '~' || oldPublicBalance === '~') return;
+    refreshFiroAssets();
+  },
+);
 onMounted(async () => {
   updateAssets();
   if (await bannersState.showNetworkAssetsSolanaStakingBanner()) {
