@@ -16,7 +16,10 @@ type MergeSparkHistoryOptions = {
   networkName: () => string;
   hasSelectedAccount: () => boolean;
   sparkHistoryVersion: () => number;
-  getShownActivities: () => Pick<Activity, 'transactionHash' | 'status'>[];
+  getShownActivities: () => Pick<
+    Activity,
+    'transactionHash' | 'status' | 'value' | 'type' | 'isIncoming' | 'to'
+  >[];
   replaceActivity: (index: number, activity: Activity) => void;
   addActivities: (activities: Activity[]) => void;
   activitySources: Map<string, ActivityOptions>;
@@ -86,12 +89,15 @@ export const useMergeSparkHistory = ({
       // for the same hash keeps its own status.
       const source = activitySources.get(act.transactionHash);
       const shown = shownActivities[shownIndex];
-      if (
-        source &&
-        isSparkHistoryOptions(source) &&
-        shown &&
-        shown.status !== act.status
-      ) {
+      // A sync can also fix a row's amount or direction, not just its status.
+      const isChanged =
+        !!shown &&
+        (shown.status !== act.status ||
+          shown.value !== act.value ||
+          shown.type !== act.type ||
+          shown.isIncoming !== act.isIncoming ||
+          shown.to !== act.to);
+      if (source && isSparkHistoryOptions(source) && isChanged) {
         replaceActivity(shownIndex, act);
       }
     }

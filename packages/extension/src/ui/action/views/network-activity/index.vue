@@ -16,6 +16,7 @@
           v-bind="$attrs"
           :network="props.network as BitcoinNetwork"
           :spark-account="props.accountInfo.sparkAccount"
+          @update:spark-state="updateSparkState"
         />
 
         <network-activity-action v-bind="$attrs" />
@@ -123,6 +124,13 @@ const {
   priceChangePercentage,
   sparkline,
 } = accountInfoComposable(toRef(props, 'network'), toRef(props, 'accountInfo'));
+const emits = defineEmits<{
+  (e: 'update:spark-state-changed', network: BaseNetwork): void;
+}>();
+
+const updateSparkState = (network: BaseNetwork) => {
+  emits('update:spark-state-changed', network);
+};
 
 const forceUpdateVal = ref(0);
 const isNoActivity = ref(false);

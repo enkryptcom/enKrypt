@@ -81,6 +81,7 @@ import ActivityState from '@/libs/activity-state';
 import { SendEventType } from '@/libs/metrics/types';
 import { trackSendEvents } from '@/libs/metrics';
 import { handleFiroSecretsError } from '@action/utils/firo-secrets-guard';
+import { BaseNetwork } from '@/types/base-network';
 
 const props = defineProps({
   isCoinSyncing: {
@@ -113,6 +114,10 @@ const props = defineProps({
 });
 
 const model = defineModel<boolean>();
+
+const emits = defineEmits<{
+  (e: 'update:spark-state', network: BaseNetwork): void;
+}>();
 
 const isTransferLoading = ref(false);
 const errorMsg = ref();
@@ -229,6 +234,8 @@ const anonymizeFunds = async () => {
           network: props.network.name,
         },
       );
+      // Sent before closing: closing removes this panel from the page.
+      emits('update:spark-state', props.network);
       model.value = false;
     } catch (error) {
       txActivity.status = ActivityStatus.failed;

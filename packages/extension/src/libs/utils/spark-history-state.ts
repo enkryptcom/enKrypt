@@ -1,10 +1,11 @@
 import BrowserStorage from '@/libs/common/browser-storage';
 import { ActivityOptions } from '@/libs/activity-state/types';
 import { createAsyncLock } from '@/libs/utils/async-mutex';
-import { Activity } from '@/types/activity';
+import { Activity, ActivityType } from '@/types/activity';
 import { InternalStorageNamespace } from '@/types/provider';
 
 const STORAGE_KEY = 'activity';
+const SYNCED_STORAGE_KEY = 'synced';
 const MAX_SPARK_ACTIVITIES = 500;
 // Every write reads the whole list and saves it back; run them one at a time
 // so a sync saving its rows cannot drop a send saved a moment earlier.
@@ -57,6 +58,70 @@ class SparkHistoryState {
         options,
       );
     });
+  }
+
+  // Rows the sync made before are replaced; rows the send page saved keep
+  // everything but the status, since only they know the real recipient.
+  async upsertSyncedActivities(
+    activity: Activity[],
+    signatures: Record<string, string>,
+    options: ActivityOptions,
+  ): Promise<void> {
+    return sparkHistoryWriteLock.run(async () => {
+      const [activities, synced] = await Promise.all([
+        this.getAllActivities(options),
+        this.getSyncedSignatures(options),
+      ]);
+      const indexByHash = new Map(
+        activities.map((act, idx) => [act.transactionHash, idx]),
+      );
+      const added: Activity[] = [];
+
+      activity.forEach(newAct => {
+        const hash = newAct.transactionHash;
+        const idx = indexByHash.get(hash);
+        const existing = idx === undefined ? undefined : activities[idx];
+        if (!existing || idx === undefined) {
+          added.push(newAct);
+          synced[hash] = signatures[hash] ?? '';
+          return;
+        }
+        const isSyncRow =
+          existing.type === ActivityType.spark_transaction || hash in synced;
+        if (!isSyncRow) {
+          existing.status = newAct.status;
+          return;
+        }
+        activities[idx] = newAct;
+        synced[hash] = signatures[hash] ?? '';
+      });
+
+      const combined = activities
+        .concat(added)
+        .sort((a, b) => b.timestamp - a.timestamp)
+        .slice(0, MAX_SPARK_ACTIVITIES);
+
+      await this.#setActivities(combined, options);
+      // Kept under its own key: the other writes save only the rows and
+      // would drop it. Rows past the 500 limit keep their entry, so the next
+      // sync does not fetch them again just to drop them.
+      await this.#storage.set(this.#getSyncedId(options), {
+        [SYNCED_STORAGE_KEY]: synced,
+      });
+    });
+  }
+
+  // Coin signature of each row the sync rebuilt, keyed by tx hash.
+  async getSyncedSignatures(
+    options: ActivityOptions,
+  ): Promise<Record<string, string>> {
+    const saved: Record<string, Record<string, string>> | null =
+      await this.#storage.get(this.#getSyncedId(options));
+    return saved?.[SYNCED_STORAGE_KEY] ?? {};
+  }
+
+  #getSyncedId(options: ActivityOptions) {
+    return `${this.getActivityId(options)}-synced`;
   }
 
   async updateActivity(

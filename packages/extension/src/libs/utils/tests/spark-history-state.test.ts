@@ -184,6 +184,148 @@ describe('SparkHistoryState', () => {
     expect(namespaceKeys('ActivityState')).toEqual([id]);
   });
 
+  describe('upsertSyncedActivities', () => {
+    const synced = (hash: string, value: string, timestamp = 1000) =>
+      ({
+        ...makeActivity(hash, timestamp, 'success'),
+        to: 'Hidden',
+        value,
+      }) as Activity;
+
+    it('keeps a send page entry and updates only its status', async () => {
+      const state = new SparkHistoryState();
+      await state.addActivities([makeActivity('send', 1000)], sparkOptions);
+
+      await state.upsertSyncedActivities(
+        [synced('send', '999', 5000)],
+        { send: 'sig' },
+        sparkOptions,
+      );
+
+      const [entry] = await state.getAllActivities(sparkOptions);
+      expect(entry).toMatchObject({
+        to: 'to',
+        value: '1',
+        timestamp: 1000,
+        status: 'success',
+      });
+      expect(await state.getSyncedSignatures(sparkOptions)).toEqual({});
+    });
+
+    it('replaces an entry made by the old sync', async () => {
+      const state = new SparkHistoryState();
+      await state.addActivities(
+        [{ ...makeActivity('old'), type: 'spark_transaction' } as Activity],
+        sparkOptions,
+      );
+
+      await state.upsertSyncedActivities(
+        [synced('old', '42')],
+        { old: 'sig' },
+        sparkOptions,
+      );
+
+      const [entry] = await state.getAllActivities(sparkOptions);
+      expect(entry).toMatchObject({ type: 'transaction', value: '42' });
+      expect(await state.getSyncedSignatures(sparkOptions)).toEqual({
+        old: 'sig',
+      });
+    });
+
+    it('replaces an entry it rebuilt before', async () => {
+      const state = new SparkHistoryState();
+      await state.upsertSyncedActivities(
+        [synced('tx', '1')],
+        { tx: 'a' },
+        sparkOptions,
+      );
+      await state.upsertSyncedActivities(
+        [synced('tx', '2')],
+        { tx: 'b' },
+        sparkOptions,
+      );
+
+      const list = await state.getAllActivities(sparkOptions);
+      expect(list).toHaveLength(1);
+      expect(list[0]?.value).toBe('2');
+      expect(await state.getSyncedSignatures(sparkOptions)).toEqual({
+        tx: 'b',
+      });
+    });
+
+    it('changes nothing when run twice', async () => {
+      const state = new SparkHistoryState();
+      const rows = [synced('a', '1', 2000), synced('b', '2', 1000)];
+      await state.upsertSyncedActivities(
+        rows,
+        { a: '1', b: '2' },
+        sparkOptions,
+      );
+      const first = await state.getAllActivities(sparkOptions);
+
+      await state.upsertSyncedActivities(
+        rows,
+        { a: '1', b: '2' },
+        sparkOptions,
+      );
+
+      expect(await state.getAllActivities(sparkOptions)).toEqual(first);
+    });
+
+    it('does not lose a send saved at the same time', async () => {
+      await Promise.all([
+        new SparkHistoryState().upsertSyncedActivities(
+          [synced('sync', '1', 1000)],
+          { sync: 's' },
+          sparkOptions,
+        ),
+        new SparkHistoryState().addActivities(
+          [makeActivity('send', 2000)],
+          sparkOptions,
+        ),
+      ]);
+
+      expect(
+        hashes(await new SparkHistoryState().getAllActivities(sparkOptions)),
+      ).toEqual(['send', 'sync']);
+    });
+
+    it('keeps the newest 500 entries and remembers the dropped ones', async () => {
+      const state = new SparkHistoryState();
+      const many = Array.from({ length: 502 }, (_, idx) =>
+        synced(`tx-${idx}`, '1', idx),
+      );
+      const signatures = Object.fromEntries(
+        many.map(act => [act.transactionHash, 'sig']),
+      );
+      await state.upsertSyncedActivities(many, signatures, sparkOptions);
+
+      expect(await state.getAllActivities(sparkOptions)).toHaveLength(500);
+      const kept = await state.getSyncedSignatures(sparkOptions);
+      expect(Object.keys(kept)).toHaveLength(502);
+      expect(kept['tx-0']).toBe('sig');
+    });
+
+    it('keeps synced ids when other writes save the list', async () => {
+      const state = new SparkHistoryState();
+      await state.upsertSyncedActivities(
+        [synced('tx', '1')],
+        { tx: 'sig' },
+        sparkOptions,
+      );
+
+      await state.addActivities([makeActivity('send', 3000)], sparkOptions);
+      await state.updateActivity(
+        { ...synced('tx', '1'), status: 'pending' } as Activity,
+        sparkOptions,
+      );
+
+      expect(await state.getSyncedSignatures(sparkOptions)).toEqual({
+        tx: 'sig',
+      });
+    });
+  });
+
   it('updates an entry copied from the old shared storage', async () => {
     const state = new SparkHistoryState();
     saveLegacy(state.getActivityId(sparkOptions), [
