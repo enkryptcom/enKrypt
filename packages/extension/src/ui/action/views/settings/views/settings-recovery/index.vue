@@ -1,41 +1,41 @@
 <template>
-  <div class="settings__recovery-phrase">
+  <div>
     <settings-inner-header
       v-bind="$attrs"
       :is-phrase="true"
       :has-back="hasBack"
     />
 
-    <div class="settings__recovery-phrase-wrap">
-      <p class="warning">
-        Please keep your recovery phrase safe. If you give it to somebody, they
-        will have full control of your funds.
-      </p>
+    <div class="flex flex-col gap-4 px-8">
+      <AppBanner
+        type="alert"
+        description="Please keep your recovery phrase safe. If you give it to somebody, they will have full control of your funds."
+      />
 
-      <div class="recovery-phrase__wrap">
-        <div class="recovery-phrase__block">
-          <div
-            v-for="(phrase, index) in firstSet"
-            :key="index"
-            class="recovery-phrase__item"
-          >
-            <span>{{ index + 1 }}</span> {{ phrase }}
-          </div>
-        </div>
+      <!-- Column-first so numbering runs down the left column, then the right. -->
+      <ol
+        class="grid grid-flow-col grid-cols-2 gap-x-4 gap-y-1 rounded-12 border border-border-subtle bg-background-default px-4 py-2 select-text"
+        :style="{ gridTemplateRows: `repeat(${rows}, auto)` }"
+      >
+        <li
+          v-for="(word, index) in words"
+          :key="index"
+          class="flex items-baseline gap-2 text-heading-base font-normal text-text-default"
+        >
+          <span class="w-6 shrink-0 text-text-xs text-text-subtle">
+            {{ index + 1 }}
+          </span>
+          {{ word }}
+        </li>
+      </ol>
 
-        <div class="recovery-phrase__block">
-          <div
-            v-for="(phrase, index) in secondSet"
-            :key="index"
-            class="recovery-phrase__item"
-          >
-            <span>{{ index + firstSet.length + 1 }}</span> {{ phrase }}
-          </div>
-        </div>
-      </div>
-      <div v-if="hasExtraWord" class="recovery-phrase__extra-word">
-        <p class="title">Extra Word:</p>
-        <p class="word">{{ props.mnemonic.extraWord }}</p>
+      <div v-if="hasExtraWord" class="flex flex-col gap-1.5">
+        <p class="text-label-base">Extra Word:</p>
+        <p
+          class="rounded-12 border border-border-subtle bg-background-default px-4 py-2.5 text-text-base text-text-default select-text"
+        >
+          {{ mnemonic.extraWord }}
+        </p>
       </div>
     </div>
   </div>
@@ -43,6 +43,7 @@
 
 <script setup lang="ts">
 import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue';
+import AppBanner from '@common/components/banner/AppBanner.vue';
 import { MnemonicWithExtraWord } from '@enkryptcom/types';
 import { computed, PropType } from 'vue';
 
@@ -57,118 +58,12 @@ const props = defineProps({
   },
 });
 
-const firstSet = computed(() => {
-  const copy = props.mnemonic.mnemonic.split(' ');
-  return copy.splice(0, copy.length / 2);
-});
-const secondSet = computed(() => {
-  const copy = props.mnemonic.mnemonic.split(' ');
-  return copy.splice(copy.length / 2);
-});
+const words = computed(() =>
+  props.mnemonic.mnemonic.split(' ').filter(word => word !== ''),
+);
+const rows = computed(() => Math.ceil(words.value.length / 2));
 
 const hasExtraWord = computed(() => {
-  return props.mnemonic.extraWord !== '';
+  return props.mnemonic.extraWord && props.mnemonic.extraWord !== '';
 });
 </script>
-
-<style lang="less">
-@import '@action/styles/theme.less';
-
-.settings {
-  &__recovery-phrase {
-    &-wrap {
-      padding: 0 32px;
-      .warning {
-        font-style: normal;
-        font-weight: 400;
-        font-size: 16px;
-        line-height: 24px;
-        color: @error;
-        margin: 0 0 12px 0;
-      }
-    }
-
-    .recovery-phrase {
-      width: 100%;
-
-      &__wrap {
-        background: @lightBg;
-        border: 1px solid rgba(95, 99, 104, 0.1);
-        box-sizing: border-box;
-        border-radius: 10px;
-        padding: 8px 16px;
-        margin-bottom: 16px;
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-        justify-content: space-around;
-      }
-
-      &__block {
-        width: 50%;
-      }
-
-      &__item {
-        padding: 2px 0 2px 32px;
-        position: relative;
-        font-style: normal;
-        font-weight: 400;
-        font-size: 20px;
-        line-height: 28px;
-        letter-spacing: 0.15px;
-        color: @primaryLabel;
-        -webkit-touch-callout: text;
-        -webkit-user-select: text;
-        -khtml-user-select: text;
-        -moz-user-select: text;
-        -ms-user-select: text;
-        user-select: text;
-
-        span {
-          font-style: normal;
-          font-weight: 400;
-          font-size: 12px;
-          line-height: 16px;
-          letter-spacing: 0.5px;
-          color: @secondaryLabel;
-          position: absolute;
-          left: 0;
-          top: 11px;
-        }
-      }
-
-      &__extra-word {
-        margin-top: 28px;
-        .title {
-          font-style: normal;
-          font-weight: bold;
-          font-weight: bold;
-          font-size: 16px;
-          line-height: 24px;
-          color: @primaryLabel;
-          color: black;
-          margin-bottom: 6px;
-        }
-
-        .word {
-          font-style: normal;
-          font-weight: 400;
-          font-size: 18px;
-          line-height: 24px;
-          color: black;
-          background: @lightBg;
-          border: 1px solid rgba(95, 99, 104, 0.1);
-          box-sizing: border-box;
-          border-radius: 10px;
-          padding: 10px 16px;
-          margin: 0px;
-          display: flex;
-          flex-direction: row;
-          align-items: flex-start;
-          justify-content: start;
-        }
-      }
-    }
-  }
-}
-</style>
