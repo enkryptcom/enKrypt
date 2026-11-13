@@ -31,7 +31,10 @@
             :network="network"
           />
           <verify-transaction-amount :token="txData.toToken" />
-          <verify-transaction-fee :fee="txData.gasFee" />
+          <verify-transaction-fee :fee="displayFee" />
+          <p v-if="errorMsg" class="verify-transaction__error">
+            {{ errorMsg }}
+          </p>
         </div>
       </custom-scrollbar>
 
@@ -81,13 +84,10 @@ import { getMintTxData } from '@/libs/spark-handler/getMintTxData';
 import { getTotalMintedAmount } from '@/libs/spark-handler/getTotalMintedAmount';
 import { DEFAULT_BTC_NETWORK, getNetworkByName } from '@/libs/utils/networks';
 import FiroAPI from '@/providers/bitcoin/libs/api-firo';
-import {
-  validator,
-  BaseFiroWallet,
-} from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import { isAddress } from '@/providers/bitcoin/libs/utils';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import { VerifyTransactionParams } from '@/providers/bitcoin/ui/types';
+import { GasFeeInfo } from '@/providers/common/types';
 import HardwareWalletMsg from '@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue';
 import VerifyTransactionAccount from '@/providers/common/ui/verify-transaction/verify-transaction-account.vue';
 import VerifyTransactionAmount from '@/providers/common/ui/verify-transaction/verify-transaction-amount.vue';
@@ -99,13 +99,12 @@ import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import CloseIcon from '@action/icons/common/close-icon.vue';
 import SendProcess from '@action/views/send-process/index.vue';
 import { EnkryptAccount } from '@enkryptcom/types';
+import { fromBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
-import * as bitcoin from 'bitcoinjs-lib';
-import { ComponentPublicInstance, onBeforeMount, ref } from 'vue';
+import { ComponentPublicInstance, computed, onBeforeMount, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { wasmInstance } from '@/libs/utils/wasm-loader';
-
-const wallet = new BaseFiroWallet();
+import { handleFiroSecretsError } from '@action/utils/firo-secrets-guard';
 
 const KeyRing = new PublicKeyRing();
 const route = useRoute();
@@ -123,12 +122,66 @@ const isPopup: boolean = getCurrentContext() === 'new-window';
 const verifyScrollRef = ref<ComponentPublicInstance<HTMLElement>>();
 const isWindowPopup = ref(false);
 const errorMsg = ref('');
+const previewFee = ref<GasFeeInfo | null>(null);
+const displayFee = computed(() => previewFee.value ?? txData.gasFee);
 
 defineExpose({ verifyScrollRef });
+
+const calculatePreviewFee = async () => {
+  try {
+    const wasmModule = await wasmInstance.getInstance();
+    const api = (await network.value.api()) as unknown as FiroAPI;
+    const { spendableUtxos, addressKeyPairs } =
+      await api.getSpendableUtxosWithKeyPairs();
+    if (spendableUtxos.length === 0) return;
+
+    const amountToSendBN = new BigNumber(txData.toToken.amount);
+    const mintTxData = await getMintTxData({
+      wasmModule,
+      address: txData.toAddress,
+      amount: amountToSendBN.toString(),
+      utxos: spendableUtxos.map(({ txid, vout }) => ({
+        txHash: Buffer.from(txid, 'hex').reverse(),
+        vout,
+        txHashLength: Buffer.from(txid, 'hex').length,
+      })),
+    });
+    const inputAmountBn = getTotalMintedAmount(spendableUtxos);
+
+    const tempTx = createTempTx({
+      changeAmount: inputAmountBn
+        .minus(amountToSendBN)
+        .minus(new BigNumber(500)),
+      network: network.value.networkInfo,
+      addressKeyPairs,
+      spendableUtxos,
+      mintValueOutput: [
+        {
+          script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
+          value: amountToSendBN.toNumber(),
+        },
+      ],
+    });
+    const feeBn = await getFee(tempTx);
+
+    const feeNative = fromBase(feeBn.toFixed(0), txData.toToken.decimals);
+    previewFee.value = {
+      nativeValue: feeNative,
+      fiatValue: new BigNumber(txData.toToken.price || '0')
+        .times(feeNative)
+        .toString(),
+      nativeSymbol: txData.gasFee.nativeSymbol,
+      fiatSymbol: txData.gasFee.fiatSymbol,
+    };
+  } catch (e) {
+    console.warn('Could not calculate mint fee for preview', e);
+  }
+};
 
 onBeforeMount(async () => {
   network.value = (await getNetworkByName(selectedNetwork)!) as BitcoinNetwork;
   trackSendEvents(SendEventType.SendVerify, { network: network.value.name });
+  calculatePreviewFee();
   if (isAddress(txData.fromAddress, network.value.networkInfo)) {
     account.value = await KeyRing.getAccount(txData.fromAddress);
     isWindowPopup.value = account.value.isHardware;
@@ -143,19 +196,23 @@ const close = () => {
   }
 };
 
+const getErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
+
 const sendAction = async () => {
   try {
     isProcessing.value = true;
+    errorMsg.value = '';
     trackSendEvents(SendEventType.SendApprove, {
       network: network.value.name,
     });
 
     const wasmModule = await wasmInstance.getInstance();
 
-    const address2Check = await wallet.getTransactionsAddresses();
+    const api = (await network.value.api()) as unknown as FiroAPI;
 
     const { spendableUtxos, addressKeyPairs } =
-      await wallet.getSpendableUtxos(address2Check);
+      await api.getSpendableUtxosWithKeyPairs();
 
     if (spendableUtxos.length === 0) throw new Error('No UTXOs available!');
 
@@ -172,10 +229,7 @@ const sendAction = async () => {
       })),
     });
 
-    const psbt = new bitcoin.Psbt({ network: network.value.networkInfo });
-
-    const { inputAmountBn, psbtInputs } =
-      await getTotalMintedAmount(spendableUtxos);
+    const inputAmountBn = getTotalMintedAmount(spendableUtxos);
 
     // Calculate tx fee
     const tempTx = createTempTx({
@@ -191,56 +245,36 @@ const sendAction = async () => {
           value: amountToSendBN.toNumber(),
         },
       ],
-      inputs: psbtInputs,
     });
 
     const feeBn = await getFee(tempTx);
     // End calculate fee
 
-    psbtInputs.forEach(el => {
-      psbt.addInput(el);
-    });
-
-    if (inputAmountBn.lt(amountToSendBN.plus(feeBn)))
+    if (inputAmountBn.lt(amountToSendBN.plus(feeBn))) {
+      console.error('❌ Not enough balance!', {
+        utxoCount: spendableUtxos.length,
+        inputAmountBn: inputAmountBn.toString(),
+        amountToSendBN: amountToSendBN.toString(),
+        feeBn: feeBn.toString(),
+        shortfall: amountToSendBN.plus(feeBn).minus(inputAmountBn).toString(),
+      });
       throw new Error('❌ Not enough balance!');
-
-    psbt.addOutput({
-      script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
-      value: amountToSendBN.toNumber(),
-    });
+    }
 
     const changeAmount = inputAmountBn.minus(amountToSendBN).minus(feeBn);
 
-    if (changeAmount.gt(0)) {
-      const firstUtxoAddress = spendableUtxos[0].address;
-
-      psbt.addOutput({
-        address: firstUtxoAddress!,
-        value: changeAmount.toNumber(),
-      });
-    }
-
-    for (let index = 0; index < spendableUtxos.length; index++) {
-      const utxo = spendableUtxos[index];
-      const keyPair = addressKeyPairs[utxo.address];
-
-      const Signer = {
-        sign: (hash: Uint8Array) => {
-          return Buffer.from(keyPair.sign(hash));
+    const rawTx = createTempTx({
+      changeAmount,
+      network: network.value.networkInfo,
+      addressKeyPairs,
+      spendableUtxos,
+      mintValueOutput: [
+        {
+          script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
+          value: amountToSendBN.toNumber(),
         },
-        publicKey: Buffer.from(keyPair.publicKey),
-      } as unknown as bitcoin.Signer;
-
-      psbt.signInput(index, Signer);
-    }
-
-    if (!psbt.validateSignaturesOfAllInputs(validator)) {
-      throw new Error('Error: Some inputs were not signed!');
-    }
-
-    psbt.finalizeAllInputs();
-
-    const rawTx = psbt.extractTransaction().toHex();
+      ],
+    }).toHex();
     console.log('Raw Mint Transaction:', rawTx);
 
     const txActivity: Activity = {
@@ -263,8 +297,6 @@ const sendAction = async () => {
     };
 
     const activityState = new ActivityState();
-
-    const api = (await network.value.api()) as unknown as FiroAPI;
 
     api
       .broadcastTx(rawTx)
@@ -309,7 +341,7 @@ const sendAction = async () => {
         });
 
         isProcessing.value = false;
-        errorMsg.value = JSON.stringify(error);
+        errorMsg.value = getErrorMessage(error);
         console.error('ERROR', error);
       });
   } catch (e: any) {
@@ -319,7 +351,8 @@ const sendAction = async () => {
     });
 
     isProcessing.value = false;
-    errorMsg.value = JSON.stringify(e);
+    if (handleFiroSecretsError(e)) return;
+    errorMsg.value = getErrorMessage(e);
     console.error('ERROR', e);
   }
 };
@@ -411,6 +444,18 @@ const isHasScroll = () => {
       margin: 0;
       margin-bottom: 56px;
     }
+  }
+
+  &__error {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+    color: @error;
+    margin: 0;
+    padding: 12px 16px;
+    word-break: break-word;
   }
 
   &__buttons {

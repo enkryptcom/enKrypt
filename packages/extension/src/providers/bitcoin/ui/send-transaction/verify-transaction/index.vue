@@ -33,7 +33,9 @@
           <verify-transaction-amount v-if="!isNft" :token="txData.toToken" />
           <verify-transaction-nft v-if="isNft" :item="txData.NFTData!" />
           <verify-transaction-fee :fee="txData.gasFee" />
-          {{ errorMsg }}
+          <p v-if="errorMsg" class="verify-transaction__error">
+            {{ errorMsg }}
+          </p>
         </div>
       </custom-scrollbar>
 
@@ -100,6 +102,7 @@ import { trackSendEvents } from '@/libs/metrics';
 import { SendEventType } from '@/libs/metrics/types';
 import RateState from '@/libs/rate-state';
 import { useRateStore } from '@action/store/rate-store';
+import { handleFiroSecretsError } from '@action/utils/firo-secrets-guard';
 
 /** -------------------
  * Rate
@@ -139,8 +142,12 @@ const close = () => {
   }
 };
 
+const getErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
+
 const sendAction = async () => {
   isProcessing.value = true;
+  errorMsg.value = '';
   trackSendEvents(SendEventType.SendApprove, {
     network: network.value.name,
   });
@@ -226,12 +233,15 @@ const sendAction = async () => {
           address: txData.fromAddress,
           network: network.value.name,
         });
+        isProcessing.value = false;
+        errorMsg.value = getErrorMessage(error);
         console.error('ERROR', error);
       });
   } catch (error) {
     isProcessing.value = false;
+    if (handleFiroSecretsError(error)) return;
     console.error('error', error);
-    errorMsg.value = JSON.stringify(error);
+    errorMsg.value = getErrorMessage(error);
   }
 };
 
@@ -332,6 +342,18 @@ const isHasScroll = () => {
       margin: 0;
       margin-bottom: 56px;
     }
+  }
+
+  &__error {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+    color: @error;
+    margin: 0;
+    padding: 12px 16px;
+    word-break: break-word;
   }
 
   &__buttons {

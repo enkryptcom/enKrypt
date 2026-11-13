@@ -62,6 +62,7 @@ class BackgroundHandler {
     });
   }
   async init(): Promise<void> {
+    await this.#wallet.clearSecret();
     await handlePersistentEvents.bind(this)();
     const enkryptSettings = await this.#settingsState.getEnkryptSettings();
     if (!enkryptSettings.installedTimestamp) {
@@ -176,12 +177,17 @@ class BackgroundHandler {
         return getEthereumPubKey(this.#keyring, message);
       case InternalMethods.ethereumDecrypt:
         return ethereumDecrypt(this.#keyring, message);
-      case InternalMethods.unlock:
-        const password = message?.params?.[0] as string;
-        const mnemonic = await this.#keyring.getSavedMnemonic(password);
-        this.#wallet.setSecret(mnemonic);
-        return unlock(this.#keyring, message);
+      case InternalMethods.unlock: {
+        const unlockResponse = await unlock(this.#keyring, message);
+        if (!unlockResponse.error) {
+          const password = message?.params?.[0] as string;
+          const mnemonic = await this.#keyring.getSavedMnemonic(password);
+          await this.#wallet.setSecret(mnemonic);
+        }
+        return unlockResponse;
+      }
       case InternalMethods.lock:
+        await this.#wallet.clearSecret();
         return lock(this.#keyring);
       case InternalMethods.changeNetwork:
         return changeNetwork(msg, this.#tabProviders);

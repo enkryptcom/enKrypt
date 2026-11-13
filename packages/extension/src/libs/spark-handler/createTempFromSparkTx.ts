@@ -1,12 +1,14 @@
 import * as bitcoin from 'bitcoinjs-lib';
-import { LOCK_TIME, SPARK_TX_TYPE } from '@/libs/spark-handler/constants';
+import { LOCK_TIME } from '@/libs/spark-handler/constants';
 import { isSparkAddress } from '@/providers/bitcoin/libs/utils';
-import BigNumber from 'bignumber.js';
 
 interface CreateTempFromSparkTxArgs {
   network: bitcoin.networks.Network;
   to: string;
-  amount: string;
+  amountSat: number;
+  sparkTxType: number;
+  /** Pass when already known, to skip the wasm address check. */
+  isSparkTransaction?: boolean;
 }
 
 interface CreateTempFromSparkTxResult {
@@ -16,12 +18,15 @@ interface CreateTempFromSparkTxResult {
 
 export const createTempFromSparkTx = async ({
   network,
-  amount,
+  amountSat,
   to,
+  sparkTxType,
+  isSparkTransaction: knownIsSparkTransaction,
 }: CreateTempFromSparkTxArgs): Promise<CreateTempFromSparkTxResult> => {
-  const isSparkTransaction = await isSparkAddress(to);
+  const isSparkTransaction =
+    knownIsSparkTransaction ?? (await isSparkAddress(to));
   const tempTx = new bitcoin.Transaction();
-  tempTx.version = 3 | (SPARK_TX_TYPE << 16);
+  tempTx.version = 3 | (sparkTxType << 16);
   tempTx.locktime = LOCK_TIME;
   tempTx.addInput(
     Buffer.alloc(32, 0),
@@ -33,10 +38,7 @@ export const createTempFromSparkTx = async ({
   const baseTempTxBuffer = tempTx.toBuffer();
 
   if (!isSparkTransaction) {
-    tempTx.addOutput(
-      bitcoin.address.toOutputScript(to, network),
-      new BigNumber(amount).multipliedBy(10 ** 8).toNumber(),
-    );
+    tempTx.addOutput(bitcoin.address.toOutputScript(to, network), amountSat);
   }
 
   const fullTempTxBuffer = tempTx.toBuffer();

@@ -38,7 +38,7 @@
         <!-- Amount Card -->
         <div
           class="provider-verify-transaction__amount-card"
-          v-if="!isApproval && decodedTx"
+          v-if="decodedTx && decodedTx?.tokenValue !== '0x0'"
         >
           <div class="provider-verify-transaction__amount-label">
             You're sending
@@ -305,7 +305,11 @@ onBeforeMount(async () => {
   ).then(decoded => {
     const realToAddress = decoded.tokenTo || decoded.toAddress || '';
     identiconTo.value = network.value.identicon(realToAddress!.toLowerCase());
-    if (decoded.decoded && decoded.dataHex.startsWith(TokenSigs.approve)) {
+    if (
+      decoded.decoded &&
+      decoded.dataHex.startsWith(TokenSigs.approve) &&
+      decoded.tokenValue === '0x0'
+    ) {
       isApproval.value = true;
       if (
         decoded.decodedHex![1] ===

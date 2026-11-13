@@ -67,6 +67,7 @@ const amount = computed({
   set: value => {
     let fValue = value.toString();
     if (fValue === '.') fValue = '0.';
+    if (fValue !== '' && !/^\d*\.?\d*$/.test(fValue)) return ;
     emit('update:inputAmount', fValue);
   },
 });

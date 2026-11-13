@@ -85,6 +85,7 @@ packages/extension/src/ui/action/views/network-activity/components/network-activ
       :account-info="accountInfo"
       :spark-account="sparkAccount"
       :crypto-amount="cryptoAmount"
+      @update:spark-state="updateSparkState"
     />
   </div>
 </template>
@@ -107,6 +108,7 @@ import SynchronizeState from '@action/views/network-activity/components/synchron
 import Loader from '@action/icons/common/loader.vue';
 import useAsyncComputed from '@action/composables/async-computed';
 import { calculateCurrentSparkBalance } from '@/libs/utils/updateAndSync/calculateCurrentSparkBalance';
+import { BaseNetwork } from '@/types/base-network';
 
 const props = defineProps({
   cryptoAmount: {
@@ -161,9 +163,17 @@ const props = defineProps({
   },
 });
 
+const emits = defineEmits<{
+  (e: 'update:spark-state', network: BaseNetwork): void;
+}>();
+
 let timer: NodeJS.Timeout | null = null;
 const assumedError = ref(false);
 const synchronizeState = ref(false);
+
+const updateSparkState = (network: BaseNetwork) => {
+  emits('update:spark-state', network);
+};
 
 const chartOption = computed(() => ({
   width: 90,
@@ -229,6 +239,7 @@ const {
   value: sparkBalanceFormatted,
   isPending: isSparkBalanceFormattedPending,
 } = useAsyncComputed(async () => {
+  void props.sparkAccount?.sparkBalance?.availableBalance;
   const balance = await calculateCurrentSparkBalance();
   if (balance === '0') return '0';
   const decimalValue = fromBase(balance, props.network.decimals ?? 8);

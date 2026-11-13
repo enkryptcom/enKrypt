@@ -3,9 +3,11 @@ import { SparkAccount } from '@/ui/action/types/account';
 import { BaseFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import { wasmInstance } from '@/libs/utils/wasm-loader';
 
-export const getSpendKeyObj = async (wasm: WasmModule) => {
-  const wallet = new BaseFiroWallet();
-  const seed = await wallet.getSecret();
+/** Pass `seed` to reuse one read across several builds. Read outside the try
+ * so a missing secret reaches the caller as FiroSecretsRequiredError and the
+ * UI can ask for the password. */
+export const getSpendKeyObj = async (wasm: WasmModule, seed?: Buffer) => {
+  seed ??= await new BaseFiroWallet().getSecret();
   let keyDataPtr;
   let spendKeyObj;
   let spendKeyDataObj;

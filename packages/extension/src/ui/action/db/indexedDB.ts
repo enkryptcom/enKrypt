@@ -6,6 +6,8 @@ export const DB_DATA_KEYS = {
   usedCoinsTags: 'usedCoinsTags',
   sparkBalance: 'sparkBalance',
   lastCheckedSetIndex: 'lastCheckedSetIndex',
+  pendingSpentCoinsTags: 'pendingSpentCoinsTags',
+  sparkSpendStats: 'sparkSpendStats',
 } as const;
 
 export class IndexedDBHelper {
@@ -13,41 +15,45 @@ export class IndexedDBHelper {
   private storeName = 'DataStore';
   private dbVersion = 1;
   private db!: IDBDatabase;
+  // One connection shared by every helper instance in this context.
+  private static dbPromise: Promise<IDBDatabase> | null = null;
 
   constructor() {
-    this.initDB();
+    this.initDB().catch(() => undefined);
   }
 
   waitInit(): Promise<number> {
-    return new Promise(resolve => {
-      const checkDB = () => {
-        if (this.db) {
-          resolve(1);
-        } else {
-          setTimeout(checkDB, 100);
-        }
-      };
-      checkDB();
-    });
+    return this.initDB().then(() => 1);
   }
 
-  private initDB(): void {
-    const request = indexedDB.open(this.dbName, this.dbVersion);
+  private initDB(): Promise<IDBDatabase> {
+    if (!IndexedDBHelper.dbPromise) {
+      IndexedDBHelper.dbPromise = new Promise((resolve, reject) => {
+        const request = indexedDB.open(this.dbName, this.dbVersion);
 
-    request.onupgradeneeded = () => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains(this.storeName)) {
-        db.createObjectStore(this.storeName);
-      }
-    };
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains(this.storeName)) {
+            db.createObjectStore(this.storeName);
+          }
+        };
 
-    request.onsuccess = () => {
-      this.db = request.result;
-    };
+        request.onsuccess = () => {
+          resolve(request.result);
+        };
 
-    request.onerror = () => {
-      console.error('Error opening IndexedDB', request.error);
-    };
+        request.onerror = () => {
+          console.error('Error opening IndexedDB', request.error);
+          // Allow a later call to retry the open.
+          IndexedDBHelper.dbPromise = null;
+          reject(request.error);
+        };
+      });
+    }
+    return IndexedDBHelper.dbPromise.then(db => {
+      this.db = db;
+      return db;
+    });
   }
 
   async resetDB() {

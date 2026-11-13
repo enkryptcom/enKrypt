@@ -68,22 +68,20 @@ import { AccountsHeaderData, SparkAccount } from '@action/types/account';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import Loader from '@action/icons/common/loader.vue';
 import { NetworkNames } from '@enkryptcom/types/dist';
-import {
-  BaseFiroWallet,
-  validator,
-} from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
-import * as bitcoin from 'bitcoinjs-lib';
 import { wasmInstance } from '@/libs/utils/wasm-loader';
 import FiroAPI from '@/providers/bitcoin/libs/api-firo';
 import { getMintTxData } from '@/libs/spark-handler/getMintTxData';
 import { getTotalMintedAmount } from '@/libs/spark-handler/getTotalMintedAmount';
 import { createTempTx } from '@/libs/spark-handler/createTempTx';
+import { buildSignedP2pkhTx } from '@/libs/spark-handler/buildSignedP2pkhTx';
 import { getFee } from '@/libs/spark-handler/getFee';
 import MarketData from '@/libs/market-data';
 import { Activity, ActivityStatus, ActivityType } from '@/types/activity';
 import ActivityState from '@/libs/activity-state';
 import { SendEventType } from '@/libs/metrics/types';
 import { trackSendEvents } from '@/libs/metrics';
+import { handleFiroSecretsError } from '@action/utils/firo-secrets-guard';
+import { BaseNetwork } from '@/types/base-network';
 
 const props = defineProps({
   isCoinSyncing: {
@@ -117,7 +115,9 @@ const props = defineProps({
 
 const model = defineModel<boolean>();
 
-const wallet = new BaseFiroWallet();
+const emits = defineEmits<{
+  (e: 'update:spark-state', network: BaseNetwork): void;
+}>();
 
 const isTransferLoading = ref(false);
 const errorMsg = ref();
@@ -133,117 +133,92 @@ const isAnonymizeBtnLoading = computed(() => isTransferLoading.value);
 const anonymizeFunds = async () => {
   isTransferLoading.value = true;
   errorMsg.value = undefined;
-  if (!props.sparkAccount) return;
+  try {
+    if (!props.sparkAccount) throw new Error('Spark account is not available!');
 
-  const wasmModule = await wasmInstance.getInstance();
-  const address2Check = await wallet.getTransactionsAddresses();
+    const wasmModule = await wasmInstance.getInstance();
+    const api = (await props.network.api()) as unknown as FiroAPI;
 
-  const { spendableUtxos, addressKeyPairs } =
-    await wallet.getSpendableUtxos(address2Check);
+    const { spendableUtxos, addressKeyPairs } =
+      await api.getSpendableUtxosWithKeyPairs();
 
-  if (spendableUtxos.length === 0) throw new Error('No UTXOs available!');
+    if (spendableUtxos.length === 0) throw new Error('No UTXOs available!');
 
-  const { inputAmountBn, psbtInputs } =
-    await getTotalMintedAmount(spendableUtxos);
+    const inputAmountBn = getTotalMintedAmount(spendableUtxos);
 
-  const tempTx = createTempTx({
-    network: props.network.networkInfo,
-    addressKeyPairs,
-    spendableUtxos,
-    mintValueOutput: [
-      {
-        script: Buffer.alloc(0),
-        value: inputAmountBn.toNumber(),
+    const tempTx = createTempTx({
+      network: props.network.networkInfo,
+      addressKeyPairs,
+      spendableUtxos,
+      mintValueOutput: [
+        {
+          script: Buffer.alloc(0),
+          value: inputAmountBn.toNumber(),
+        },
+      ],
+    });
+
+    const feeBn = await getFee(tempTx);
+    const mintAmountBn = inputAmountBn.minus(feeBn);
+
+    const mintTxData = await getMintTxData({
+      wasmModule,
+      address: props.sparkAccount.defaultAddress,
+      amount: mintAmountBn.toString(),
+      utxos: spendableUtxos.map(({ txid, vout }) => ({
+        txHash: Buffer.from(txid, 'hex').reverse(),
+        vout,
+        txHashLength: Buffer.from(txid, 'hex').length,
+      })),
+    });
+
+    const rawTx = buildSignedP2pkhTx({
+      network: props.network.networkInfo,
+      utxos: spendableUtxos,
+      addressKeyPairs,
+      outputs: [
+        {
+          script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
+          value: Number(mintAmountBn.toString()),
+        },
+      ],
+    }).toHex();
+    console.log('Raw Mint Transaction:', rawTx);
+
+    const fromAddress = props.accountInfo.selectedAccount?.address ?? '';
+
+    let tokenPrice = '0';
+
+    if (props.network.coingeckoID) {
+      const marketData = new MarketData();
+      await marketData
+        .getTokenPrice(props.network.coingeckoID)
+        .then(mdata => (tokenPrice = mdata || '0'));
+    }
+
+    const txActivity: Activity = {
+      from: props.network.displayAddress(fromAddress),
+      to: props.sparkAccount.defaultAddress,
+      isIncoming: false,
+      network: props.network.name,
+      status: ActivityStatus.pending,
+      timestamp: new Date().getTime(),
+      token: {
+        decimals: props.network.decimals,
+        icon: props.network.icon,
+        name: props.network.name_long,
+        symbol: props.network.currencyName,
+        price: tokenPrice,
       },
-    ],
-    inputs: psbtInputs,
-  });
+      type: ActivityType.transaction,
+      value: mintAmountBn.toString(),
+      transactionHash: '',
+    };
 
-  const feeBn = await getFee(tempTx);
-  const mintAmountBn = inputAmountBn.minus(feeBn);
+    const activityState = new ActivityState();
 
-  const mintTxData = await getMintTxData({
-    wasmModule,
-    address: props.sparkAccount.defaultAddress,
-    amount: mintAmountBn.toString(),
-    utxos: spendableUtxos.map(({ txid, vout }) => ({
-      txHash: Buffer.from(txid, 'hex').reverse(),
-      vout,
-      txHashLength: Buffer.from(txid, 'hex').length,
-    })),
-  });
-
-  const psbt = new bitcoin.Psbt({ network: props.network.networkInfo });
-
-  psbtInputs.forEach(el => {
-    psbt.addInput(el);
-  });
-
-  psbt.addOutput({
-    script: Buffer.from(mintTxData?.[0]?.scriptPubKey ?? '', 'hex'),
-    value: Number(mintAmountBn.toString()),
-  });
-
-  for (let index = 0; index < spendableUtxos.length; index++) {
-    const utxo = spendableUtxos[index];
-    const keyPair = addressKeyPairs[utxo.address];
-
-    const Signer = {
-      sign: (hash: Uint8Array) => {
-        return Buffer.from(keyPair.sign(hash));
-      },
-      publicKey: Buffer.from(keyPair.publicKey),
-    } as unknown as bitcoin.Signer;
-
-    psbt.signInput(index, Signer);
-  }
-
-  if (!psbt.validateSignaturesOfAllInputs(validator)) {
-    throw new Error('Error: Some inputs were not signed!');
-  }
-
-  psbt.finalizeAllInputs();
-
-  const rawTx = psbt.extractTransaction().toHex();
-  console.log('Raw Mint Transaction:', rawTx);
-
-  const fromAddress = props.accountInfo.selectedAccount?.address ?? '';
-
-  let tokenPrice = '0';
-
-  if (props.network.coingeckoID) {
-    const marketData = new MarketData();
-    await marketData
-      .getTokenPrice(props.network.coingeckoID)
-      .then(mdata => (tokenPrice = mdata || '0'));
-  }
-
-  const txActivity: Activity = {
-    from: props.network.displayAddress(fromAddress),
-    to: props.sparkAccount.defaultAddress,
-    isIncoming: false,
-    network: props.network.name,
-    status: ActivityStatus.pending,
-    timestamp: new Date().getTime(),
-    token: {
-      decimals: props.network.decimals,
-      icon: props.network.icon,
-      name: props.network.name_long,
-      symbol: props.network.currencyName,
-      price: tokenPrice,
-    },
-    type: ActivityType.transaction,
-    value: mintAmountBn.toString(),
-    transactionHash: '',
-  };
-
-  const activityState = new ActivityState();
-
-  const api = (await props.network.api()) as unknown as FiroAPI;
-
-  api
-    .broadcastTx(rawTx)
-    .then(({ txid }) => {
+    try {
+      const { txid } = await api.broadcastTx(rawTx);
       trackSendEvents(SendEventType.SendComplete, {
         network: props.network.name,
       });
@@ -259,24 +234,28 @@ const anonymizeFunds = async () => {
           network: props.network.name,
         },
       );
-      isTransferLoading.value = false;
+      // Sent before closing: closing removes this panel from the page.
+      emits('update:spark-state', props.network);
       model.value = false;
-    })
-    .catch(error => {
-      trackSendEvents(SendEventType.SendFailed, {
-        network: props.network.name,
-        error: error.message,
-      });
+    } catch (error) {
       txActivity.status = ActivityStatus.failed;
       activityState.addActivities([txActivity], {
         address: fromAddress,
         network: props.network.name,
       });
-
-      errorMsg.value = JSON.stringify(error);
-      console.error('ERROR', error);
-      isTransferLoading.value = false;
+      throw error;
+    }
+  } catch (error) {
+    trackSendEvents(SendEventType.SendFailed, {
+      network: props.network.name,
+      error: (error as Error).message,
     });
+    if (handleFiroSecretsError(error)) return;
+    errorMsg.value = (error as Error).message ?? JSON.stringify(error);
+    console.error('ERROR', error);
+  } finally {
+    isTransferLoading.value = false;
+  }
 };
 </script>
 

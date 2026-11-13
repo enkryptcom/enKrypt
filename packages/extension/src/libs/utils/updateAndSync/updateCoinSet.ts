@@ -1,7 +1,6 @@
 import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB';
 import { BaseFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import type { AnonymitySetMetaModel } from '@/providers/bitcoin/libs/electrum-client/abstract-electrum';
-import { differenceSets } from '@action/utils/set-utils';
 import { getSetsFromDb } from '@/libs/utils/updateAndSync/getSetsFromDb';
 import { syncTagsOnce } from '@/libs/utils/updateAndSync/updateTagsSet';
 
@@ -143,15 +142,19 @@ export const syncCoinSetsOnce = async (): Promise<CoinSetUpdateResult[]> => {
         return null;
       }
 
-      const updatedCoinsSet = differenceSets(
-        new Set(localSets?.[index]?.coins ?? []),
-        new Set(newCoins),
+      // Coins are identified by their hash (first element). Comparing the
+      // string[] entries directly would compare array references and never
+      // match, duplicating the whole set on every full replacement.
+      const existingCoins = localSets?.[index]?.coins ?? [];
+      const existingHashes = new Set(existingCoins.map(coin => coin?.[0]));
+      const uniqueNewCoins = newCoins.filter(
+        coin => !existingHashes.has(coin?.[0]),
       );
 
       localSets[index] = {
         blockHash: remoteMeta.blockHash,
         setHash: remoteMeta.setHash,
-        coins: [...updatedCoinsSet, ...(localSets?.[index]?.coins ?? [])],
+        coins: [...uniqueNewCoins, ...existingCoins],
       };
 
       if (!localSets[index] || isFullReplacement) {

@@ -20,12 +20,10 @@ export enum SupportedNetworkName {
   Kusama = NetworkNames.Kusama,
   Bitcoin = NetworkNames.Bitcoin,
   EthereumClassic = NetworkNames.EthereumClassic,
-  Moonbeam = NetworkNames.Moonbeam,
   Arbitrum = NetworkNames.Arbitrum,
   Gnosis = NetworkNames.Gnosis,
   Avalanche = NetworkNames.Avalanche,
   Fantom = NetworkNames.Fantom,
-  Kaia = NetworkNames.Kaia,
   Aurora = NetworkNames.Aurora,
   Zksync = NetworkNames.ZkSync,
   Base = NetworkNames.Base,
@@ -210,9 +208,7 @@ export interface GenericTransaction {
 }
 
 export type SwapTransaction =
-  | EVMTransaction
-  | GenericTransaction
-  | SolanaTransaction;
+  EVMTransaction | GenericTransaction | SolanaTransaction;
 
 export interface MinMaxResponse {
   minimumFrom: BN;

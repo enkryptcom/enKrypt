@@ -36,18 +36,21 @@ export default (
     tokenPrice.value = defaultFiatVal;
     priceChangePercentage.value = 0;
     sparkline.value = '';
-    if (network.value.coingeckoID && cryptoAmountRaw.value != '~') {
-      const market = await marketData.getMarketData([network.value.coingeckoID]);
-      fiatAmount.value = `${await marketData.getTokenValue(
-        cryptoAmountRaw.value,
-        network.value.coingeckoID,
-        'USD',
-      )}`;
-      if (market && market[0]) {
-        tokenPrice.value = market[0].current_price?.toString() || defaultFiatVal;
-        priceChangePercentage.value = market[0].price_change_percentage_24h || 0;
-        sparkline.value = JSON.stringify(market[0].sparkline_in_24h.price);
-      }
+    if (!network.value.coingeckoID) return;
+    const coingeckoID = network.value.coingeckoID;
+    const balanceAtRequestTime = cryptoAmountRaw.value;
+    const fiatAmountPromise =
+      balanceAtRequestTime !== '~'
+        ? marketData.getTokenValue(balanceAtRequestTime, coingeckoID, 'USD')
+        : null;
+    const market = await marketData.getMarketData([coingeckoID]);
+    if (market && market[0]) {
+      tokenPrice.value = market[0].current_price?.toString() || defaultFiatVal;
+      priceChangePercentage.value = market[0].price_change_percentage_24h || 0;
+      sparkline.value = JSON.stringify(market[0].sparkline_in_24h.price);
+    }
+    if (fiatAmountPromise) {
+      fiatAmount.value = `${await fiatAmountPromise}`;
     }
   };
   watch(cryptoAmount, updateFiatValues);

@@ -53,6 +53,7 @@
               :key="route.fullPath"
               :is-coin-syncing="isCoinFetchPending"
               :is-tag-syncing="isTagFetchPending"
+              :spark-history-version="sparkHistoryVersion"
               :network="currentNetwork"
               :subnetwork="currentSubNetwork"
               :account-info="accountHeaderData"
@@ -110,7 +111,6 @@ import {
 import { DEFAULT_EVM_NETWORK, getNetworkByName } from '@/libs/utils/networks';
 import openOnboard from '@/libs/utils/open-onboard';
 import BTCAccountState from '@/providers/bitcoin/libs/accounts-state';
-import { BaseFiroWallet } from '@/providers/bitcoin/libs/firo-wallet/base-firo-wallet';
 import EVMAccountState from '@/providers/ethereum/libs/accounts-state';
 import { MessageMethod } from '@/providers/ethereum/types';
 import { EvmNetwork } from '@/providers/ethereum/types/evm-network';
@@ -118,7 +118,7 @@ import { MessageMethod as KadenaMessageMethod } from '@/providers/kadena/types';
 import SolAccountState from '@/providers/solana/libs/accounts-state';
 import { BaseNetwork } from '@/types/base-network';
 import { InternalMethods } from '@/types/messenger';
-import { DB_DATA_KEYS, IndexedDBHelper } from '@action/db/indexedDB';
+import { IndexedDBHelper } from '@action/db/indexedDB';
 import { EnkryptAccount, NetworkNames } from '@enkryptcom/types';
 import { fromBase } from '@enkryptcom/utils';
 import { computed, onMounted, ref } from 'vue';
@@ -152,7 +152,6 @@ import { useUpdateActivityState } from '@action/composables/update-activity-stat
 import { getSparkAddress } from '@action/composables/get-spark-address';
 import { calculateCurrentSparkBalance } from '@/libs/utils/updateAndSync/calculateCurrentSparkBalance';
 
-const wallet = new BaseFiroWallet();
 const db = new IndexedDBHelper();
 const domainState = new DomainState();
 const rateState = new RateState();
@@ -190,6 +189,15 @@ const isAddressRestricted = ref<{ isRestricted: boolean; address: string }>({
 
 const { sparkUnusedTxDetails, isCoinFetchPending, isTagFetchPending } =
   useSynchronizeSparkState(currentNetwork, async () => {
+    // Money sent to a public address only counts after it confirms; refresh the
+    // public balance with each sync so it shows without reopening the popup.
+    if (currentNetwork.value.name === NetworkNames.Firo) {
+      updateActiveBalances(
+        currentNetwork.value,
+        accountHeaderData.value.activeAccounts,
+      );
+    }
+
     if (accountHeaderData.value.sparkAccount) {
       console.log('UPDATING BALANCE');
 
@@ -207,7 +215,11 @@ const { sparkUnusedTxDetails, isCoinFetchPending, isTagFetchPending } =
     }
   });
 
-useUpdateActivityState(currentNetwork, sparkUnusedTxDetails, accountHeaderData);
+const { sparkHistoryVersion } = useUpdateActivityState(
+  currentNetwork,
+  sparkUnusedTxDetails,
+  accountHeaderData,
+);
 
 /** -------------------
  * Rate
@@ -355,6 +367,10 @@ onMounted(async () => {
 
 const getSparkAccountState = async (network: BaseNetwork) => {
   if (network.name === NetworkNames.Firo) {
+    // A mint or spend just moved public funds; without this the public
+    // balance stays stale until the popup is reopened.
+    updateActiveBalances(network, accountHeaderData.value.activeAccounts);
+
     // TODO: check maybe redundand
     const selectedAccount = accountHeaderData.value.selectedAccount;
     const currentSelectedAddress = selectedAccount?.address;
@@ -362,8 +378,10 @@ const getSparkAccountState = async (network: BaseNetwork) => {
     if (!currentSelectedAddress) {
       return null;
     }
-    const displayAddress = network.displayAddress(currentSelectedAddress);
-    const defaultAddress = await wallet.getSparkAddressAsync(displayAddress);
+    const defaultAddress = await getSparkAddress(
+      network,
+      currentSelectedAddress,
+    );
     await db.waitInit();
     const availableBalance = await calculateCurrentSparkBalance();
     if (defaultAddress) {
@@ -372,6 +390,37 @@ const getSparkAccountState = async (network: BaseNetwork) => {
         sparkBalance: { availableBalance },
       };
     }
+  }
+};
+
+const loadSparkAccountInfo = async (
+  network: BaseNetwork,
+  selectedAddress?: string,
+) => {
+  try {
+    const [defaultAddress, availableBalance] = await Promise.all([
+      selectedAddress
+        ? getSparkAddress(network, selectedAddress)
+        : Promise.resolve(null),
+      calculateCurrentSparkBalance(),
+    ]);
+
+    // The user may have switched networks while we were deriving.
+    if (currentNetwork.value.name !== NetworkNames.Firo) return;
+
+    const sparkAccount: SparkAccount = {
+      ...(accountHeaderData.value.sparkAccount ?? ({} as SparkAccount)),
+      sparkBalance: { availableBalance },
+    };
+    if (defaultAddress) {
+      sparkAccount.defaultAddress = defaultAddress;
+    }
+    accountHeaderData.value = {
+      ...accountHeaderData.value,
+      sparkAccount,
+    };
+  } catch (error) {
+    console.error('Failed to load spark account info:', error);
   }
 };
 
@@ -393,31 +442,6 @@ const setNetwork = async (network: BaseNetwork) => {
 
   const selectedAddress = await domainState.getSelectedAddress();
 
-  if (network.name === NetworkNames.Firo) {
-    /**
-     * Init spark account info
-     */
-
-    let selectedAccount = activeAccounts[0];
-    if (selectedAddress) {
-      const found = activeAccounts.find(acc => acc.address === selectedAddress);
-      if (found) selectedAccount = found;
-    }
-
-    const defaultAddress = await getSparkAddress(
-      network,
-      selectedAccount?.address,
-    );
-
-    await db.waitInit();
-    const availableBalance = await calculateCurrentSparkBalance();
-
-    if (defaultAddress) {
-      sparkAccount['defaultAddress'] = defaultAddress;
-    }
-    sparkAccount['sparkBalance'] = { availableBalance };
-  }
-
   let selectedAccount = activeAccounts[0];
   if (selectedAddress) {
     const found = activeAccounts.find(acc => acc.address === selectedAddress);
@@ -435,6 +459,12 @@ const setNetwork = async (network: BaseNetwork) => {
   currentNetwork.value = network;
   checkAddress(selectedAccount);
   router.push({ name: 'assets', params: { id: network.name } });
+
+  if (network.name === NetworkNames.Firo) {
+    // Spark address derivation needs the WASM module and key material;
+    // fill it in after the UI is on screen instead of gating first paint.
+    loadSparkAccountInfo(network, selectedAccount?.address);
+  }
   const tabId = await domainState.getCurrentTabId();
   const curSavedNetwork = await domainState.getSelectedNetWork();
 
@@ -499,6 +529,13 @@ const setNetwork = async (network: BaseNetwork) => {
   });
   domainState.setSelectedNetwork(network.name);
 
+  await updateActiveBalances(network, activeAccounts);
+};
+
+const updateActiveBalances = async (
+  network: BaseNetwork,
+  activeAccounts: EnkryptAccount[],
+) => {
   if (network.api) {
     try {
       const thisNetworkName = currentNetwork.value.name;

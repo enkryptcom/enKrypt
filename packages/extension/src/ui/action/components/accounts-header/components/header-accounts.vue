@@ -3,11 +3,7 @@
     <a class="account__info" :class="{ active: active }" @click="showAccounts">
       <div class="account__info-images">
         <img
-          :src="
-            network.identicon(
-              network.name === NetworkNames.Firo ? sparkAddress : address,
-            )
-          "
+          :src="network.identicon(displayedAddress)"
           class="account__info-images__identicon"
         />
         <img
@@ -19,13 +15,7 @@
 
       <div class="account__info-name">
         <p>{{ name }}</p>
-        <span>{{
-          $filters.replaceWithEllipsis(
-            network.name === NetworkNames.Firo ? sparkAddress : address,
-            6,
-            4,
-          )
-        }}</span>
+        <span>{{ $filters.replaceWithEllipsis(displayedAddress, 6, 4) }}</span>
       </div>
       <switch-arrow />
     </a>
@@ -166,6 +156,13 @@ const copy = (address: string) => {
 const showAccounts = () => {
   props.toggleAccounts();
 };
+// On Firo show the spark address; fall back to the transparent one
+// while it is loading or if it can't be derived.
+const displayedAddress = computed(() =>
+  props.network.name === NetworkNames.Firo && props.sparkAddress
+    ? props.sparkAddress
+    : props.address,
+);
 const externalLink = computed(() => {
   return props.network.blockExplorerAddr.replace('[[address]]', props.address);
 });

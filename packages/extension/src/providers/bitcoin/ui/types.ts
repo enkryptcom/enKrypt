@@ -32,6 +32,7 @@ export interface VerifyTransactionParams {
   gasPriceType: GasPriceTypes;
   TxInfo: string;
   mnemonic?: string;
+  isMax?: boolean;
 }
 
 export interface SignerTransactionOptions {

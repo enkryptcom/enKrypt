@@ -9,16 +9,14 @@
       @update:input-address="inputAddressTo"
     />
 
-    <send-token-select
-      v-if="isSendToken"
-      :token="availableAsset"
-    />
+    <send-token-select v-if="isSendToken" :token="availableAsset" />
 
     <send-input-amount
       v-if="isSendToken"
       :amount="amount"
       :fiat-value="availableAsset.price"
       :has-enough-balance="!nativeBalanceAfterTransaction.isNeg()"
+      @paste="onAmountPaste"
       @update:input-amount="inputAmount"
       @update:input-set-max="setMaxValue"
     />
@@ -52,9 +50,7 @@
         <base-button
           title="Send"
           :click="sendAction"
-          :disabled="
-            !isInputsValid || isAddress(addressTo, network.networkInfo)
-          "
+          :disabled="!isInputsValid"
         />
       </div>
     </div>
@@ -82,7 +78,6 @@ import SendSparkAddressInput from '../components/send-spark-address-input.vue';
 import SendTokenSelect from '../components/send-token-select.vue';
 import { calculateCurrentSparkBalance } from '@/libs/utils/updateAndSync/calculateCurrentSparkBalance';
 import useAsyncComputed from '@action/composables/async-computed';
-
 const router = useRouter();
 const route = useRoute();
 
@@ -142,7 +137,7 @@ watch(addressTo, async newAddress => {
 onMounted(async () => {
   trackSendEvents(SendEventType.SendOpen, { network: props.network.name });
   emit('update:isLoadingAssets', false);
-  setAsset();
+  setAssetPrice();
 });
 
 const sendAmount = computed(() => {
@@ -151,6 +146,7 @@ const sendAmount = computed(() => {
 });
 
 const { value: nativeBalanceAfterTransaction } = useAsyncComputed(async () => {
+  void props.sparkAccount?.sparkBalance?.availableBalance;
   if (availableAsset.value) {
     const sparkBalance = await calculateCurrentSparkBalance();
 
@@ -162,9 +158,18 @@ const { value: nativeBalanceAfterTransaction } = useAsyncComputed(async () => {
 }, toBN(0));
 
 const { value: assetMaxValue } = useAsyncComputed(async () => {
+  void props.sparkAccount?.sparkBalance?.availableBalance;
   const sparkBalance = await calculateCurrentSparkBalance();
   return fromBase(sparkBalance, props.network.decimals);
 }, '');
+
+watch(
+  () => props.sparkAccount?.sparkBalance?.availableBalance,
+  async () => {
+    availableAsset.value.balance = await calculateCurrentSparkBalance();
+  },
+  { immediate: true },
+);
 
 const isInputsValid = computed<boolean>(() => {
   if (!isValidAddress.value) return false;
@@ -192,8 +197,10 @@ const isInputsValid = computed<boolean>(() => {
         ),
       ),
     )
-  )
+  ) {
     return false;
+  }
+
   const sendAmountBigNumber = new BigNumber(sendAmount.value);
   if (sendAmountBigNumber.isNaN()) return false;
   if (sendAmountBigNumber.lte(0)) return false;
@@ -208,6 +215,16 @@ const inputAmount = (inputAmount: string) => {
   const inputAmountBn = new BigNumber(inputAmount);
   isMaxSelected.value = false;
   amount.value = inputAmountBn.lt(0) ? '0' : inputAmountBn.toString();
+};
+
+const onAmountPaste = ($event: ClipboardEvent) => {
+  const pasted = $event.clipboardData?.getData('text') ?? '';
+  const target = $event.target as HTMLInputElement;
+  const newValue =
+    target.value.slice(0, target.selectionStart ?? target.value.length) +
+    pasted +
+    target.value.slice(target.selectionEnd ?? target.value.length);
+  if (!/^\d*\.?\d*$/.test(newValue)) $event.preventDefault();
 };
 
 const sendAction = async () => {
@@ -235,6 +252,7 @@ const sendAction = async () => {
           fromAddress: fromAccountAddress,
           fromAddressName: 'Spark Account',
           toAddress: addressTo.value,
+          isMax: isMaxSelected.value,
         }),
         'utf8',
       ).toString('base64'),
@@ -242,7 +260,7 @@ const sendAction = async () => {
   });
 };
 
-const setAsset = async () => {
+const setAssetPrice = async () => {
   if (availableAsset.value.coingeckoID) {
     const market = new MarketData();
     const marketData = await market.getMarketData([
@@ -251,11 +269,6 @@ const setAsset = async () => {
 
     availableAsset.value.price = (marketData[0]?.current_price ?? 0).toString();
   }
-  // availableAsset.value.balance = String(
-  //   props.sparkAccount.sparkBalance.availableBalance,
-  // );
-
-  availableAsset.value.balance = await calculateCurrentSparkBalance();
   availableAsset.value.name = 'Available Balance';
 };
 

@@ -60,11 +60,15 @@ const decodeTx = async (
           tokenTo = decodedInfo.tokenTo!;
         }
         await marketData
-          .getMarketInfoByContracts([tx.to!], network.coingeckoPlatform!)
+          .getMarketInfoByContracts(
+            [tx.to!.toLowerCase()],
+            network.coingeckoPlatform!,
+          )
           .then(marketInfo => {
-            if (marketInfo[tx.to!]) {
-              currentPriceUSD = marketInfo[tx.to!]!.current_price ?? 0;
-              CGToken = marketInfo[tx.to!]!.id;
+            if (marketInfo[tx.to!.toLowerCase()]) {
+              currentPriceUSD =
+                marketInfo[tx.to!.toLowerCase()]!.current_price ?? 0;
+              CGToken = marketInfo[tx.to!.toLowerCase()]!.id;
             }
           });
       } else {
@@ -82,7 +86,7 @@ const decodeTx = async (
   return {
     isContractCreation,
     dataHex: bufferToHex(dataDecoder.data),
-    toAddress: tx.to!,
+    toAddress: tx.to!.toLowerCase(),
     decodedHex: dataDecoder.decode().values,
     decoded: dataDecoder.decode().decoded,
     tokenDecimals,

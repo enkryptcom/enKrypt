@@ -313,6 +313,7 @@ export default class FiroElectrum {
 
   async multiGetUnspentTransactions(
     addresses: string[],
+    fetchRaw: boolean = true,
   ): Promise<UnspentTxOutputModel[]> {
     const header = await this.mainClient?.request(
       'blockchain.headers.subscribe',
@@ -331,7 +332,6 @@ export default class FiroElectrum {
         const utxos = (await this.mainClient?.blockchain_scripthash_listunspent(
           reversedHashHex,
         )) as unknown as TransactionModel[];
-
         return utxos.map((u: any) => ({
           txid: u.tx_hash,
           vout: u.tx_pos,
@@ -346,6 +346,10 @@ export default class FiroElectrum {
     );
 
     const filterred = listUnspent.filter(el => el.length > 0).flat();
+
+    if (!fetchRaw) {
+      return filterred.map(el => ({ ...el, raw: '' }));
+    }
 
     const rawTxs = await Promise.all(
       filterred.map(({ txid }) => this.getTxRaw(txid, false)),
