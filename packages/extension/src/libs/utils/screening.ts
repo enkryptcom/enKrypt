@@ -1,9 +1,5 @@
 const isGeoRestricted = async (): Promise<boolean> => {
-  // First paint of the popup is gated on this check; don't let a slow
-  // network hold the whole UI hostage.
-  return fetch('https://partners.mewapi.io/o/ipcomply/enkrypt', {
-    signal: AbortSignal.timeout(3000),
-  })
+  return fetch('https://partners.mewapi.io/o/ipcomply/enkrypt')
     .then(async res => {
       if (res.ok) {
         const json = await res.json();
