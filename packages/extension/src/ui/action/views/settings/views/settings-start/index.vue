@@ -39,19 +39,7 @@
       <p>© {{ new Date().getFullYear() }} by MyEtherWallet Inc.</p>
     </div>
 
-    <modal-sign
-      v-if="isOpenSign"
-      :is-unlock="true"
-      v-bind="$attrs"
-      @window:close="toggleSign"
-      @toggle:forgot="toggleForgot"
-    />
-
-    <modal-forgot
-      v-if="isForgot"
-      :is-forgot="isForgot"
-      @toggle:forgot="toggleForgot"
-    />
+    <modal-sign v-model="isOpenSign" :is-unlock="true" v-bind="$attrs" />
   </div>
 </template>
 
@@ -60,10 +48,8 @@ import { ref } from 'vue';
 import SettingsHeader from '@action/views/settings/components/settings-header.vue';
 import SettingsButton from '@action/views/settings/components/settings-button.vue';
 import ModalSign from '@action/views/modal-sign/index.vue';
-import ModalForgot from '@action/views/modal-forgot/index.vue';
 
 const isOpenSign = ref(false);
-const isForgot = ref(false);
 const version = __PACKAGE_VERSION__;
 const buildTime = __BUILD_TIME__;
 defineEmits<{
@@ -99,10 +85,6 @@ const contactSupport = () => {
 
 const toggleSign = () => {
   isOpenSign.value = !isOpenSign.value;
-};
-const toggleForgot = () => {
-  isOpenSign.value = false;
-  isForgot.value = !isForgot.value;
 };
 </script>
 

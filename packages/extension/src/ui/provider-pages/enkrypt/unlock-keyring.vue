@@ -52,12 +52,7 @@
             Forgot password?
           </button>
 
-          <modal-forgot
-            v-if="isForgot"
-            :is-forgot="isForgot"
-            @toggle:forgot="toggleForgot"
-            :disabled="isProcessing"
-          />
+          <modal-forgot v-model="isForgot" />
         </div>
       </template>
     </common-popup>
@@ -266,33 +261,6 @@ const toggleForgot = () => {
       bottom: 0 !important;
       padding: 8px 12px !important;
     }
-  }
-
-  .modal-forgot__container {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 460px !important;
-    max-height: 600px !important;
-  }
-
-  .modal-forgot__overlay {
-    border-radius: 12px;
-  }
-
-  .modal-forgot__wrap {
-    width: auto !important;
-    max-width: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-  }
-
-  .lock-screen-forgot {
-    width: calc(100vw - 40px) !important;
-    max-width: 380px !important;
-    margin: 0 auto !important;
   }
 }
 </style>

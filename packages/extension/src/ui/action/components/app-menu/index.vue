@@ -821,13 +821,4 @@ const closeSolanaStakingBanner = () => {
     backdrop-filter: blur(40px);
   }
 }
-
-button {
-  background: none;
-  color: inherit;
-  padding: inherit;
-  font: inherit;
-  cursor: pointer;
-  border: 0;
-}
 </style>

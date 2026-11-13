@@ -70,7 +70,7 @@
         href="https://blog.enkrypt.com/getting-started-with-enkrypt-wallet/"
         target="_blank"
         rel="noopener noreferrer"
-        class="text-label-sm text-text-brand hover:underline"
+        class="mt-4 text-label-sm text-text-brand hover:underline"
         >How to get started →</a
       >
     </div>

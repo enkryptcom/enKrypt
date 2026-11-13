@@ -1,75 +1,99 @@
 <template>
-  <div class="modal-sign__container">
-    <div class="modal-sign__overlay" @click="$emit('window:close')" />
-    <div class="modal-sign__wrap">
-      <div class="modal-sign__header">
-        <h3 v-if="isUnlock">Unlock with password</h3>
-        <h3 v-else>Confirm with password</h3>
+  <AppModal
+    v-model="isOpen"
+    :title="
+      isForgot
+        ? 'Forgot password?'
+        : isUnlock
+          ? 'Unlock with password'
+          : 'Confirm with password'
+    "
+    :show-back-button="isForgot"
+    class="max-w-[360px]"
+    @closed="reset"
+    @back="isForgot = false"
+  >
+    <lock-screen-forgot v-if="isForgot" />
 
-        <a class="modal-sign__close" @click="$emit('window:close')">
-          <close-icon />
-        </a>
-      </div>
-      <div class="modal-sign__content">
-        <lock-screen-password-input
-          :is-error="isError"
-          :value="password"
-          @update:value="passwordChanged"
-          @keyup.enter="unlock"
-        />
-
-        <base-button
-          :title="buttonTitle"
-          :click="unlock"
-          :disabled="isDisabled"
-        />
-
-        <base-button
-          title="I forgot my password"
-          :click="() => $emit('toggle:forgot')"
-          :no-background="true"
-          class="modal-sign__forgot"
-        />
-      </div>
+    <div v-else class="px-6 pt-5">
+      <AppInput
+        v-model="password"
+        type="password"
+        label="Password"
+        surface="alternative"
+        :error-message="isError ? 'Wrong password' : undefined"
+        :submit-disabled="isDisabled"
+        @keyup.enter="unlock"
+      />
     </div>
-  </div>
+
+    <template v-if="!isForgot" #footer>
+      <div class="flex flex-col gap-2">
+        <AppBtn
+          class="w-full"
+          surface="alternative"
+          :disabled="isDisabled"
+          :is-loading="isProcessing"
+          @click="unlock"
+        >
+          {{ isUnlock ? 'Unlock' : 'Confirm' }}
+        </AppBtn>
+        <AppBtn
+          type="tertiary"
+          surface="alternative"
+          class="w-full"
+          @click="isForgot = true"
+        >
+          I forgot my password
+        </AppBtn>
+      </div>
+    </template>
+  </AppModal>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import CloseIcon from '@action/icons/common/close-icon.vue';
-import BaseButton from '@action/components/base-button/index.vue';
-import LockScreenPasswordInput from '@action/views/lock-screen/components/lock-screen-password-input.vue';
+import { ref, computed, watch } from 'vue';
+import AppModal from '@common/components/modal/AppModal.vue';
+import AppInput from '@common/components/input/AppInput.vue';
+import AppBtn from '@common/components/buttons/AppBtn.vue';
+import LockScreenForgot from '@action/views/lock-screen/components/lock-screen-forgot.vue';
 import KeyRingBase from '@/libs/keyring/keyring';
 import { MnemonicWithExtraWord } from '@enkryptcom/types';
 
-const emit = defineEmits<{
-  (e: 'toggle:forgot'): void;
-  (e: 'window:close'): void;
-  (e: 'action:recoveryPhrase', val: MnemonicWithExtraWord): void;
-}>();
-
-const password = ref('');
-const isError = ref(false);
-const isProcessing = ref(false);
-
-const isDisabled = computed(() => {
-  return password.value.length < 5 || isProcessing.value;
-});
-
-const props = defineProps({
+defineProps({
   isUnlock: {
     type: Boolean,
     default: false,
   },
 });
 
-const passwordChanged = (text: string) => {
+const emit = defineEmits<{
+  (e: 'action:recoveryPhrase', val: MnemonicWithExtraWord): void;
+}>();
+
+const isOpen = defineModel<boolean>({ required: true });
+const password = ref('');
+const isError = ref(false);
+const isForgot = ref(false);
+const isProcessing = ref(false);
+
+const isDisabled = computed(
+  () => password.value.length < 5 || isProcessing.value,
+);
+
+watch(password, () => {
   isError.value = false;
-  password.value = text;
+});
+
+// Start clean next time it opens.
+const reset = () => {
+  password.value = '';
+  isError.value = false;
+  isForgot.value = false;
 };
 
 const unlock = () => {
+  if (isDisabled.value) return;
   isProcessing.value = true;
   const keyring = new KeyRingBase();
   keyring
@@ -82,101 +106,4 @@ const unlock = () => {
     })
     .finally(() => (isProcessing.value = false));
 };
-
-const buttonTitle = computed(() => {
-  let title = 'Confirm';
-  if (props.isUnlock) {
-    title = 'Unlock';
-  }
-  return title;
-});
 </script>
-
-<style lang="less" scoped>
-@import '@action/styles/theme.less';
-
-.modal-sign {
-  width: 100%;
-  height: auto;
-  box-sizing: border-box;
-
-  &__header {
-    width: 100%;
-    background: @white;
-    box-sizing: border-box;
-    padding: 24px 64px 12px 32px;
-    position: relative;
-    z-index: 4;
-
-    h3 {
-      font-style: normal;
-      font-weight: bold;
-      font-size: 24px;
-      line-height: 32px;
-      margin: 0;
-      color: @primaryLabel;
-    }
-  }
-
-  &__close {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0;
-    transition: background 300ms ease-in-out;
-
-    &:hover {
-      background: @black007;
-    }
-  }
-
-  &__wrap {
-    background: @white;
-    box-shadow:
-      0px 3px 6px rgba(0, 0, 0, 0.039),
-      0px 7px 24px rgba(0, 0, 0, 0.19);
-    border-radius: 12px;
-    box-sizing: border-box;
-    width: 360px;
-    height: auto;
-    z-index: 107;
-    position: relative;
-    max-height: 568px;
-    overflow-x: hidden;
-  }
-
-  &__container {
-    width: 100vw;
-    height: 100vh;
-    left: 0px;
-    top: 0px;
-    position: fixed;
-    z-index: 105;
-    display: flex;
-    box-sizing: border-box;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
-  }
-
-  &__content {
-    padding: 16px 32px;
-  }
-
-  &__overlay {
-    background: rgba(0, 0, 0, 0.32);
-    width: 100%;
-    height: 100%;
-    left: 0px;
-    top: 0px;
-    position: absolute;
-    z-index: 106;
-  }
-
-  &__forgot {
-    margin-top: 16px;
-  }
-}
-</style>

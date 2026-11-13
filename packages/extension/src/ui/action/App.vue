@@ -1,9 +1,6 @@
 <template>
   <div>
-    <div
-      :class="['app', 'restricted-container', 'expanded']"
-      v-if="isAddressRestricted.isRestricted || geoRestricted"
-    >
+    <div :class="['app', 'restricted-container', 'expanded']" v-if="true">
       <restricted
         :isInitialized="isWalletInitialized"
         :is-address-restricted="isAddressRestricted.isRestricted"
