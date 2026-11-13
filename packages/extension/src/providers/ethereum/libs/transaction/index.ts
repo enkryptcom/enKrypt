@@ -198,7 +198,6 @@ class Transaction {
         chainId: BigInt(this.tx.chainId),
         defaultHardfork: Hardfork.London,
       });
-      console.log(feeMarketTx);
       let finalizedTransaction = FeeMarketEIP1559Transaction.fromTxData(
         feeMarketTx as FinalizedFeeMarketEthereumTransaction,
         {

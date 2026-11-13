@@ -43,10 +43,6 @@ const supportedNetworks: {
     changellyName: "optimism",
     isAddress: (address: string) => Promise.resolve(isEVMAddress(address)),
   },
-  [SupportedNetworkName.Moonbeam]: {
-    changellyName: "glmr",
-    isAddress: (address: string) => Promise.resolve(isEVMAddress(address)),
-  },
   [SupportedNetworkName.Polkadot]: {
     changellyName: "polkadot",
     isAddress: (address: string) =>

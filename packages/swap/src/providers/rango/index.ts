@@ -208,11 +208,6 @@ const supportedNetworks: Readonly<{
     rangoChainId: "42161",
     rangoBlockchain: "ARBITRUM",
   },
-  [SupportedNetworkName.Moonbeam]: {
-    realChainId: "1284",
-    rangoChainId: "1284",
-    rangoBlockchain: "MOONBEAM",
-  },
   [SupportedNetworkName.Solana]: {
     realChainId: "900",
     rangoChainId: "mainnet-beta",

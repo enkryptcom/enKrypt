@@ -10,6 +10,8 @@ import {
   PublicKey,
   Transaction,
   TransactionVersion,
+  AddressLookupTableProgram,
+  AddressLookupTableAccount,
 } from '@solana/web3.js';
 import SolanaAPI from '@/providers/solana/libs/api';
 import { SolanaNetwork } from '../../types/sol-network';
@@ -48,6 +50,53 @@ const assetFetch = (
   }).then(res => res.json());
 };
 
+export async function fetchRelevantAddresses(
+  solAPI: SolanaAPI,
+  lookupTableKeys: PublicKey[],
+  relevantIndexes: Set<number>,
+): Promise<PublicKey[]> {
+  const relevantAddresses: PublicKey[] = [];
+
+  for (const key of lookupTableKeys) {
+    const accountInfo = await solAPI.web3.getAccountInfo(key);
+    if (
+      accountInfo?.data &&
+      accountInfo.owner.equals(AddressLookupTableProgram.programId)
+    ) {
+      try {
+        const lookupTableAccount = AddressLookupTableAccount.deserialize(
+          accountInfo.data,
+        );
+        if (lookupTableAccount && lookupTableAccount.addresses) {
+          // FIX: awaited for-loop instead of forEach(async …)
+          for (
+            let index = 0;
+            index < lookupTableAccount.addresses.length;
+            index++
+          ) {
+            const address = lookupTableAccount.addresses[index];
+            if (!relevantIndexes.has(index)) continue;
+
+            const addressInfo = await solAPI.web3.getAccountInfo(address);
+            if (
+              (addressInfo?.owner.toBase58() === TOKEN_PROGRAM_ID.toBase58() ||
+                addressInfo?.owner.toBase58() ===
+                  TOKEN_2022_PROGRAM_ID.toBase58()) &&
+              addressInfo.data.length >= ACCOUNT_SIZE
+            ) {
+              relevantAddresses.push(address);
+            }
+          }
+        }
+      } catch {
+        console.error('Failed to deserialize address lookup table account');
+      }
+    }
+  }
+
+  return relevantAddresses;
+}
+
 const decodeTransaction = async (
   tx: VersionedTransaction | Transaction,
   from: PublicKey,
@@ -57,22 +106,50 @@ const decodeTransaction = async (
   const solAPI = (await network.api()).api as SolanaAPI;
   const allBalances = await network.getAllTokenInfo(from.toBase58());
   const marketData = new MarketData();
+  let accounts: string[] = [];
+  if (version !== 'legacy') {
+    const relevantIndexes = new Set<number>();
+
+    // Retrieve addresses from the LUTs and the message
+    const addressTableLookupKeys = (
+      tx as VersionedTransaction
+    ).message.addressTableLookups.map(
+      lookup => new PublicKey(lookup.accountKey),
+    );
+
+    (tx as VersionedTransaction).message.addressTableLookups.forEach(lookup => {
+      lookup.writableIndexes.forEach(index => relevantIndexes.add(index));
+      lookup.readonlyIndexes.forEach(index => relevantIndexes.add(index));
+    });
+
+    const lookupTableAccounts = await fetchRelevantAddresses(
+      solAPI,
+      addressTableLookupKeys,
+      relevantIndexes,
+    );
+
+    accounts = [
+      ...(tx as VersionedTransaction).message.staticAccountKeys.map(k =>
+        k.toBase58(),
+      ),
+      ...lookupTableAccounts.map(k => k.toBase58()),
+    ];
+  }
   return (
     version !== 'legacy'
       ? solAPI.web3.simulateTransaction(tx as VersionedTransaction, {
           accounts: {
-            addresses: (
-              tx as VersionedTransaction
-            ).message.staticAccountKeys.map(k => k.toBase58()),
+            addresses: accounts,
             encoding: 'base64',
           },
         })
       : solAPI.web3.simulateTransaction(tx as Transaction, undefined, true)
   ).then(async result => {
     if (result.value.err) return null;
+    console.log(result.value);
     const nativeChange = {
       contract: NATIVE_TOKEN_ADDRESS,
-      amount: BigInt(result.value.accounts![0]!.lamports),
+      amount: BigInt(result.value.accounts![1]!.lamports),
     };
     const balanceChanges = result.value
       .accounts!.filter(a => {

@@ -1,7 +1,7 @@
 const isGeoRestricted = async (): Promise<boolean> => {
   // First paint of the popup is gated on this check; don't let a slow
   // network hold the whole UI hostage.
-  return fetch('https://partners.mewapi.io/o/ipcomply', {
+  return fetch('https://partners.mewapi.io/o/ipcomply/enkrypt', {
     signal: AbortSignal.timeout(3000),
   })
     .then(async res => {
@@ -9,9 +9,9 @@ const isGeoRestricted = async (): Promise<boolean> => {
         const json = await res.json();
         return json.isRestricted;
       }
-      return false;
+      return true;
     })
-    .catch(() => false);
+    .catch(() => true);
 };
 
 const walletCache: Record<string, boolean> = {};
