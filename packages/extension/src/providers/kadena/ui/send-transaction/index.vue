@@ -104,7 +104,7 @@ import SendTokenSelect from './components/send-token-select.vue';
 import AssetsSelectList from '@action/views/assets-select-list/index.vue';
 import SendInputAmount from '@/providers/common/ui/send-transaction/send-input-amount.vue';
 import SendFeeSelect from './components/send-fee-select.vue';
-import SendAlert from './components/send-alert.vue';
+import SendAlert from '@/ui/send/send-alert.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import { AccountsHeaderData } from '@action/types/account';
 import { GasFeeInfo } from '@/providers/ethereum/ui/types';

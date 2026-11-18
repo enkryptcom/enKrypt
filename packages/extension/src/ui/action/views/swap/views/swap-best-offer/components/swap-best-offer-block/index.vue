@@ -23,8 +23,6 @@
         <p>≈ {{ $filters.parseCurrency(toTokenPrice) }}</p>
       </div>
     </div>
-    <!-- <best-offer-warning :fee-warning="true"></best-offer-warning>
-    <best-offer-warning :token-warning="true"></best-offer-warning> -->
     <best-offer-error
       v-if="warning === SwapBestOfferWarnings.BAD_PRICE"
       :bad-trade="true"
