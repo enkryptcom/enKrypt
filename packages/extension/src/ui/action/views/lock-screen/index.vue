@@ -1,52 +1,54 @@
 <template>
-  <div class="lock-screen__container">
+  <div
+    class="fixed inset-0 z-[999] flex h-[600px] gap-3 w-full flex-col items-center justify-center overflow-hidden bg-background-alternative text-text-default"
+  >
     <div
-      v-show="!isForgot && !isLocked && !isUnlocking"
-      class="lock-screen__wrap"
+      v-show="!isLocked && !isUnlocking"
+      class="flex w-[320px] flex-col items-start justify-center gap-6"
     >
-      <logo-big class="lock-screen__logo" />
-      <h4>Unlock with password</h4>
-      <lock-screen-password-input
-        :is-error="isError"
-        :value="password"
-        @update:value="passwordChanged"
-        @keyup.enter="unlockAction"
+      <img :src="appLogo" alt="MEW" class="h-10" />
+      <h1 class="text-heading-lg">Unlock with password</h1>
+      <AppInput
+        v-model="password"
+        type="password"
+        label="Password"
+        :error-message="isError ? 'Wrong password' : undefined"
+        :submit-disabled="isDisabled"
+        @enter="unlockAction"
       />
-      <base-button
-        title="Unlock"
-        :click="unlockAction"
-        :disabled="isDisabled"
-      />
+      <AppBtn class="w-full" :disabled="isDisabled" @click="unlockAction">
+        Unlock
+      </AppBtn>
     </div>
 
-    <div v-show="isUnlocking" class="lock-screen__unlocking">
+    <div
+      v-show="isUnlocking"
+      class="flex size-[300px] items-center justify-center [&_svg]:w-[132px]"
+    >
       <swap-looking-animation />
     </div>
 
-    <lock-screen-forgot
-      v-show="isForgot"
-      :reset="resetAction"
-      @toggle:forgot="toggleForgot"
-    />
-
     <lock-screen-timer v-show="isLocked" :close="closeLockedAction" />
 
-    <base-button
-      v-show="!isForgot && !isUnlocking"
-      title="I forgot my password"
-      :click="forgotAction"
-      :no-background="true"
-      class="lock-screen__forgot"
-    />
+    <AppBtn
+      v-show="!isUnlocking"
+      type="tertiary"
+      class="w-full max-w-[320px]"
+      @click="isForgot = true"
+    >
+      I forgot my password
+    </AppBtn>
+
+    <modal-forgot v-model="isForgot" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import LogoBig from '@action/icons/common/logo-big.vue';
-import BaseButton from '@action/components/base-button/index.vue';
-import LockScreenPasswordInput from './components/lock-screen-password-input.vue';
-import LockScreenForgot from './components/lock-screen-forgot.vue';
+import { ref, watch } from 'vue';
+import appLogo from '@/assets/images/logo.svg';
+import AppBtn from '@common/components/buttons/AppBtn.vue';
+import AppInput from '@common/components/input/AppInput.vue';
+import ModalForgot from '@action/views/modal-forgot/index.vue';
 import LockScreenTimer from './components/lock-screen-timer.vue';
 import { sendToBackgroundFromAction } from '@/libs/messenger/extension';
 import { InternalMethods } from '@/types/messenger';
@@ -69,6 +71,7 @@ const isLocked = ref(false);
 const isUnlocking = ref(false);
 
 const unlockAction = async () => {
+  if (isDisabled.value) return;
   isUnlocking.value = true;
   const unlockStatus = await sendToBackgroundFromAction({
     message: JSON.stringify({
@@ -88,95 +91,10 @@ const unlockAction = async () => {
     trackGenericEvents(GenericEvents.login_success);
   }
 };
-const forgotAction = () => {
-  toggleForgot();
-};
-const passwordChanged = (text: string) => {
-  password.value = text;
+watch(password, () => {
   isError.value = false;
-};
-const toggleForgot = () => {
-  isForgot.value = !isForgot.value;
-};
-const resetAction = () => {
-  password.value = '';
-};
+});
 const closeLockedAction = () => {
   isLocked.value = false;
 };
 </script>
-
-<style lang="less" scoped>
-@import '@action/styles/theme.less';
-
-.lock-screen {
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-
-  &__container {
-    height: 600px;
-    width: 100%;
-    overflow-x: hidden;
-    overflow-y: hidden;
-    position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 999;
-    background: radial-gradient(
-        100% 50% at 100% 50%,
-        rgba(250, 250, 250, 0.92) 0%,
-        rgba(250, 250, 250, 0.98) 100%
-      )
-      @primary;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-  }
-
-  &__wrap {
-    width: 320px;
-    height: auto;
-    box-sizing: border-box;
-    position: relative;
-
-    h4 {
-      font-style: normal;
-      font-weight: 700;
-      font-size: 24px;
-      line-height: 32px;
-      color: @primaryLabel;
-      margin: 0 0 8px 0;
-    }
-  }
-
-  &__unlocking {
-    width: 300px;
-    height: 300px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-
-    svg {
-      width: 132px;
-      position: relative;
-      z-index: 2;
-    }
-  }
-
-  &__logo {
-    margin-bottom: 24px;
-  }
-
-  &__forgot {
-    position: absolute;
-    width: 320px;
-    left: 50%;
-    margin-left: -160px;
-    bottom: 20px;
-  }
-}
-</style>

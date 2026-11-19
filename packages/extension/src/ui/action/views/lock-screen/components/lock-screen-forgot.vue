@@ -32,7 +32,7 @@
       Reset wallet
     </AppBtn>
 
-    <p class="text-text-sm text-text-subtle">
+    <p class="text-text-sm text-text-subtle text-center">
       Still need help?
       <a
         href="mailto:support@enkrypt.com"
