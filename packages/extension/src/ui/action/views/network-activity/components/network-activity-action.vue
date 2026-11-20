@@ -8,6 +8,7 @@
         <Deposit />Deposit
       </button>
       <button
+        v-if="showExchange"
         class="network-activity__action-item"
         @click="$emit('open:buyAction')"
       >
@@ -23,6 +24,7 @@
         <Send />Send
       </router-link>
       <router-link
+        v-if="showExchange"
         class="network-activity__action-item"
         :to="{
           name: 'swap',
@@ -42,6 +44,7 @@ import Send from '@action/icons/actions/send.vue';
 import Swap from '@action/icons/actions/swap.vue';
 import { useRoute } from 'vue-router';
 const route = useRoute();
+const showExchange = !__IS_SAFARI__;
 
 defineEmits<{
   (e: 'toggle:deposit'): void;

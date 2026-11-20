@@ -35,7 +35,7 @@ Browser.runtime.onInstalled.addListener(object => {
   }
 });
 
-if (__IS_OPERA__) {
+if (__IS_OPERA__ || __IS_SAFARI__) {
   Browser.scripting.registerContentScripts([
     {
       id: 'inject-script',
