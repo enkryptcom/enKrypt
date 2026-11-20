@@ -78,9 +78,6 @@ class API implements ProviderAPIInterface {
             return '0';
           }
           const _undefinedBalance = balance.unconfirmedBalance || '0';
-          const a = toBN(balance.balance)
-            .add(toBN(_undefinedBalance))
-            .toString();
           return toBN(balance.balance).add(toBN(_undefinedBalance)).toString();
         },
       )
