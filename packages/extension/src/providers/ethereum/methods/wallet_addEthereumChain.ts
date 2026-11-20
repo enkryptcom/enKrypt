@@ -61,6 +61,15 @@ const method: MiddlewareFunction = async function (
           getCustomError('Cannot add custom network, RPC not responding'),
         );
       }
+      // Re-check with the normalized chainId reported by the RPC itself so a
+      // non-canonical dapp-supplied value (e.g. "0x01") cannot create a
+      // custom network that collides with an existing network's chainId.
+      const setExistingNormalized = await setExistingCustomNetwork(
+        chainID,
+        payload.options?.tabId,
+        res,
+      );
+      if (setExistingNormalized) return;
       const customNetworkOptions: CustomEvmNetworkOptions = {
         name: params.nativeCurrency.symbol,
         node: params.rpcUrls[0],

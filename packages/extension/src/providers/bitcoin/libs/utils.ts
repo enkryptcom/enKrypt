@@ -1,5 +1,5 @@
 import { BitcoinNetworkInfo, HaskoinUnspentType } from '../types';
-import { address as BTCAddress } from 'bitcoinjs-lib';
+import { address as BTCAddress, Psbt, Transaction } from 'bitcoinjs-lib';
 import { GasPriceTypes } from '@/providers/common/types';
 import { fromBase } from '@enkryptcom/utils';
 import BigNumber from 'bignumber.js';
@@ -47,6 +47,21 @@ const getTxInfo = (
   }
   return txInfo;
 };
+
+/**
+ * Returns true if any PSBT input the given pubkey would sign requests a
+ * sighash type other than SIGHASH_ALL. Signing with such types (e.g.
+ * SIGHASH_NONE) would not commit to the outputs shown to the user, allowing
+ * them to be replaced after signing.
+ */
+const psbtHasUnsafeSighashType = (psbt: Psbt, signerPubkey: Buffer): boolean =>
+  psbt.data.inputs.some((input, idx) => {
+    if (!psbt.inputHasPubkey(idx, signerPubkey)) return false;
+    return (
+      input.sighashType !== undefined &&
+      input.sighashType !== Transaction.SIGHASH_ALL
+    );
+  });
 
 const getGasCostValues = async (
   network: BitcoinNetwork,
@@ -101,4 +116,4 @@ const getGasCostValues = async (
   };
   return gasCostValues;
 };
-export { isAddress, getGasCostValues, getTxInfo };
+export { isAddress, getGasCostValues, getTxInfo, psbtHasUnsafeSighashType };

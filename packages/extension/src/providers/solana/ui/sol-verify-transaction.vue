@@ -83,6 +83,15 @@
             again!
           </p>
         </div>
+
+        <div
+          v-for="(warning, index) in securityWarnings"
+          :key="'sec-warning-' + index"
+          class="provider-verify-transaction__error"
+        >
+          <alert-icon />
+          <p>{{ warning }}</p>
+        </div>
       </div>
 
       <send-fee-select
@@ -109,7 +118,9 @@
       <base-button
         title="Send"
         :click="approve"
-        :disabled="isProcessing || errorMsg != ''"
+        :disabled="
+          isProcessing || errorMsg != '' || securityWarnings.length > 0
+        "
       />
     </template>
   </common-popup>
@@ -122,7 +133,7 @@ import BaseButton from '@action/components/base-button/index.vue';
 import CommonPopup from '@action/views/common-popup/index.vue';
 import SendFeeSelect from './send-transaction/components/send-fee-select.vue';
 import HardwareWalletMsg from '@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue';
-import { getError } from '@/libs/error';
+import { getError, getCustomError } from '@/libs/error';
 import { ErrorCodes } from '@/providers/ethereum/types';
 import { WindowPromiseHandler } from '@/libs/window-promise';
 import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
@@ -166,6 +177,7 @@ const marketdata = new MarketData();
 const activityState = new ActivityState();
 const gasCostValues = ref<GasFeeType>(defaultGasCostVals);
 const decodedTx = ref<DecodedTxResponseType[] | null>([]);
+const securityWarnings = ref<string[]>([]);
 const errorMsg = ref('');
 const account = ref<EnkryptAccount>({
   name: '',
@@ -265,13 +277,32 @@ onBeforeMount(async () => {
     TxType.value,
   )
     .then(vals => {
-      decodedTx.value = vals;
+      if (!vals) {
+        decodedTx.value = null;
+      } else {
+        decodedTx.value = vals.tokens;
+        securityWarnings.value = vals.securityWarnings;
+      }
+    })
+    .catch(() => {
+      // fail closed: never leave the reassuring empty preview with Send active
+      decodedTx.value = null;
     })
     .finally(() => (isProcessing.value = false));
 });
 
 const approve = async () => {
   const { Resolve } = await windowPromise;
+  if (securityWarnings.value.length > 0) {
+    trackSendEvents(SendEventType.SendAPIFailed, {
+      network: network.value.name,
+    });
+    return Resolve.value({
+      error: getCustomError(
+        'Enkrypt: transaction rejected: it removes your ownership of a token account or its effects could not be verified',
+      ),
+    });
+  }
   isProcessing.value = true;
   trackSendEvents(SendEventType.SendAPIApprove, {
     network: network.value.name,

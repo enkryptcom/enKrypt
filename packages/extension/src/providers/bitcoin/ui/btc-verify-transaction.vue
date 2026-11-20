@@ -78,6 +78,17 @@
           <alert-icon />
           <p>You don't have enough balance for this transaction</p>
         </div>
+        <div
+          v-if="hasUnsafeSighashType && !isPreLoading"
+          class="provider-verify-transaction__error"
+        >
+          <alert-icon />
+          <p>
+            This request uses a signature hash type other than SIGHASH_ALL,
+            which would allow the recipients and amounts shown here to be
+            changed after signing. Signing is disabled.
+          </p>
+        </div>
       </div>
       <div class="provider-verify-transaction__message">
         <JsonTreeView
@@ -108,7 +119,12 @@
       <base-button
         title="Sign"
         :click="approve"
-        :disabled="isProcessing || !hasEnoughBalance || isPreLoading"
+        :disabled="
+          isProcessing ||
+          !hasEnoughBalance ||
+          isPreLoading ||
+          hasUnsafeSighashType
+        "
       />
     </template>
   </common-popup>
@@ -122,7 +138,7 @@ import CommonPopup from '@action/views/common-popup/index.vue';
 import SendFeeSelect from '@/providers/common/ui/send-transaction/send-fee-select.vue';
 import HardwareWalletMsg from '@/providers/common/ui/verify-transaction/hardware-wallet-msg.vue';
 import AlertIcon from '@action/icons/send/alert-icon.vue';
-import { getError } from '@/libs/error';
+import { getError, getCustomError } from '@/libs/error';
 import { ErrorCodes } from '@/providers/ethereum/types';
 import { WindowPromiseHandler } from '@/libs/window-promise';
 import { DEFAULT_BTC_NETWORK, getNetworkByName } from '@/libs/utils/networks';
@@ -138,7 +154,8 @@ import { GasPriceTypes } from '@/providers/common/types';
 import { SignPSBTOptions } from '../types';
 import { computed } from 'vue';
 import { toBN } from 'web3-utils';
-import { Psbt } from 'bitcoinjs-lib';
+import { Psbt, Transaction } from 'bitcoinjs-lib';
+import { psbtHasUnsafeSighashType } from '../libs/utils';
 import BigNumber from 'bignumber.js';
 import { JsonTreeView } from '@/libs/json-tree-view';
 import { trackSendEvents } from '@/libs/metrics';
@@ -272,6 +289,14 @@ const hasEnoughBalance = computed(() => {
   return toBN(TokenBalance.value).gte(toBN(getTotalIn.value));
 });
 
+const hasUnsafeSighashType = computed(() => {
+  if (!PSBT.value) return false;
+  return psbtHasUnsafeSighashType(
+    PSBT.value as Psbt,
+    hexToBuffer(account.value.address),
+  );
+});
+
 const setTransactionFees = () => {
   gasCostValues.value.ECONOMY.nativeSymbol = 'BTC';
   gasCostValues.value.ECONOMY.nativeValue = fromBase(
@@ -297,17 +322,23 @@ const approve = async () => {
   });
   const { Resolve } = await windowPromise;
   isProcessing.value = true;
+  if (hasUnsafeSighashType.value) {
+    // SIGHASH types other than SIGHASH_ALL do not commit to the displayed
+    // outputs, allowing them to be replaced after signing.
+    Resolve.value({
+      error: getCustomError(
+        'btc_signPsbt: inputs with sighash types other than SIGHASH_ALL are not supported',
+      ),
+    });
+    return;
+  }
   const signer = PSBTSigner(account.value, network.value as BitcoinNetwork);
   try {
     for (let i = 0; i < PSBT.value!.data.inputs.length; i++) {
       if (PSBT.value!.inputHasPubkey(i, hexToBuffer(account.value.address))) {
-        await PSBT.value!.signInputAsync(
-          i,
-          signer,
-          PSBT.value!.data.inputs[i].sighashType
-            ? [PSBT.value!.data.inputs[i].sighashType!]
-            : undefined,
-        );
+        await PSBT.value!.signInputAsync(i, signer, [
+          Transaction.SIGHASH_ALL,
+        ]);
         if (psbtOptions.value.autoFinalized) PSBT.value!.finalizeInput(i);
       }
     }
