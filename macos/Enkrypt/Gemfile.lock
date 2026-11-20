@@ -235,6 +235,8 @@ GEM
 
 PLATFORMS
   arm64-darwin-23
+  arm64-darwin-24
+  ruby
   universal-darwin-22
   x86_64-darwin-20
   x86_64-darwin-21
