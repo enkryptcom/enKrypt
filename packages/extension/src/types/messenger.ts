@@ -35,6 +35,7 @@ export enum InternalMethods {
   getNewAccount = 'enkrypt_getNewAccount',
   saveNewAccount = 'enkrypt_saveNewAccount',
   changeNetwork = 'enkrypt_changeNetwork',
+  getUnlockLockout = 'enkrypt_get_unlock_lockout',
 }
 export interface SendMessage {
   [key: string]: any;

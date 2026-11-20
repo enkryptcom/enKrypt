@@ -1,65 +1,47 @@
 <template>
-  <div class="lock-screen-timer">
-    <logo-big class="lock-screen-timer__logo" />
-    <p>You need to wait until entering password again</p>
-    <h4>
-      {{ timer == 60 ? '1:00' : '0:' + (timer > 9 ? timer : '0' + timer) }}
-    </h4>
+  <div class="flex w-[320px] flex-col">
+    <img :src="appLogo" alt="MEW" class="mb-6 mr-auto h-10" />
+    <h1 class="mb-2 text-heading-lg">Too many attempts</h1>
+    <p class="mb-4 text-text-base text-text-subtle">
+      You need to wait until entering password again
+    </p>
+    <p class="text-heading-2xl tabular-nums" role="timer" aria-live="off">
+      {{ formatted }}
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import LogoBig from '@action/icons/common/logo-big.vue';
-const timer = ref(60);
-onMounted(() => {
-  updateTimer();
-});
-const props = defineProps({
-  close: {
-    type: Function,
-    default: () => {
-      return null;
-    },
-  },
-});
-const updateTimer = () => {
-  const interval = setInterval(() => {
-    if (timer.value == 0) {
-      clearInterval(interval);
-      props.close();
-    } else {
-      timer.value = timer.value - 1;
-    }
-  }, 1000);
-};
-</script>
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import appLogo from '@/assets/images/logo.svg';
 
-<style lang="less">
-@import '@action/styles/theme.less';
-.lock-screen-timer {
-  width: 320px;
-  height: auto;
-  box-sizing: border-box;
-  position: relative;
-  &__logo {
-    margin-bottom: 16px;
+const props = defineProps<{
+  /** Epoch ms when the lock ends. */
+  until: number;
+}>();
+
+const emit = defineEmits<{ done: [] }>();
+
+const secondsLeft = ref(0);
+let interval: ReturnType<typeof setInterval> | undefined;
+
+const tick = () => {
+  secondsLeft.value = Math.max(0, Math.ceil((props.until - Date.now()) / 1000));
+  if (secondsLeft.value === 0) {
+    clearInterval(interval);
+    emit('done');
   }
-  p {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
-    color: @secondaryLabel;
-    margin: 0 0 16px 0;
-  }
-  h4 {
-    font-style: normal;
-    font-weight: 700;
-    font-size: 24px;
-    line-height: 32px;
-    color: @primaryLabel;
-    margin: 0;
-  }
-}
-</style>
+};
+
+const formatted = computed(() => {
+  const m = Math.floor(secondsLeft.value / 60);
+  const s = secondsLeft.value % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+});
+
+onMounted(() => {
+  tick();
+  interval = setInterval(tick, 1000);
+});
+onUnmounted(() => clearInterval(interval));
+</script>

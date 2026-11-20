@@ -21,6 +21,7 @@ import {
   getEthereumPubKey,
   ethereumDecrypt,
   unlock,
+  getUnlockLockout,
   changeNetwork,
   sendToTab,
   newAccount,
@@ -177,6 +178,8 @@ class BackgroundHandler {
         return unlock(this.#keyring, message);
       case InternalMethods.lock:
         return lock(this.#keyring);
+      case InternalMethods.getUnlockLockout:
+        return getUnlockLockout();
       case InternalMethods.changeNetwork:
         return changeNetwork(msg, this.#tabProviders);
       case InternalMethods.isLocked:

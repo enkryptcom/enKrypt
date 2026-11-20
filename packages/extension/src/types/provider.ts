@@ -58,6 +58,7 @@ export enum InternalStorageNamespace {
   backupState = 'BackupState',
   menuState = 'MenuState',
   bannersState = 'BannersState',
+  unlockLockout = 'UnlockLockout',
 }
 export enum EnkryptProviderEventMethods {
   persistentEvents = 'PersistentEvents',

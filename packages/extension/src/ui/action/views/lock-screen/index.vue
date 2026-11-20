@@ -3,7 +3,7 @@
     class="fixed inset-0 z-[999] flex h-[600px] gap-3 w-full flex-col items-center justify-center overflow-hidden bg-background-alternative text-text-default"
   >
     <div
-      v-show="!isLocked && !isUnlocking"
+      v-show="!isUnlocking && !isLocked"
       class="flex w-[320px] flex-col items-start justify-center gap-6"
     >
       <img :src="appLogo" alt="MEW" class="h-10" />
@@ -28,7 +28,12 @@
       <swap-looking-animation />
     </div>
 
-    <lock-screen-timer v-show="isLocked" :close="closeLockedAction" />
+    <lock-screen-timer
+      v-if="isLocked"
+      :until="lockedUntil"
+      @done="endLock"
+      class="mb-10"
+    />
 
     <AppBtn
       v-show="!isUnlocking"
@@ -44,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import appLogo from '@/assets/images/logo.svg';
 import AppBtn from '@common/components/buttons/AppBtn.vue';
 import AppInput from '@common/components/input/AppInput.vue';
@@ -56,6 +61,8 @@ import { computed } from 'vue';
 import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';
 import { trackGenericEvents } from '@/libs/metrics';
 import { GenericEvents } from '@/libs/metrics/types';
+import { UNLOCK_LOCKED_ERROR_CODE } from '@/libs/unlock-lockout';
+import type { ProviderError } from '@enkryptcom/types';
 
 const emit = defineEmits<{
   (e: 'update:init'): void;
@@ -67,11 +74,37 @@ const isDisabled = computed(() => {
 });
 const isError = ref(false);
 const isForgot = ref(false);
-const isLocked = ref(false);
 const isUnlocking = ref(false);
 
+/**
+ * Lockout after too many wrong passwords. The background owns the count and
+ * the lock (see libs/unlock-lockout); the popup only mirrors `lockedUntil` to
+ * show the timer.
+ */
+const lockedUntil = ref(0);
+const isLocked = computed(() => lockedUntil.value > Date.now());
+
+const endLock = () => {
+  lockedUntil.value = 0;
+};
+
+const getLockedUntil = (error?: ProviderError): number => {
+  if (error?.code !== UNLOCK_LOCKED_ERROR_CODE) return 0;
+  return (error.data as { lockedUntil?: number } | undefined)?.lockedUntil ?? 0;
+};
+
+onMounted(async () => {
+  const res = await sendToBackgroundFromAction({
+    message: JSON.stringify({
+      method: InternalMethods.getUnlockLockout,
+      params: [],
+    }),
+  });
+  if (res.result) lockedUntil.value = JSON.parse(res.result).lockedUntil ?? 0;
+});
+
 const unlockAction = async () => {
-  if (isDisabled.value) return;
+  if (isDisabled.value || isLocked.value) return;
   isUnlocking.value = true;
   const unlockStatus = await sendToBackgroundFromAction({
     message: JSON.stringify({
@@ -80,8 +113,10 @@ const unlockAction = async () => {
     }),
   });
   if (unlockStatus.error) {
-    isError.value = true;
     isUnlocking.value = false;
+    lockedUntil.value = getLockedUntil(unlockStatus.error);
+    if (isLocked.value) password.value = '';
+    else isError.value = true;
     trackGenericEvents(GenericEvents.login_error);
   } else {
     isError.value = false;
@@ -94,7 +129,4 @@ const unlockAction = async () => {
 watch(password, () => {
   isError.value = false;
 });
-const closeLockedAction = () => {
-  isLocked.value = false;
-};
 </script>
