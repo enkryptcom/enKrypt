@@ -18,7 +18,10 @@ import { ApiPromise } from '@polkadot/api';
 import { TransactionType } from '../types';
 import { BitcoinNetwork } from '@/providers/bitcoin/types/bitcoin-network';
 import BitcoinAPI from '@/providers/bitcoin/libs/api';
-import { getTxInfo as getBTCTxInfo } from '@/providers/bitcoin/libs/utils';
+import {
+  getTxInfo as getBTCTxInfo,
+  getDustThreshold,
+} from '@/providers/bitcoin/libs/utils';
 import { toBN } from 'web3-utils';
 import { BTCTxInfo } from '@/providers/bitcoin/ui/types';
 
@@ -58,7 +61,9 @@ export const getBitcoinNativeTransaction = async (
     address: tx.to,
     value: toAmount.toNumber(),
   });
-  if (remainder > 0) {
+  // Change worth less than the dust limit cannot be paid out: the node would
+  // reject the whole transaction as non standard. Leave it as fee instead.
+  if (remainder >= getDustThreshold(network)) {
     txInfo.outputs.push({
       address: network.displayAddress(tx.from),
       value: remainder,

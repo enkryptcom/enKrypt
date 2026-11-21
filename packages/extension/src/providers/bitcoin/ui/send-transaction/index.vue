@@ -186,7 +186,11 @@ import Browser from 'webextension-polyfill';
 import { ProviderName } from '@/types/provider';
 import PublicKeyRing from '@/libs/keyring/public-keyring';
 
-import { getGasCostValues, isAddress } from '../../libs/utils';
+import {
+  getDustThreshold,
+  getGasCostValues,
+  isAddress,
+} from '../../libs/utils';
 import BitcoinAPI from '@/providers/bitcoin/libs/api';
 import { calculateSizeBasedOnType } from '../libs/tx-size';
 import { HaskoinUnspentType } from '../../types';
@@ -517,7 +521,9 @@ const sendAction = async () => {
     });
   }
   const remainder = UTXOBalance.value.sub(toAmount).sub(currentFee);
-  if (remainder.gtn(0)) {
+  // Change worth less than the dust limit cannot be paid out: the node would
+  // reject the whole transaction as non standard. Leave it as fee instead.
+  if (remainder.gten(getDustThreshold(props.network as BitcoinNetwork))) {
     txInfo.outputs.push({
       address: props.network.displayAddress(addressFrom.value),
       value: remainder.toNumber(),
