@@ -223,6 +223,8 @@ const openBuyPage = () => {
     switch (currentNetwork.value.name) {
       case NetworkNames.Massa:
         return 'https://www.massa.net/get-mas';
+      case NetworkNames.Animica:
+        return 'https://nonkyc.io/market/ANM_USDT';
       default:
         return `https://ccswap.myetherwallet.com/?to=${currentNetwork.value.displayAddress(
           accountHeaderData.value.selectedAccount!.address,

@@ -24,6 +24,7 @@ import {
   KadenaRawInfo,
   SOLRawInfo,
   MassaRawInfo,
+  AnimicaRawInfo,
 } from './activity';
 
 export enum ProviderName {
@@ -34,6 +35,7 @@ export enum ProviderName {
   kadena = 'kadena',
   solana = 'solana',
   massa = 'massa',
+  animica = 'animica',
 }
 export enum InternalStorageNamespace {
   keyring = 'KeyRing',
@@ -71,6 +73,7 @@ export enum ProviderType {
   kadena,
   solana,
   massa,
+  animica,
 }
 
 export type SendMessageHandler = (
@@ -148,6 +151,7 @@ export abstract class ProviderAPIInterface {
     | KadenaRawInfo
     | SOLRawInfo
     | MassaRawInfo
+    | AnimicaRawInfo
     | null
   >;
 }

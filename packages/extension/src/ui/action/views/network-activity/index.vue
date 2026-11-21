@@ -72,6 +72,7 @@ import {
   KadenaRawInfo,
   SOLRawInfo,
   MassaRawInfo,
+  AnimicaRawInfo,
 } from '@/types/activity';
 import NetworkActivityLoading from './components/network-activity-loading.vue';
 import { ProviderName } from '@/types/provider';
@@ -247,6 +248,31 @@ const handleActivityUpdate = (activity: Activity, info: any, timer: any) => {
 
     activity.status = status;
     activity.rawInfo = massaInfo;
+    updateActivitySync(activity).then(() => updateVisibleActivity(activity));
+  } else if (props.network.provider === ProviderName.animica) {
+    if (!info) return;
+    const animicaInfo = info as AnimicaRawInfo;
+    if (isActivityUpdating) return;
+
+    let status: ActivityStatus;
+    if (animicaInfo.included_height !== null && !animicaInfo.reorged_out) {
+      status = ActivityStatus.success;
+    } else if (animicaInfo.rejection_details) {
+      status = ActivityStatus.failed;
+    } else if (
+      animicaInfo.status === 'not_found' &&
+      !animicaInfo.seen_in_mempool &&
+      Date.now() > activity.timestamp + 3 * 60 * 60_000
+    ) {
+      // Transfers are valid for 120 blocks (~3 hours); after that the
+      // transaction can no longer be included and is considered dropped
+      status = ActivityStatus.dropped;
+    } else {
+      return; /* Still in the mempool or waiting for a block */
+    }
+
+    activity.status = status;
+    activity.rawInfo = animicaInfo;
     updateActivitySync(activity).then(() => updateVisibleActivity(activity));
   }
 

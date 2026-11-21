@@ -51,6 +51,7 @@ class BackgroundHandler {
       [ProviderName.kadena]: {},
       [ProviderName.solana]: {},
       [ProviderName.massa]: {},
+      [ProviderName.animica]: {},
     };
     this.#providers = Providers;
     this.#geoRestricted = undefined;

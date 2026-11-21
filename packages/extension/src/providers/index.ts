@@ -4,6 +4,7 @@ import BitcoinProvider from '@/providers/bitcoin';
 import KadenaProvider from '@/providers/kadena';
 import SolanaProvider from '@/providers/solana';
 import MassaProvider from '@/providers/massa';
+import AnimicaProvider from '@/providers/animica';
 import { ProviderName } from '@/types/provider';
 
 export default {
@@ -13,4 +14,5 @@ export default {
   [ProviderName.kadena]: KadenaProvider,
   [ProviderName.solana]: SolanaProvider,
   [ProviderName.massa]: MassaProvider,
+  [ProviderName.animica]: AnimicaProvider,
 };
