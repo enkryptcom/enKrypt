@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import { SignerType } from "@enkryptcom/types";
+import { Errors, SignerType } from "@enkryptcom/types";
 import { PolkadotSigner } from "../src";
 
 describe("Polkadot signers", () => {
@@ -44,4 +44,31 @@ describe("Polkadot signers", () => {
       );
     }
   });
+});
+
+describe("Polkadot signers verification", () => {
+  const MNEMONIC = {
+    mnemonic:
+      "error fish boy absent drop next ice keep meadow little air include",
+  };
+  const MSG_HASH =
+    "82ff40c0a986c6a5cfad4ddf4c3aa6996f1a7837f9c398e17e5de5cbd5a12b28";
+
+  for (const signerType of [
+    SignerType.ecdsa,
+    SignerType.ed25519,
+    SignerType.sr25519,
+  ]) {
+    it(`${signerType} should reject a signature that does not verify`, async () => {
+      const signer = new PolkadotSigner(signerType);
+      const keypair = await signer.generate(MNEMONIC, "");
+      const unrelated = await signer.generate(MNEMONIC, "//unrelated");
+      await expect(
+        signer.sign(MSG_HASH, {
+          ...keypair,
+          publicKey: unrelated.publicKey,
+        }),
+      ).rejects.toThrow(Errors.SigningErrors.UnableToVerify);
+    });
+  }
 });

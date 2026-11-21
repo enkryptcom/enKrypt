@@ -44,13 +44,14 @@ export class BitcoinSigner implements SignerInterface {
       recovered: true,
     });
     const signature = Buffer.concat([rsig[0], Buffer.from([rsig[1]])]);
-    if (
-      !this.verify(
-        bufferToHex(msgHashBuffer),
-        bufferToHex(signature),
-        keyPair.publicKey,
-      )
-    ) {
+    // verify the 64 byte compact signature: `signature` also carries the
+    // recovery id, which `verify` does not accept
+    const isValid = await this.verify(
+      bufferToHex(msgHashBuffer),
+      bufferToHex(rsig[0]),
+      keyPair.publicKey,
+    );
+    if (!isValid) {
       throw new Error(Errors.SigningErrors.UnableToVerify);
     }
     return bufferToHex(signature);
