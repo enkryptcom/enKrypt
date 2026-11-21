@@ -9,6 +9,6 @@ import CommonPopup from '@action/views/common-popup/index.vue';
 </script>
 
 <style lang="less">
-@import '@/providers/ethereum/ui/styles/common-popup.less';
+@import '@/ui/common/styles/common-popup.less';
 @import '@action/styles/theme.less';
 </style>

@@ -1,7 +1,8 @@
 <template>
   <div class="send-alert" role="alert" aria-live="polite">
     <alert-icon />
-    <p aria-label="Error message">{{ errorMsg }}</p>
+    <p v-if="errorMsg"><slot>{{ errorMsg }}</slot></p>
+    <slot v-else />
   </div>
 </template>
 
@@ -9,7 +10,7 @@
 import AlertIcon from '@action/icons/send/alert-icon.vue';
 
 interface IProps {
-  errorMsg: string;
+  errorMsg?: string;
 }
 
 defineProps<IProps>();
@@ -19,7 +20,7 @@ defineProps<IProps>();
 @import '@action/styles/theme.less';
 
 .send-alert {
-  margin: 4px 24px 8px 24px;
+  margin: 4px 24px 8px;
   border: 1.5px solid rgba(239, 68, 68, 0.2);
   border-radius: 12px;
   padding: 12px 16px 12px 48px;
@@ -46,7 +47,7 @@ defineProps<IProps>();
     color: @error;
   }
 
-  p {
+  :deep(p) {
     font-weight: 500;
     font-size: 13px;
     line-height: 18px;

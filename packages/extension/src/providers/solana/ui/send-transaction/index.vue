@@ -133,7 +133,7 @@ import SendContactsList from '@/providers/common/ui/send-transaction/send-contac
 import AssetsSelectList from '@action/views/assets-select-list/index.vue';
 import NftSelectList from '@/providers/common/ui/send-transaction/nft-select-list/index.vue';
 import SendTokenSelect from './components/send-token-select.vue';
-import SendAlert from './components/send-alert.vue';
+import SendAlert from '@/ui/send/send-alert.vue';
 import SendNftSelect from '@/providers/common/ui/send-transaction/send-nft-select.vue';
 import SendInputAmount from '@/providers/common/ui/send-transaction/send-input-amount.vue';
 import SendFeeSelect from './components/send-fee-select.vue';
