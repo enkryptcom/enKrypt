@@ -1,5 +1,7 @@
 <template>
-  <div class="network-header">
+  <div
+    class="rounded-[24px] bg-background-default text-text-brand hover:bg-background-default-hover active:bg-background-default-pressed"
+  >
     <accounts-header-account
       v-if="!!accountInfo.selectedAccount"
       :name="accountInfo.selectedAccount.name"
@@ -71,16 +73,4 @@ const toggleAccounts = () => {
 
 <style lang="less">
 @import '@action/styles/theme.less';
-
-.network-header {
-  position: fixed;
-  width: 460px;
-  height: 56px;
-  top: 0;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(50px);
-  -webkit-backdrop-filter: blur(50px);
-  box-shadow: 0 3px 3px -3px rgba(0, 0, 0, 0.16);
-  z-index: 2;
-}
 </style>

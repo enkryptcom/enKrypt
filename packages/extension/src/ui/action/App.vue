@@ -18,16 +18,15 @@
       >
         <swap-looking-animation />
       </div>
-      <div v-show="!isLoading">
+      <!-- <div v-show="!isLoading">
         <app-menu
           :active-network="currentNetwork"
           @update:network="setNetwork"
           @show:updates-dialog="setShowUpdatesDialog(true)"
-          @show:settings-dialog="settingsShow = true"
           @show:other-networks-dialog="addNetworkShow = true"
           @action:lock-enkrypt="lockAction"
         />
-      </div>
+      </div> -->
 
       <div
         v-show="!isLoading"
@@ -36,16 +35,20 @@
           'app__content',
         ]"
       >
-        <accounts-header
-          v-show="showNetworkMenu"
-          :account-info="accountHeaderData"
-          :network="currentNetwork"
-          :show-deposit="showDepositWindow"
-          @update:init="init"
-          @address-changed="onSelectedAddressChanged"
-          @select:subnetwork="onSelectedSubnetworkChange"
-          @toggle:deposit="toggleDepositWindow"
-        />
+        <div class="bg-background-alternative p-2">
+          <the-app-header />
+          <the-accounts-header
+            v-show="showNetworkMenu"
+            :account-info="accountHeaderData"
+            :network="currentNetwork"
+            :show-deposit="showDepositWindow"
+            @update:init="init"
+            @address-changed="onSelectedAddressChanged"
+            @select:subnetwork="onSelectedSubnetworkChange"
+            @toggle:deposit="toggleDepositWindow"
+          />
+        </div>
+
         <router-view v-slot="{ Component }" name="view">
           <transition :name="transitionName" mode="out-in">
             <component
@@ -71,11 +74,6 @@
       <add-network
         v-if="addNetworkShow"
         @close:popup="addNetworkShow = !addNetworkShow"
-      />
-      <settings
-        v-if="settingsShow"
-        @close:popup="settingsShow = !settingsShow"
-        @action:lock="lockAction"
       />
       <modal-rate v-model="isRatePopupOpen" />
       <modal-new-version
@@ -118,13 +116,13 @@ import { fromBase } from '@enkryptcom/utils';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Browser from 'webextension-polyfill';
-import AccountsHeader from './components/accounts-header/index.vue';
+import TheAccountsHeader from './components/accounts-header/TheAccountsHeader.vue';
 import AppMenu from './components/app-menu/index.vue';
+import TheAppHeader from './components/the-app-header/TheAppHeader.vue';
 import NetworkMenu from './components/network-menu/index.vue';
 import { AccountsHeaderData } from './types/account';
 import AddNetwork from './views/add-network/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
-import Settings from './views/settings/index.vue';
 import ModalUpdates from './views/updates/index.vue';
 import Restricted from './views/restricted/index.vue';
 import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
@@ -139,7 +137,7 @@ import { storeToRefs } from 'pinia';
 import { BuyEventType, NetworkChangeEvents } from '@/libs/metrics/types';
 import BackupState from '@/libs/backup-state';
 import { useMenuStore } from './store/menu-store';
-import { useCurrencyStore, type Currency } from './views/settings/store';
+import { useCurrencyStore, type Currency } from './store/currency-store';
 import { useRateStore } from './store/rate-store';
 import { isGeoRestricted, isWalletRestricted } from '@/libs/utils/screening';
 
@@ -162,7 +160,6 @@ const currentNetwork = ref<BaseNetwork>(defaultNetwork);
 const currentSubNetwork = ref<string>('');
 const kr = new PublicKeyRing();
 const addNetworkShow = ref(false);
-const settingsShow = ref(false);
 const updateShow = ref(false);
 const isLoading = ref(true);
 const currentVersion = __PACKAGE_VERSION__;
@@ -595,11 +592,11 @@ body {
     position: relative;
 
     &-expand {
-      padding-left: 340px;
+      padding-left: 0px;
     }
 
     &-collapse {
-      padding-left: 56px;
+      padding-left: 0px;
     }
   }
 }

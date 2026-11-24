@@ -1,6 +1,5 @@
 <template>
   <div class="reset-wallet">
-    <settings-inner-header v-bind="$attrs" :is-reset="true" />
     <div class="reset-wallet__wrap">
       <p class="reset-wallet__description">
         Resetting your wallet will clear all information from Enkrypt and take
@@ -41,16 +40,16 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue';
 import AlertIcon from '@action/icons/send/alert-icon.vue';
 import BaseButton from '@action/components/base-button/index.vue';
 import BaseInput from '@action/components/base-input/index.vue';
 import KeyRingBase from '@/libs/keyring/keyring';
 import openOnboard from '@/libs/utils/open-onboard';
+import { sendToBackgroundFromAction } from '@/libs/messenger/extension';
+import { InternalMethods } from '@/types/messenger';
+import { useRouter } from 'vue-router';
 
-const emit = defineEmits<{
-  (e: 'action:lock'): void;
-}>();
+const router = useRouter();
 
 const reset = ref('');
 const isProcessing = ref(false);
@@ -67,7 +66,10 @@ const resetAction = async () => {
   isProcessing.value = true;
   const keyring = new KeyRingBase();
   await keyring.reset();
-  emit('action:lock');
+  sendToBackgroundFromAction({
+    message: JSON.stringify({ method: InternalMethods.lock }),
+  });
+  router.push({ name: 'lock-screen' });
   openOnboard().then(() => {
     window.close();
   });

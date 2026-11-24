@@ -1,6 +1,5 @@
 <template>
   <div class="settings-container">
-    <settings-inner-header v-bind="$attrs" :is-backups="true" />
     <div v-if="!isDelete">
       <div class="settings-container__label">
         <p>
@@ -113,8 +112,7 @@
 import { onMounted, ref } from 'vue';
 import BackupState from '@/libs/backup-state';
 import { ListBackupType } from '@/libs/backup-state/types';
-import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue';
-import SettingsSwitch from '@action/views/settings/components/settings-switch.vue';
+import SettingsSwitch from '@action/components/settings/components/settings-switch.vue';
 import deleteIcon from '@/ui/action/icons/actions/trash.vue';
 import BalanceLoader from '@action/icons/common/balance-loader.vue';
 import BackupIdenticon from './backup-identicon.vue';

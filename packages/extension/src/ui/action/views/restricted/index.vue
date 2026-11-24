@@ -93,7 +93,7 @@
 </template>
 <script setup lang="ts">
 import ModalSign from '@action/views/modal-sign/index.vue';
-import SettingsRecovery from '@action/views/settings/views/settings-recovery/index.vue';
+import SettingsRecovery from '@/ui/action/components/settings/views/settings-recovery/index.vue';
 import appLogo from '@/assets/images/logo.svg';
 import AppBtn from '@common/components/buttons/AppBtn.vue';
 import AppIcon from '@common/components/icon/AppIcon.vue';

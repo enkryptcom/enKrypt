@@ -1,8 +1,6 @@
 <template>
   <div>
-    <settings-header v-bind="$attrs" />
-
-    <div class="settings__block">
+    <div class="pb-3 flex flex-col gap-1">
       <settings-button title="General" @click="$emit('action:general')" />
       <settings-button
         title="Contact support"
@@ -11,7 +9,9 @@
       />
     </div>
 
-    <div class="settings__block">
+    <div class="w-full h-px bg-border-default" />
+
+    <div class="py-3 flex flex-col gap-1">
       <settings-button
         title="Bug bounty program"
         :is-link="true"
@@ -25,7 +25,9 @@
       <settings-button title="About" @click="$emit('action:about')" />
     </div>
 
-    <div class="settings__block">
+    <div class="w-full h-px bg-border-default" />
+
+    <div class="py-3 flex flex-col gap-1">
       <settings-button title="View my recovery phrase" @click="toggleSign" />
       <settings-button
         title="Reset wallet"
@@ -34,7 +36,9 @@
       />
     </div>
 
-    <div class="settings__copyright">
+    <div
+      class="text-text-xs leading-4 tracking-[0.5px] text-text-muted text-center mt-4"
+    >
       <p>Version {{ version }} ({{ buildTime }})</p>
       <p>© {{ new Date().getFullYear() }} by MyEtherWallet Inc.</p>
     </div>
@@ -45,8 +49,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import SettingsHeader from '@action/views/settings/components/settings-header.vue';
-import SettingsButton from '@action/views/settings/components/settings-button.vue';
+import SettingsButton from '@action/components/settings/components/settings-button.vue';
 import ModalSign from '@action/views/modal-sign/index.vue';
 
 const isOpenSign = ref(false);
@@ -87,23 +90,3 @@ const toggleSign = () => {
   isOpenSign.value = !isOpenSign.value;
 };
 </script>
-
-<style lang="less">
-@import '@action/styles/theme.less';
-
-.settings {
-  &__copyright {
-    padding: 0 48px;
-
-    p {
-      font-style: normal;
-      font-weight: 400;
-      font-size: 12px;
-      line-height: 16px;
-      letter-spacing: 0.5px;
-      color: @tertiaryLabel;
-      margin: 0;
-    }
-  }
-}
-</style>

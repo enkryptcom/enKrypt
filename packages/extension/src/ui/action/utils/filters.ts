@@ -5,7 +5,7 @@ import {
   formatFiatValue,
   formatFloatingPointValue,
 } from '@/libs/utils/number-formatter';
-import { useCurrencyStore } from '../views/settings/store';
+import { useCurrencyStore } from '../store/currency-store';
 export const replaceWithEllipsis = (
   value: string,
   keepLeft: number,

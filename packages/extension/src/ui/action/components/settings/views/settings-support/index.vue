@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue';
+import SettingsInnerHeader from '@action/components/settings/components/settings-inner-header.vue';
 </script>
 
 <style lang="less">

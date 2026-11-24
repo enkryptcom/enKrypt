@@ -1,7 +1,5 @@
 <template>
   <div>
-    <settings-inner-header v-bind="$attrs" :is-about="true" />
-
     <settings-button
       title="Visit our website"
       :is-link="true"
@@ -26,8 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue';
-import SettingsButton from '@action/views/settings/components/settings-button.vue';
+import SettingsButton from '@action/components/settings/components/settings-button.vue';
 
 const siteAction = () => {
   window.open('https://www.enkrypt.com/', '_blank', 'noopener');

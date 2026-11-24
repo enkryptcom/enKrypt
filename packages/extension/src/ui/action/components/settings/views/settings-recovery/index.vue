@@ -1,6 +1,7 @@
 <template>
   <div>
     <settings-inner-header
+      v-if="showHeader"
       v-bind="$attrs"
       :is-phrase="true"
       :has-back="hasBack"
@@ -42,13 +43,17 @@
 </template>
 
 <script setup lang="ts">
-import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue';
+import SettingsInnerHeader from '@action/components/settings/components/settings-inner-header.vue';
 import AppBanner from '@common/components/banner/AppBanner.vue';
 import { MnemonicWithExtraWord } from '@enkryptcom/types';
 import { computed, PropType } from 'vue';
 
 const props = defineProps({
   hasBack: {
+    type: Boolean,
+    default: true,
+  },
+  showHeader: {
     type: Boolean,
     default: true,
   },

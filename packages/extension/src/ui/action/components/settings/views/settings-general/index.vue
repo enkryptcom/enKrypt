@@ -1,6 +1,5 @@
 <template>
   <div>
-    <settings-inner-header v-bind="$attrs" :is-general="true" />
     <settings-select
       :select="selectCurrency"
       title="Currency"
@@ -74,15 +73,14 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import SettingsInnerHeader from '@action/views/settings/components/settings-inner-header.vue';
 // import BaseSelect from '@action/components/base-select/index.vue';
-import SettingsSelect from '@action/views/settings/components/settings-select.vue';
-import SettingsButton from '@action/views/settings/components/settings-button.vue';
-import SettingsSwitch from '@action/views/settings/components/settings-switch.vue';
+import SettingsSelect from '@action/components/settings/components/settings-select.vue';
+import SettingsButton from '@action/components/settings/components/settings-button.vue';
+import SettingsSwitch from '@action/components/settings/components/settings-switch.vue';
 import SettingsState from '@/libs/settings-state';
 import { SettingsType } from '@/libs/settings-state/types';
 import { optOutofMetrics } from '@/libs/metrics';
-import { useCurrencyStore } from '../../store';
+import { useCurrencyStore } from '@action/store/currency-store';
 import { storeToRefs } from 'pinia';
 
 const settingsState = new SettingsState();

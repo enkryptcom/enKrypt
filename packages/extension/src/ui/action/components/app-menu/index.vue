@@ -50,9 +50,6 @@
           >
             <hold-icon /> <span>Lock Enkrypt</span>
           </button>
-          <button class="app__menu-dropdown-link" @click="settingsAction">
-            <settings-icon /> <span>Settings</span>
-          </button>
           <div v-if="updatesIsLoaded" class="app__menu-dropdown-divider"></div>
           <button
             v-if="updatesIsLoaded"
@@ -185,7 +182,6 @@ import MoreIcon from '@action/icons/actions/more.vue';
 import HoldIcon from '@action/icons/common/hold-icon.vue';
 import LogoMin from '@action/icons/common/logo-min.vue';
 import ManageNetworksIcon from '@action/icons/common/manage-networks-icon.vue';
-import SettingsIcon from '@action/icons/common/settings-icon.vue';
 import UpdatedIcon from '@/ui/action/icons/updates/updated.vue';
 import HeartIcon from '@/ui/action/icons/updates/heart.vue';
 import draggable from 'vuedraggable';
@@ -233,7 +229,6 @@ const { orderedNetworks, pinnedNetworks, pinnedNetworkNames } =
 const emit = defineEmits<{
   (e: 'update:network', network: BaseNetwork): void;
   (e: 'show:updates-dialog'): void;
-  (e: 'show:settings-dialog'): void;
   (e: 'action:lock-enkrypt'): void;
   (e: 'show:other-networks-dialog'): void;
 }>();
@@ -497,11 +492,6 @@ const isOpenMore = ref(false);
 const timeout = ref<ReturnType<typeof setTimeout> | null>(null);
 const dropdown = ref(null);
 const toggle = ref(null);
-
-const settingsAction = () => {
-  closeMoreMenu();
-  emit('show:settings-dialog');
-};
 
 const otherNetworksAction = () => {
   closeMoreMenu();
