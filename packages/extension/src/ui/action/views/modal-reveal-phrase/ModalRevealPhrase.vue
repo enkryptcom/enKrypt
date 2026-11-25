@@ -9,13 +9,13 @@
           : 'Confirm with password'
     "
     :show-back-button="isForgot"
-    class="max-w-[360px]"
+    class="max-w-[360px] px-2"
     @closed="reset"
     @back="isForgot = false"
   >
     <lock-screen-forgot v-if="isForgot" />
 
-    <div v-else class="px-6 pt-5">
+    <div v-else class="pt-5">
       <AppInput
         v-model="password"
         type="password"

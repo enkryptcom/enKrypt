@@ -63,7 +63,7 @@
       <AppBtn type="link" @click="supportAction">Contact support</AppBtn>
     </div>
 
-    <modal-sign
+    <modal-reveal-phrase
       v-model="isOpenSign"
       :is-unlock="true"
       v-bind="$attrs"
@@ -92,8 +92,8 @@
   </main>
 </template>
 <script setup lang="ts">
-import ModalSign from '@action/views/modal-sign/index.vue';
-import SettingsRecovery from '@/ui/action/components/settings/views/settings-recovery/index.vue';
+import ModalRevealPhrase from '@action/views/modal-reveal-phrase/ModalRevealPhrase.vue';
+import SettingsRecovery from '@/ui/action/modules/settings/views/SettingsViewRecovery.vue';
 import appLogo from '@/assets/images/logo.svg';
 import AppBtn from '@common/components/buttons/AppBtn.vue';
 import AppIcon from '@common/components/icon/AppIcon.vue';

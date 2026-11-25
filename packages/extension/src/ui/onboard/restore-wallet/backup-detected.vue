@@ -86,7 +86,7 @@ import { ListBackupType } from '@/libs/backup-state/types';
 import { useRouter } from 'vue-router';
 import { routes } from '../restore-wallet/routes';
 import { generateRandomNameWithSeed } from '@enkryptcom/utils';
-import backupIdenticon from '@/ui/action/components/settings/views/settings-backups/backup-identicon.vue';
+import backupIdenticon from '@/ui/action/modules/settings/components/backup-identicon.vue';
 
 const selectedBackup = ref<ListBackupType>();
 const backups = ref<ListBackupType[]>([]);

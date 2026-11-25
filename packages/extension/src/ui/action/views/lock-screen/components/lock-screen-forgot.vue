@@ -1,5 +1,5 @@
 <template>
-  <div class="px-6 pb-5">
+  <div class="px-2 pb-5">
     <p class="mb-2 text-text-base text-text-subtle">
       Enkrypt cannot recover your password for you. If you're having trouble
       unlocking your account, you will need to reset your wallet.

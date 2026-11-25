@@ -7,7 +7,7 @@
       :has-back="hasBack"
     />
 
-    <div class="flex flex-col gap-4 px-8">
+    <div class="flex flex-col gap-4">
       <AppBanner
         type="alert"
         description="Please keep your recovery phrase safe. If you give it to somebody, they will have full control of your funds."
@@ -15,7 +15,7 @@
 
       <!-- Column-first so numbering runs down the left column, then the right. -->
       <ol
-        class="grid grid-flow-col grid-cols-2 gap-x-4 gap-y-1 rounded-12 border border-border-subtle bg-background-default px-4 py-2 select-text"
+        class="grid grid-flow-col grid-cols-2 gap-x-4 gap-y-3 rounded-12 border border-border-subtle bg-background-default p-4 select-text"
         :style="{ gridTemplateRows: `repeat(${rows}, auto)` }"
       >
         <li
@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import SettingsInnerHeader from '@action/components/settings/components/settings-inner-header.vue';
+import SettingsInnerHeader from '@action/modules/settings/components/settings-inner-header.vue';
 import AppBanner from '@common/components/banner/AppBanner.vue';
 import { MnemonicWithExtraWord } from '@enkryptcom/types';
 import { computed, PropType } from 'vue';

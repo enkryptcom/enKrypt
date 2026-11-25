@@ -124,7 +124,7 @@ import { AccountsHeaderData } from './types/account';
 import AddNetwork from './views/add-network/index.vue';
 import ModalRate from './views/modal-rate/index.vue';
 import ModalUpdates from './views/updates/index.vue';
-import Restricted from './views/restricted/index.vue';
+import Restricted from './views/restricted/ViewRestricted.vue';
 import { EnkryptProviderEventMethods, ProviderName } from '@/types/provider';
 import RateState from '@/libs/rate-state';
 import SwapLookingAnimation from '@action/icons/swap/swap-looking-animation.vue';

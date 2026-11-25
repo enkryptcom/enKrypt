@@ -20,7 +20,7 @@
 import { ref } from 'vue';
 import appLogo from '@/assets/images/logo.svg';
 import SettingsIcon from '@action/icons/common/settings-icon.vue';
-import SettingsDialog from '@action/components/settings/views/SettingsDialog.vue';
+import SettingsDialog from '@action/modules/settings/SettingsDialog.vue';
 
 const isSettingsOpen = ref(false);
 </script>
