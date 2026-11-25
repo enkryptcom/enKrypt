@@ -9,7 +9,7 @@
  * Sizes come from ICON_SIZES; the wrapper applies ICON_SIZE_CLASS. Color is
  * inherited via currentColor only — there is no color prop.
  */
-import type { Component } from 'vue'
+import type { Component } from 'vue';
 
 // Heroicons — style=stroke (Figma) → 24/outline
 import {
@@ -184,7 +184,7 @@ import {
   WrenchScrewdriverIcon as WrenchScrewdriverOutline,
   LanguageIcon as LanguageOutline,
   RectangleGroupIcon as RectangleGroupOutline,
-} from '@heroicons/vue/24/outline'
+} from '@heroicons/vue/24/outline';
 
 // Heroicons — style=filled (Figma) → 24/solid
 import {
@@ -292,26 +292,26 @@ import {
   ArrowDownTrayIcon as ArrowDownTraySolid,
   ArrowPathRoundedSquareIcon as ArrowPathRoundedSquareSolid,
   ArrowUturnRightIcon as ArrowUturnRightSolid,
-} from '@heroicons/vue/24/solid'
+} from '@heroicons/vue/24/solid';
 
 // The NavLink chevron in Figma is Heroicons `chevron-down-20-solid`, not the
 // 24/solid glyph (smaller, bolder at 20px), so its filled variant comes from 20/solid.
-import { ChevronDownIcon as ChevronDownSolid } from '@heroicons/vue/20/solid'
+import { ChevronDownIcon as ChevronDownSolid } from '@heroicons/vue/20/solid';
 
 // Custom glyphs not in Heroicons — authored SFCs, currentColor, viewBox 24.
-import CopyOutline from './custom/CopyOutline.vue'
-import CopyFilled from './custom/CopyFilled.vue'
-import CopiedOutline from './custom/CopiedOutline.vue'
-import CopiedFilled from './custom/CopiedFilled.vue'
-import BankOutline from './custom/BankOutline.vue'
-import BankFilled from './custom/BankFilled.vue'
-import ChartOutline from './custom/ChartOutline.vue'
-import FaceIdOutline from './custom/FaceIdOutline.vue'
-import RecoveryPhrase from './custom/RecoveryPhrase.vue'
-import KeystoreOutline from './custom/KeystoreOutline.vue'
-import KeystoreFilled from './custom/KeystoreFilled.vue'
-import WatchOnlyOutline from './custom/WatchOnlyOutline.vue'
-import PerpetualsFilled from './custom/PerpetualsFilled.vue'
+import CopyOutline from './custom/CopyOutline.vue';
+import CopyFilled from './custom/CopyFilled.vue';
+import CopiedOutline from './custom/CopiedOutline.vue';
+import CopiedFilled from './custom/CopiedFilled.vue';
+import BankOutline from './custom/BankOutline.vue';
+import BankFilled from './custom/BankFilled.vue';
+import ChartOutline from './custom/ChartOutline.vue';
+import FaceIdOutline from './custom/FaceIdOutline.vue';
+import RecoveryPhrase from './custom/RecoveryPhrase.vue';
+import KeystoreOutline from './custom/KeystoreOutline.vue';
+import KeystoreFilled from './custom/KeystoreFilled.vue';
+import WatchOnlyOutline from './custom/WatchOnlyOutline.vue';
+import PerpetualsFilled from './custom/PerpetualsFilled.vue';
 
 /** Wrapper sizes (px). M/24 is the Figma authoring grid and the default. */
 export const ICON_SIZES = {
@@ -322,9 +322,9 @@ export const ICON_SIZES = {
   l: 32,
   xl: 40,
   xxl: 56,
-} as const
+} as const;
 
-export type IconSize = keyof typeof ICON_SIZES
+export type IconSize = keyof typeof ICON_SIZES;
 
 /** Tailwind size utility per wrapper size — `size-*` sets width + height. */
 export const ICON_SIZE_CLASS: Record<IconSize, string> = {
@@ -335,10 +335,10 @@ export const ICON_SIZE_CLASS: Record<IconSize, string> = {
   l: 'size-8',
   xl: 'size-10',
   xxl: 'size-14',
-}
+};
 
 /** A glyph provides one or both variants; AppIcon falls back to the other. */
-export type IconEntry = { stroke?: Component; filled?: Component }
+export type IconEntry = { stroke?: Component; filled?: Component };
 
 export const icons = {
   bookmark: { stroke: BookmarkOutline, filled: BookmarkSolid },
@@ -627,8 +627,8 @@ export const icons = {
     stroke: RectangleGroupOutline,
     filled: RectangleGroupSolid,
   },
-} as const satisfies Record<string, IconEntry>
+} as const satisfies Record<string, IconEntry>;
 
-export type IconName = keyof typeof icons
+export type IconName = keyof typeof icons;
 
-export const ICON_NAMES = Object.keys(icons) as IconName[]
+export const ICON_NAMES = Object.keys(icons) as IconName[];

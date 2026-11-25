@@ -37,7 +37,7 @@ import { PropType } from 'vue';
 import CloseIcon from '@action/icons/common/close-icon.vue';
 import { EnkryptAccount } from '@enkryptcom/types';
 import { AccountsHeaderData } from '../../types/account';
-import AccountsListItem from '@action/views/accounts/components/accounts-list-item.vue';
+import AccountsListItem from '@action/modules/accounts/components/accounts-list-item.vue';
 import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import scrollSettings from '@/libs/utils/scroll-settings';
 import { BaseNetwork } from '@/types/base-network';

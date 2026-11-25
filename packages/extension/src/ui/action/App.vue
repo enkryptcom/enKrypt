@@ -36,7 +36,6 @@
         ]"
       >
         <div class="bg-background-alternative p-2">
-          <the-app-header />
           <the-accounts-header
             v-show="showNetworkMenu"
             :account-info="accountHeaderData"
@@ -118,7 +117,6 @@ import { useRoute, useRouter } from 'vue-router';
 import Browser from 'webextension-polyfill';
 import TheAccountsHeader from './components/accounts-header/TheAccountsHeader.vue';
 import AppMenu from './components/app-menu/index.vue';
-import TheAppHeader from './components/the-app-header/TheAppHeader.vue';
 import NetworkMenu from './components/network-menu/index.vue';
 import { AccountsHeaderData } from './types/account';
 import AddNetwork from './views/add-network/index.vue';

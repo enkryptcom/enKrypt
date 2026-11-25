@@ -1,15 +1,14 @@
 <template>
-  <div class="accounts" :class="{ show: showAccounts }">
-    <div class="accounts__overlay" @click="close()" />
-    <div class="accounts__wrap" :class="{ show: showAccounts }">
-      <BaseInputDebounced
+  <AppModal v-model="isOpen" title="Accounts" class="w-full h-full">
+    <div class="flex flex-col gap-2">
+      <AppSearchbar
+        v-model="searchInput"
+        variant="default"
         placeholder="Search Accounts"
-        @update:value-debounced="updateSearchInput"
+        :debounce="300"
       />
-      <custom-scrollbar
-        class="accounts__scroll-area"
-        :settings="scrollSettings({ suppressScrollX: true })"
-      >
+
+      <div class="overscroll-y-aut">
         <accounts-list-item
           v-for="(account, index) in displayActive"
           :key="index"
@@ -27,9 +26,12 @@
           @action:delete="deleteAccount(index)"
         />
 
-        <div v-if="displayInactive.length > 0" class="accounts__info">
+        <p
+          v-if="displayInactive.length > 0"
+          class="pt-6 pr-3 pl-[60px] text-text-xs leading-4 tracking-[0.5px] text-text-subtle"
+        >
           Incompatible accounts
-        </div>
+        </p>
 
         <accounts-list-item
           v-for="(account, index) in displayInactive"
@@ -40,48 +42,56 @@
           :active="false"
           :identicon-element="network.identicon"
         />
-        <div
+        <p
           v-if="displayInactive.length === 0 && displayActive.length === 0"
-          class="accounts__info"
+          class="pt-6 pr-3 pl-[60px] text-text-xs leading-4 tracking-[0.5px] text-text-subtle"
         >
           Accounts not found
-        </div>
-      </custom-scrollbar>
+        </p>
+      </div>
+    </div>
 
-      <div class="accounts__action">
-        <a class="accounts__action-button" @click="addAccountAction()">
+    <template #footer>
+      <div class="flex flex-col">
+        <button
+          type="button"
+          :class="ACTION_BUTTON_CLASS"
+          @click="addAccountAction()"
+        >
           <add-account />
           Add account
-        </a>
+        </button>
 
         <div
           v-if="
             hwWallet.isNetworkSupported(network.name) ||
             network.signer[0] === SignerType.secp256k1
           "
-          class="accounts__action-divider"
+          class="my-2 h-px w-full bg-border-default"
         />
 
-        <a
+        <button
           v-if="hwWallet.isNetworkSupported(network.name)"
-          class="accounts__action-button hardware"
+          type="button"
+          :class="ACTION_BUTTON_CLASS"
           @click="openHardware(network.name)"
         >
           <add-hardware-account />
           Add hardware wallet account
-        </a>
+        </button>
 
-        <a
+        <button
           v-if="network.provider !== ProviderName.kadena"
-          class="accounts__action-button import"
+          type="button"
+          :class="ACTION_BUTTON_CLASS"
           @click="importAction"
         >
           <import-account-icon />
           Import account from another wallet
-        </a>
+        </button>
       </div>
-    </div>
-  </div>
+    </template>
+  </AppModal>
 
   <add-account-form v-model="isAddAccount" v-bind="$attrs" :network="network" />
 
@@ -109,7 +119,6 @@
 
 <script setup lang="ts">
 import AccountsListItem from './components/accounts-list-item.vue';
-import CustomScrollbar from '@action/components/custom-scrollbar/index.vue';
 import AddAccount from '@action/icons/common/add-account.vue';
 import AddAccountForm from './components/add-account-form.vue';
 import RenameAccountForm from './components/rename-account-form.vue';
@@ -117,17 +126,20 @@ import DeleteAccountForm from './components/delete-account-form.vue';
 import AddHardwareAccount from '@action/icons/actions/add-hardware-account.vue';
 import ImportAccountIcon from '@action/icons/actions/import-account-icon.vue';
 import ImportAccount from '@action/views/import-account/index.vue';
-import BaseInputDebounced from '@action/components/base-input-debounced/index.vue';
+import AppSearchbar from '@common/components/input/AppSearchbar.vue';
+import AppModal from '@common/components/modal/AppModal.vue';
 import { AccountsHeaderData } from '../../types/account';
 import { PropType, ref, computed } from 'vue';
 import openHardware from '@/libs/utils/open-hardware';
-import scrollSettings from '@/libs/utils/scroll-settings';
 import { EnkryptAccount } from '@enkryptcom/types';
 import HWwallets from '@enkryptcom/hw-wallets';
 import { SignerType } from '@enkryptcom/types';
 import { BaseNetwork } from '@/types/base-network';
 import { WalletType } from '@enkryptcom/types';
 import { ProviderName } from '@/types/provider';
+
+const ACTION_BUTTON_CLASS =
+  'flex h-10 w-full cursor-pointer items-center gap-2 rounded-12 py-2.5 pr-4 pl-2 text-left text-text-sm tracking-[0.25px] text-text-default transition-colors duration-300 hover:bg-background-default-hover';
 
 const emit = defineEmits<{
   (e: 'addressChanged', account: EnkryptAccount): void;
@@ -155,9 +167,14 @@ const props = defineProps({
 const accountToRename = ref<EnkryptAccount>();
 const accountToDelete = ref<EnkryptAccount>();
 
-const close = () => {
-  props.toggle();
-};
+// The header owns the open state (`showAccounts` + `toggle`); bridge it to
+// AppModal's v-model so Esc, backdrop and the close button all go through it.
+const isOpen = computed({
+  get: () => props.showAccounts,
+  set: open => {
+    if (open !== props.showAccounts) props.toggle();
+  },
+});
 const selectAccount = (address: string) => {
   for (const acc of props.accountInfo.activeAccounts) {
     if (props.network.displayAddress(acc.address) === address) {
@@ -207,10 +224,6 @@ const importAction = () => {
   ========================
 */
 const searchInput = ref('');
-
-const updateSearchInput = (value: string) => {
-  searchInput.value = value;
-};
 
 function filterAndSortAccounts(accounts: EnkryptAccount[]) {
   // Filter accounts where the name or address contains inputText
@@ -273,147 +286,3 @@ const displayInactive = computed(() => {
   return filterAndSortAccounts(props.accountInfo.inactiveAccounts);
 });
 </script>
-
-<style lang="less">
-@import '@action/styles/theme.less';
-@import '@action/styles/custom-scroll.less';
-
-.accounts {
-  width: 800px;
-  height: 600px;
-  position: absolute;
-  left: -340px;
-  top: 0;
-  z-index: 105;
-  display: none;
-
-  &.show {
-    display: block;
-  }
-
-  &__overlay {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: 106;
-  }
-
-  &__wrap {
-    position: absolute;
-    width: 344px;
-    height: auto;
-    max-height: 530px;
-    left: 348px;
-    top: 50px;
-    background: #ffffff;
-    box-shadow:
-      0px 3px 6px rgba(0, 0, 0, 0.039),
-      0px 7px 24px rgba(0, 0, 0, 0.19);
-    border-radius: 12px;
-    z-index: 107;
-    overflow: hidden;
-    padding-top: 56px;
-    box-sizing: border-box;
-    opacity: 0;
-    visibility: hidden;
-    transition:
-      opacity 0.3s,
-      visibility 0s ease-in-out 0.3s;
-    padding-bottom: 153px;
-
-    &.show {
-      opacity: 1;
-      visibility: visible;
-      transition-delay: 0s;
-    }
-  }
-
-  &__scroll-area {
-    position: relative;
-    margin: auto;
-    width: 100%;
-    height: 420px;
-    padding-bottom: 100px !important;
-    padding-right: 8px !important;
-  }
-
-  &__info {
-    padding: 24px 12px 0 60px;
-    font-style: normal;
-    font-weight: 400;
-    font-size: 12px;
-    line-height: 16px;
-    letter-spacing: 0.5px;
-    color: @secondaryLabel;
-
-    a {
-      color: @primaryLabel;
-
-      &:hover {
-        text-decoration: none;
-      }
-    }
-  }
-
-  &__action {
-    height: fit-content;
-    max-height: 153px;
-    left: 0px;
-    bottom: 0px;
-    width: 100%;
-    background: @white;
-    box-shadow:
-      0px 0px 6px rgba(0, 0, 0, 0.05),
-      0px 0px 1px rgba(0, 0, 0, 0.25);
-    position: absolute;
-    padding: 8px;
-    box-sizing: border-box;
-
-    &-button {
-      display: flex;
-      box-sizing: border-box;
-      justify-content: flex-start;
-      align-items: center;
-      flex-direction: row;
-      height: 40px;
-      padding: 10px 16px 10px 8px;
-      font-style: normal;
-      font-weight: normal;
-      font-size: 14px;
-      line-height: 20px;
-      letter-spacing: 0.25px;
-      color: @primaryLabel;
-      text-decoration: none;
-      cursor: pointer;
-      width: 144px;
-      transition: background 300ms ease-in-out;
-      border-radius: 10px;
-
-      &.hardware {
-        width: 100%;
-      }
-
-      &.import {
-        width: 100%;
-      }
-
-      &.active,
-      &:hover {
-        background: @black007;
-      }
-      svg {
-        margin-right: 8px;
-      }
-    }
-
-    &-divider {
-      height: 1px;
-      width: 312px;
-      margin: 8px;
-      background: @gray02;
-    }
-  }
-}
-</style>
